@@ -2,23 +2,27 @@ import feedparser
 import asyncio
 from datetime import datetime, timezone
 
-# 金融ニュースRSSフィード一覧
+# 金融ニュースRSSフィード一覧（日本語）
 RSS_FEEDS = [
     {
-        "name": "Reuters Business",
-        "url": "https://feeds.reuters.com/reuters/businessNews",
-    },
-    {
-        "name": "Yahoo Finance",
-        "url": "https://finance.yahoo.com/news/rssindex",
+        "name": "Bloomberg Japan",
+        "url": "https://feeds.bloomberg.com/japan/news.rss",
     },
     {
         "name": "日本経済新聞",
         "url": "https://www.nikkei.com/rss/list/all_article.rdf",
     },
     {
-        "name": "Bloomberg Markets",
-        "url": "https://feeds.bloomberg.com/markets/news.rss",
+        "name": "ロイター 日本語",
+        "url": "https://jp.reuters.com/rssFeed/businessNews",
+    },
+    {
+        "name": "NHK 経済",
+        "url": "https://www.nhk.or.jp/rss/news/cat5.xml",
+    },
+    {
+        "name": "Yahoo!ファイナンス",
+        "url": "https://news.yahoo.co.jp/rss/topics/business.xml",
     },
 ]
 
