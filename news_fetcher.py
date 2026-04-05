@@ -2,27 +2,31 @@ import feedparser
 import asyncio
 from datetime import datetime, timezone
 
-# 金融ニュースRSSフィード一覧（日本語）
+# FP（ファイナンシャルプランナー）向けニュースRSSフィード
 RSS_FEEDS = [
     {
-        "name": "Bloomberg Japan",
-        "url": "https://feeds.bloomberg.com/japan/news.rss",
-    },
-    {
-        "name": "日本経済新聞",
+        "name": "📰 日本経済新聞",
         "url": "https://www.nikkei.com/rss/list/all_article.rdf",
     },
     {
-        "name": "ロイター 日本語",
-        "url": "https://jp.reuters.com/rssFeed/businessNews",
-    },
-    {
-        "name": "NHK 経済",
+        "name": "🏦 NHK 経済・社会保障",
         "url": "https://www.nhk.or.jp/rss/news/cat5.xml",
     },
     {
-        "name": "Yahoo!ファイナンス",
+        "name": "📊 Yahoo!マネー",
         "url": "https://news.yahoo.co.jp/rss/topics/business.xml",
+    },
+    {
+        "name": "🏛️ 東洋経済オンライン",
+        "url": "https://toyokeizai.net/list/feed/rss",
+    },
+    {
+        "name": "💰 ダイヤモンド・オンライン",
+        "url": "https://diamond.jp/feed/rss",
+    },
+    {
+        "name": "📋 マネーの達人",
+        "url": "https://manetatsu.com/feed/",
     },
 ]
 
