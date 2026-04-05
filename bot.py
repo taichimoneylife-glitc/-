@@ -46,16 +46,17 @@ class FinanceBot(discord.Client):
         asyncio.create_task(self.scheduler())
 
     async def on_ready(self):
-        wait_sec, next_time = seconds_until_next_delivery()
-        next_dt = datetime.now(JST) + timedelta(seconds=wait_sec)
         print(f"[Bot] ログイン完了: {self.user} (ID: {self.user.id})")
-        print(f"[Bot] 次の配信: {next_dt.strftime('%Y/%m/%d %H:%M JST')}")
+        print(f"[Bot] 毎日の配信スケジュール:")
+        for hour, minute in DELIVER_TIMES:
+            print(f"[Bot]   → {hour:02d}:{minute:02d} JST（10件）")
 
     async def scheduler(self):
         await self.wait_until_ready()
         while not self.is_closed():
-            wait_sec, _ = seconds_until_next_delivery()
-            print(f"[Bot] {wait_sec/3600:.1f}時間後に配信します")
+            wait_sec, next_time = seconds_until_next_delivery()
+            next_dt = datetime.now(JST) + timedelta(seconds=wait_sec)
+            print(f"[Bot] 次の配信: {next_dt.strftime('%H:%M JST')} （{wait_sec/3600:.1f}時間後）")
             await asyncio.sleep(wait_sec)
             channel = self.get_channel(NEWS_CHANNEL_ID)
             if channel is None:
