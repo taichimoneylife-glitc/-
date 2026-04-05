@@ -28,6 +28,10 @@ RSS_FEEDS = [
         "name": "📋 マネーの達人",
         "url": "https://manetatsu.com/feed/",
     },
+    {
+        "name": "🌐 Bloomberg Japan",
+        "url": "https://feeds.bloomberg.com/japan/news.rss",
+    },
 ]
 
 # 既に送信済みの記事URLを保持するセット（重複防止）
