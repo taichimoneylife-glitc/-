@@ -3,7 +3,6 @@ import asyncio
 from datetime import datetime, timezone, timedelta
 import discord
 from discord import app_commands
-from discord.ext import tasks
 from dotenv import load_dotenv
 from news_fetcher import fetch_news
 
@@ -13,19 +12,27 @@ DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 NEWS_CHANNEL_ID = int(os.environ["NEWS_CHANNEL_ID"])
 NEWS_COUNT = int(os.getenv("NEWS_COUNT", "10"))
 
-# 毎日配信する時刻（日本時間 AM4:50）
-DELIVER_HOUR_JST = 4
-DELIVER_MINUTE_JST = 50
 JST = timezone(timedelta(hours=9))
 
+# 1日2回の配信時刻（日本時間）
+DELIVER_TIMES = [
+    (4, 45),   # AM 4:45
+    (11, 55),  # AM 11:55
+]
 
-def seconds_until_next_delivery() -> float:
-    """次のAM4:50 JSTまでの秒数を返す。"""
+
+def seconds_until_next_delivery() -> tuple[float, tuple[int, int]]:
+    """次の配信までの秒数と配信時刻を返す。"""
     now = datetime.now(JST)
-    target = now.replace(hour=DELIVER_HOUR_JST, minute=DELIVER_MINUTE_JST, second=0, microsecond=0)
-    if now >= target:
-        target += timedelta(days=1)
-    return (target - now).total_seconds()
+    candidates = []
+    for hour, minute in DELIVER_TIMES:
+        target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        if now >= target:
+            target += timedelta(days=1)
+        candidates.append((target, (hour, minute)))
+    candidates.sort(key=lambda x: x[0])
+    next_target, next_time = candidates[0]
+    return (next_target - now).total_seconds(), next_time
 
 
 class FinanceBot(discord.Client):
@@ -36,36 +43,32 @@ class FinanceBot(discord.Client):
 
     async def setup_hook(self):
         await self.tree.sync()
-        self.news_task.start()
+        asyncio.create_task(self.scheduler())
 
     async def on_ready(self):
-        now = datetime.now(JST)
-        wait_sec = seconds_until_next_delivery()
-        next_time = now + timedelta(seconds=wait_sec)
+        wait_sec, next_time = seconds_until_next_delivery()
+        next_dt = datetime.now(JST) + timedelta(seconds=wait_sec)
         print(f"[Bot] ログイン完了: {self.user} (ID: {self.user.id})")
-        print(f"[Bot] 次の配信: {next_time.strftime('%Y/%m/%d %H:%M JST')}")
+        print(f"[Bot] 次の配信: {next_dt.strftime('%Y/%m/%d %H:%M JST')}")
 
-    @tasks.loop(hours=24)
-    async def news_task(self):
-        channel = self.get_channel(NEWS_CHANNEL_ID)
-        if channel is None:
-            print(f"[Bot] チャンネル {NEWS_CHANNEL_ID} が見つかりません")
-            return
-        await post_news(channel, NEWS_COUNT)
-
-    @news_task.before_loop
-    async def before_news_task(self):
+    async def scheduler(self):
         await self.wait_until_ready()
-        wait_sec = seconds_until_next_delivery()
-        print(f"[Bot] {wait_sec/3600:.1f}時間後にニュース配信を開始します")
-        await asyncio.sleep(wait_sec)
+        while not self.is_closed():
+            wait_sec, _ = seconds_until_next_delivery()
+            print(f"[Bot] {wait_sec/3600:.1f}時間後に配信します")
+            await asyncio.sleep(wait_sec)
+            channel = self.get_channel(NEWS_CHANNEL_ID)
+            if channel is None:
+                print(f"[Bot] チャンネル {NEWS_CHANNEL_ID} が見つかりません")
+            else:
+                await post_news(channel, NEWS_COUNT)
+            await asyncio.sleep(60)  # 同じ時刻に二重起動しないよう1分待機
 
 
 client = FinanceBot()
 
 
 def build_embed(article: dict) -> discord.Embed:
-    """記事1件をDiscord Embedに変換する。"""
     embed = discord.Embed(
         title=article["title"],
         url=article["url"],
@@ -77,7 +80,6 @@ def build_embed(article: dict) -> discord.Embed:
 
 
 async def post_news(channel: discord.abc.Messageable, count: int):
-    """チャンネルにニュースを投稿する。"""
     loop = asyncio.get_event_loop()
     articles = await loop.run_in_executor(None, fetch_news, count)
 
