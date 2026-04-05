@@ -1,5 +1,6 @@
 import os
 import asyncio
+from datetime import datetime, timezone, timedelta
 import discord
 from discord import app_commands
 from discord.ext import tasks
@@ -10,8 +11,21 @@ load_dotenv()
 
 DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 NEWS_CHANNEL_ID = int(os.environ["NEWS_CHANNEL_ID"])
-NEWS_INTERVAL_MINUTES = int(os.getenv("NEWS_INTERVAL_MINUTES", "60"))
-NEWS_COUNT = int(os.getenv("NEWS_COUNT", "5"))
+NEWS_COUNT = int(os.getenv("NEWS_COUNT", "10"))
+
+# 毎日配信する時刻（日本時間 AM4:50）
+DELIVER_HOUR_JST = 4
+DELIVER_MINUTE_JST = 50
+JST = timezone(timedelta(hours=9))
+
+
+def seconds_until_next_delivery() -> float:
+    """次のAM4:50 JSTまでの秒数を返す。"""
+    now = datetime.now(JST)
+    target = now.replace(hour=DELIVER_HOUR_JST, minute=DELIVER_MINUTE_JST, second=0, microsecond=0)
+    if now >= target:
+        target += timedelta(days=1)
+    return (target - now).total_seconds()
 
 
 class FinanceBot(discord.Client):
@@ -25,10 +39,13 @@ class FinanceBot(discord.Client):
         self.news_task.start()
 
     async def on_ready(self):
+        now = datetime.now(JST)
+        wait_sec = seconds_until_next_delivery()
+        next_time = now + timedelta(seconds=wait_sec)
         print(f"[Bot] ログイン完了: {self.user} (ID: {self.user.id})")
-        print(f"[Bot] ニュース配信間隔: {NEWS_INTERVAL_MINUTES}分")
+        print(f"[Bot] 次の配信: {next_time.strftime('%Y/%m/%d %H:%M JST')}")
 
-    @tasks.loop(minutes=NEWS_INTERVAL_MINUTES)
+    @tasks.loop(hours=24)
     async def news_task(self):
         channel = self.get_channel(NEWS_CHANNEL_ID)
         if channel is None:
@@ -39,6 +56,9 @@ class FinanceBot(discord.Client):
     @news_task.before_loop
     async def before_news_task(self):
         await self.wait_until_ready()
+        wait_sec = seconds_until_next_delivery()
+        print(f"[Bot] {wait_sec/3600:.1f}時間後にニュース配信を開始します")
+        await asyncio.sleep(wait_sec)
 
 
 client = FinanceBot()
@@ -65,14 +85,15 @@ async def post_news(channel: discord.abc.Messageable, count: int):
         await channel.send("現在取得できる新着ニュースはありません。")
         return
 
-    await channel.send(f"📰 **最新の金融ニュース ({len(articles)}件)**")
+    now_jst = datetime.now(JST).strftime("%Y/%m/%d %H:%M")
+    await channel.send(f"📰 **FPニュース配信 {now_jst} JST（{len(articles)}件）**")
     for article in articles:
         await channel.send(embed=build_embed(article))
 
 
-@client.tree.command(name="news", description="最新の金融ニュースを取得します")
-@app_commands.describe(count="取得件数（1〜10、デフォルト5）")
-async def news_command(interaction: discord.Interaction, count: int = 5):
+@client.tree.command(name="news", description="最新のFP・金融ニュースを取得します")
+@app_commands.describe(count="取得件数（1〜10、デフォルト10）")
+async def news_command(interaction: discord.Interaction, count: int = 10):
     count = max(1, min(count, 10))
     await interaction.response.defer()
     await post_news(interaction.channel, count)

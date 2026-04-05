@@ -1,5 +1,4 @@
 import feedparser
-import asyncio
 from datetime import datetime, timezone
 
 # FP（ファイナンシャルプランナー）向けニュースRSSフィード
@@ -7,6 +6,10 @@ RSS_FEEDS = [
     {
         "name": "📰 日本経済新聞",
         "url": "https://www.nikkei.com/rss/list/all_article.rdf",
+    },
+    {
+        "name": "🌐 Bloomberg Japan",
+        "url": "https://feeds.bloomberg.com/japan/news.rss",
     },
     {
         "name": "🏦 NHK 経済・社会保障",
@@ -29,8 +32,16 @@ RSS_FEEDS = [
         "url": "https://manetatsu.com/feed/",
     },
     {
-        "name": "🌐 Bloomberg Japan",
-        "url": "https://feeds.bloomberg.com/japan/news.rss",
+        "name": "📈 ZUU online",
+        "url": "https://zuuonline.com/feed",
+    },
+    {
+        "name": "🔍 ロイター 日本語",
+        "url": "https://jp.reuters.com/rssFeed/businessNews",
+    },
+    {
+        "name": "🏠 みんかぶ",
+        "url": "https://minkabu.jp/news/rss",
     },
 ]
 
@@ -45,7 +56,7 @@ def fetch_news(count: int = 5) -> list[dict]:
     for feed_info in RSS_FEEDS:
         try:
             feed = feedparser.parse(feed_info["url"])
-            for entry in feed.entries[:count]:
+            for entry in feed.entries[:3]:
                 url = entry.get("link", "")
                 if url in _sent_urls:
                     continue
@@ -53,7 +64,7 @@ def fetch_news(count: int = 5) -> list[dict]:
                 published = entry.get("published_parsed") or entry.get("updated_parsed")
                 if published:
                     pub_dt = datetime(*published[:6], tzinfo=timezone.utc)
-                    pub_str = pub_dt.strftime("%Y/%m/%d %H:%M UTC")
+                    pub_str = pub_dt.strftime("%Y/%m/%d %H:%M JST")
                 else:
                     pub_str = "日時不明"
 
