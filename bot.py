@@ -5,6 +5,7 @@ import discord
 from discord import app_commands
 from dotenv import load_dotenv
 from news_fetcher import fetch_news
+import amex_gold_tracker as amex
 
 load_dotenv()
 
@@ -101,6 +102,154 @@ async def news_command(interaction: discord.Interaction, count: int = 10):
     await interaction.response.defer()
     await post_news(interaction.channel, count)
     await interaction.followup.send("ニュースを取得しました！", ephemeral=True)
+
+
+@client.tree.command(name="amex-goal-set", description="アメックスゴールドの決済目標を設定します")
+@app_commands.describe(
+    goal="目標決済額（円）。デフォルトは入会キャンペーンの50万円",
+    days="達成期限（日数）。デフォルト90日（約3ヶ月）",
+)
+async def amex_goal_set(
+    interaction: discord.Interaction,
+    goal: int = amex.DEFAULT_GOAL_YEN,
+    days: int = amex.DEFAULT_DAYS,
+):
+    if goal <= 0 or days <= 0:
+        await interaction.response.send_message("目標額・日数は正の整数で入力してください。", ephemeral=True)
+        return
+
+    entry = amex.set_goal(interaction.guild_id, interaction.user.id, goal, days)
+    deadline_dt = datetime.fromisoformat(entry["deadline"])
+
+    embed = discord.Embed(
+        title="🥇 アメックスゴールド 決済目標を設定しました",
+        color=discord.Color.gold(),
+    )
+    embed.add_field(name="目標額", value=f"**{goal:,}円**", inline=True)
+    embed.add_field(name="期限", value=f"**{deadline_dt.strftime('%Y/%m/%d')}**（{days}日後）", inline=True)
+    embed.add_field(
+        name="1日あたりの目標",
+        value=f"**{goal // days:,}円**",
+        inline=True,
+    )
+    embed.set_footer(text="/amex-goal-update で支払い額を随時追加できます")
+    await interaction.response.send_message(embed=embed)
+
+
+@client.tree.command(name="amex-goal-update", description="アメックスゴールドの支払い額を追加します")
+@app_commands.describe(
+    amount="今回の支払い額（円）",
+    memo="メモ（店名・用途など、省略可）",
+)
+async def amex_goal_update(
+    interaction: discord.Interaction,
+    amount: int,
+    memo: str = "",
+):
+    if amount <= 0:
+        await interaction.response.send_message("支払い額は正の整数で入力してください。", ephemeral=True)
+        return
+
+    entry = amex.add_payment(interaction.guild_id, interaction.user.id, amount, memo)
+    if entry is None:
+        await interaction.response.send_message(
+            "目標が設定されていません。まず `/amex-goal-set` で目標を設定してください。",
+            ephemeral=True,
+        )
+        return
+
+    status = amex.get_status(interaction.guild_id, interaction.user.id)
+    bar = _progress_bar(status["pct"])
+
+    embed = discord.Embed(
+        title="💳 支払いを記録しました",
+        color=discord.Color.green() if status["achieved"] else discord.Color.gold(),
+    )
+    embed.add_field(name="今回の支払い", value=f"**{amount:,}円**" + (f"（{memo}）" if memo else ""), inline=False)
+    embed.add_field(name="累計支払い額", value=f"**{status['spent_yen']:,}円** / {status['goal_yen']:,}円", inline=False)
+    embed.add_field(name="進捗", value=f"{bar}  **{status['pct']:.1f}%**", inline=False)
+
+    if status["achieved"]:
+        embed.add_field(name="🎉 達成！", value="決済目標を達成しました！", inline=False)
+    else:
+        embed.add_field(
+            name="残り",
+            value=f"**{status['remaining_yen']:,}円**（残り{status['days_left']}日）",
+            inline=True,
+        )
+        embed.add_field(
+            name="1日あたり必要額",
+            value=f"**{status['daily_needed']:,.0f}円**",
+            inline=True,
+        )
+    await interaction.response.send_message(embed=embed)
+
+
+@client.tree.command(name="amex-goal-status", description="アメックスゴールドの決済目標の進捗を確認します")
+async def amex_goal_status(interaction: discord.Interaction):
+    status = amex.get_status(interaction.guild_id, interaction.user.id)
+    if status is None:
+        await interaction.response.send_message(
+            "目標が設定されていません。まず `/amex-goal-set` で目標を設定してください。",
+            ephemeral=True,
+        )
+        return
+
+    bar = _progress_bar(status["pct"])
+    color = discord.Color.green() if status["achieved"] else discord.Color.gold()
+
+    embed = discord.Embed(
+        title="🥇 アメックスゴールド 決済目標 進捗レポート",
+        color=color,
+    )
+    embed.add_field(name="目標額", value=f"{status['goal_yen']:,}円", inline=True)
+    embed.add_field(name="累計支払い額", value=f"**{status['spent_yen']:,}円**", inline=True)
+    embed.add_field(name="残り", value=f"{status['remaining_yen']:,}円", inline=True)
+    embed.add_field(name="進捗", value=f"{bar}  **{status['pct']:.1f}%**", inline=False)
+    embed.add_field(
+        name="期限",
+        value=f"{status['deadline'].strftime('%Y/%m/%d')}（残り{status['days_left']}日）",
+        inline=True,
+    )
+
+    if status["achieved"]:
+        embed.add_field(name="🎉 ステータス", value="**達成済み！**", inline=True)
+    else:
+        embed.add_field(name="1日あたり必要額", value=f"**{status['daily_needed']:,.0f}円**", inline=True)
+        embed.add_field(name="1週間あたり必要額", value=f"**{status['weekly_needed']:,.0f}円**", inline=True)
+
+        if status["days_left"] > 0 and status["remaining_yen"] > 0:
+            hints = amex.suggest_spending(status["remaining_yen"], status["days_left"])
+            embed.add_field(
+                name="💡 残り額を消化するヒント",
+                value="\n".join(hints[:5]),
+                inline=False,
+            )
+
+    recent = status["payments"][-5:][::-1]
+    if recent:
+        lines = [
+            f"• {datetime.fromisoformat(p['date']).strftime('%m/%d')} **{p['amount']:,}円**"
+            + (f" {p['memo']}" if p["memo"] else "")
+            for p in recent
+        ]
+        embed.add_field(name="直近の支払い履歴", value="\n".join(lines), inline=False)
+
+    await interaction.response.send_message(embed=embed)
+
+
+@client.tree.command(name="amex-goal-reset", description="アメックスゴールドの決済目標と履歴をリセットします")
+async def amex_goal_reset(interaction: discord.Interaction):
+    removed = amex.reset_goal(interaction.guild_id, interaction.user.id)
+    if removed:
+        await interaction.response.send_message("決済目標と支払い履歴をリセットしました。", ephemeral=True)
+    else:
+        await interaction.response.send_message("設定されている目標がありません。", ephemeral=True)
+
+
+def _progress_bar(pct: float, length: int = 10) -> str:
+    filled = int(pct / 100 * length)
+    return "█" * filled + "░" * (length - filled)
 
 
 if __name__ == "__main__":
