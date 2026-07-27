@@ -1,16 +1,20 @@
 import os
 import asyncio
+import tempfile
 from datetime import datetime, timezone, timedelta
 import discord
 from discord import app_commands
 from dotenv import load_dotenv
 from news_fetcher import fetch_news
+from video_maker import make_news_video
 
 load_dotenv()
 
 DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 NEWS_CHANNEL_ID = int(os.environ["NEWS_CHANNEL_ID"])
 NEWS_COUNT = int(os.getenv("NEWS_COUNT", "10"))
+# ダイジェスト動画の自動添付（true/false）
+VIDEO_ENABLED = os.getenv("VIDEO_ENABLED", "true").lower() == "true"
 
 JST = timezone(timedelta(hours=9))
 
@@ -80,6 +84,21 @@ def build_embed(article: dict) -> discord.Embed:
     return embed
 
 
+async def _build_video(articles: list[dict]) -> str | None:
+    """記事からダイジェスト動画を生成する（失敗時はNone）。"""
+    loop = asyncio.get_event_loop()
+    tmp = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
+    tmp.close()
+    try:
+        await loop.run_in_executor(None, make_news_video, articles, tmp.name)
+        return tmp.name
+    except Exception as e:
+        print(f"[Bot] 動画生成に失敗しました（テキストのみ配信）: {e}")
+        if os.path.exists(tmp.name):
+            os.remove(tmp.name)
+        return None
+
+
 async def post_news(channel: discord.abc.Messageable, count: int):
     loop = asyncio.get_event_loop()
     articles = await loop.run_in_executor(None, fetch_news, count)
@@ -89,7 +108,18 @@ async def post_news(channel: discord.abc.Messageable, count: int):
         return
 
     now_jst = datetime.now(JST).strftime("%Y/%m/%d %H:%M")
-    await channel.send(f"📰 **FPニュース配信 {now_jst} JST（{len(articles)}件）**")
+    header = f"📰 **FPニュース配信 {now_jst} JST（{len(articles)}件）**"
+
+    # ダイジェスト動画を生成して、ヘッダーと一緒に添付する
+    video_path = await _build_video(articles) if VIDEO_ENABLED else None
+    if video_path:
+        try:
+            await channel.send(header, file=discord.File(video_path, filename="digest.mp4"))
+        finally:
+            os.remove(video_path)
+    else:
+        await channel.send(header)
+
     for article in articles:
         await channel.send(embed=build_embed(article))
 
