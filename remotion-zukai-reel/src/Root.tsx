@@ -1,6 +1,7 @@
 import { Composition } from "remotion";
 import { MoneyReel } from "./MoneyReel";
 import { NisaReel } from "./NisaReel";
+import { NisaMindMap } from "./scenes/NisaMindMap";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -57,6 +58,16 @@ export const RemotionRoot: React.FC = () => {
         id="NisaReel"
         component={NisaReel}
         durationInFrames={TOTAL_FRAMES}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+
+      {/* ── 動線アニメの実例：マインドマップを線でつなぎながら順番に出す ── */}
+      <Composition
+        id="NisaMindMap"
+        component={NisaMindMap}
+        durationInFrames={210}
         fps={FPS}
         width={1080}
         height={1920}
