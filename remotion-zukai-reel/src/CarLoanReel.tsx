@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { slide } from "@remotion/transitions/slide";
-import { Background, Bubble } from "./components/Layout";
+import { Background, Bubble, AccentWord } from "./components/Layout";
 import { FadeUp, Pop } from "./components/Anim";
 import { TrapScene } from "./scenes/TrapScene";
 import { FONT } from "./components/font";
@@ -29,18 +29,18 @@ const StatBox: React.FC<{ rows: [string, string][]; delay?: number }> = ({
       style={{
         backgroundColor: COLORS.white,
         border: `4px solid ${COLORS.ink}`,
-        borderRadius: 16,
-        padding: "22px 34px",
+        borderRadius: 18,
+        padding: "28px 44px",
         display: "flex",
         flexDirection: "column",
-        gap: 10,
-        minWidth: 420,
+        gap: 16,
+        minWidth: 540,
       }}
     >
       {rows.map(([k, v]) => (
-        <div key={k} style={{ display: "flex", justifyContent: "space-between", gap: 30 }}>
-          <span style={{ fontSize: 34, fontWeight: 700, color: "#6C7A93" }}>{k}</span>
-          <span style={{ fontSize: 38, fontWeight: 700, color: COLORS.ink }}>{v}</span>
+        <div key={k} style={{ display: "flex", justifyContent: "space-between", gap: 40 }}>
+          <span style={{ fontSize: 40, fontWeight: 700, color: "#6C7A93" }}>{k}</span>
+          <span style={{ fontSize: 46, fontWeight: 700, color: COLORS.ink }}>{v}</span>
         </div>
       ))}
     </div>
@@ -148,9 +148,10 @@ const POINTS: {
     illustration: (
       <div style={{ position: "relative" }}>
         <Pop delay={48}>
-          <CarIcon size={340} />
+          <CarIcon size={440} />
         </Pop>
-        <Bubble text="利子0円" delay={80} style={{ position: "absolute", right: -60, top: -50 }} />
+        <Bubble text="利子0円" delay={80} style={{ position: "absolute", right: -80, top: -60 }} />
+        <AccentWord text="でも…" delay={110} style={{ position: "absolute", left: -70, bottom: 20 }} />
       </div>
     ),
   },
@@ -159,12 +160,12 @@ const POINTS: {
     title: "500万円の車で考える",
     caption: "一括で払うと、手元の現金は一気にゼロに",
     illustration: (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
         <Pop delay={48}>
-          <CarIcon size={360} />
+          <CarIcon size={460} />
         </Pop>
         <FadeUp delay={82}>
-          <div style={{ fontSize: 64, fontWeight: 700, color: COLORS.accent }}>¥500万</div>
+          <div style={{ fontSize: 92, fontWeight: 700, color: COLORS.accent }}>¥500万</div>
         </FadeUp>
       </div>
     ),
@@ -174,10 +175,11 @@ const POINTS: {
     title: "あえて銀行ローンで買う",
     caption: "なるべく低金利で“長く”借りるのがコツ",
     illustration: (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 26 }}>
+      <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 30 }}>
         <Pop delay={45}>
-          <BankIcon size={230} />
+          <BankIcon size={300} />
         </Pop>
+        <Bubble text="低金利で長く" color={COLORS.accent} delay={62} style={{ position: "absolute", right: -60, top: -30 }} />
         <StatBox
           delay={80}
           rows={[
@@ -198,15 +200,15 @@ const POINTS: {
       <Row>
         <Pop delay={45}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <CarIcon size={180} />
-            <div style={{ fontSize: 34, fontWeight: 700, color: COLORS.accent }}>¥500万</div>
+            <CarIcon size={230} />
+            <div style={{ fontSize: 44, fontWeight: 700, color: COLORS.accent }}>¥500万</div>
           </div>
         </Pop>
         <Pop delay={68}>
-          <ArrowRight size={110} />
+          <ArrowRight size={140} />
         </Pop>
         <Pop delay={88}>
-          <ChartUpIcon size={240} />
+          <ChartUpIcon size={320} />
         </Pop>
       </Row>
     ),
@@ -216,12 +218,13 @@ const POINTS: {
     title: "株より「債券」で堅実に",
     caption: "値動きを抑えて“増やす”（利回りは一例）",
     illustration: (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
+      <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 26 }}>
         <Pop delay={48}>
-          <BondIcon size={280} />
+          <BondIcon size={360} />
         </Pop>
+        <Bubble text="元本重視" color={COLORS.accent} delay={66} style={{ position: "absolute", left: -70, top: -20 }} />
         <FadeUp delay={85}>
-          <div style={{ fontSize: 40, fontWeight: 700, color: COLORS.ink }}>
+          <div style={{ fontSize: 54, fontWeight: 700, color: COLORS.ink }}>
             10年で <span style={{ color: COLORS.accent }}>約830万</span> に
           </div>
         </FadeUp>
@@ -233,9 +236,9 @@ const POINTS: {
     title: "トータル約270万円お得",
     caption: "同じ車でも“手残り”がこれだけ変わる",
     illustration: (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 26 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 30 }}>
         <Pop delay={45}>
-          <ScaleIcon size={240} />
+          <ScaleIcon size={300} />
         </Pop>
         <StatBox
           delay={80}

@@ -120,12 +120,13 @@ export const CaptionBar: React.FC<{ text: string; delay?: number }> = ({
         style={{
           backgroundColor: "#6C7A93",
           color: COLORS.white,
-          fontSize: 40,
+          fontSize: 46,
           fontWeight: 700,
-          padding: "20px 40px",
-          borderRadius: 14,
+          padding: "24px 44px",
+          borderRadius: 16,
           textAlign: "center",
-          maxWidth: 860,
+          maxWidth: 940,
+          lineHeight: 1.35,
         }}
       >
         {text}

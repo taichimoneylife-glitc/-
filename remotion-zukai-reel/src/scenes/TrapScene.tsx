@@ -13,26 +13,27 @@ export const TrapScene: React.FC<{
 }> = ({ badge, title, caption, illustration }) => {
   return (
     <Background>
-      <AbsoluteFill style={{ padding: "120px 60px", alignItems: "center" }}>
+      <AbsoluteFill style={{ padding: "110px 60px 90px", alignItems: "center" }}>
         <Badge label={badge} delay={8} />
-        <div style={{ height: 34 }} />
+        <div style={{ height: 30 }} />
         <SectionHeader title={title} delay={30} />
 
-        {/* イラストエリア */}
+        {/* イラスト＋キャプションを中央にまとめて配置（キャプションはイラストの真下） */}
         <div
           style={{
             flex: 1,
             width: "100%",
             display: "flex",
+            flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
+            gap: 56,
             position: "relative",
           }}
         >
-          {illustration}
+          <div style={{ position: "relative" }}>{illustration}</div>
+          <CaptionBar text={caption} delay={95} />
         </div>
-
-        <CaptionBar text={caption} delay={95} />
       </AbsoluteFill>
     </Background>
   );
