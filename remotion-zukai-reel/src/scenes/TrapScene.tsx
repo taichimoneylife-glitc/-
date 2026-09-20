@@ -14,9 +14,9 @@ export const TrapScene: React.FC<{
   return (
     <Background>
       <AbsoluteFill style={{ padding: "120px 60px", alignItems: "center" }}>
-        <Badge label={badge} delay={2} />
+        <Badge label={badge} delay={8} />
         <div style={{ height: 34 }} />
-        <SectionHeader title={title} delay={10} />
+        <SectionHeader title={title} delay={30} />
 
         {/* イラストエリア */}
         <div
@@ -32,7 +32,7 @@ export const TrapScene: React.FC<{
           {illustration}
         </div>
 
-        <CaptionBar text={caption} delay={40} />
+        <CaptionBar text={caption} delay={95} />
       </AbsoluteFill>
     </Background>
   );

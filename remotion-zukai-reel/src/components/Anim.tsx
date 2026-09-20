@@ -14,7 +14,7 @@ export const FadeUp: React.FC<{
     frame: frame - delay,
     fps,
     config: { damping: 200 },
-    durationInFrames: 18,
+    durationInFrames: 28,
   });
   return (
     <div
@@ -40,8 +40,8 @@ export const Pop: React.FC<{
   const p = spring({
     frame: frame - delay,
     fps,
-    config: { damping: 12, mass: 0.6 },
-    durationInFrames: 22,
+    config: { damping: 14, mass: 0.8 },
+    durationInFrames: 30,
   });
   return (
     <div

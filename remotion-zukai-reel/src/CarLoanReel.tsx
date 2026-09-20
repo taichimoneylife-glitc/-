@@ -16,8 +16,8 @@ import {
   BondIcon,
 } from "./components/carIcons";
 
-const DUR = 140; // 各シーンの長さ
-const TRANS = 14; // 切替（プッ）の長さ
+const DUR = 210; // 各シーンの長さ（ゆっくり）
+const TRANS = 22; // 切替（スッと横スライド）の長さ
 
 // 小さな数値パネル（金利・年数など）
 const StatBox: React.FC<{ rows: [string, string][]; delay?: number }> = ({
@@ -51,16 +51,16 @@ const StatBox: React.FC<{ rows: [string, string][]; delay?: number }> = ({
 const Intro: React.FC = () => (
   <Background>
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", gap: 48, padding: 80 }}>
-      <FadeUp delay={4}>
+      <FadeUp delay={8}>
         <div style={{ fontSize: 64, fontWeight: 700, textAlign: "center", lineHeight: 1.3 }}>
           車は<span style={{ color: COLORS.accent }}>現金</span>？
           <span style={{ color: COLORS.accent }}>ローン</span>？
         </div>
       </FadeUp>
-      <Pop delay={20}>
+      <Pop delay={48}>
         <CarIcon size={360} />
       </Pop>
-      <FadeUp delay={34}>
+      <FadeUp delay={90}>
         <div style={{ fontSize: 52, fontWeight: 700, textAlign: "center" }}>
           どっちがお得か、解説します
         </div>
@@ -75,17 +75,17 @@ const Outro: React.FC = () => {
   return (
     <Background>
       <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", gap: 38, padding: 70 }}>
-        <Pop delay={2}>
+        <Pop delay={6}>
           <ScaleIcon size={230} />
         </Pop>
-        <FadeUp delay={16}>
+        <FadeUp delay={44}>
           <div style={{ fontSize: 54, fontWeight: 700, textAlign: "center", lineHeight: 1.3 }}>
             <span style={{ color: COLORS.accent }}>“良い借金”</span>を味方につける
           </div>
         </FadeUp>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {recap.map((t, i) => (
-            <FadeUp key={t} delay={26 + i * 6}>
+            <FadeUp key={t} delay={80 + i * 22}>
               <div
                 style={{
                   fontSize: 38,
@@ -104,7 +104,7 @@ const Outro: React.FC = () => {
             </FadeUp>
           ))}
         </div>
-        <FadeUp delay={48}>
+        <FadeUp delay={160}>
           <div
             style={{
               backgroundColor: COLORS.accent,
@@ -118,7 +118,7 @@ const Outro: React.FC = () => {
             保存＆フォローで復習
           </div>
         </FadeUp>
-        <FadeUp delay={56}>
+        <FadeUp delay={180}>
           <div style={{ fontSize: 23, color: "#6C7A93", textAlign: "center", lineHeight: 1.5 }}>
             ※数字は一例です。投資には価格変動・為替等のリスクがあり、
             <br />
@@ -147,10 +147,10 @@ const POINTS: {
     caption: "利子はゼロ。でも“いつも最適”とは限らない",
     illustration: (
       <div style={{ position: "relative" }}>
-        <Pop delay={20}>
+        <Pop delay={48}>
           <CarIcon size={340} />
         </Pop>
-        <Bubble text="利子0円" delay={34} style={{ position: "absolute", right: -60, top: -50 }} />
+        <Bubble text="利子0円" delay={80} style={{ position: "absolute", right: -60, top: -50 }} />
       </div>
     ),
   },
@@ -160,10 +160,10 @@ const POINTS: {
     caption: "一括で払うと、手元の現金は一気にゼロに",
     illustration: (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-        <Pop delay={20}>
+        <Pop delay={48}>
           <CarIcon size={360} />
         </Pop>
-        <FadeUp delay={32}>
+        <FadeUp delay={82}>
           <div style={{ fontSize: 64, fontWeight: 700, color: COLORS.accent }}>¥500万</div>
         </FadeUp>
       </div>
@@ -175,11 +175,11 @@ const POINTS: {
     caption: "なるべく低金利で“長く”借りるのがコツ",
     illustration: (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 26 }}>
-        <Pop delay={18}>
+        <Pop delay={45}>
           <BankIcon size={230} />
         </Pop>
         <StatBox
-          delay={30}
+          delay={80}
           rows={[
             ["金利", "2 %"],
             ["期間", "10 年"],
@@ -196,16 +196,16 @@ const POINTS: {
     caption: "一気に使わず、“時間”を味方につける",
     illustration: (
       <Row>
-        <Pop delay={20}>
+        <Pop delay={45}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <CarIcon size={180} />
             <div style={{ fontSize: 34, fontWeight: 700, color: COLORS.accent }}>¥500万</div>
           </div>
         </Pop>
-        <Pop delay={30}>
+        <Pop delay={68}>
           <ArrowRight size={110} />
         </Pop>
-        <Pop delay={38}>
+        <Pop delay={88}>
           <ChartUpIcon size={240} />
         </Pop>
       </Row>
@@ -217,10 +217,10 @@ const POINTS: {
     caption: "値動きを抑えて“増やす”（利回りは一例）",
     illustration: (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-        <Pop delay={20}>
+        <Pop delay={48}>
           <BondIcon size={280} />
         </Pop>
-        <FadeUp delay={34}>
+        <FadeUp delay={85}>
           <div style={{ fontSize: 40, fontWeight: 700, color: COLORS.ink }}>
             10年で <span style={{ color: COLORS.accent }}>約830万</span> に
           </div>
@@ -234,11 +234,11 @@ const POINTS: {
     caption: "同じ車でも“手残り”がこれだけ変わる",
     illustration: (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 26 }}>
-        <Pop delay={16}>
+        <Pop delay={45}>
           <ScaleIcon size={240} />
         </Pop>
         <StatBox
-          delay={30}
+          delay={80}
           rows={[
             ["運用の利益", "＋約330万"],
             ["ローン利息", "－約52万"],
