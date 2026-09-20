@@ -4,6 +4,7 @@ import { NisaReel } from "./NisaReel";
 import { NisaMindMap } from "./scenes/NisaMindMap";
 import { CarLoanReel, CAR_TOTAL_FRAMES } from "./CarLoanReel";
 import { CarMindMap, CAR_MINDMAP_FRAMES } from "./scenes/CarMindMap";
+import { SampleSlide, SAMPLE_FRAMES } from "./scenes/SampleSlide";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -80,6 +81,16 @@ export const RemotionRoot: React.FC = () => {
         id="CarLoanReel"
         component={CarLoanReel}
         durationInFrames={CAR_TOTAL_FRAMES}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+
+      {/* ── 前提条件サンプル：固定ゾーン＋基準文字サイズ＋塗り込みイラスト ── */}
+      <Composition
+        id="SampleSlide"
+        component={SampleSlide}
+        durationInFrames={SAMPLE_FRAMES}
         fps={FPS}
         width={1080}
         height={1920}
