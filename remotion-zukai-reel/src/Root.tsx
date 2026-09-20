@@ -6,6 +6,7 @@ import { CarLoanReel, CAR_TOTAL_FRAMES } from "./CarLoanReel";
 import { CarMindMap, CAR_MINDMAP_FRAMES } from "./scenes/CarMindMap";
 import { SampleSlide, SAMPLE_FRAMES } from "./scenes/SampleSlide";
 import { CarReel, CAR_REEL_FRAMES } from "./CarReel";
+import { BoxTree, BOXTREE_FRAMES } from "./scenes/BoxTree";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -92,6 +93,16 @@ export const RemotionRoot: React.FC = () => {
         id="CarReel"
         component={CarReel}
         durationInFrames={CAR_REEL_FRAMES}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+
+      {/* ── 最終目的：箱を線でつないで1画面に組み上げる連結図解 ── */}
+      <Composition
+        id="BoxTree"
+        component={BoxTree}
+        durationInFrames={BOXTREE_FRAMES}
         fps={FPS}
         width={1080}
         height={1920}
