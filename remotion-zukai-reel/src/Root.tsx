@@ -2,6 +2,7 @@ import { Composition } from "remotion";
 import { MoneyReel } from "./MoneyReel";
 import { NisaReel } from "./NisaReel";
 import { NisaMindMap } from "./scenes/NisaMindMap";
+import { CarLoanReel, CAR_TOTAL_FRAMES } from "./CarLoanReel";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -68,6 +69,16 @@ export const RemotionRoot: React.FC = () => {
         id="NisaMindMap"
         component={NisaMindMap}
         durationInFrames={210}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+
+      {/* ── 台本→図解の実例：ページ切替アニメ(スライド)つき「車 現金 vs ローン」 ── */}
+      <Composition
+        id="CarLoanReel"
+        component={CarLoanReel}
+        durationInFrames={CAR_TOTAL_FRAMES}
         fps={FPS}
         width={1080}
         height={1920}
