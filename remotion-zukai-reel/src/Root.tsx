@@ -1,5 +1,6 @@
 import { Composition } from "remotion";
 import { MoneyReel } from "./MoneyReel";
+import { NisaReel } from "./NisaReel";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -49,6 +50,16 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         defaultProps={{ footageIntro: false }}
+      />
+
+      {/* ── 別テーマの実例：新NISA解説（同じ部品で台本だけ差し替え） ── */}
+      <Composition
+        id="NisaReel"
+        component={NisaReel}
+        durationInFrames={TOTAL_FRAMES}
+        fps={FPS}
+        width={1080}
+        height={1920}
       />
     </>
   );
