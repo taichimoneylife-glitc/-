@@ -3,6 +3,7 @@ import { MoneyReel } from "./MoneyReel";
 import { NisaReel } from "./NisaReel";
 import { NisaMindMap } from "./scenes/NisaMindMap";
 import { CarLoanReel, CAR_TOTAL_FRAMES } from "./CarLoanReel";
+import { CarMindMap, CAR_MINDMAP_FRAMES } from "./scenes/CarMindMap";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -79,6 +80,16 @@ export const RemotionRoot: React.FC = () => {
         id="CarLoanReel"
         component={CarLoanReel}
         durationInFrames={CAR_TOTAL_FRAMES}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+
+      {/* ── 高密度・1枚積み上げ版：線でつなぎながら1画面で完成させる ── */}
+      <Composition
+        id="CarMindMap"
+        component={CarMindMap}
+        durationInFrames={CAR_MINDMAP_FRAMES}
         fps={FPS}
         width={1080}
         height={1920}
