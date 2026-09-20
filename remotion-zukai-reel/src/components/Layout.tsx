@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill } from "remotion";
-import { COLORS } from "../theme";
+import { COLORS, TYPE } from "../theme";
 import { FONT } from "./font";
 import { FadeUp, Pop } from "./Anim";
 
@@ -33,8 +33,8 @@ export const Badge: React.FC<{ label: string; delay?: number }> = ({
           backgroundColor: COLORS.accent,
           color: COLORS.white,
           fontWeight: 700,
-          fontSize: 44,
-          padding: "10px 42px",
+          fontSize: TYPE.badge,
+          padding: "10px 44px",
           borderRadius: 60,
           letterSpacing: 2,
         }}
@@ -73,7 +73,7 @@ export const SectionHeader: React.FC<{ title: string; delay?: number }> = ({
             flexShrink: 0,
           }}
         />
-        <div style={{ fontSize: 58, fontWeight: 700, lineHeight: 1.25 }}>
+        <div style={{ fontSize: TYPE.h1, fontWeight: 700, lineHeight: 1.25 }}>
           {title}
         </div>
       </div>
@@ -98,7 +98,7 @@ export const Bubble: React.FC<{
           backgroundColor: COLORS.white,
           borderRadius: 40,
           padding: "18px 34px",
-          fontSize: 40,
+          fontSize: TYPE.bubble,
           fontWeight: 700,
           whiteSpace: "nowrap",
         }}
@@ -120,7 +120,7 @@ export const CaptionBar: React.FC<{ text: string; delay?: number }> = ({
         style={{
           backgroundColor: "#6C7A93",
           color: COLORS.white,
-          fontSize: 46,
+          fontSize: TYPE.caption,
           fontWeight: 700,
           padding: "24px 44px",
           borderRadius: 16,
