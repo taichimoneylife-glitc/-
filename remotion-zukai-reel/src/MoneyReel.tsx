@@ -2,6 +2,7 @@ import React from "react";
 import { Series } from "remotion";
 import { DURATIONS } from "./config";
 import { Intro } from "./scenes/Intro";
+import { IntroFootage } from "./scenes/IntroFootage";
 import { Outro } from "./scenes/Outro";
 import { TrapScene } from "./scenes/TrapScene";
 import { Pop } from "./components/Anim";
@@ -103,11 +104,14 @@ const TRAPS = [
 ];
 
 // ── リール本編：Intro → 罠①〜④ → Outro を時系列に並べる ──
-export const MoneyReel: React.FC = () => {
+// footageIntro=true で冒頭を実写クリップ（public/intro.mp4）＋テロップに切替。
+export const MoneyReel: React.FC<{ footageIntro?: boolean }> = ({
+  footageIntro = false,
+}) => {
   return (
     <Series>
       <Series.Sequence durationInFrames={DURATIONS.intro}>
-        <Intro />
+        {footageIntro ? <IntroFootage /> : <Intro />}
       </Series.Sequence>
 
       {TRAPS.map((t) => (

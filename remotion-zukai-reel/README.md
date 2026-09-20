@@ -33,6 +33,25 @@ npm run render     # = remotion render MoneyReel out/reel.mp4
 
 初回の `render` 時に、Remotion がヘッドレス Chromium を自動ダウンロードします。
 
+### バリエーション（アスペクト比・実写版）
+
+用途別に4つの Composition を用意しています。`remotion render <ID> <出力先>` で個別に書き出せます。
+
+| Composition ID | サイズ | 用途 |
+| --- | --- | --- |
+| `MoneyReel` | 1080×1920（9:16） | リール / Shorts / TikTok（メイン） |
+| `MoneyReel-Footage` | 1080×1920（9:16） | 冒頭を実写クリップ＋テロップにした版 |
+| `MoneyReel-Square` | 1080×1080（1:1） | フィード投稿向け（まとめは自動で2列） |
+| `MoneyReel-Wide` | 1920×1080（16:9） | YouTube など横型 |
+
+```bash
+npx remotion render MoneyReel-Footage out/reel_footage.mp4
+npx remotion render MoneyReel-Square  out/reel_square.mp4
+npx remotion render MoneyReel-Wide    out/reel_wide.mp4
+```
+
+> **実写版について**：`public/intro.mp4` は動作確認用の**サンプル素材**です。手元の実写クリップ（手元・お札・店内など）に差し替えるだけで、そのまま `MoneyReel-Footage` に反映されます（テロップは `src/scenes/IntroFootage.tsx`）。
+
 ---
 
 ## Claude Code で編集する
@@ -77,10 +96,11 @@ remotion-zukai-reel/
 │  │  ├─ icons.tsx        … 線画アイコン（スマホ/値札/カート/顔/コイン）
 │  │  └─ font.ts          … Noto Sans JP 読み込み
 │  └─ scenes/
-│     ├─ Intro.tsx        … つかみ
+│     ├─ Intro.tsx        … つかみ（イラスト版）
+│     ├─ IntroFootage.tsx … つかみ（実写クリップ＋テロップ版）
 │     ├─ TrapScene.tsx    … 「罠」共通レイアウト
-│     └─ Outro.tsx        … まとめ + CTA
-├─ public/                … 実写クリップ・画像・BGM などの素材置き場
+│     └─ Outro.tsx        … まとめ + CTA（縦=1列 / 正方形・横=2列に自動切替）
+├─ public/                … 実写クリップ・画像などの素材置き場（intro.mp4 はサンプル）
 ├─ remotion.config.ts     … レンダリング設定（h264/MP4）
 └─ package.json
 ```
@@ -96,3 +116,5 @@ remotion-zukai-reel/
 | 文言・キャプション | `src/MoneyReel.tsx` の `TRAPS`、`scenes/*.tsx` |
 | アイコンの絵柄 | `src/components/icons.tsx` |
 | 登場アニメの動き | `src/components/Anim.tsx` |
+| アスペクト比・バリエーション追加 | `src/Root.tsx`（Composition を追加） |
+| 冒頭の実写クリップ | `public/intro.mp4` を差し替え＋`src/scenes/IntroFootage.tsx` |
