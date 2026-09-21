@@ -92,25 +92,25 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
                   <DrawPath d={`M${CXR} 470 L${CXR} ${BOX_TOP}`} s={draw(f, 70, 18)} />
                   {data.statement &&
                     (hasSub ? (
-                      // サブ文があるときは、2つのサブ文の"間"（中央の空き）を通す1本だけ
-                      <DrawPath d={`M${CENTER} 726 L${CENTER} ${STMT_TOP - 8}`} s={draw(f, 108, 26)} c={COLORS.accent} w={6} />
+                      // サブ文があるときは、2つのサブ文の"間"（中央の空き）を通す1本だけ。文字と被らないよう手前で止める
+                      <DrawPath d={`M${CENTER} 702 L${CENTER} ${STMT_TOP - 32}`} s={draw(f, 108, 22)} c={COLORS.accent} w={6} />
                     ) : (
                       <>
                         <DrawPath d={`M${CXL} ${BOX_TOP + BOX_H} L${CXL} 690 L${CENTER} 690`} s={draw(f, 104, 30)} c={COLORS.accent} w={6} />
                         <DrawPath d={`M${CXR} ${BOX_TOP + BOX_H} L${CXR} 690 L${CENTER} 690`} s={draw(f, 104, 30)} c={COLORS.accent} w={6} />
-                        <DrawPath d={`M${CENTER} 690 L${CENTER} ${STMT_TOP - 8}`} s={draw(f, 130, 18)} c={COLORS.accent} w={6} />
+                        <DrawPath d={`M${CENTER} 690 L${CENTER} ${STMT_TOP - 32}`} s={draw(f, 130, 18)} c={COLORS.accent} w={6} />
                       </>
                     ))}
                 </>
               ) : (
                 <>
                   <DrawPath d={`M${CENTER} 356 L${CENTER} ${BOX_TOP}`} s={draw(f, 22, 34)} />
-                  {data.statement && <DrawPath d={`M${CENTER} ${BOX_TOP + BOX_H} L${CENTER} ${STMT_TOP - 8}`} s={draw(f, 100, 30)} c={COLORS.accent} w={6} />}
+                  {data.statement && <DrawPath d={`M${CENTER} ${BOX_TOP + BOX_H} L${CENTER} ${STMT_TOP - 32}`} s={draw(f, 100, 30)} c={COLORS.accent} w={6} />}
                 </>
               )}
             </>
           )}
-          {data.footer && data.pill && <DrawPath d={`M${CENTER} ${PILL_TOP + 126} L${CENTER} ${FOOT_TOP - 8}`} s={draw(f, 214, 16)} />}
+          {data.footer && data.pill && <DrawPath d={`M${CENTER} ${PILL_TOP + 132} L${CENTER} ${FOOT_TOP - 30}`} s={draw(f, 214, 16)} />}
         </svg>
 
         {/* 枠見出し */}
