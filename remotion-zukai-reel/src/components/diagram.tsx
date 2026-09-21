@@ -34,8 +34,9 @@ export type DiagramData = {
   statement?: React.ReactNode; // 大きい結論
   number?: React.ReactNode; // 赤い大きい数字
   note?: string;
-  pill?: string;
-  footer?: string; // 帯の下の締めの一文（参考画像＝「気づかないうちに得してる」）
+  pill?: React.ReactNode; // 紺の帯（キリよく改行＋キーワードを大きく／色替えできる）
+  footer?: React.ReactNode; // 帯の下の締めの一文
+  art?: React.ReactNode; // イラスト（結論の下・グッドボタン等）
 };
 
 // 固定スロット座標
@@ -50,6 +51,7 @@ const NUM_TOP = 930;
 const NOTE_TOP = 1070;
 const PILL_TOP = 1160;
 const FOOT_TOP = 1360;
+const ART_TOP = 940;
 
 const boxStyle = (v: Box["variant"]): React.CSSProperties => {
   if (v === "red") return { backgroundColor: COLORS.accent, color: "#fff", border: `4px solid ${COLORS.accent}` };
@@ -73,6 +75,7 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
   const n = data.boxes?.length ?? 0;
   const twoBox = n >= 2;
   const oneBox = n === 1;
+  const hasSub = data.boxes?.some((b) => b.sub) ?? false; // 箱にサブ文があると、横向き結線がサブ文字に重なるため経路を変える
 
   return (
     <Background>
@@ -87,13 +90,17 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
                   <DrawPath d={`M${CXL} 470 L${CXR} 470`} s={draw(f, 48, 28)} />
                   <DrawPath d={`M${CXL} 470 L${CXL} ${BOX_TOP}`} s={draw(f, 70, 18)} />
                   <DrawPath d={`M${CXR} 470 L${CXR} ${BOX_TOP}`} s={draw(f, 70, 18)} />
-                  {data.statement && (
-                    <>
-                      <DrawPath d={`M${CXL} ${BOX_TOP + BOX_H} L${CXL} 690 L${CENTER} 690`} s={draw(f, 104, 30)} c={COLORS.accent} w={6} />
-                      <DrawPath d={`M${CXR} ${BOX_TOP + BOX_H} L${CXR} 690 L${CENTER} 690`} s={draw(f, 104, 30)} c={COLORS.accent} w={6} />
-                      <DrawPath d={`M${CENTER} 690 L${CENTER} ${STMT_TOP - 8}`} s={draw(f, 130, 18)} c={COLORS.accent} w={6} />
-                    </>
-                  )}
+                  {data.statement &&
+                    (hasSub ? (
+                      // サブ文があるときは、2つのサブ文の"間"（中央の空き）を通す1本だけ
+                      <DrawPath d={`M${CENTER} 726 L${CENTER} ${STMT_TOP - 8}`} s={draw(f, 108, 26)} c={COLORS.accent} w={6} />
+                    ) : (
+                      <>
+                        <DrawPath d={`M${CXL} ${BOX_TOP + BOX_H} L${CXL} 690 L${CENTER} 690`} s={draw(f, 104, 30)} c={COLORS.accent} w={6} />
+                        <DrawPath d={`M${CXR} ${BOX_TOP + BOX_H} L${CXR} 690 L${CENTER} 690`} s={draw(f, 104, 30)} c={COLORS.accent} w={6} />
+                        <DrawPath d={`M${CENTER} 690 L${CENTER} ${STMT_TOP - 8}`} s={draw(f, 130, 18)} c={COLORS.accent} w={6} />
+                      </>
+                    ))}
                 </>
               ) : (
                 <>
@@ -136,6 +143,12 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
         {data.statement && (
           <In delay={132} style={at(CENTER, STMT_TOP, 1000)}>
             <div style={{ textAlign: "center", fontSize: 98, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
+          </In>
+        )}
+        {/* イラスト（結論の下・グッドボタン等） */}
+        {data.art && (
+          <In delay={160} pop style={{ left: 0, top: ART_TOP, width: 1080, display: "flex", justifyContent: "center" }}>
+            {data.art}
           </In>
         )}
         {/* 赤い大きい数字 */}

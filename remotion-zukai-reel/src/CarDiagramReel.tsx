@@ -2,11 +2,17 @@ import React from "react";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { slide } from "@remotion/transitions/slide";
 import { DiagramPage, DiagramData } from "./components/diagram";
+import { FlatThumbUp } from "./components/flatArt";
 import { COLORS } from "./theme";
 
 const DUR = 285; // 9.5秒/ページ（要素が多く、線もゆっくり描くため長め）
 const TRANS = 22;
+const GOLD = "#F6C544";
 const A: React.FC<{ children: React.ReactNode }> = ({ children }) => <span style={{ color: COLORS.accent }}>{children}</span>;
+// 帯の中で"キーワード"を大きく＆色替え（キリよく改行して使う）
+const K: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <span style={{ fontSize: 92, color: GOLD, display: "inline-block", marginTop: 6 }}>{children}</span>
+);
 
 const PAGES: DiagramData[] = [
   {
@@ -62,7 +68,13 @@ const PAGES: DiagramData[] = [
       </>
     ),
     note: "子育て世帯は教育・老後資金を計画的に",
-    pill: "10年後を“確定”できるのは債券",
+    pill: (
+      <>
+        10年後を“確定”できるのは
+        <br />
+        <K>債券</K>
+      </>
+    ),
   },
   {
     header: { title: "10年後、どうなる？" },
@@ -87,7 +99,14 @@ const PAGES: DiagramData[] = [
         トータルで<A>“得”</A>
       </>
     ),
-    pill: "本文にまとめ ／ 保存＆フォロー",
+    art: <FlatThumbUp size={210} />,
+    pill: (
+      <>
+        詳しくは本文にまとめ
+        <br />
+        保存＆フォロー
+      </>
+    ),
   },
 ];
 

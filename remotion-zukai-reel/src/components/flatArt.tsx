@@ -119,3 +119,29 @@ export const FlatArrow: React.FC<P> = ({ size = 150 }) => (
     <path d="M14 45 L96 45 M74 20 L104 45 L74 70" fill="none" stroke={INK} strokeWidth="14" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
+
+// グッドボタン（サムズアップ）
+export const FlatThumbUp: React.FC<P & { color?: string }> = ({ size = 200, color = RED }) => (
+  <svg viewBox="0 0 220 224" style={wrap(220, 224, size)}>
+    <ellipse cx="110" cy="208" rx="72" ry="12" fill="#000" opacity="0.08" />
+    <circle cx="110" cy="104" r="86" fill={color} stroke={INK} strokeWidth="8" />
+    {/* 手首 */}
+    <rect x="56" y="106" width="36" height="58" rx="10" fill="#fff" stroke={INK} strokeWidth="7" />
+    {/* 親指を立てた手 */}
+    <path
+      d="M92 158 L92 108 C92 100 96 94 103 84 L120 60 C124 54 133 55 137 61 C140 66 140 72 138 78 L131 104 L159 104 C170 104 177 113 173 124 L162 158 C160 166 152 170 144 170 L100 170 C95 170 92 165 92 158 Z"
+      fill="#fff"
+      stroke={INK}
+      strokeWidth="7"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// 大きなチェックマーク（丸囲み）
+export const FlatCheck: React.FC<P & { color?: string }> = ({ size = 200, color = GREEN }) => (
+  <svg viewBox="0 0 200 200" style={wrap(200, 200, size)}>
+    <circle cx="100" cy="100" r="86" fill={color} stroke={INK} strokeWidth="8" />
+    <path d="M58 104 L88 134 L146 70" fill="none" stroke="#fff" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
