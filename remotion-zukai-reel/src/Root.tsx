@@ -7,6 +7,7 @@ import { CarMindMap, CAR_MINDMAP_FRAMES } from "./scenes/CarMindMap";
 import { SampleSlide, SAMPLE_FRAMES } from "./scenes/SampleSlide";
 import { CarReel, CAR_REEL_FRAMES } from "./CarReel";
 import { BoxTree, BOXTREE_FRAMES } from "./scenes/BoxTree";
+import { CarDiagramReel, CAR_DIAGRAM_FRAMES } from "./CarDiagramReel";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -93,6 +94,16 @@ export const RemotionRoot: React.FC = () => {
         id="CarReel"
         component={CarReel}
         durationInFrames={CAR_REEL_FRAMES}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+
+      {/* ── 本命リール：台本を連結図解ページ×6でリール化 ── */}
+      <Composition
+        id="CarDiagramReel"
+        component={CarDiagramReel}
+        durationInFrames={CAR_DIAGRAM_FRAMES}
         fps={FPS}
         width={1080}
         height={1920}
