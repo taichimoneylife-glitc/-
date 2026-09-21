@@ -35,6 +35,7 @@ export type DiagramData = {
   number?: React.ReactNode; // 赤い大きい数字
   note?: string;
   pill?: string;
+  footer?: string; // 帯の下の締めの一文（参考画像＝「気づかないうちに得してる」）
 };
 
 // 固定スロット座標
@@ -44,10 +45,11 @@ const BOX_H = 118;
 const CXL = 300;
 const CXR = 780;
 const CENTER = 540;
-const STMT_TOP = 770;
-const NUM_TOP = 936;
-const NOTE_TOP = 1078;
-const PILL_TOP = 1168;
+const STMT_TOP = 760;
+const NUM_TOP = 930;
+const NOTE_TOP = 1070;
+const PILL_TOP = 1160;
+const FOOT_TOP = 1360;
 
 const boxStyle = (v: Box["variant"]): React.CSSProperties => {
   if (v === "red") return { backgroundColor: COLORS.accent, color: "#fff", border: `4px solid ${COLORS.accent}` };
@@ -57,11 +59,11 @@ const boxStyle = (v: Box["variant"]): React.CSSProperties => {
 
 const BoxView: React.FC<{ b: Box; cx: number; w: number }> = ({ b, cx, w }) => (
   <div style={{ position: "relative" }}>
-    <div style={{ borderRadius: 16, padding: "22px 14px", textAlign: "center", fontSize: 40, fontWeight: 700, whiteSpace: "nowrap", ...boxStyle(b.variant) }}>{b.label}</div>
+    <div style={{ borderRadius: 16, padding: "22px 14px", textAlign: "center", fontSize: 50, fontWeight: 700, whiteSpace: "nowrap", ...boxStyle(b.variant) }}>{b.label}</div>
     {b.badge ? (
       <div style={{ position: "absolute", top: -18, right: -18, width: 44, height: 44, borderRadius: "50%", backgroundColor: b.badge === "check" ? "#12A150" : COLORS.accent, color: "#fff", fontSize: 26, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: "3px solid #fff" }}>{b.badge === "check" ? "✓" : "×"}</div>
     ) : null}
-    {b.sub ? <div style={{ textAlign: "center", fontSize: 28, fontWeight: 700, color: GRAY, marginTop: 12, width: w }}>{b.sub}</div> : null}
+    {b.sub ? <div style={{ textAlign: "center", fontSize: 34, fontWeight: 700, color: GRAY, marginTop: 12, width: w }}>{b.sub}</div> : null}
   </div>
 );
 
@@ -101,15 +103,16 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
               )}
             </>
           )}
+          {data.footer && data.pill && <DrawPath d={`M${CENTER} ${PILL_TOP + 126} L${CENTER} ${FOOT_TOP - 8}`} s={draw(f, 214, 16)} />}
         </svg>
 
         {/* 枠見出し */}
-        <In delay={4} style={at(CENTER, HEADER_TOP, 740)}>
-          <div style={{ border: `5px solid ${COLORS.ink}`, borderRadius: 18, backgroundColor: "#fff", padding: "24px 26px", display: "flex", alignItems: "center", gap: 20, justifyContent: "center" }}>
+        <In delay={4} style={{ left: 0, top: HEADER_TOP, width: 1080, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div style={{ border: `5px solid ${COLORS.ink}`, borderRadius: 18, backgroundColor: "#fff", padding: "22px 34px", display: "inline-flex", alignItems: "center", gap: 18, justifyContent: "center", maxWidth: 1000, boxSizing: "border-box" }}>
             <div style={{ width: 11, height: 56, backgroundColor: COLORS.accent, borderRadius: 4, flexShrink: 0 }} />
-            <div style={{ fontSize: 52, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.header.title}</div>
+            <div style={{ fontSize: 64, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2, whiteSpace: "nowrap" }}>{data.header.title}</div>
           </div>
-          {data.header.sub ? <div style={{ textAlign: "center", fontSize: 30, fontWeight: 700, color: GRAY, marginTop: 12 }}>{data.header.sub}</div> : null}
+          {data.header.sub ? <div style={{ textAlign: "center", fontSize: 36, fontWeight: 700, color: GRAY, marginTop: 12 }}>{data.header.sub}</div> : null}
         </In>
 
         {/* 箱 */}
@@ -131,26 +134,32 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
 
         {/* 結論の大テキスト */}
         {data.statement && (
-          <In delay={132} style={at(CENTER, STMT_TOP, 980)}>
-            <div style={{ textAlign: "center", fontSize: 74, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.statement}</div>
+          <In delay={132} style={at(CENTER, STMT_TOP, 1000)}>
+            <div style={{ textAlign: "center", fontSize: 98, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
           </In>
         )}
         {/* 赤い大きい数字 */}
         {data.number && (
-          <In delay={162} style={at(CENTER, NUM_TOP, 980)}>
-            <div style={{ textAlign: "center", fontSize: 96, fontWeight: 700, color: COLORS.accent, lineHeight: 1.1 }}>{data.number}</div>
+          <In delay={162} style={at(CENTER, NUM_TOP, 1000)}>
+            <div style={{ textAlign: "center", fontSize: 100, fontWeight: 700, color: COLORS.accent, lineHeight: 1.1 }}>{data.number}</div>
           </In>
         )}
         {/* 注記 */}
         {data.note && (
-          <In delay={182} style={at(CENTER, NOTE_TOP, 980)}>
-            <div style={{ textAlign: "center", fontSize: 30, fontWeight: 700, color: GRAY }}>{data.note}</div>
+          <In delay={182} style={at(CENTER, NOTE_TOP, 1000)}>
+            <div style={{ textAlign: "center", fontSize: 34, fontWeight: 700, color: GRAY }}>{data.note}</div>
           </In>
         )}
         {/* 下のpill */}
         {data.pill && (
-          <In delay={200} pop style={at(CENTER, PILL_TOP, 900)}>
-            <div style={{ backgroundColor: COLORS.ink, color: "#fff", borderRadius: 20, padding: "30px 0", textAlign: "center", fontSize: 58, fontWeight: 700, lineHeight: 1.25 }}>{data.pill}</div>
+          <In delay={200} pop style={at(CENTER, PILL_TOP, 920)}>
+            <div style={{ backgroundColor: COLORS.ink, color: "#fff", borderRadius: 20, padding: "30px 0", textAlign: "center", fontSize: 66, fontWeight: 700, lineHeight: 1.25 }}>{data.pill}</div>
+          </In>
+        )}
+        {/* 締めの一文（帯の下） */}
+        {data.footer && (
+          <In delay={222} style={at(CENTER, FOOT_TOP, 1000)}>
+            <div style={{ textAlign: "center", fontSize: 60, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
           </In>
         )}
       </AbsoluteFill>

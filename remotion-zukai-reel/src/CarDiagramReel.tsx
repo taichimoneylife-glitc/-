@@ -4,7 +4,7 @@ import { slide } from "@remotion/transitions/slide";
 import { DiagramPage, DiagramData } from "./components/diagram";
 import { COLORS } from "./theme";
 
-const DUR = 240; // 8秒/ページ（線をゆっくり描くぶん長め）
+const DUR = 285; // 9.5秒/ページ（要素が多く、線もゆっくり描くため長め）
 const TRANS = 22;
 const A: React.FC<{ children: React.ReactNode }> = ({ children }) => <span style={{ color: COLORS.accent }}>{children}</span>;
 
@@ -21,6 +21,7 @@ const PAGES: DiagramData[] = [
       </>
     ),
     pill: "答え → ローンを組んで運用",
+    footer: "選び方だけで数百万の差",
   },
   {
     header: { title: "銀行ローンで買うと", sub: "金利2% ・ 10年" },
@@ -47,6 +48,7 @@ const PAGES: DiagramData[] = [
       </>
     ),
     pill: "利息50万を絶対に減らさない",
+    footer: "手元に現金を残さない",
   },
   {
     header: { title: "なぜ株じゃなく“債券”？" },
@@ -60,6 +62,7 @@ const PAGES: DiagramData[] = [
       </>
     ),
     note: "子育て世帯は教育・老後資金を計画的に",
+    pill: "10年後を“確定”できるのは債券",
   },
   {
     header: { title: "10年後、どうなる？" },
@@ -71,6 +74,7 @@ const PAGES: DiagramData[] = [
     ),
     number: <>＝ ＋約260万円</>,
     pill: "利息 約50万 ＜ 運用益 約260万",
+    footer: "利息を引いても大きく増える",
   },
   {
     header: { title: "結論" },
