@@ -81,22 +81,22 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
             <>
               {twoBox ? (
                 <>
-                  <DrawPath d={`M${CENTER} 356 L${CENTER} 470`} s={draw(f, 20, 14)} />
-                  <DrawPath d={`M${CXL} 470 L${CXR} 470`} s={draw(f, 34, 14)} />
-                  <DrawPath d={`M${CXL} 470 L${CXL} ${BOX_TOP}`} s={draw(f, 48, 10)} />
-                  <DrawPath d={`M${CXR} 470 L${CXR} ${BOX_TOP}`} s={draw(f, 48, 10)} />
+                  <DrawPath d={`M${CENTER} 356 L${CENTER} 470`} s={draw(f, 22, 30)} />
+                  <DrawPath d={`M${CXL} 470 L${CXR} 470`} s={draw(f, 48, 28)} />
+                  <DrawPath d={`M${CXL} 470 L${CXL} ${BOX_TOP}`} s={draw(f, 70, 18)} />
+                  <DrawPath d={`M${CXR} 470 L${CXR} ${BOX_TOP}`} s={draw(f, 70, 18)} />
                   {data.statement && (
                     <>
-                      <DrawPath d={`M${CXL} ${BOX_TOP + BOX_H} L${CXL} 690 L${CENTER} 690`} s={draw(f, 74, 16)} c={COLORS.accent} w={6} />
-                      <DrawPath d={`M${CXR} ${BOX_TOP + BOX_H} L${CXR} 690 L${CENTER} 690`} s={draw(f, 74, 16)} c={COLORS.accent} w={6} />
-                      <DrawPath d={`M${CENTER} 690 L${CENTER} ${STMT_TOP - 8}`} s={draw(f, 92, 10)} c={COLORS.accent} w={6} />
+                      <DrawPath d={`M${CXL} ${BOX_TOP + BOX_H} L${CXL} 690 L${CENTER} 690`} s={draw(f, 104, 30)} c={COLORS.accent} w={6} />
+                      <DrawPath d={`M${CXR} ${BOX_TOP + BOX_H} L${CXR} 690 L${CENTER} 690`} s={draw(f, 104, 30)} c={COLORS.accent} w={6} />
+                      <DrawPath d={`M${CENTER} 690 L${CENTER} ${STMT_TOP - 8}`} s={draw(f, 130, 18)} c={COLORS.accent} w={6} />
                     </>
                   )}
                 </>
               ) : (
                 <>
-                  <DrawPath d={`M${CENTER} 356 L${CENTER} ${BOX_TOP}`} s={draw(f, 20, 16)} />
-                  {data.statement && <DrawPath d={`M${CENTER} ${BOX_TOP + BOX_H} L${CENTER} ${STMT_TOP - 8}`} s={draw(f, 80, 14)} c={COLORS.accent} w={6} />}
+                  <DrawPath d={`M${CENTER} 356 L${CENTER} ${BOX_TOP}`} s={draw(f, 22, 34)} />
+                  {data.statement && <DrawPath d={`M${CENTER} ${BOX_TOP + BOX_H} L${CENTER} ${STMT_TOP - 8}`} s={draw(f, 100, 30)} c={COLORS.accent} w={6} />}
                 </>
               )}
             </>
@@ -114,16 +114,16 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
 
         {/* 箱 */}
         {oneBox && (
-          <In delay={46} pop style={at(CENTER, BOX_TOP, 500)}>
+          <In delay={72} pop style={at(CENTER, BOX_TOP, 500)}>
             <BoxView b={data.boxes![0]} cx={CENTER} w={500} />
           </In>
         )}
         {twoBox && (
           <>
-            <In delay={46} pop style={at(CXL, BOX_TOP, 360)}>
+            <In delay={72} pop style={at(CXL, BOX_TOP, 360)}>
               <BoxView b={data.boxes![0]} cx={CXL} w={360} />
             </In>
-            <In delay={58} pop style={at(CXR, BOX_TOP, 360)}>
+            <In delay={88} pop style={at(CXR, BOX_TOP, 360)}>
               <BoxView b={data.boxes![1]} cx={CXR} w={360} />
             </In>
           </>
@@ -131,26 +131,26 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
 
         {/* 結論の大テキスト */}
         {data.statement && (
-          <In delay={98} style={at(CENTER, STMT_TOP, 980)}>
+          <In delay={132} style={at(CENTER, STMT_TOP, 980)}>
             <div style={{ textAlign: "center", fontSize: 74, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.statement}</div>
           </In>
         )}
         {/* 赤い大きい数字 */}
         {data.number && (
-          <In delay={126} style={at(CENTER, NUM_TOP, 980)}>
+          <In delay={162} style={at(CENTER, NUM_TOP, 980)}>
             <div style={{ textAlign: "center", fontSize: 96, fontWeight: 700, color: COLORS.accent, lineHeight: 1.1 }}>{data.number}</div>
           </In>
         )}
         {/* 注記 */}
         {data.note && (
-          <In delay={146} style={at(CENTER, NOTE_TOP, 980)}>
+          <In delay={182} style={at(CENTER, NOTE_TOP, 980)}>
             <div style={{ textAlign: "center", fontSize: 30, fontWeight: 700, color: GRAY }}>{data.note}</div>
           </In>
         )}
         {/* 下のpill */}
         {data.pill && (
-          <In delay={168} pop style={at(CENTER, PILL_TOP, 840)}>
-            <div style={{ backgroundColor: COLORS.ink, color: "#fff", borderRadius: 20, padding: "24px 0", textAlign: "center", fontSize: 46, fontWeight: 700 }}>{data.pill}</div>
+          <In delay={200} pop style={at(CENTER, PILL_TOP, 900)}>
+            <div style={{ backgroundColor: COLORS.ink, color: "#fff", borderRadius: 20, padding: "30px 0", textAlign: "center", fontSize: 58, fontWeight: 700, lineHeight: 1.25 }}>{data.pill}</div>
           </In>
         )}
       </AbsoluteFill>

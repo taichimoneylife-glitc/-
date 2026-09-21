@@ -4,7 +4,7 @@ import { slide } from "@remotion/transitions/slide";
 import { DiagramPage, DiagramData } from "./components/diagram";
 import { COLORS } from "./theme";
 
-const DUR = 210; // 7秒/ページ
+const DUR = 240; // 8秒/ページ（線をゆっくり描くぶん長め）
 const TRANS = 22;
 const A: React.FC<{ children: React.ReactNode }> = ({ children }) => <span style={{ color: COLORS.accent }}>{children}</span>;
 
@@ -96,7 +96,7 @@ export const CarDiagramReel: React.FC = () => {
       children.push(
         <TransitionSeries.Transition
           key={`t${i}`}
-          presentation={slide({ direction: i % 2 === 0 ? "from-left" : "from-right" })}
+          presentation={slide({ direction: "from-bottom" })}
           timing={linearTiming({ durationInFrames: TRANS })}
         />
       );
