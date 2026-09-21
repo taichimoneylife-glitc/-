@@ -26,6 +26,7 @@ const PAGES: DiagramData[] = [
         トータルで<A>得</A>なのは？
       </>
     ),
+    note: "※利息と運用益をトータルで比較",
     pill: "答え → ローンを組んで運用",
     footer: "選び方だけで数百万の差",
   },
@@ -88,11 +89,12 @@ const PAGES: DiagramData[] = [
       </>
     ),
     number: <>＝ ＋約260万円</>,
+    note: "※満期にほぼ金額が確定する",
     pill: "利息 約50万 ＜ 運用益 約260万",
     footer: "利息を引いても大きく増える",
   },
   {
-    header: { title: "結論" },
+    header: { title: "結論", sub: "現金一括 vs ローン＋運用" },
     boxes: [
       { label: "現金一括", variant: "outline", badge: "cross" },
       { label: "ローン＋運用", variant: "red", badge: "check" },
