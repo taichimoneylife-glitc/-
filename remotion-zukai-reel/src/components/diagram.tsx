@@ -17,9 +17,11 @@ const DrawPath: React.FC<{ d: string; s: number; w?: number; c?: string }> = ({ 
 const In: React.FC<{ delay: number; children: React.ReactNode; style?: React.CSSProperties; pop?: boolean }> = ({ delay, children, style, pop }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const s = spring({ frame: frame - delay, fps, config: pop ? { damping: 14, mass: 0.7 } : { damping: 200 }, durationInFrames: pop ? 24 : 22 });
+  // pop=箱/帳/イラスト（少し沈んでから弾んで出る）／通常=テキスト（下からフワッと）
+  const s = spring({ frame: frame - delay, fps, config: pop ? { damping: 11, mass: 0.9, stiffness: 130 } : { damping: 200 }, durationInFrames: pop ? 34 : 30 });
+  const py = (1 - s) * (pop ? 26 : 34);
   return (
-    <div style={{ position: "absolute", opacity: Math.min(1, s * 1.4), transform: pop ? `scale(${s})` : `translateY(${(1 - s) * 18}px)`, transformOrigin: "center", ...style }}>
+    <div style={{ position: "absolute", opacity: Math.min(1, s * 1.6), transform: pop ? `translateY(${py}px) scale(${s})` : `translateY(${py}px)`, transformOrigin: "center", ...style }}>
       {children}
     </div>
   );
@@ -76,6 +78,7 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
   const twoBox = n >= 2;
   const oneBox = n === 1;
   const hasSub = data.boxes?.some((b) => b.sub) ?? false; // 箱にサブ文があると、横向き結線がサブ文字に重なるため経路を変える
+  const headBottom = data.header.sub ? 384 : 322; // 見出しサブがある時は、幹線をサブ文字より下から始めて被らないように
 
   return (
     <Background>
@@ -86,31 +89,31 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
             <>
               {twoBox ? (
                 <>
-                  <DrawPath d={`M${CENTER} 356 L${CENTER} 470`} s={draw(f, 22, 30)} />
-                  <DrawPath d={`M${CXL} 470 L${CXR} 470`} s={draw(f, 48, 28)} />
-                  <DrawPath d={`M${CXL} 470 L${CXL} ${BOX_TOP}`} s={draw(f, 70, 18)} />
-                  <DrawPath d={`M${CXR} 470 L${CXR} ${BOX_TOP}`} s={draw(f, 70, 18)} />
+                  <DrawPath d={`M${CENTER} ${headBottom} L${CENTER} 470`} s={draw(f, 26, 44)} />
+                  <DrawPath d={`M${CXL} 470 L${CXR} 470`} s={draw(f, 70, 40)} />
+                  <DrawPath d={`M${CXL} 470 L${CXL} ${BOX_TOP}`} s={draw(f, 100, 26)} />
+                  <DrawPath d={`M${CXR} 470 L${CXR} ${BOX_TOP}`} s={draw(f, 100, 26)} />
                   {data.statement &&
                     (hasSub ? (
                       // サブ文があるときは、2つのサブ文の"間"（中央の空き）を通す1本だけ。文字と被らないよう手前で止める
-                      <DrawPath d={`M${CENTER} 702 L${CENTER} ${STMT_TOP - 32}`} s={draw(f, 108, 22)} c={COLORS.accent} w={6} />
+                      <DrawPath d={`M${CENTER} 702 L${CENTER} ${STMT_TOP - 32}`} s={draw(f, 150, 32)} c={COLORS.accent} w={6} />
                     ) : (
                       <>
-                        <DrawPath d={`M${CXL} ${BOX_TOP + BOX_H} L${CXL} 690 L${CENTER} 690`} s={draw(f, 104, 30)} c={COLORS.accent} w={6} />
-                        <DrawPath d={`M${CXR} ${BOX_TOP + BOX_H} L${CXR} 690 L${CENTER} 690`} s={draw(f, 104, 30)} c={COLORS.accent} w={6} />
-                        <DrawPath d={`M${CENTER} 690 L${CENTER} ${STMT_TOP - 32}`} s={draw(f, 130, 18)} c={COLORS.accent} w={6} />
+                        <DrawPath d={`M${CXL} ${BOX_TOP + BOX_H} L${CXL} 690 L${CENTER} 690`} s={draw(f, 146, 42)} c={COLORS.accent} w={6} />
+                        <DrawPath d={`M${CXR} ${BOX_TOP + BOX_H} L${CXR} 690 L${CENTER} 690`} s={draw(f, 146, 42)} c={COLORS.accent} w={6} />
+                        <DrawPath d={`M${CENTER} 690 L${CENTER} ${STMT_TOP - 32}`} s={draw(f, 184, 26)} c={COLORS.accent} w={6} />
                       </>
                     ))}
                 </>
               ) : (
                 <>
-                  <DrawPath d={`M${CENTER} 356 L${CENTER} ${BOX_TOP}`} s={draw(f, 22, 34)} />
-                  {data.statement && <DrawPath d={`M${CENTER} ${BOX_TOP + BOX_H} L${CENTER} ${STMT_TOP - 32}`} s={draw(f, 100, 30)} c={COLORS.accent} w={6} />}
+                  <DrawPath d={`M${CENTER} ${headBottom} L${CENTER} ${BOX_TOP}`} s={draw(f, 26, 48)} />
+                  {data.statement && <DrawPath d={`M${CENTER} ${BOX_TOP + BOX_H} L${CENTER} ${STMT_TOP - 32}`} s={draw(f, 150, 42)} c={COLORS.accent} w={6} />}
                 </>
               )}
             </>
           )}
-          {data.footer && data.pill && <DrawPath d={`M${CENTER} ${PILL_TOP + 132} L${CENTER} ${FOOT_TOP - 30}`} s={draw(f, 214, 16)} />}
+          {data.footer && data.pill && <DrawPath d={`M${CENTER} ${PILL_TOP + 132} L${CENTER} ${FOOT_TOP - 30}`} s={draw(f, 300, 24)} />}
         </svg>
 
         {/* 枠見出し */}
@@ -124,16 +127,16 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
 
         {/* 箱 */}
         {oneBox && (
-          <In delay={72} pop style={at(CENTER, BOX_TOP, 500)}>
+          <In delay={104} pop style={at(CENTER, BOX_TOP, 500)}>
             <BoxView b={data.boxes![0]} cx={CENTER} w={500} />
           </In>
         )}
         {twoBox && (
           <>
-            <In delay={72} pop style={at(CXL, BOX_TOP, 360)}>
+            <In delay={104} pop style={at(CXL, BOX_TOP, 360)}>
               <BoxView b={data.boxes![0]} cx={CXL} w={360} />
             </In>
-            <In delay={88} pop style={at(CXR, BOX_TOP, 360)}>
+            <In delay={126} pop style={at(CXR, BOX_TOP, 360)}>
               <BoxView b={data.boxes![1]} cx={CXR} w={360} />
             </In>
           </>
@@ -141,37 +144,37 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
 
         {/* 結論の大テキスト */}
         {data.statement && (
-          <In delay={132} style={at(CENTER, STMT_TOP, 1000)}>
+          <In delay={190} style={at(CENTER, STMT_TOP, 1000)}>
             <div style={{ textAlign: "center", fontSize: 98, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
           </In>
         )}
         {/* イラスト（結論の下・グッドボタン等） */}
         {data.art && (
-          <In delay={160} pop style={{ left: 0, top: ART_TOP, width: 1080, display: "flex", justifyContent: "center" }}>
+          <In delay={214} pop style={{ left: 0, top: ART_TOP, width: 1080, display: "flex", justifyContent: "center" }}>
             {data.art}
           </In>
         )}
         {/* 赤い大きい数字 */}
         {data.number && (
-          <In delay={162} style={at(CENTER, NUM_TOP, 1000)}>
+          <In delay={228} style={at(CENTER, NUM_TOP, 1000)}>
             <div style={{ textAlign: "center", fontSize: 100, fontWeight: 700, color: COLORS.accent, lineHeight: 1.1 }}>{data.number}</div>
           </In>
         )}
         {/* 注記 */}
         {data.note && (
-          <In delay={182} style={at(CENTER, NOTE_TOP, 1000)}>
+          <In delay={256} style={at(CENTER, NOTE_TOP, 1000)}>
             <div style={{ textAlign: "center", fontSize: 34, fontWeight: 700, color: GRAY }}>{data.note}</div>
           </In>
         )}
         {/* 下のpill */}
         {data.pill && (
-          <In delay={200} pop style={at(CENTER, PILL_TOP, 920)}>
+          <In delay={288} pop style={at(CENTER, PILL_TOP, 920)}>
             <div style={{ backgroundColor: COLORS.ink, color: "#fff", borderRadius: 20, padding: "30px 0", textAlign: "center", fontSize: 66, fontWeight: 700, lineHeight: 1.25 }}>{data.pill}</div>
           </In>
         )}
         {/* 締めの一文（帯の下） */}
         {data.footer && (
-          <In delay={222} style={at(CENTER, FOOT_TOP, 1000)}>
+          <In delay={322} style={at(CENTER, FOOT_TOP, 1000)}>
             <div style={{ textAlign: "center", fontSize: 60, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
           </In>
         )}

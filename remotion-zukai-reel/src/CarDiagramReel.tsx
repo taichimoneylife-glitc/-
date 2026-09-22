@@ -2,10 +2,9 @@ import React from "react";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { slide } from "@remotion/transitions/slide";
 import { DiagramPage, DiagramData } from "./components/diagram";
-import { FlatThumbUp } from "./components/flatArt";
 import { COLORS } from "./theme";
 
-const DUR = 285; // 9.5秒/ページ（要素が多く、線もゆっくり描くため長め）
+const DUR = 405; // 13.5秒/ページ（線をさらにゆっくり描く＋ナレーションに合わせる）
 const TRANS = 22;
 const GOLD = "#F6C544";
 const A: React.FC<{ children: React.ReactNode }> = ({ children }) => <span style={{ color: COLORS.accent }}>{children}</span>;
@@ -92,26 +91,6 @@ const PAGES: DiagramData[] = [
     note: "※満期にほぼ金額が確定する",
     pill: "利息 約50万 ＜ 運用益 約260万",
     footer: "利息を引いても大きく増える",
-  },
-  {
-    header: { title: "結論", sub: "現金一括 vs ローン＋運用" },
-    boxes: [
-      { label: "現金一括", variant: "outline", badge: "cross" },
-      { label: "ローン＋運用", variant: "red", badge: "check" },
-    ],
-    statement: (
-      <>
-        トータルで<A>“得”</A>
-      </>
-    ),
-    art: <FlatThumbUp size={210} />,
-    pill: (
-      <>
-        詳しくは本文にまとめ
-        <br />
-        保存＆フォロー
-      </>
-    ),
   },
 ];
 
