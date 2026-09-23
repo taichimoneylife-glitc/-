@@ -3,7 +3,7 @@ import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { Background } from "./Layout";
 import { FONT } from "./font";
 import { COLORS } from "../theme";
-import { In, DrawPath, draw } from "./diagram";
+import { In, DrawPath, draw, ExtrasLayer, Extra } from "./diagram";
 
 const GRAY = "#6C7A93";
 const GREEN = "#12A150";
@@ -22,7 +22,9 @@ export type CompareData = {
   statement?: React.ReactNode;
   note?: string;
   footer?: string;
+  extras?: Extra[];
   offset?: number;
+  speed?: number;
   fs?: { header?: number; stmt?: number; note?: number; foot?: number };
 };
 
@@ -44,27 +46,30 @@ export const ComparePage: React.FC<{ data: CompareData }> = ({ data }) => {
   const cardBottom = CARD_TOP + CARD_H;
   const O = data.offset ?? 60;
   const F = data.fs ?? {};
+  const k = data.speed ?? 1;
+  const fk = f / k;
+  const D = (nn: number) => Math.round(nn * k);
   return (
     <Background>
       {/* Instagramの上部バーを避けて全体を少し下げる */}
       <AbsoluteFill style={{ fontFamily: FONT, transform: `translateY(${O}px)` }}>
         {/* 接続線 */}
         <svg width="1080" height="1920" style={{ position: "absolute" }}>
-          <DrawPath d={`M${CENTER} ${headBottom} L${CENTER} 412`} s={draw(f, 26, 44)} />
-          <DrawPath d={`M${CXL} 412 L${CXR} 412`} s={draw(f, 70, 40)} />
-          <DrawPath d={`M${CXL} 412 L${CXL} ${CARD_TOP}`} s={draw(f, 100, 26)} />
-          <DrawPath d={`M${CXR} 412 L${CXR} ${CARD_TOP}`} s={draw(f, 100, 26)} />
+          <DrawPath d={`M${CENTER} ${headBottom} L${CENTER} 412`} s={draw(fk, 26, 44)} />
+          <DrawPath d={`M${CXL} 412 L${CXR} 412`} s={draw(fk, 70, 40)} />
+          <DrawPath d={`M${CXL} 412 L${CXL} ${CARD_TOP}`} s={draw(fk, 100, 26)} />
+          <DrawPath d={`M${CXR} 412 L${CXR} ${CARD_TOP}`} s={draw(fk, 100, 26)} />
           {data.statement && (
             <>
-              <DrawPath d={`M${CXL} ${cardBottom} L${CXL} 892 L${CENTER} 892`} s={draw(f, 150, 40)} c={COLORS.accent} w={6} />
-              <DrawPath d={`M${CXR} ${cardBottom} L${CXR} 892 L${CENTER} 892`} s={draw(f, 150, 40)} c={COLORS.accent} w={6} />
-              <DrawPath d={`M${CENTER} 892 L${CENTER} 936`} s={draw(f, 188, 22)} c={COLORS.accent} w={6} />
+              <DrawPath d={`M${CXL} ${cardBottom} L${CXL} 892 L${CENTER} 892`} s={draw(fk, 150, 40)} c={COLORS.accent} w={6} />
+              <DrawPath d={`M${CXR} ${cardBottom} L${CXR} 892 L${CENTER} 892`} s={draw(fk, 150, 40)} c={COLORS.accent} w={6} />
+              <DrawPath d={`M${CENTER} 892 L${CENTER} 936`} s={draw(fk, 188, 22)} c={COLORS.accent} w={6} />
             </>
           )}
         </svg>
 
         {/* 見出し */}
-        <In delay={6} style={{ left: 0, top: 170, width: 1080, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <In delay={D(6)} speed={k} style={{ left: 0, top: 170, width: 1080, display: "flex", flexDirection: "column", alignItems: "center" }}>
           <div style={{ border: `5px solid ${COLORS.ink}`, borderRadius: 18, backgroundColor: "#fff", padding: "22px 34px", display: "inline-flex", alignItems: "center", gap: 18, justifyContent: "center", maxWidth: 1000, boxSizing: "border-box" }}>
             <div style={{ width: 11, height: 56, backgroundColor: COLORS.accent, borderRadius: 4, flexShrink: 0 }} />
             <div style={{ fontSize: F.header ?? 64, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2, whiteSpace: "nowrap" }}>{data.header.title}</div>
@@ -73,32 +78,33 @@ export const ComparePage: React.FC<{ data: CompareData }> = ({ data }) => {
         </In>
 
         {/* 左右カード */}
-        <In delay={104} pop style={{ left: CXL - CARD_W / 2, top: CARD_TOP, width: CARD_W }}>
+        <In delay={D(104)} speed={k} pop style={{ left: CXL - CARD_W / 2, top: CARD_TOP, width: CARD_W }}>
           <Card side={data.left} />
         </In>
-        <In delay={126} pop style={{ left: CXR - CARD_W / 2, top: CARD_TOP, width: CARD_W }}>
+        <In delay={D(126)} speed={k} pop style={{ left: CXR - CARD_W / 2, top: CARD_TOP, width: CARD_W }}>
           <Card side={data.right} />
         </In>
 
         {/* 結論 */}
         {data.statement && (
-          <In delay={198} style={{ left: 40, top: 968, width: 1000 }}>
+          <In delay={D(198)} speed={k} style={{ left: 40, top: 968, width: 1000 }}>
             <div style={{ textAlign: "center", fontSize: F.stmt ?? 84, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
           </In>
         )}
         {/* 注記 */}
         {data.note && (
-          <In delay={256} style={{ left: 40, top: 1130, width: 1000 }}>
+          <In delay={D(256)} speed={k} style={{ left: 40, top: 1130, width: 1000 }}>
             <div style={{ textAlign: "center", fontSize: F.note ?? 34, fontWeight: 700, color: GRAY }}>{data.note}</div>
           </In>
         )}
         {/* 締めの一文 */}
         {data.footer && (
-          <In delay={300} style={{ left: 40, top: 1240, width: 1000 }}>
+          <In delay={D(300)} speed={k} style={{ left: 40, top: 1240, width: 1000 }}>
             <div style={{ textAlign: "center", fontSize: F.foot ?? 54, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
           </In>
         )}
       </AbsoluteFill>
+      <ExtrasLayer extras={data.extras} speed={k} />
     </Background>
   );
 };
