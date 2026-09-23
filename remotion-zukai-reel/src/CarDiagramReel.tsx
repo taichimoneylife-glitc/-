@@ -50,7 +50,7 @@ const P2: DiagramData = {
 };
 
 const P3: DiagramData = {
-  header: { title: "浮いた500万円を“運用”へ", sub: "手元に残さない" },
+  header: { title: "元手の500万円を“運用”へ", sub: "手元に残さない" },
   boxes: [
     { label: "株？", variant: "outline" },
     { label: "債券？", variant: "outline" },
@@ -117,7 +117,7 @@ const P6: DiagramData = {
   ),
   number: <>＝ ＋約260万円</>,
   note: "※満期にほぼ金額が確定する",
-  pill: "利息 約50万 ＜ 運用益 約260万",
+  pill: "利息50万 ＜ 運用益260万",
   footer: "利息を引いても大きく増える",
 };
 

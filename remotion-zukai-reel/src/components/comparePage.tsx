@@ -42,7 +42,8 @@ export const ComparePage: React.FC<{ data: CompareData }> = ({ data }) => {
   const cardBottom = CARD_TOP + CARD_H;
   return (
     <Background>
-      <AbsoluteFill style={{ fontFamily: FONT }}>
+      {/* Instagramの上部バーを避けて全体を少し下げる */}
+      <AbsoluteFill style={{ fontFamily: FONT, transform: "translateY(60px)" }}>
         {/* 接続線 */}
         <svg width="1080" height="1920" style={{ position: "absolute" }}>
           <DrawPath d={`M${CENTER} ${headBottom} L${CENTER} 412`} s={draw(f, 26, 44)} />
