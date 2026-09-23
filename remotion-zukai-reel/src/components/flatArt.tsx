@@ -138,6 +138,26 @@ export const FlatThumbUp: React.FC<P & { color?: string }> = ({ size = 200, colo
   </svg>
 );
 
+// 株＝乱高下（ギザギザ・不安）
+export const FlatVolatile: React.FC<P & { color?: string }> = ({ size = 420, color = RED }) => (
+  <svg viewBox="0 0 420 260" style={wrap(420, 260, size)}>
+    <line x1="34" y1="228" x2="404" y2="228" stroke={COLORS.gray} strokeWidth="5" strokeLinecap="round" />
+    <line x1="34" y1="18" x2="34" y2="228" stroke={COLORS.gray} strokeWidth="5" strokeLinecap="round" />
+    <polyline points="46,150 92,86 132,176 178,66 222,206 268,104 312,214 360,128" fill="none" stroke={color} strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M222 206 l-16 -26 l32 0 Z" fill={color} />
+  </svg>
+);
+
+// 債券＝なめらか右肩上がり（安定）
+export const FlatRise: React.FC<P & { color?: string }> = ({ size = 420, color = GREEN }) => (
+  <svg viewBox="0 0 420 260" style={wrap(420, 260, size)}>
+    <line x1="34" y1="228" x2="404" y2="228" stroke={COLORS.gray} strokeWidth="5" strokeLinecap="round" />
+    <line x1="34" y1="18" x2="34" y2="228" stroke={COLORS.gray} strokeWidth="5" strokeLinecap="round" />
+    <polyline points="48,204 116,182 184,150 250,108 316,66 378,36" fill="none" stroke={color} strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M378 36 l-28 8 l14 22 Z" fill={color} />
+  </svg>
+);
+
 // 大きなチェックマーク（丸囲み）
 export const FlatCheck: React.FC<P & { color?: string }> = ({ size = 200, color = GREEN }) => (
   <svg viewBox="0 0 200 200" style={wrap(200, 200, size)}>

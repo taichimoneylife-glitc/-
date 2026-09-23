@@ -10,11 +10,11 @@ export const draw = (f: number, start: number, dur: number) => {
   const x = Math.max(0, Math.min(1, (f - start) / dur));
   return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
 };
-const DrawPath: React.FC<{ d: string; s: number; w?: number; c?: string }> = ({ d, s, w = 5, c = COLORS.ink }) => (
+export const DrawPath: React.FC<{ d: string; s: number; w?: number; c?: string }> = ({ d, s, w = 5, c = COLORS.ink }) => (
   <path d={d} fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - s} opacity={s > 0.001 ? 1 : 0} />
 );
 
-const In: React.FC<{ delay: number; children: React.ReactNode; style?: React.CSSProperties; pop?: boolean }> = ({ delay, children, style, pop }) => {
+export const In: React.FC<{ delay: number; children: React.ReactNode; style?: React.CSSProperties; pop?: boolean }> = ({ delay, children, style, pop }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   // pop=箱/帳/イラスト（少し沈んでから弾んで出る）／通常=テキスト（下からフワッと）
