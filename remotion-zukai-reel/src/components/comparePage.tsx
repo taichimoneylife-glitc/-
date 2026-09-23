@@ -22,6 +22,8 @@ export type CompareData = {
   statement?: React.ReactNode;
   note?: string;
   footer?: string;
+  offset?: number;
+  fs?: { header?: number; stmt?: number; note?: number; foot?: number };
 };
 
 const Card: React.FC<{ side: CompareSide }> = ({ side }) => (
@@ -40,10 +42,12 @@ export const ComparePage: React.FC<{ data: CompareData }> = ({ data }) => {
   const f = useCurrentFrame();
   const headBottom = data.header.sub ? 384 : 322;
   const cardBottom = CARD_TOP + CARD_H;
+  const O = data.offset ?? 60;
+  const F = data.fs ?? {};
   return (
     <Background>
       {/* Instagramの上部バーを避けて全体を少し下げる */}
-      <AbsoluteFill style={{ fontFamily: FONT, transform: "translateY(60px)" }}>
+      <AbsoluteFill style={{ fontFamily: FONT, transform: `translateY(${O}px)` }}>
         {/* 接続線 */}
         <svg width="1080" height="1920" style={{ position: "absolute" }}>
           <DrawPath d={`M${CENTER} ${headBottom} L${CENTER} 412`} s={draw(f, 26, 44)} />
@@ -63,7 +67,7 @@ export const ComparePage: React.FC<{ data: CompareData }> = ({ data }) => {
         <In delay={6} style={{ left: 0, top: 170, width: 1080, display: "flex", flexDirection: "column", alignItems: "center" }}>
           <div style={{ border: `5px solid ${COLORS.ink}`, borderRadius: 18, backgroundColor: "#fff", padding: "22px 34px", display: "inline-flex", alignItems: "center", gap: 18, justifyContent: "center", maxWidth: 1000, boxSizing: "border-box" }}>
             <div style={{ width: 11, height: 56, backgroundColor: COLORS.accent, borderRadius: 4, flexShrink: 0 }} />
-            <div style={{ fontSize: 64, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2, whiteSpace: "nowrap" }}>{data.header.title}</div>
+            <div style={{ fontSize: F.header ?? 64, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2, whiteSpace: "nowrap" }}>{data.header.title}</div>
           </div>
           {data.header.sub ? <div style={{ textAlign: "center", fontSize: 36, fontWeight: 700, color: GRAY, marginTop: 12 }}>{data.header.sub}</div> : null}
         </In>
@@ -79,19 +83,19 @@ export const ComparePage: React.FC<{ data: CompareData }> = ({ data }) => {
         {/* 結論 */}
         {data.statement && (
           <In delay={198} style={{ left: 40, top: 968, width: 1000 }}>
-            <div style={{ textAlign: "center", fontSize: 84, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
+            <div style={{ textAlign: "center", fontSize: F.stmt ?? 84, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
           </In>
         )}
         {/* 注記 */}
         {data.note && (
           <In delay={256} style={{ left: 40, top: 1130, width: 1000 }}>
-            <div style={{ textAlign: "center", fontSize: 34, fontWeight: 700, color: GRAY }}>{data.note}</div>
+            <div style={{ textAlign: "center", fontSize: F.note ?? 34, fontWeight: 700, color: GRAY }}>{data.note}</div>
           </In>
         )}
         {/* 締めの一文 */}
         {data.footer && (
           <In delay={300} style={{ left: 40, top: 1240, width: 1000 }}>
-            <div style={{ textAlign: "center", fontSize: 54, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
+            <div style={{ textAlign: "center", fontSize: F.foot ?? 54, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
           </In>
         )}
       </AbsoluteFill>
