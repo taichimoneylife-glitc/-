@@ -26,6 +26,7 @@ export type CompareData = {
   offset?: number;
   speed?: number;
   fs?: { header?: number; stmt?: number; note?: number; foot?: number };
+  pos?: { [k: string]: { dx?: number; dy?: number } };
 };
 
 const Card: React.FC<{ side: CompareSide }> = ({ side }) => (
@@ -49,6 +50,9 @@ export const ComparePage: React.FC<{ data: CompareData }> = ({ data }) => {
   const k = data.speed ?? 1;
   const fk = f / k;
   const D = (nn: number) => Math.round(nn * k);
+  const PS = data.pos ?? {};
+  const px = (key: string) => PS[key]?.dx ?? 0;
+  const py = (key: string) => PS[key]?.dy ?? 0;
   return (
     <Background>
       {/* Instagramの上部バーを避けて全体を少し下げる */}
@@ -69,7 +73,7 @@ export const ComparePage: React.FC<{ data: CompareData }> = ({ data }) => {
         </svg>
 
         {/* 見出し */}
-        <In delay={D(6)} speed={k} style={{ left: 0, top: 170, width: 1080, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <In delay={D(6)} speed={k} style={{ left: px("header"), top: 170 + py("header"), width: 1080, display: "flex", flexDirection: "column", alignItems: "center" }}>
           <div style={{ border: `5px solid ${COLORS.ink}`, borderRadius: 18, backgroundColor: "#fff", padding: "22px 34px", display: "inline-flex", alignItems: "center", gap: 18, justifyContent: "center", maxWidth: 1000, boxSizing: "border-box" }}>
             <div style={{ width: 11, height: 56, backgroundColor: COLORS.accent, borderRadius: 4, flexShrink: 0 }} />
             <div style={{ fontSize: F.header ?? 64, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2, whiteSpace: "nowrap" }}>{data.header.title}</div>
@@ -78,28 +82,28 @@ export const ComparePage: React.FC<{ data: CompareData }> = ({ data }) => {
         </In>
 
         {/* 左右カード */}
-        <In delay={D(104)} speed={k} pop style={{ left: CXL - CARD_W / 2, top: CARD_TOP, width: CARD_W }}>
+        <In delay={D(104)} speed={k} pop style={{ left: CXL - CARD_W / 2 + px("box0"), top: CARD_TOP + py("box0"), width: CARD_W }}>
           <Card side={data.left} />
         </In>
-        <In delay={D(126)} speed={k} pop style={{ left: CXR - CARD_W / 2, top: CARD_TOP, width: CARD_W }}>
+        <In delay={D(126)} speed={k} pop style={{ left: CXR - CARD_W / 2 + px("box1"), top: CARD_TOP + py("box1"), width: CARD_W }}>
           <Card side={data.right} />
         </In>
 
         {/* 結論 */}
         {data.statement && (
-          <In delay={D(198)} speed={k} style={{ left: 40, top: 968, width: 1000 }}>
+          <In delay={D(198)} speed={k} style={{ left: 40 + px("stmt"), top: 968 + py("stmt"), width: 1000 }}>
             <div style={{ textAlign: "center", fontSize: F.stmt ?? 84, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
           </In>
         )}
         {/* 注記 */}
         {data.note && (
-          <In delay={D(256)} speed={k} style={{ left: 40, top: 1130, width: 1000 }}>
+          <In delay={D(256)} speed={k} style={{ left: 40 + px("note"), top: 1130 + py("note"), width: 1000 }}>
             <div style={{ textAlign: "center", fontSize: F.note ?? 34, fontWeight: 700, color: GRAY }}>{data.note}</div>
           </In>
         )}
         {/* 締めの一文 */}
         {data.footer && (
-          <In delay={D(300)} speed={k} style={{ left: 40, top: 1240, width: 1000 }}>
+          <In delay={D(300)} speed={k} style={{ left: 40 + px("foot"), top: 1240 + py("foot"), width: 1000 }}>
             <div style={{ textAlign: "center", fontSize: F.foot ?? 54, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
           </In>
         )}

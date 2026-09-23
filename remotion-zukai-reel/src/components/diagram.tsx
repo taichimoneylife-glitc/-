@@ -45,6 +45,7 @@ export type DiagramData = {
   offset?: number; // 全体の縦位置（既定60）。ビルダーの微調整と対応
   speed?: number; // 出現速度（既定1・大きいほどゆっくり）
   fs?: { header?: number; stmt?: number; num?: number; note?: number; pill?: number; foot?: number }; // 文字サイズ上書き
+  pos?: { [k: string]: { dx?: number; dy?: number } }; // 要素ごとの位置ずらし（header/box0/box1/stmt/num/note/pill/foot）
 };
 
 // 自由テキストのレイヤー（縦位置offsetに影響されず、キャンバス絶対座標に置く）
@@ -107,6 +108,8 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
   const k = data.speed ?? 1; // 出現速度（大きいほどゆっくり）
   const fk = f / k; // 線の描画をkでスローに（draw(f/k,start,dur)＝start*k,dur*kと等価）
   const D = (nn: number) => Math.round(nn * k); // 出現delayをスケール
+  const PS = data.pos ?? {}; // 要素ごとの位置ずらし
+  const atP = (cx: number, top: number, w: number, key: string): React.CSSProperties => ({ left: cx - w / 2 + (PS[key]?.dx ?? 0), top: top + (PS[key]?.dy ?? 0), width: w });
 
   return (
     <Background>
@@ -146,7 +149,7 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
         </svg>
 
         {/* 枠見出し */}
-        <In delay={D(4)} speed={k} style={{ left: 0, top: HEADER_TOP, width: 1080, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <In delay={D(4)} speed={k} style={{ left: PS.header?.dx ?? 0, top: HEADER_TOP + (PS.header?.dy ?? 0), width: 1080, display: "flex", flexDirection: "column", alignItems: "center" }}>
           <div style={{ border: `5px solid ${COLORS.ink}`, borderRadius: 18, backgroundColor: "#fff", padding: "22px 34px", display: "inline-flex", alignItems: "center", gap: 18, justifyContent: "center", maxWidth: 1000, boxSizing: "border-box" }}>
             <div style={{ width: 11, height: 56, backgroundColor: COLORS.accent, borderRadius: 4, flexShrink: 0 }} />
             <div style={{ fontSize: F.header ?? 64, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2, whiteSpace: "nowrap" }}>{data.header.title}</div>
@@ -156,16 +159,16 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
 
         {/* 箱 */}
         {oneBox && (
-          <In delay={D(104)} speed={k} pop style={at(CENTER, BOX_TOP, 500)}>
+          <In delay={D(104)} speed={k} pop style={atP(CENTER, BOX_TOP, 500, "box0")}>
             <BoxView b={data.boxes![0]} cx={CENTER} w={500} />
           </In>
         )}
         {twoBox && (
           <>
-            <In delay={D(104)} speed={k} pop style={at(CXL, BOX_TOP, 360)}>
+            <In delay={D(104)} speed={k} pop style={atP(CXL, BOX_TOP, 360, "box0")}>
               <BoxView b={data.boxes![0]} cx={CXL} w={360} />
             </In>
-            <In delay={D(126)} speed={k} pop style={at(CXR, BOX_TOP, 360)}>
+            <In delay={D(126)} speed={k} pop style={atP(CXR, BOX_TOP, 360, "box1")}>
               <BoxView b={data.boxes![1]} cx={CXR} w={360} />
             </In>
           </>
@@ -173,7 +176,7 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
 
         {/* 結論の大テキスト */}
         {data.statement && (
-          <In delay={D(190)} speed={k} style={at(CENTER, STMT_TOP, 1000)}>
+          <In delay={D(190)} speed={k} style={atP(CENTER, STMT_TOP, 1000, "stmt")}>
             <div style={{ textAlign: "center", fontSize: F.stmt ?? 84, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
           </In>
         )}
@@ -185,25 +188,25 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
         )}
         {/* 赤い大きい数字 */}
         {data.number && (
-          <In delay={D(228)} speed={k} style={at(CENTER, NUM_TOP, 1000)}>
+          <In delay={D(228)} speed={k} style={atP(CENTER, NUM_TOP, 1000, "num")}>
             <div style={{ textAlign: "center", fontSize: F.num ?? 100, fontWeight: 700, color: COLORS.accent, lineHeight: 1.1 }}>{data.number}</div>
           </In>
         )}
         {/* 注記 */}
         {data.note && (
-          <In delay={D(256)} speed={k} style={at(CENTER, NOTE_TOP, 1000)}>
+          <In delay={D(256)} speed={k} style={atP(CENTER, NOTE_TOP, 1000, "note")}>
             <div style={{ textAlign: "center", fontSize: F.note ?? 34, fontWeight: 700, color: GRAY }}>{data.note}</div>
           </In>
         )}
         {/* 下のpill */}
         {data.pill && (
-          <In delay={D(288)} speed={k} pop style={at(CENTER, PILL_TOP, 820)}>
+          <In delay={D(288)} speed={k} pop style={atP(CENTER, PILL_TOP, 820, "pill")}>
             <div style={{ backgroundColor: COLORS.ink, color: "#fff", borderRadius: 20, padding: "28px 0", textAlign: "center", fontSize: F.pill ?? 60, fontWeight: 700, lineHeight: 1.25 }}>{data.pill}</div>
           </In>
         )}
         {/* 締めの一文（帯の下） */}
         {data.footer && (
-          <In delay={D(322)} speed={k} style={at(CENTER, FOOT_TOP, 1000)}>
+          <In delay={D(322)} speed={k} style={atP(CENTER, FOOT_TOP, 1000, "foot")}>
             <div style={{ textAlign: "center", fontSize: F.foot ?? 54, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
           </In>
         )}
