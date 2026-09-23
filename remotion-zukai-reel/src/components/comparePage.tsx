@@ -78,7 +78,7 @@ export const ComparePage: React.FC<{ data: CompareData }> = ({ data }) => {
         {/* 結論 */}
         {data.statement && (
           <In delay={198} style={{ left: 40, top: 968, width: 1000 }}>
-            <div style={{ textAlign: "center", fontSize: 98, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
+            <div style={{ textAlign: "center", fontSize: 84, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
           </In>
         )}
         {/* 注記 */}
@@ -90,7 +90,7 @@ export const ComparePage: React.FC<{ data: CompareData }> = ({ data }) => {
         {/* 締めの一文 */}
         {data.footer && (
           <In delay={300} style={{ left: 40, top: 1240, width: 1000 }}>
-            <div style={{ textAlign: "center", fontSize: 60, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
+            <div style={{ textAlign: "center", fontSize: 54, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
           </In>
         )}
       </AbsoluteFill>

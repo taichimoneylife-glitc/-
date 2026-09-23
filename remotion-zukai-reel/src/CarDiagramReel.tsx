@@ -13,7 +13,7 @@ const GRAY = "#6C7A93";
 const A: React.FC<{ children: React.ReactNode }> = ({ children }) => <span style={{ color: COLORS.accent }}>{children}</span>;
 // 帯の中で"キーワード"を大きく＆色替え（キリよく改行して使う）
 const K: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span style={{ fontSize: 92, color: GOLD, display: "inline-block", marginTop: 6 }}>{children}</span>
+  <span style={{ fontSize: 82, color: GOLD, display: "inline-block", marginTop: 6 }}>{children}</span>
 );
 
 // ── 通常ページ（連結図解） ──
@@ -68,7 +68,6 @@ const P3: DiagramData = {
       解説していきます
     </>
   ),
-  footer: "手元に現金を残さない",
 };
 
 // ── 4枚目：ビフォーアフター型（株 vs 債券 値動き比較） ──

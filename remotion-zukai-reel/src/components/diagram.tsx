@@ -145,7 +145,7 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
         {/* 結論の大テキスト */}
         {data.statement && (
           <In delay={190} style={at(CENTER, STMT_TOP, 1000)}>
-            <div style={{ textAlign: "center", fontSize: 98, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
+            <div style={{ textAlign: "center", fontSize: 84, fontWeight: 700, color: COLORS.ink, lineHeight: 1.15 }}>{data.statement}</div>
           </In>
         )}
         {/* イラスト（結論の下・グッドボタン等） */}
@@ -169,13 +169,13 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
         {/* 下のpill */}
         {data.pill && (
           <In delay={288} pop style={at(CENTER, PILL_TOP, 920)}>
-            <div style={{ backgroundColor: COLORS.ink, color: "#fff", borderRadius: 20, padding: "30px 0", textAlign: "center", fontSize: 66, fontWeight: 700, lineHeight: 1.25 }}>{data.pill}</div>
+            <div style={{ backgroundColor: COLORS.ink, color: "#fff", borderRadius: 20, padding: "28px 0", textAlign: "center", fontSize: 60, fontWeight: 700, lineHeight: 1.25 }}>{data.pill}</div>
           </In>
         )}
         {/* 締めの一文（帯の下） */}
         {data.footer && (
           <In delay={322} style={at(CENTER, FOOT_TOP, 1000)}>
-            <div style={{ textAlign: "center", fontSize: 60, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
+            <div style={{ textAlign: "center", fontSize: 54, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
           </In>
         )}
       </AbsoluteFill>
