@@ -116,28 +116,34 @@ export const PunchPage: React.FC<{ data: PunchData }> = ({ data }) => {
         style={{
           fontFamily: FONT,
           // IG安全ゾーンを避ける：上バー/下キャプション/アクションレール
-          padding: `${210 + (data.offset ?? 0)}px 60px 430px`,
+          padding: `${200 + (data.offset ?? 0)}px 48px 380px`,
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
         }}
       >
         {data.card ? (
           <div
             style={{
+              flex: 1,
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
               backgroundColor: "rgba(255,255,255,0.72)",
               backdropFilter: "blur(6px)",
               WebkitBackdropFilter: "blur(6px)",
               border: "1px solid rgba(255,255,255,0.9)",
-              borderRadius: 44,
-              padding: "60px 46px",
+              borderRadius: 48,
+              padding: "70px 48px",
               boxShadow: "0 30px 70px rgba(60,45,25,0.16)",
+              boxSizing: "border-box",
             }}
           >
             {stack}
           </div>
         ) : (
-          stack
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>{stack}</div>
         )}
       </AbsoluteFill>
       {data.char && (
