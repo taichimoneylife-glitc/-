@@ -1,4 +1,5 @@
 import React from "react";
+import { Audio, staticFile } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { slide } from "@remotion/transitions/slide";
 import { DiagramPage, DiagramData } from "./components/diagram";
@@ -6,7 +7,7 @@ import { ComparePage, CompareData } from "./components/comparePage";
 import { FlatVolatile, FlatRise } from "./components/flatArt";
 import { COLORS } from "./theme";
 
-const DUR = 405; // 13.5秒/ページ（線をゆっくり描く＋ナレーションに合わせる）
+const DUR = 393; // 既定の1ページ尺。音声74.9秒 ÷ 6ページ ≒ 13.1秒/ページ（均等割りの下書き用）
 const TRANS = 22;
 const GOLD = "#F6C544";
 const GRAY = "#6C7A93";
@@ -130,7 +131,28 @@ const SCENES: React.ReactNode[] = [
   <DiagramPage data={P6} />,
 ];
 
-export const CAR_DIAGRAM_FRAMES = SCENES.length * DUR - (SCENES.length - 1) * TRANS;
+// ── 各ページの尺（フレーム）──
+// ナレーション音声に合わせてページごとに調整できるようにした。
+// PAGE_DURATIONS を差し替えれば、そのページだけ長く/短くできる。
+// null の要素は「均等割り」の既定値（DUR）を使う。
+// ※ taichiさんの声に合わせて、下書きを見ながらこの数字を詰めていく。
+export const PAGE_DURATIONS: (number | null)[] = [
+  DUR, // P1 500万円の車、どう買う？
+  DUR, // P2 銀行ローンで買うと
+  DUR, // P3 元手を運用へ
+  DUR, // C4 株 vs 債券
+  DUR, // P5 なぜ債券なのか
+  DUR, // P6 10年後どうなる
+];
+
+const durOf = (i: number) => PAGE_DURATIONS[i] ?? DUR;
+
+// 音声を鳴らすか（下書き確認用）。音声トラックを付けたMP4を書き出す。
+export const NARRATION_SRC: string | null = "car-narration.m4a";
+
+// 全体尺＝各ページ尺の合計 −（トランジションの重なり分）
+export const CAR_DIAGRAM_FRAMES =
+  SCENES.reduce((sum, _s, i) => sum + durOf(i), 0) - (SCENES.length - 1) * TRANS;
 
 export const CarDiagramReel: React.FC = () => {
   const children: React.ReactNode[] = [];
@@ -145,10 +167,15 @@ export const CarDiagramReel: React.FC = () => {
       );
     }
     children.push(
-      <TransitionSeries.Sequence key={`s${i}`} durationInFrames={DUR}>
+      <TransitionSeries.Sequence key={`s${i}`} durationInFrames={durOf(i)}>
         {scene}
       </TransitionSeries.Sequence>
     );
   });
-  return <TransitionSeries>{children}</TransitionSeries>;
+  return (
+    <>
+      {NARRATION_SRC ? <Audio src={staticFile(NARRATION_SRC)} /> : null}
+      <TransitionSeries>{children}</TransitionSeries>
+    </>
+  );
 };
