@@ -4,37 +4,41 @@ import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { slide } from "@remotion/transitions/slide";
 import { DiagramPage, DiagramData } from "./components/diagram";
 import { ComparePage, CompareData } from "./components/comparePage";
-import { FlatVolatile, FlatRise } from "./components/flatArt";
+import { ChartPage, ChartData } from "./components/chartPage";
+import { FlatVolatile, FlatRise, FlatCar, FlatBond, FlatWallet } from "./components/flatArt";
 import { COLORS } from "./theme";
 
-const DUR = 393; // 既定の1ページ尺。音声74.9秒 ÷ 6ページ ≒ 13.1秒/ページ（均等割りの下書き用）
 const TRANS = 22;
 const GOLD = "#F6C544";
 const GRAY = "#6C7A93";
 const A: React.FC<{ children: React.ReactNode }> = ({ children }) => <span style={{ color: COLORS.accent }}>{children}</span>;
-// 帯の中で"キーワード"を大きく＆色替え（キリよく改行して使う）
+// 帯/結論の中で“キーワード”を大きく＆色替え
 const K: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span style={{ fontSize: 82, color: GOLD, display: "inline-block", marginTop: 6 }}>{children}</span>
+  <span style={{ fontSize: 96, color: GOLD, display: "inline-block", margin: "0 4px" }}>{children}</span>
 );
 
-// ── 通常ページ（連結図解） ──
+// ══════════════════════════════════════════════════
+//  音声(car-narration.m4a / 70.10秒)に完全同期した7ページ構成
+//  文字起こし: public/car-narration.transcript.txt
+// ══════════════════════════════════════════════════
+
+// P1 [0.0-7.05] 現金一括かローンか → 結論ローン
 const P1: DiagramData = {
-  header: { title: "500万円の車、どう買う？", sub: "現金一括 vs 銀行ローン" },
+  header: { title: "500万円の車、どう買う？" },
   boxes: [
     { label: "現金一括", variant: "outline" },
-    { label: "銀行ローン", variant: "red" },
+    { label: "銀行ローン", fill: COLORS.ink, badge: "check" },
   ],
   statement: (
     <>
-      トータルで<A>得</A>なのは？
+      結論は<A>“ローン”</A>
     </>
   ),
-  note: "※利息と運用益をトータルで比較",
-  pill: "答え → ローンを組んで運用",
-  footer: "選び方だけで数百万の差",
-  speed: 0.6, // 尺が短い(7s)ので出現アニメを速める
+  art: <FlatCar size={330} />,
+  speed: 0.7,
 };
 
+// P2 [7.05-21.05] 金利2%10年・車両500+利息50=総支払550
 const P2: DiagramData = {
   header: { title: "銀行ローンで買うと", sub: "金利2% ・ 10年" },
   boxes: [
@@ -46,52 +50,41 @@ const P2: DiagramData = {
       総支払は<A>約550万</A>
     </>
   ),
-  note: "※金利2%・10年で組んだ場合",
-  pill: "利息は50万円",
-  footer: "問題はここからの使い方",
+  note: "利息の50万円は“損”に見えるけど…",
+  art: <FlatWallet size={230} />,
+  speed: 1,
 };
 
+// P3 [21.05-28.05] 元手500万を運用へ・株か債券か
 const P3: DiagramData = {
-  header: { title: "元手の500万円を“運用”へ", sub: "手元に残さない" },
+  header: { title: "元手の500万円を“運用”へ" },
   boxes: [
     { label: "株？", variant: "outline" },
     { label: "債券？", variant: "outline" },
   ],
-  statement: (
-    <>
-      答えは<A>“債券”</A>
-    </>
-  ),
-  note: "債券＝値動きの少ない“安全資産”",
-  pill: (
-    <>
-      なぜ債券なのか
-      <br />
-      解説していきます
-    </>
-  ),
-  speed: 0.6, // 尺が短い(7s)ので出現アニメを速める
+  statement: <>何で増やす？</>,
+  art: <FlatWallet size={230} />,
+  speed: 0.7,
 };
 
-// ── 4枚目：ビフォーアフター型（株 vs 債券 値動き比較） ──
+// C4 [28.05-33.05] リスク取りたくない → 安定の債券（5秒・短尺）
 const C4: CompareData = {
-  header: { title: "なぜ株じゃなく“債券”？" },
-  left: { label: "株", art: <FlatVolatile size={400} />, badge: "cross", accent: GRAY },
-  right: { label: "債券", art: <FlatRise size={400} />, badge: "check", accent: COLORS.ink },
+  header: { title: "リスクは取りたくない" },
+  left: { label: "株", art: <FlatVolatile size={360} />, badge: "cross", accent: GRAY },
+  right: { label: "債券", art: <FlatRise size={360} />, badge: "check", accent: COLORS.ink },
   statement: (
     <>
       <A>安定的に</A>増やす
     </>
   ),
-  // 尺が5秒と短いので note/footer は省き、カード＋結論に絞る
   speed: 0.5,
 };
 
-// ── 5枚目：なぜ債券なのか（ライフプラン＋米国債） ──
-const P5: DiagramData = {
-  header: { title: "なぜ“債券”なのか", sub: "子育て世帯こそ計画的に" },
+// P5a [33.05-47.05] 子育て世帯こそ計画的・株暴落 vs 債券は約束
+const P5a: DiagramData = {
+  header: { title: "子育て世帯こそ“計画的”に" },
   boxes: [
-    { label: "株", sub: "計画が狂う", variant: "outline", badge: "cross" },
+    { label: "株", sub: "暴落のリスク", variant: "outline", badge: "cross" },
     { label: "債券", sub: "約束された資産", variant: "outline", badge: "check" },
   ],
   statement: (
@@ -99,29 +92,41 @@ const P5: DiagramData = {
       将来を<A>計画的に</A>組める
     </>
   ),
-  note: "教育・老後・車の買替など特別費に備える",
-  pill: (
-    <>
-      米国債なら金利
-      <br />
-      <K>約5%</K>も魅力（※一例）
-    </>
-  ),
+  note: "教育資金・老後資金・特別費に備える",
+  speed: 1,
 };
 
-// ── 6枚目：結果の数字 ──
-const P6: DiagramData = {
-  header: { title: "10年後、どうなる？" },
-  boxes: [{ label: "債券で 約810万", variant: "navy" }],
+// P5b [47.05-53.05] 米国債は金利約5%・僕も保有
+const P5b: DiagramData = {
+  header: { title: "しかも今、米国債は" },
   statement: (
     <>
-      − 総支払 <A>約550万</A>
+      金利<K>約5%</K>
     </>
   ),
-  number: <>＝ ＋約260万円</>,
-  note: "※満期にほぼ金額が確定する",
-  pill: "利息50万 ＜ 運用益260万",
-  footer: "利息を引いても大きく増える",
+  art: <FlatBond size={260} />,
+  footer: "実際に僕も5%超えの債券を保有",
+  fs: { stmt: 92 },
+  speed: 0.55,
+};
+
+// P6 [53.05-70.10] 10年後どうなる？ 810万 vs 550万 → +260万
+const P6: ChartData = {
+  header: { title: "10年後、どうなる？" },
+  result: { base: 550, delta: 260, topLabel: "約810万", caption: "債券で10年運用" },
+  compare: { value: 550, topLabel: "550万", caption: "車の総支払い" },
+  deltaCallout: "＋260万",
+  pill: (
+    <>
+      利息50万 <span style={{ color: GOLD }}>＜</span> 運用益260万
+    </>
+  ),
+  footer: (
+    <>
+      だからトータルで<A>“得”</A>
+    </>
+  ),
+  speed: 1,
 };
 
 const SCENES: React.ReactNode[] = [
@@ -129,34 +134,20 @@ const SCENES: React.ReactNode[] = [
   <DiagramPage data={P2} />,
   <DiagramPage data={P3} />,
   <ComparePage data={C4} />,
-  <DiagramPage data={P5} />,
-  <DiagramPage data={P6} />,
+  <DiagramPage data={P5a} />,
+  <DiagramPage data={P5b} />,
+  <ChartPage data={P6} />,
 ];
 
-// ── 各ページの尺（フレーム）──
-// ナレーション音声に合わせてページごとに調整できるようにした。
-// PAGE_DURATIONS を差し替えれば、そのページだけ長く/短くできる。
-// null の要素は「均等割り」の既定値（DUR）を使う。
-// ※ taichiさんの声に合わせて、下書きを見ながらこの数字を詰めていく。
-// ▼ ナレーション音声（car-narration.m4a／重複カット済み70.10秒）の実測タイミングに確定。
-//   文字起こし: public/car-narration.transcript.txt
-//   各ページ開始秒 → P1:0.0 / P2:7.05 / P3:21.05 / C4:28.05 / P5:33.05 / P6:53.05 / 終:70.10
-//   TransitionSeries の重なり(TRANS=22)を差し引いてフレーム尺を逆算した値。
-export const PAGE_DURATIONS: (number | null)[] = [
-  234, // P1 [0.0-7.05]   現金一括 vs ローン → 結論ローン
-  442, // P2 [7.05-21.05] 金利2%10年・総支払550・問題はここから
-  232, // P3 [21.05-28.05] 元手を運用へ・株か債券か
-  172, // C4 [28.05-33.05] リスク取りたくない→安定の債券（5秒・短尺）
-  622, // P5 [33.05-53.05] 子育て世帯こそ計画的・米国債5%
-  511, // P6 [53.05-70.10] 10年後810万・トータルで得
-];
+// ── 各ページの尺（フレーム）＝音声の各ページ開始秒から逆算 ──
+//  開始秒: P1:0 / P2:7.05 / P3:21.05 / C4:28.05 / P5a:33.05 / P5b:47.05 / P6:53.05 / 終:70.10
+export const PAGE_DURATIONS: number[] = [234, 442, 232, 172, 442, 202, 511];
 
-const durOf = (i: number) => PAGE_DURATIONS[i] ?? DUR;
+const durOf = (i: number) => PAGE_DURATIONS[i] ?? 405;
 
-// 音声を鳴らすか（下書き確認用）。音声トラックを付けたMP4を書き出す。
+// 音声トラック（重複カット済み・70.10秒）
 export const NARRATION_SRC: string | null = "car-narration.m4a";
 
-// 全体尺＝各ページ尺の合計 −（トランジションの重なり分）
 export const CAR_DIAGRAM_FRAMES =
   SCENES.reduce((sum, _s, i) => sum + durOf(i), 0) - (SCENES.length - 1) * TRANS;
 
