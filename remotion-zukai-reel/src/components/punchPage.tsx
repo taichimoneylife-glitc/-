@@ -1,8 +1,47 @@
 import React from "react";
-import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
 import { Background } from "./Layout";
 import { FONT } from "./font";
 import { COLORS } from "../theme";
+
+// 温かいボケ背景（参考リールの“ぼかした室内”の質感を手続きで再現）
+export const SoftBg: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <AbsoluteFill style={{ background: "linear-gradient(160deg,#FBF6EE 0%,#F3EADD 45%,#EFE4D6 100%)", fontFamily: FONT, overflow: "hidden" }}>
+    {/* ボケ光 */}
+    <div style={{ position: "absolute", top: -120, left: -80, width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle,#FFF6E2,rgba(255,246,226,0))", filter: "blur(20px)" }} />
+    <div style={{ position: "absolute", top: 380, right: -140, width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle,#F7E7CE,rgba(247,231,206,0))", filter: "blur(24px)" }} />
+    <div style={{ position: "absolute", bottom: -160, left: 120, width: 620, height: 620, borderRadius: "50%", background: "radial-gradient(circle,#EADFCB,rgba(234,223,203,0))", filter: "blur(28px)" }} />
+    {children}
+  </AbsoluteFill>
+);
+
+// 手書き風の赤丸ハイライト（数字・キーワードを囲む）。startFrameから描かれる
+export const RedCircle: React.FC<{ w?: number; h?: number; startFrame?: number; color?: string; sw?: number }> = ({ w = 320, h = 150, startFrame = 0, color = COLORS.accent, sw = 8 }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [startFrame, startFrame + 22], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const cx = w / 2, cy = h / 2, rx = w / 2 - sw, ry = h / 2 - sw;
+  // わずかに歪ませて手書き感
+  const d = `M ${cx + rx} ${cy - 4}
+    C ${cx + rx} ${cy - ry} ${cx + rx * 0.2} ${cy - ry} ${cx - 6} ${cy - ry}
+    C ${cx - rx} ${cy - ry} ${cx - rx} ${cy + ry * 0.2} ${cx - rx} ${cy + 6}
+    C ${cx - rx} ${cy + ry} ${cx - rx * 0.2} ${cy + ry} ${cx + 10} ${cy + ry}
+    C ${cx + rx} ${cy + ry} ${cx + rx} ${cy - ry * 0.2} ${cx + rx} ${cy - 18}`;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", transform: "rotate(-2deg)", overflow: "visible", pointerEvents: "none" }}>
+      <path d={d} fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+};
+
+// 中身を赤丸で囲むラッパー
+export const Circled: React.FC<{ children: React.ReactNode; startFrame?: number; padX?: number; padY?: number }> = ({ children, startFrame = 30, padX = 40, padY = 20 }) => (
+  <span style={{ position: "relative", display: "inline-flex", padding: `${padY}px ${padX}px` }}>
+    <span style={{ position: "absolute", inset: 0 }}>
+      <RedCircle startFrame={startFrame} sw={9} />
+    </span>
+    {children}
+  </span>
+);
 
 // 流し込み（in-flow）で弾いて出る要素。テンプレの固定スロットではなく、
 // 中央スタックに“パンパン”と積み上げるためのリビール。
@@ -21,6 +60,8 @@ export const Rise: React.FC<{ delay: number; speed?: number; pop?: boolean; chil
 export type PunchBeat = { node: React.ReactNode; d: number };
 export type PunchData = {
   bg?: string;
+  soft?: boolean; // 温かいボケ背景
+  card?: boolean; // すりガラスの白カードで囲む
   offset?: number; // 縦位置微調整
   speed?: number;
   gap?: number;
@@ -31,28 +72,60 @@ export type PunchData = {
 export const PunchPage: React.FC<{ data: PunchData }> = ({ data }) => {
   const k = data.speed ?? 1;
   const gap = data.gap ?? 34;
+  const Wrap: React.FC<{ children: React.ReactNode }> = ({ children }) =>
+    data.soft ? <SoftBg>{children}</SoftBg> : <Background bg={data.bg}>{children}</Background>;
+
+  const stack = (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap,
+        textAlign: "center",
+        width: "100%",
+      }}
+    >
+      {data.items.map((it, i) => (
+        <Rise key={i} delay={Math.round(it.d * k)} speed={k} style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+          {it.node}
+        </Rise>
+      ))}
+    </div>
+  );
+
   return (
-    <Background bg={data.bg}>
+    <Wrap>
       <AbsoluteFill
         style={{
           fontFamily: FONT,
           // IG安全ゾーンを避ける：上バー/下キャプション/アクションレール
-          padding: `${230 + (data.offset ?? 0)}px 70px 470px`,
+          padding: `${210 + (data.offset ?? 0)}px 60px 430px`,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
           justifyContent: "center",
-          gap,
-          textAlign: "center",
         }}
       >
-        {data.items.map((it, i) => (
-          <Rise key={i} delay={Math.round(it.d * k)} speed={k} style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-            {it.node}
-          </Rise>
-        ))}
+        {data.card ? (
+          <div
+            style={{
+              backgroundColor: "rgba(255,255,255,0.72)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              border: "1px solid rgba(255,255,255,0.9)",
+              borderRadius: 44,
+              padding: "60px 46px",
+              boxShadow: "0 30px 70px rgba(60,45,25,0.16)",
+            }}
+          >
+            {stack}
+          </div>
+        ) : (
+          stack
+        )}
       </AbsoluteFill>
-    </Background>
+    </Wrap>
   );
 };
 
@@ -68,4 +141,8 @@ export const Em: React.FC<{ children: React.ReactNode; color?: string; size?: nu
 );
 export const Chip: React.FC<{ children: React.ReactNode; bg?: string; color?: string; size?: number }> = ({ children, bg = COLORS.ink, color = "#fff", size = 50 }) => (
   <div style={{ backgroundColor: bg, color, borderRadius: 18, padding: "20px 34px", fontSize: size, fontWeight: 700, lineHeight: 1.25, display: "inline-block" }}>{children}</div>
+);
+// 黄色マーカー下線（キーワード強調）
+export const Mark: React.FC<{ children: React.ReactNode; color?: string }> = ({ children, color = "#FCE15F" }) => (
+  <span style={{ background: `linear-gradient(transparent 58%, ${color} 58%)`, padding: "0 2px" }}>{children}</span>
 );

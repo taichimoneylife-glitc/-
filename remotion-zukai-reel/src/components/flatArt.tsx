@@ -158,6 +158,50 @@ export const FlatRise: React.FC<P & { color?: string }> = ({ size = 420, color =
   </svg>
 );
 
+// お金の束（かわいい顔つき）
+export const FlatMoneyBundle: React.FC<P> = ({ size = 300 }) => (
+  <svg viewBox="0 0 320 240" style={wrap(320, 240, size)}>
+    <ellipse cx="160" cy="224" rx="130" ry="12" fill="#000" opacity="0.08" />
+    {/* 束の側面 */}
+    <rect x="46" y="120" width="228" height="96" rx="12" fill="#CDE9C6" stroke={INK} strokeWidth="7" />
+    <line x1="46" y1="150" x2="274" y2="150" stroke={INK} strokeWidth="4" opacity="0.5" />
+    <line x1="46" y1="182" x2="274" y2="182" stroke={INK} strokeWidth="4" opacity="0.5" />
+    {/* 一番上の札 */}
+    <rect x="60" y="70" width="200" height="86" rx="12" fill="#EAF6E4" stroke={INK} strokeWidth="7" />
+    <circle cx="160" cy="113" r="26" fill="none" stroke={GREEN} strokeWidth="6" />
+    <text x="160" y="127" fontSize="34" fill={GREEN} textAnchor="middle" fontWeight="700">¥</text>
+    {/* 帯 */}
+    <rect x="128" y="70" width="64" height="86" fill={RED} opacity="0.85" />
+    {/* かわいい顔 */}
+    <circle cx="96" cy="104" r="4.5" fill={INK} />
+    <circle cx="224" cy="104" r="4.5" fill={INK} />
+    <path d="M92 120 Q104 130 118 120" fill="none" stroke={INK} strokeWidth="4" strokeLinecap="round" />
+    <path d="M202 120 Q214 130 228 120" fill="none" stroke={INK} strokeWidth="4" strokeLinecap="round" />
+    <circle cx="86" cy="116" r="7" fill="#F6B9A9" opacity="0.7" />
+    <circle cx="234" cy="116" r="7" fill="#F6B9A9" opacity="0.7" />
+  </svg>
+);
+
+// 貯金箱（将来の備え）
+export const FlatPiggy: React.FC<P> = ({ size = 320 }) => (
+  <svg viewBox="0 0 340 280" style={wrap(340, 280, size)}>
+    <ellipse cx="170" cy="256" rx="140" ry="14" fill="#000" opacity="0.08" />
+    <ellipse cx="176" cy="150" rx="128" ry="100" fill={RED} stroke={INK} strokeWidth="8" />
+    <path d="M300 120 q34 -6 32 26 q-2 22 -30 20 Z" fill={RED} stroke={INK} strokeWidth="8" strokeLinejoin="round" />
+    <rect x="150" y="52" width="70" height="26" rx="8" fill="#C6381F" stroke={INK} strokeWidth="7" />
+    <circle cx="300" cy="150" r="8" fill={INK} />
+    <path d="M96 138 Q112 132 128 138" fill="none" stroke={INK} strokeWidth="5" strokeLinecap="round" />
+    <circle cx="112" cy="120" r="10" fill="#F6B9A9" opacity="0.7" />
+    {/* 脚 */}
+    {[110, 170, 230].map((x) => (
+      <rect key={x} x={x} y="232" width="30" height="26" rx="6" fill={RED} stroke={INK} strokeWidth="7" />
+    ))}
+    {/* コイン投入中 */}
+    <circle cx="185" cy="30" r="20" fill={GOLD} stroke={INK} strokeWidth="6" />
+    <text x="185" y="40" fontSize="22" fill={INK} textAnchor="middle" fontWeight="700">¥</text>
+  </svg>
+);
+
 // 大きなチェックマーク（丸囲み）
 export const FlatCheck: React.FC<P & { color?: string }> = ({ size = 200, color = GREEN }) => (
   <svg viewBox="0 0 200 200" style={wrap(200, 200, size)}>
