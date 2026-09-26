@@ -1,8 +1,22 @@
 import React from "react";
-import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
+import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig, interpolate, Img, staticFile } from "remotion";
 import { Background } from "./Layout";
 import { FONT } from "./font";
 import { COLORS } from "../theme";
+
+// ブランドマスコット（提供キャラ）。pose= point_r/point_l/surprise/shock/neutral
+export type CharPose = "point_r" | "point_l" | "surprise" | "shock" | "neutral";
+export const Character: React.FC<{ pose: CharPose; size?: number; flip?: boolean; delay?: number; speed?: number; style?: React.CSSProperties }> = ({ pose, size = 440, flip, delay = 10, speed = 1, style }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const s = spring({ frame: frame - delay, fps, config: { damping: 13, mass: 0.8, stiffness: 140 }, durationInFrames: Math.round(26 * speed) });
+  const y = (1 - s) * 40;
+  return (
+    <div style={{ position: "absolute", opacity: Math.min(1, s * 1.6), transform: `translateY(${y}px) scale(${0.9 + 0.1 * s})`, ...style }}>
+      <Img src={staticFile(`char/${pose}.png`)} style={{ height: size, width: "auto", transform: flip ? "scaleX(-1)" : undefined, filter: "drop-shadow(0 10px 18px rgba(60,45,25,0.18))" }} />
+    </div>
+  );
+};
 
 // 温かいボケ背景（参考リールの“ぼかした室内”の質感を手続きで再現）
 export const SoftBg: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -66,6 +80,7 @@ export type PunchData = {
   speed?: number;
   gap?: number;
   items: PunchBeat[];
+  char?: { pose: CharPose; side?: "left" | "right"; size?: number; flip?: boolean; d?: number; dx?: number; dy?: number }; // マスコット
 };
 
 // 全画面・中央スタックのパンチ型ページ（キーワードを大きく、パンパンと出す）
@@ -125,6 +140,19 @@ export const PunchPage: React.FC<{ data: PunchData }> = ({ data }) => {
           stack
         )}
       </AbsoluteFill>
+      {data.char && (
+        <Character
+          pose={data.char.pose}
+          size={data.char.size ?? 430}
+          flip={data.char.flip}
+          delay={data.char.d ?? 12}
+          speed={k}
+          style={{
+            bottom: 430 + (data.char.dy ?? 0),
+            [data.char.side ?? "right"]: 30 + (data.char.dx ?? 0),
+          }}
+        />
+      )}
     </Wrap>
   );
 };

@@ -27,6 +27,8 @@ const USBOND: PunchData = {
   soft: true,
   card: true,
   gap: 26,
+  offset: -110,
+  char: { pose: "point_l", side: "right", size: 430, d: 40 },
   items: [
     { node: <Kicker>しかも今、米国債は</Kicker>, d: 6 },
     { node: <GrowthLine size={560} startFrame={22} badge="5%" flag />, d: 14 },
@@ -40,6 +42,8 @@ const KOSODATE: PunchData = {
   soft: true,
   card: true,
   gap: 24,
+  offset: -120,
+  char: { pose: "point_r", side: "left", size: 380, d: 40 },
   items: [
     { node: <Big size={72}>子育て世帯こそ</Big>, d: 6 },
     { node: <Big size={128} color={RED}><Mark>“計画的”に</Mark></Big>, d: 16 },
