@@ -2,115 +2,109 @@ import React from "react";
 import { Audio, staticFile } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { slide } from "@remotion/transitions/slide";
-import { DiagramPage, DiagramData } from "./components/diagram";
-import { ComparePage, CompareData } from "./components/comparePage";
+import { PunchPage, PunchData, Kicker, Big, Em, Chip, Mark, Circled } from "./components/punchPage";
 import { ChartPage, ChartData } from "./components/chartPage";
-import { FlatVolatile, FlatRise, FlatCar, FlatBond, FlatWallet } from "./components/flatArt";
+import { GrowthLine, CountUp } from "./components/animArt";
+import { FlatVolatile, FlatRise } from "./components/flatArt";
 import { COLORS } from "./theme";
 
 const TRANS = 22;
 const GOLD = "#F6C544";
+const GREEN = "#12A150";
 const GRAY = "#6C7A93";
-const A: React.FC<{ children: React.ReactNode }> = ({ children }) => <span style={{ color: COLORS.accent }}>{children}</span>;
-// 帯/結論の中で“キーワード”を大きく＆色替え
-const K: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span style={{ fontSize: 96, color: GOLD, display: "inline-block", margin: "0 4px" }}>{children}</span>
+const INK = COLORS.ink;
+const RED = COLORS.accent;
+
+// 2択チップ（現金/ローン、株/債券 等）。sub・◯✕バッジ対応
+const Choice: React.FC<{ label: string; sub?: string; tone?: "plain" | "navy" | "gray"; badge?: "ok" | "ng" }> = ({ label, sub, tone = "plain", badge }) => {
+  const bg = tone === "navy" ? INK : "#fff";
+  const col = tone === "navy" ? "#fff" : tone === "gray" ? GRAY : INK;
+  const bd = tone === "navy" ? INK : tone === "gray" ? GRAY : INK;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+      <div style={{ position: "relative", backgroundColor: bg, color: col, border: `4px solid ${bd}`, borderRadius: 16, padding: "16px 34px", fontSize: 54, fontWeight: 700, whiteSpace: "nowrap" }}>
+        {label}
+        {badge && <div style={{ position: "absolute", top: -16, right: -16, width: 42, height: 42, borderRadius: "50%", backgroundColor: badge === "ok" ? GREEN : RED, color: "#fff", fontSize: 24, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: "3px solid #fff" }}>{badge === "ok" ? "✓" : "×"}</div>}
+      </div>
+      {sub && <div style={{ fontSize: 32, fontWeight: 700, color: col === "#fff" ? INK : col }}>{sub}</div>}
+    </div>
+  );
+};
+const Row: React.FC<{ children: React.ReactNode; gap?: number }> = ({ children, gap = 44 }) => (
+  <div style={{ display: "flex", gap, alignItems: "flex-start", justifyContent: "center" }}>{children}</div>
 );
 
-// ══════════════════════════════════════════════════
-//  音声(car-narration.m4a / 70.10秒)に完全同期した7ページ構成
-//  文字起こし: public/car-narration.transcript.txt
-// ══════════════════════════════════════════════════
+// C4用のミニ折れ線カード（株＝乱高下 / 債券＝右肩上がり）
+const MiniChart: React.FC<{ label: string; art: React.ReactNode; badge: "ok" | "ng"; accent: string }> = ({ label, art, badge, accent }) => (
+  <div style={{ position: "relative", width: 300 }}>
+    <div style={{ border: `4px solid ${accent}`, borderRadius: 18, backgroundColor: "#fff", overflow: "hidden" }}>
+      <div style={{ backgroundColor: accent, color: "#fff", fontSize: 40, fontWeight: 700, textAlign: "center", padding: "10px 0" }}>{label}</div>
+      <div style={{ padding: "18px" }}>{art}</div>
+    </div>
+    <div style={{ position: "absolute", top: -18, right: -18, width: 48, height: 48, borderRadius: "50%", backgroundColor: badge === "ok" ? GREEN : RED, color: "#fff", fontSize: 28, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: "4px solid #fff" }}>{badge === "ok" ? "✓" : "×"}</div>
+  </div>
+);
 
-// P1 [0.0-7.05] 現金一括かローンか → 結論ローン
-const P1: DiagramData = {
-  header: { title: "500万円の車、どう買う？" },
-  boxes: [
-    { label: "現金一括", variant: "outline" },
-    { label: "銀行ローン", fill: COLORS.ink, badge: "check" },
+// ══ 音声(car-narration.m4a / 70.10秒)同期・7ページ ══
+// 開始秒: P1:0 / P2:7.05 / P3:21.05 / C4:28.05 / P5a:33.05 / P5b:47.05 / P6:53.05 / 終:70.10
+
+const P1: PunchData = {
+  soft: true, card: true, gap: 34,
+  items: [
+    { node: <Kicker>500万円の車、どう買う？</Kicker>, d: 6 },
+    { node: <Row gap={40}><Choice label="現金一括" tone="gray" /><Choice label="銀行ローン" tone="navy" badge="ok" /></Row>, d: 22 },
+    { node: <Big size={92}>結論は <Circled startFrame={86} padX={26}><Em size={124}>“ローン”</Em></Circled></Big>, d: 62 },
   ],
-  statement: (
-    <>
-      結論は<A>“ローン”</A>
-    </>
-  ),
-  art: <FlatCar size={330} />,
-  speed: 0.7,
 };
 
-// P2 [7.05-21.05] 金利2%10年・車両500+利息50=総支払550
-const P2: DiagramData = {
-  header: { title: "銀行ローンで買うと", sub: "金利2% ・ 10年" },
-  boxes: [
-    { label: "車両 500万", variant: "outline" },
-    { label: "利息 50万", variant: "red" },
+const P2: PunchData = {
+  soft: true, card: true, gap: 30,
+  items: [
+    { node: <Kicker>銀行ローン ｜ 金利2% ・ 10年</Kicker>, d: 6 },
+    { node: <Big size={66}>車両500万 <Em color={GRAY}>＋</Em> 利息50万</Big>, d: 22 },
+    { node: <Big size={84}>総支払 <Circled startFrame={86} padX={22}><Em color={RED} size={128}><CountUp to={550} startFrame={58} dur={30} suffix="万" /></Em></Circled></Big>, d: 50 },
+    { node: <Kicker>利息50万は“損”に見えるけど…</Kicker>, d: 110 },
   ],
-  statement: (
-    <>
-      総支払は<A>約550万</A>
-    </>
-  ),
-  note: "利息の50万円は“損”に見えるけど…",
-  art: <FlatWallet size={150} />,
-  pos: { note: { dy: 54 } },
-  speed: 1,
 };
 
-// P3 [21.05-28.05] 元手500万を運用へ・株か債券か
-const P3: DiagramData = {
-  header: { title: "元手の500万円を“運用”へ" },
-  boxes: [
-    { label: "株？", variant: "outline" },
-    { label: "債券？", variant: "outline" },
+const P3: PunchData = {
+  soft: true, card: true, gap: 34,
+  items: [
+    { node: <Kicker>元手の500万円を “運用” へ</Kicker>, d: 6 },
+    { node: <Big size={100}>何で増やす？</Big>, d: 22 },
+    { node: <Row gap={50}><Choice label="株？" /><Choice label="債券？" /></Row>, d: 52 },
   ],
-  statement: <>何で増やす？</>,
-  art: <FlatWallet size={230} />,
-  speed: 0.7,
 };
 
-// C4 [28.05-33.05] リスク取りたくない → 安定の債券（5秒・短尺）
-const C4: CompareData = {
-  header: { title: "リスクは取りたくない" },
-  left: { label: "株", art: <FlatVolatile size={360} />, badge: "cross", accent: GRAY },
-  right: { label: "債券", art: <FlatRise size={360} />, badge: "check", accent: COLORS.ink },
-  statement: (
-    <>
-      <A>安定的に</A>増やす
-    </>
-  ),
-  speed: 0.5,
-};
-
-// P5a [33.05-47.05] 子育て世帯こそ計画的・株暴落 vs 債券は約束
-const P5a: DiagramData = {
-  header: { title: "子育て世帯こそ“計画的”に" },
-  boxes: [
-    { label: "株", sub: "暴落のリスク", variant: "outline", badge: "cross" },
-    { label: "債券", sub: "約束された資産", variant: "outline", badge: "check" },
+const C4: PunchData = {
+  soft: true, card: true, gap: 30,
+  items: [
+    { node: <Big size={80}>リスクは取りたくない</Big>, d: 6 },
+    { node: <Row gap={40}><MiniChart label="株" art={<FlatVolatile size={230} />} badge="ng" accent={GRAY} /><MiniChart label="債券" art={<FlatRise size={230} />} badge="ok" accent={INK} /></Row>, d: 22 },
+    { node: <Big size={90}><Circled startFrame={80} padX={22}><Em>安定的に</Em></Circled>増やす</Big>, d: 62 },
   ],
-  statement: (
-    <>
-      将来を<A>計画的に</A>組める
-    </>
-  ),
-  note: "教育資金・老後資金・特別費に備える",
-  speed: 1,
 };
 
-// P5b [47.05-53.05] 米国債は金利約5%・僕も保有
-const P5b: DiagramData = {
-  header: { title: "しかも今、米国債は" },
-  statement: (
-    <>
-      金利<K>約5%</K>
-    </>
-  ),
-  art: <FlatBond size={280} />,
-  fs: { stmt: 92 },
-  speed: 0.7,
+const P5a: PunchData = {
+  soft: true, card: true, gap: 28,
+  items: [
+    { node: <Big size={72}>子育て世帯こそ</Big>, d: 6 },
+    { node: <Big size={124} color={RED}><Mark>“計画的”に</Mark></Big>, d: 18 },
+    { node: <Row gap={44}><Choice label="株" sub="暴落のリスク" tone="gray" badge="ng" /><Choice label="債券" sub="約束された資産" badge="ok" /></Row>, d: 44 },
+    { node: <Kicker>教育・老後・特別費に備える</Kicker>, d: 78 },
+  ],
 };
 
-// P6 [53.05-70.10] 10年後どうなる？ 810万 vs 550万 → +260万
+const P5b: PunchData = {
+  soft: true, card: true, gap: 24,
+  items: [
+    { node: <Kicker>しかも今、米国債は</Kicker>, d: 6 },
+    { node: <GrowthLine size={520} startFrame={20} badge="5%" flag={false} />, d: 14 },
+    { node: <Big size={96}>金利 <Circled startFrame={80} padX={24}><Em color={GOLD} size={132}>約5%</Em></Circled></Big>, d: 58 },
+    { node: <Chip size={44}>実際に僕も<Em color={GOLD}>5%超え</Em>を保有</Chip>, d: 92 },
+  ],
+};
+
 const P6: ChartData = {
   header: { title: "10年後、どうなる？" },
   result: { base: 550, delta: 260, topLabel: "約810万", caption: "債券で10年運用" },
@@ -123,29 +117,26 @@ const P6: ChartData = {
   ),
   footer: (
     <>
-      だからトータルで<A>“得”</A>
+      だからトータルで<Em>“得”</Em>
     </>
   ),
   speed: 1,
 };
 
 const SCENES: React.ReactNode[] = [
-  <DiagramPage data={P1} />,
-  <DiagramPage data={P2} />,
-  <DiagramPage data={P3} />,
-  <ComparePage data={C4} />,
-  <DiagramPage data={P5a} />,
-  <DiagramPage data={P5b} />,
+  <PunchPage data={P1} />,
+  <PunchPage data={P2} />,
+  <PunchPage data={P3} />,
+  <PunchPage data={C4} />,
+  <PunchPage data={P5a} />,
+  <PunchPage data={P5b} />,
   <ChartPage data={P6} />,
 ];
 
-// ── 各ページの尺（フレーム）＝音声の各ページ開始秒から逆算 ──
-//  開始秒: P1:0 / P2:7.05 / P3:21.05 / C4:28.05 / P5a:33.05 / P5b:47.05 / P6:53.05 / 終:70.10
+// 各ページ尺（音声の各セリフ開始秒から逆算）
 export const PAGE_DURATIONS: number[] = [234, 442, 232, 172, 442, 202, 511];
-
 const durOf = (i: number) => PAGE_DURATIONS[i] ?? 405;
 
-// 音声トラック（重複カット済み・70.10秒）
 export const NARRATION_SRC: string | null = "car-narration.m4a";
 
 export const CAR_DIAGRAM_FRAMES =
