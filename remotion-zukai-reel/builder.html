@@ -28,6 +28,10 @@
   .stagewrap{position:relative;width:100%;aspect-ratio:1080/1920}
   .stage{position:absolute;top:0;left:0;width:1080px;height:1920px;transform-origin:top left;background:var(--r-bg)}
   .stage *{box-sizing:border-box}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pop{0%{opacity:0;transform:translateY(24px) scale(.7)}70%{opacity:1;transform:translateY(0) scale(1.05)}100%{opacity:1;transform:scale(1)}}
+  @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  @keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
     padding:14px;position:sticky;top:8px;max-height:calc(100vh - 20px);overflow:auto}
@@ -82,7 +86,8 @@
     <div>
       <div class="screen"><div class="stagewrap"><div class="stage" id="stage"></div></div></div>
       <div class="bar">
-        <button class="act primary" id="copyBtn">設定をコピー(JSON)</button>
+        <button class="act primary" id="playBtn">▶ 動きを再生</button>
+        <button class="act" id="copyBtn">設定をコピー(JSON)</button>
         <button class="act" id="showBtn">JSONを見る</button>
         <button class="act" id="resetBtn">このページを初期化</button>
         <span class="savednote" id="saved"></span>
@@ -167,21 +172,32 @@ let flashT;function flash(t){const e=document.getElementById("saved");e.textCont
 function esc(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function rich(s){let h=esc(s);h=h.replace(/\*\*([^*]+)\*\*/g,`<span style="font-size:96px;color:${C.gold}">$1</span>`);h=h.replace(/\*([^*]+)\*/g,`<span style="color:${C.accent}">$1</span>`);return h;}
 
+/* ===== 動き（再生時のみ）===== */
+let ANIM=false;
+function AW(kind,delay,inner){ // kind: "pop"(箱/イラスト) / "fade"(テキスト)
+  if(!ANIM)return inner;
+  const anim=kind==="pop"?"pop .55s cubic-bezier(.2,.8,.3,1.1)":"fadeUp .5s ease";
+  return `<div style="animation:${anim} both;animation-delay:${delay}s;transform-origin:center">${inner}</div>`;
+}
+function drawAttr(dl,du=0.9){return ANIM?` pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" style="animation:draw ${du}s ease both;animation-delay:${dl}s"`:"";}
+function barAnim(dl){return ANIM?`;transform-origin:bottom;animation:grow .6s ease both;animation-delay:${dl}s`:"";}
+
 /* ===== プレビュー描画 ===== */
 const D={HEADER_TOP:170,BOX_TOP:520,BOX_H:118,CXL:300,CXR:780,CENTER:540,STMT_TOP:760,
   NOTE_TOP:1070,PILL_TOP:1160,FOOT_TOP:1360,ART_TOP:940};
-function ln(x1,y1,x2,y2,col=C.ink,w=5){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;}
+function ln(x1,y1,x2,y2,col=C.ink,w=5,dl=0.45){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${drawAttr(dl)}/>`;}
+function pth(d,col,w,dl){return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${drawAttr(dl)}/>`;}
 function PS(p){return p.pos||{};}
 function dxy(p,k){const q=(p.pos||{})[k]||{};return{x:q.dx||0,y:q.dy||0};}
 
 function headerBox(p){
   const h=p.header,F=p.fs||{},d=dxy(p,"header");
   const sub=h.sub?`<div style="text-align:center;font-size:36px;font-weight:700;color:${C.textgray};margin-top:12px">${esc(h.sub)}</div>`:"";
-  return `<div style="position:absolute;left:${d.x}px;top:${D.HEADER_TOP+d.y}px;width:1080px;display:flex;flex-direction:column;align-items:center">
-    <div style="border:5px solid ${C.ink};border-radius:18px;background:#fff;padding:22px 34px;display:inline-flex;align-items:center;gap:18px;justify-content:center;max-width:1000px">
+  const boxHtml=`<div style="border:5px solid ${C.ink};border-radius:18px;background:#fff;padding:22px 34px;display:inline-flex;align-items:center;gap:18px;justify-content:center;max-width:1000px">
       <div style="width:11px;height:56px;background:${C.accent};border-radius:4px;flex-shrink:0"></div>
       <div style="font-size:${F.header||64}px;font-weight:700;color:${C.ink};line-height:1.2;white-space:nowrap">${esc(h.title)}</div>
-    </div>${sub}</div>`;
+    </div>`;
+  return `<div style="position:absolute;left:${d.x}px;top:${D.HEADER_TOP+d.y}px;width:1080px;display:flex;flex-direction:column;align-items:center">${AW("fade",0.1,boxHtml)}${sub}</div>`;
 }
 function boxFill(b){if(b.variant==="red")return`background:${C.accent};color:#fff;border:4px solid ${C.accent}`;if(b.variant==="navy")return`background:${C.ink};color:#fff;border:4px solid ${C.ink}`;return`background:#fff;color:${C.ink};border:4px solid ${C.ink}`;}
 function boxView(b,w,fsBox){
@@ -198,34 +214,34 @@ function renderDiagram(p){
     if(two){
       svg+=ln(D.CENTER,headBottom,D.CENTER,470)+ln(D.CXL,470,D.CXR,470)+ln(D.CXL,470,D.CXL,D.BOX_TOP)+ln(D.CXR,470,D.CXR,D.BOX_TOP);
       if(p.statement){
-        if(hasSub){svg+=ln(D.CENTER,702,D.CENTER,D.STMT_TOP-32,C.accent,6);}
-        else{svg+=`<path d="M${D.CXL} ${D.BOX_TOP+D.BOX_H} L${D.CXL} 690 L${D.CENTER} 690" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M${D.CXR} ${D.BOX_TOP+D.BOX_H} L${D.CXR} 690 L${D.CENTER} 690" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`+ln(D.CENTER,690,D.CENTER,D.STMT_TOP-32,C.accent,6);}
+        if(hasSub){svg+=ln(D.CENTER,702,D.CENTER,D.STMT_TOP-32,C.accent,6,0.85);}
+        else{svg+=pth(`M${D.CXL} ${D.BOX_TOP+D.BOX_H} L${D.CXL} 690 L${D.CENTER} 690`,C.accent,6,0.85)+pth(`M${D.CXR} ${D.BOX_TOP+D.BOX_H} L${D.CXR} 690 L${D.CENTER} 690`,C.accent,6,0.85)+ln(D.CENTER,690,D.CENTER,D.STMT_TOP-32,C.accent,6,1.05);}
       }
-    }else{svg+=ln(D.CENTER,headBottom,D.CENTER,D.BOX_TOP);if(p.statement)svg+=ln(D.CENTER,D.BOX_TOP+D.BOX_H,D.CENTER,D.STMT_TOP-32,C.accent,6);}
+    }else{svg+=ln(D.CENTER,headBottom,D.CENTER,D.BOX_TOP);if(p.statement)svg+=ln(D.CENTER,D.BOX_TOP+D.BOX_H,D.CENTER,D.STMT_TOP-32,C.accent,6,0.85);}
   }
   let h=`<svg width="1080" height="1920" style="position:absolute;top:0;left:0">${svg}</svg>`;
   h+=headerBox(p);
-  if(one)h+=absP(p,D.CENTER,D.BOX_TOP,500,"box0",boxView(p.boxes[0],500,F.box));
-  if(two){h+=absP(p,D.CXL,D.BOX_TOP,360,"box0",boxView(p.boxes[0],360,F.box));h+=absP(p,D.CXR,D.BOX_TOP,360,"box1",boxView(p.boxes[1],360,F.box));}
-  if(p.statement)h+=absP(p,D.CENTER,D.STMT_TOP,1000,"stmt",`<div style="text-align:center;font-size:${F.stmt||84}px;font-weight:700;color:${C.ink};line-height:1.15">${rich(p.statement)}</div>`);
-  if(p.art&&p.art!=="none"){const d=dxy(p,"art");h+=`<div style="position:absolute;left:0;top:${D.ART_TOP}px;width:1080px;display:flex;justify-content:center;transform:translate(${d.x}px,${d.y}px)">${ART[p.art].svg(p.artSize||220)}</div>`;}
-  if(p.note)h+=absP(p,D.CENTER,D.NOTE_TOP,1000,"note",`<div style="text-align:center;font-size:${F.note||34}px;font-weight:700;color:${C.textgray}">${esc(p.note)}</div>`);
+  if(one)h+=absP(p,D.CENTER,D.BOX_TOP,500,"box0",AW("pop",0.9,boxView(p.boxes[0],500,F.box)));
+  if(two){h+=absP(p,D.CXL,D.BOX_TOP,360,"box0",AW("pop",0.9,boxView(p.boxes[0],360,F.box)));h+=absP(p,D.CXR,D.BOX_TOP,360,"box1",AW("pop",1.0,boxView(p.boxes[1],360,F.box)));}
+  if(p.statement)h+=absP(p,D.CENTER,D.STMT_TOP,1000,"stmt",AW("fade",1.4,`<div style="text-align:center;font-size:${F.stmt||84}px;font-weight:700;color:${C.ink};line-height:1.15">${rich(p.statement)}</div>`));
+  if(p.art&&p.art!=="none"){const d=dxy(p,"art");h+=`<div style="position:absolute;left:0;top:${D.ART_TOP}px;width:1080px;display:flex;justify-content:center;transform:translate(${d.x}px,${d.y}px)">${AW("pop",1.7,ART[p.art].svg(p.artSize||220))}</div>`;}
+  if(p.note)h+=absP(p,D.CENTER,D.NOTE_TOP,1000,"note",AW("fade",2.0,`<div style="text-align:center;font-size:${F.note||34}px;font-weight:700;color:${C.textgray}">${esc(p.note)}</div>`));
   return `<div style="position:absolute;inset:0;transform:translateY(${p.offset??60}px)">${h}</div>`;
 }
 
 function renderCompare(p){
   const F=p.fs||{},CXL=290,CXR=790,CEN=540,CW=460,CT=452,CH=388,cb=CT+CH,headBottom=p.header.sub?384:322;
   let svg=ln(CEN,headBottom,CEN,412)+ln(CXL,412,CXR,412)+ln(CXL,412,CXL,CT)+ln(CXR,412,CXR,CT);
-  if(p.statement){svg+=`<path d="M${CXL} ${cb} L${CXL} 892 L${CEN} 892" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M${CXR} ${cb} L${CXR} 892 L${CEN} 892" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`+ln(CEN,892,CEN,936,C.accent,6);}
+  if(p.statement){svg+=pth(`M${CXL} ${cb} L${CXL} 892 L${CEN} 892`,C.accent,6,0.9)+pth(`M${CXR} ${cb} L${CXR} 892 L${CEN} 892`,C.accent,6,0.9)+ln(CEN,892,CEN,936,C.accent,6,1.1);}
   const card=(sd)=>`<div style="position:relative;width:${CW}px"><div style="border:4px solid ${sd.accent};border-radius:20px;background:#fff;overflow:hidden"><div style="background:${sd.accent};color:#fff;font-size:46px;font-weight:700;text-align:center;padding:14px 0">${esc(sd.label)}</div><div style="padding:22px 22px 26px;display:flex;justify-content:center">${ART[sd.art]?ART[sd.art].svg(sd.artSize||360):""}</div></div><div style="position:absolute;top:-22px;right:-22px;width:56px;height:56px;border-radius:50%;background:${sd.badge==="check"?C.green:C.accent};color:#fff;font-size:34px;font-weight:700;display:flex;align-items:center;justify-content:center;border:4px solid #fff">${sd.badge==="check"?"✓":"×"}</div></div>`;
   let h=`<svg width="1080" height="1920" style="position:absolute;top:0;left:0">${svg}</svg>`;
   h+=headerBox(p);
   const dL=dxy(p,"box0"),dR=dxy(p,"box1");
-  h+=`<div style="position:absolute;left:${CXL-CW/2+dL.x}px;top:${CT+dL.y}px;width:${CW}px">${card(p.left)}</div>`;
-  h+=`<div style="position:absolute;left:${CXR-CW/2+dR.x}px;top:${CT+dR.y}px;width:${CW}px">${card(p.right)}</div>`;
-  if(p.statement){const d=dxy(p,"stmt");h+=`<div style="position:absolute;left:${40+d.x}px;top:${968+d.y}px;width:1000px;text-align:center;font-size:${F.stmt||84}px;font-weight:700;color:${C.ink};line-height:1.15">${rich(p.statement)}</div>`;}
-  if(p.note){const d=dxy(p,"note");h+=`<div style="position:absolute;left:${40+d.x}px;top:${1130+d.y}px;width:1000px;text-align:center;font-size:${F.note||34}px;font-weight:700;color:${C.textgray}">${esc(p.note)}</div>`;}
-  if(p.footer){const d=dxy(p,"foot");h+=`<div style="position:absolute;left:${40+d.x}px;top:${1240+d.y}px;width:1000px;text-align:center;font-size:${F.foot||54}px;font-weight:700;color:${C.ink};line-height:1.2">${rich(p.footer)}</div>`;}
+  h+=`<div style="position:absolute;left:${CXL-CW/2+dL.x}px;top:${CT+dL.y}px;width:${CW}px">${AW("pop",0.95,card(p.left))}</div>`;
+  h+=`<div style="position:absolute;left:${CXR-CW/2+dR.x}px;top:${CT+dR.y}px;width:${CW}px">${AW("pop",1.05,card(p.right))}</div>`;
+  if(p.statement){const d=dxy(p,"stmt");h+=`<div style="position:absolute;left:${40+d.x}px;top:${968+d.y}px;width:1000px;text-align:center;font-size:${F.stmt||84}px;font-weight:700;color:${C.ink};line-height:1.15">${AW("fade",1.5,rich(p.statement))}</div>`;}
+  if(p.note){const d=dxy(p,"note");h+=`<div style="position:absolute;left:${40+d.x}px;top:${1130+d.y}px;width:1000px;text-align:center;font-size:${F.note||34}px;font-weight:700;color:${C.textgray}">${AW("fade",1.9,esc(p.note))}</div>`;}
+  if(p.footer){const d=dxy(p,"foot");h+=`<div style="position:absolute;left:${40+d.x}px;top:${1240+d.y}px;width:1000px;text-align:center;font-size:${F.foot||54}px;font-weight:700;color:${C.ink};line-height:1.2">${AW("fade",2.2,rich(p.footer))}</div>`;}
   return `<div style="position:absolute;inset:0;transform:translateY(${p.offset??60}px)">${h}</div>`;
 }
 
@@ -238,18 +254,18 @@ function renderChart(p){
   const g=(k,bx,by)=>{const d=dxy(p,k);return `transform:translate(${(d.x)+(bx||0)}px,${(d.y)+(by||0)}px)`;};
   let h=headerBox(p);
   h+=`<svg width="1080" height="1920" style="position:absolute;top:0;left:0">${ln(150,BASE,930,BASE,C.ink,6)}<line x1="${CXL}" y1="${cmpLevel}" x2="${CXR+BW/2}" y2="${cmpLevel}" stroke="${C.accent}" stroke-width="5" stroke-dasharray="14 12" opacity="0.9"/></svg>`;
-  h+=`<div style="${bc(CXL,leftBaseTop,baseH,C.green,false)}"></div><div style="${bc(CXL,leftDeltaTop,deltaH,C.gold,true)}"></div><div style="${bc(CXR,cmpTop,cmpH,C.textgray,true)}"></div>`;
-  if(p.deltaCallout){const d=dxy(p,"delta");h+=`<div style="position:absolute;left:${CXL+BW/2+8+d.x}px;top:${leftDeltaTop-8+d.y}px;width:300px;font-size:52px;font-weight:700;color:${C.accent};white-space:nowrap">${esc(p.deltaCallout)}</div>`;}
-  {const d=dxy(p,"leftTop");h+=`<div style="position:absolute;left:${CXL-160+d.x}px;top:${BASE-total*unit-74+d.y}px;width:320px;text-align:center;font-size:60px;font-weight:700;color:${C.ink};white-space:nowrap">${esc(r.topLabel)}</div>`;}
-  {const d=dxy(p,"rightTop");h+=`<div style="position:absolute;left:${CXR-160+d.x}px;top:${cmpTop-74+d.y}px;width:320px;text-align:center;font-size:60px;font-weight:700;color:${C.textgray};white-space:nowrap">${esc(cm.topLabel)}</div>`;}
-  {const d=dxy(p,"leftCap");h+=`<div style="position:absolute;left:${CXL-200+d.x}px;top:${BASE+18+d.y}px;width:400px;text-align:center;font-size:40px;font-weight:700;color:${C.ink};white-space:nowrap">${esc(r.caption)}</div>`;}
-  {const d=dxy(p,"rightCap");h+=`<div style="position:absolute;left:${CXR-200+d.x}px;top:${BASE+18+d.y}px;width:400px;text-align:center;font-size:40px;font-weight:700;color:${C.textgray};white-space:nowrap">${esc(cm.caption)}</div>`;}
-  if(p.pill){const d=dxy(p,"pill");h+=`<div style="position:absolute;left:${130+d.x}px;top:${1160+d.y}px;width:820px;background:${C.ink};color:#fff;border-radius:20px;padding:26px 0;text-align:center;font-size:${F.pill||58}px;font-weight:700;line-height:1.25">${rich(p.pill)}</div>`;}
-  if(p.footer){const d=dxy(p,"foot");h+=`<div style="position:absolute;left:${40+d.x}px;top:${1360+d.y}px;width:1000px;text-align:center;font-size:${F.foot||54}px;font-weight:700;color:${C.ink};line-height:1.2">${rich(p.footer)}</div>`;}
+  h+=`<div style="${bc(CXL,leftBaseTop,baseH,C.green,false)}${barAnim(0.5)}"></div><div style="${bc(CXL,leftDeltaTop,deltaH,C.gold,true)}${barAnim(1.0)}"></div><div style="${bc(CXR,cmpTop,cmpH,C.textgray,true)}${barAnim(0.7)}"></div>`;
+  if(p.deltaCallout){const d=dxy(p,"delta");h+=`<div style="position:absolute;left:${CXL+BW/2+8+d.x}px;top:${leftDeltaTop-8+d.y}px;width:300px;font-size:52px;font-weight:700;color:${C.accent};white-space:nowrap">${AW("fade",1.3,esc(p.deltaCallout))}</div>`;}
+  {const d=dxy(p,"leftTop");h+=`<div style="position:absolute;left:${CXL-160+d.x}px;top:${BASE-total*unit-74+d.y}px;width:320px;text-align:center;font-size:60px;font-weight:700;color:${C.ink};white-space:nowrap">${AW("fade",1.2,esc(r.topLabel))}</div>`;}
+  {const d=dxy(p,"rightTop");h+=`<div style="position:absolute;left:${CXR-160+d.x}px;top:${cmpTop-74+d.y}px;width:320px;text-align:center;font-size:60px;font-weight:700;color:${C.textgray};white-space:nowrap">${AW("fade",1.0,esc(cm.topLabel))}</div>`;}
+  {const d=dxy(p,"leftCap");h+=`<div style="position:absolute;left:${CXL-200+d.x}px;top:${BASE+18+d.y}px;width:400px;text-align:center;font-size:40px;font-weight:700;color:${C.ink};white-space:nowrap">${AW("fade",0.8,esc(r.caption))}</div>`;}
+  {const d=dxy(p,"rightCap");h+=`<div style="position:absolute;left:${CXR-200+d.x}px;top:${BASE+18+d.y}px;width:400px;text-align:center;font-size:40px;font-weight:700;color:${C.textgray};white-space:nowrap">${AW("fade",0.9,esc(cm.caption))}</div>`;}
+  if(p.pill){const d=dxy(p,"pill");h+=`<div style="position:absolute;left:${130+d.x}px;top:${1160+d.y}px;width:820px">${AW("pop",1.6,`<div style="background:${C.ink};color:#fff;border-radius:20px;padding:26px 0;text-align:center;font-size:${F.pill||58}px;font-weight:700;line-height:1.25">${rich(p.pill)}</div>`)}</div>`;}
+  if(p.footer){const d=dxy(p,"foot");h+=`<div style="position:absolute;left:${40+d.x}px;top:${1360+d.y}px;width:1000px;text-align:center;font-size:${F.foot||54}px;font-weight:700;color:${C.ink};line-height:1.2">${AW("fade",2.0,rich(p.footer))}</div>`;}
   return `<div style="position:absolute;inset:0;transform:translateY(${p.offset??60}px)">${h}</div>`;
 }
 
-function renderStage(){const p=state.pages[sel];document.getElementById("stage").innerHTML=p.type==="compare"?renderCompare(p):p.type==="chart"?renderChart(p):renderDiagram(p);fitStage();}
+function renderStage(animate){ANIM=!!animate;const p=state.pages[sel];document.getElementById("stage").innerHTML=p.type==="compare"?renderCompare(p):p.type==="chart"?renderChart(p):renderDiagram(p);ANIM=false;fitStage();}
 function fitStage(){const w=document.querySelector(".stagewrap");document.getElementById("stage").style.transform=`scale(${w.clientWidth/1080})`;}
 new ResizeObserver(fitStage).observe(document.querySelector(".stagewrap"));
 
@@ -369,12 +385,13 @@ function buildPanel(){
   panel.appendChild(gz);
 }
 
-function buildTabs(){const t=document.getElementById("tabs");t.innerHTML="";state.pages.forEach((p,i)=>{const b=el("button","tab"+(i===sel?" active":""));b.textContent=p.key;b.onclick=()=>{sel=i;buildTabs();buildPanel();renderStage();};t.appendChild(b);});}
+function buildTabs(){const t=document.getElementById("tabs");t.innerHTML="";state.pages.forEach((p,i)=>{const b=el("button","tab"+(i===sel?" active":""));b.textContent=p.key;b.onclick=()=>{sel=i;buildTabs();buildPanel();renderStage(true);};t.appendChild(b);});}
+document.getElementById("playBtn").onclick=()=>renderStage(true);
 
 document.getElementById("copyBtn").onclick=async()=>{const j=JSON.stringify(state,null,2);try{await navigator.clipboard.writeText(j);flash("コピーしました");}catch(e){showJson(j);}};
 document.getElementById("showBtn").onclick=()=>showJson(JSON.stringify(state,null,2));
 function showJson(j){const d=document.getElementById("dlg");document.getElementById("dlgTxt").value=j;d.showModal();document.getElementById("dlgTxt").select();}
 document.getElementById("resetBtn").onclick=()=>{state.pages[sel]=JSON.parse(JSON.stringify(DEFAULT.pages[sel]));save();buildPanel();renderStage();flash("初期化しました");};
 
-buildTabs();buildPanel();renderStage();
+buildTabs();buildPanel();renderStage(true);
 </script>
