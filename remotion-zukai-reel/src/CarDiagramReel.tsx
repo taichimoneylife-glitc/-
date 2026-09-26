@@ -51,7 +51,8 @@ const P2: DiagramData = {
     </>
   ),
   note: "利息の50万円は“損”に見えるけど…",
-  art: <FlatWallet size={230} />,
+  art: <FlatWallet size={150} />,
+  pos: { note: { dy: 54 } },
   speed: 1,
 };
 
@@ -104,10 +105,9 @@ const P5b: DiagramData = {
       金利<K>約5%</K>
     </>
   ),
-  art: <FlatBond size={260} />,
-  footer: "実際に僕も5%超えの債券を保有",
+  art: <FlatBond size={280} />,
   fs: { stmt: 92 },
-  speed: 0.55,
+  speed: 0.7,
 };
 
 // P6 [53.05-70.10] 10年後どうなる？ 810万 vs 550万 → +260万
