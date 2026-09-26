@@ -4,14 +4,15 @@ import { COLORS, TYPE } from "../theme";
 import { FONT } from "./font";
 import { FadeUp, Pop } from "./Anim";
 
-// 背景（全シーン共通）
-export const Background: React.FC<{ children: React.ReactNode }> = ({
+// 背景（全シーン共通）。bg で背景色を差し替え可能（パンチ型ページ用）
+export const Background: React.FC<{ children: React.ReactNode; bg?: string }> = ({
   children,
+  bg,
 }) => {
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: COLORS.bg,
+        backgroundColor: bg ?? COLORS.bg,
         fontFamily: FONT,
         color: COLORS.ink,
       }}

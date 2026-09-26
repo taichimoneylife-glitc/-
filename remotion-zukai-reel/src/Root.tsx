@@ -8,6 +8,7 @@ import { SampleSlide, SAMPLE_FRAMES } from "./scenes/SampleSlide";
 import { CarReel, CAR_REEL_FRAMES } from "./CarReel";
 import { BoxTree, BOXTREE_FRAMES } from "./scenes/BoxTree";
 import { CarDiagramReel, CAR_DIAGRAM_FRAMES } from "./CarDiagramReel";
+import { Proto, PROTO_FRAMES } from "./Proto";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -104,6 +105,16 @@ export const RemotionRoot: React.FC = () => {
         id="CarDiagramReel"
         component={CarDiagramReel}
         durationInFrames={CAR_DIAGRAM_FRAMES}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+
+      {/* ── パンチ型スタイル試作（米国債5% / 子育て計画的） ── */}
+      <Composition
+        id="Proto"
+        component={Proto}
+        durationInFrames={PROTO_FRAMES}
         fps={FPS}
         width={1080}
         height={1920}
