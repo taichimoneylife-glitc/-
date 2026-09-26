@@ -149,7 +149,7 @@ const durOf = (i: number) => PAGE_DURATIONS[i] ?? 405;
 export const NARRATION_SRC: string | null = "car-narration.m4a";
 
 export const CAR_DIAGRAM_FRAMES =
-  SCENES.reduce((sum, _s, i) => sum + durOf(i), 0) - (SCENES.length - 1) * TRANS;
+  SCENES.reduce<number>((sum, _s, i) => sum + durOf(i), 0) - (SCENES.length - 1) * TRANS;
 
 export const CarDiagramReel: React.FC = () => {
   const children: React.ReactNode[] = [];

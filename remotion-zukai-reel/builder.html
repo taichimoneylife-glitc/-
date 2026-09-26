@@ -4,16 +4,15 @@
     --bg:#12151c; --panel:#1a1f2b; --panel2:#212838; --line:#2d374a;
     --ink:#e8ecf4; --dim:#8f9bb3; --accent:#E5432B; --gold:#F6C544; --ok:#12A150;
     --radius:12px; color-scheme:dark;
-    /* リールの配色（プレビュー用・本番と一致） */
     --r-bg:#F4EFF2; --r-ink:#1B2A4A; --r-accent:#E5432B; --r-gray:#C9CDD6;
     --r-grayLight:#E3E5EA; --r-textgray:#6C7A93; --r-green:#12A150; --r-gold:#F6C544;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;
   }
   *{box-sizing:border-box}
   body{background:var(--bg);color:var(--ink);margin:0}
-  .wrap{max-width:1200px;margin:0 auto;padding-block:14px;padding-left:16px;padding-right:16px}
+  .wrap{max-width:1220px;margin:0 auto;padding-block:14px;padding-left:16px;padding-right:16px}
   h1{font-size:18px;margin:0 0 2px}
-  .sub{color:var(--dim);font-size:12.5px;margin:0 0 14px;line-height:1.5}
+  .sub{color:var(--dim);font-size:12.5px;margin:0 0 12px;line-height:1.5}
   .sub b{color:var(--gold);font-weight:700}
 
   .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
@@ -21,56 +20,60 @@
     border-radius:999px;padding:7px 13px;font-size:12.5px;cursor:pointer;font-weight:700}
   .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
-  .cols{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:18px;align-items:start}
-  @media(max-width:760px){.cols{grid-template-columns:1fr}}
+  .cols{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:18px;align-items:start}
+  @media(max-width:780px){.cols{grid-template-columns:1fr}}
 
   .screen{width:100%;background:#000;border-radius:16px;overflow:hidden;position:relative;
     aspect-ratio:1080/1920;box-shadow:0 12px 40px rgba(0,0,0,.5)}
   .stagewrap{position:relative;width:100%;aspect-ratio:1080/1920}
-  .stage{position:absolute;top:0;left:0;width:1080px;height:1920px;transform-origin:top left;
-    background:var(--r-bg)}
+  .stage{position:absolute;top:0;left:0;width:1080px;height:1920px;transform-origin:top left;background:var(--r-bg)}
   .stage *{box-sizing:border-box}
 
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:14px;position:sticky;top:8px}
-  .grp{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
-  .grp:first-child{border-top:0;margin-top:0;padding-top:0}
-  .grp>.gt{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
-    font-weight:700;margin-bottom:8px}
+    padding:14px;position:sticky;top:8px;max-height:calc(100vh - 20px);overflow:auto}
+  .grp{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;overflow:hidden}
+  .grp>summary{font-size:12.5px;font-weight:700;color:var(--ink);padding:9px 11px;cursor:pointer;
+    background:var(--panel2);list-style:none;display:flex;align-items:center;gap:6px}
+  .grp>summary::-webkit-details-marker{display:none}
+  .grp>summary::before{content:"▸";color:var(--dim);font-size:10px}
+  .grp[open]>summary::before{content:"▾"}
+  .grp .body{padding:11px}
   .fld{margin-bottom:9px}
+  .fld:last-child{margin-bottom:0}
   .fld>label{display:block;font-size:11.5px;color:var(--dim);margin-bottom:3px}
   .fld input[type=text],.fld textarea,.fld select{width:100%;background:var(--panel2);
-    border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:13px;
-    font-family:inherit}
-  .fld textarea{resize:vertical;min-height:40px;line-height:1.4}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:13px;font-family:inherit}
+  .fld textarea{resize:vertical;min-height:38px;line-height:1.4}
   .rng{display:flex;align-items:center;gap:8px}
   .rng input[type=range]{flex:1;accent-color:var(--accent)}
-  .rng .val{font-size:11.5px;color:var(--ink);min-width:34px;text-align:right;font-variant-numeric:tabular-nums}
+  .rng .val{font-size:11.5px;color:var(--ink);min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
+  .xy{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:6px;align-items:center}
+  .xy label{font-size:11px;color:var(--dim)}
+  .xy input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+    border-radius:7px;padding:5px 6px;font-size:12.5px;font-variant-numeric:tabular-nums}
   .hint{font-size:11px;color:var(--dim);margin:2px 0 0;line-height:1.45}
   .hint code{background:var(--panel2);padding:1px 5px;border-radius:5px;color:var(--gold)}
+  .swatch{display:flex;gap:6px;flex-wrap:wrap}
+  .sw{width:26px;height:26px;border-radius:6px;border:2px solid transparent;cursor:pointer}
+  .sw.on{border-color:#fff}
 
   .bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
   button.act{background:var(--panel2);border:1px solid var(--line);color:var(--ink);
     border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:700;cursor:pointer}
   button.act.primary{background:var(--accent);border-color:var(--accent);color:#fff}
   button.act:hover{border-color:var(--accent)}
+  .savednote{font-size:11px;color:var(--ok);margin-left:auto;align-self:center}
 
   dialog{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:14px;
     padding:16px;max-width:560px;width:92vw}
   dialog::backdrop{background:rgba(0,0,0,.6)}
   dialog textarea{width:100%;min-height:230px;background:var(--bg);border:1px solid var(--line);
     color:var(--ink);border-radius:8px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px}
-  .swatch{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-  .sw{width:26px;height:26px;border-radius:6px;border:2px solid transparent;cursor:pointer}
-  .sw.on{border-color:#fff}
-  .savednote{font-size:11px;color:var(--ok);margin-left:auto;align-self:center}
 </style>
 
 <div class="wrap">
   <h1>図解リール ビルダー</h1>
-  <p class="sub">ページを選んで右のパネルで編集 → プレビューが即反映。<b>ここでの編集はトークンを一切使いません</b>（ブラウザ内で完結）。仕上がったら「設定をコピー」でJSONを取り出し、チャットに貼って「これでレンダー」と言えばOK。強調は本文に <code>*赤太字*</code> と <code>**大きい金文字**</code> が使えます。</p>
+  <p class="sub">全要素の<b>大きさ・位置を自分で調整</b>できます。ページを選んで右パネルで編集 → 即プレビュー反映。<b>編集はトークン消費ゼロ</b>（ブラウザ内で完結・自動保存）。仕上がったら「設定をコピー」でJSONを取り出しチャットへ。強調は本文に <code>*赤*</code> と <code>**大金**</code>。</p>
 
   <div class="tabs" id="tabs"></div>
 
@@ -98,405 +101,280 @@
 </dialog>
 
 <script>
-/* ===== リール配色（本番theme.tsと一致） ===== */
-const C = { bg:"#F4EFF2", ink:"#1B2A4A", accent:"#E5432B", gray:"#C9CDD6",
-  grayLight:"#E3E5EA", textgray:"#6C7A93", green:"#12A150", gold:"#F6C544", white:"#FFFFFF" };
+const C={bg:"#F4EFF2",ink:"#1B2A4A",accent:"#E5432B",gray:"#C9CDD6",grayLight:"#E3E5EA",
+  textgray:"#6C7A93",green:"#12A150",gold:"#F6C544",white:"#FFFFFF"};
 
-/* ===== イラスト（本番flatArt.tsxから移植・HTML属性に変換） ===== */
-const wrapStyle=(w,h,s)=>`width:${s}px;height:${s*h/w}px;overflow:visible`;
-const ART = {
-  none:{label:"（なし）",w:1,h:1,svg:()=>""},
-  car:{label:"車",w:520,h:320,svg:(s,col=C.accent)=>`<svg viewBox="0 0 520 320" style="${wrapStyle(520,320,s)}">
-    <ellipse cx="260" cy="292" rx="205" ry="24" fill="#000" opacity="0.08"/>
-    <path d="M40 246 L70 246 L100 156 C112 128 132 116 165 116 L330 116 C360 116 380 126 398 154 L436 228 L470 242 L470 260 C470 272 462 280 450 280 L60 280 C48 280 40 272 40 260 Z" fill="${col}" stroke="${C.ink}" stroke-width="9" stroke-linejoin="round"/>
-    <path d="M150 146 L232 146 L232 196 L118 196 Z" fill="#EAF2FA" stroke="${C.ink}" stroke-width="6" stroke-linejoin="round"/>
-    <path d="M252 146 L322 146 L360 196 L252 196 Z" fill="#EAF2FA" stroke="${C.ink}" stroke-width="6" stroke-linejoin="round"/>
-    <line x1="242" y1="146" x2="242" y2="266" stroke="${C.ink}" stroke-width="5"/>
-    <circle cx="452" cy="236" r="12" fill="${C.gold}" stroke="${C.ink}" stroke-width="4"/>
-    <circle cx="150" cy="280" r="46" fill="${C.ink}"/><circle cx="150" cy="280" r="20" fill="${C.grayLight}"/>
-    <circle cx="372" cy="280" r="46" fill="${C.ink}"/><circle cx="372" cy="280" r="20" fill="${C.grayLight}"/></svg>`},
-  wallet:{label:"財布",w:420,h:320,svg:(s)=>`<svg viewBox="0 0 420 320" style="${wrapStyle(420,320,s)}">
-    <ellipse cx="210" cy="292" rx="170" ry="20" fill="#000" opacity="0.08"/>
-    <rect x="60" y="90" width="300" height="190" rx="26" fill="${C.accent}" stroke="${C.ink}" stroke-width="9"/>
-    <rect x="60" y="150" width="300" height="130" rx="20" fill="#C6381F" stroke="${C.ink}" stroke-width="9"/>
-    <rect x="250" y="190" width="130" height="60" rx="14" fill="${C.grayLight}" stroke="${C.ink}" stroke-width="8"/>
-    <circle cx="300" cy="220" r="14" fill="${C.gold}" stroke="${C.ink}" stroke-width="6"/></svg>`},
-  bank:{label:"銀行",w:400,h:340,svg:(s)=>`<svg viewBox="0 0 400 340" style="${wrapStyle(400,340,s)}">
-    <ellipse cx="200" cy="312" rx="180" ry="18" fill="#000" opacity="0.08"/>
-    <path d="M40 120 L200 40 L360 120 Z" fill="${C.grayLight}" stroke="${C.ink}" stroke-width="9" stroke-linejoin="round"/>
-    <circle cx="200" cy="96" r="14" fill="${C.accent}" stroke="${C.ink}" stroke-width="5"/>
-    <rect x="30" y="120" width="340" height="22" fill="#fff" stroke="${C.ink}" stroke-width="8"/>
-    ${[70,140,210,280].map(x=>`<rect x="${x}" y="150" width="42" height="120" fill="#fff" stroke="${C.ink}" stroke-width="8"/>`).join("")}
-    <rect x="24" y="270" width="352" height="34" rx="8" fill="#fff" stroke="${C.ink}" stroke-width="9"/></svg>`},
-  coin:{label:"コイン",w:120,h:120,svg:(s)=>`<svg viewBox="0 0 120 120" style="${wrapStyle(120,120,s)}">
-    <circle cx="60" cy="60" r="52" fill="${C.gold}" stroke="${C.ink}" stroke-width="7"/>
-    <circle cx="60" cy="60" r="36" fill="none" stroke="#D9A916" stroke-width="6"/>
-    <text x="60" y="80" font-size="56" fill="${C.ink}" text-anchor="middle" font-weight="700">¥</text></svg>`},
-  chartUp:{label:"右肩上がり(棒+線)",w:420,h:320,svg:(s)=>`<svg viewBox="0 0 420 320" style="${wrapStyle(420,320,s)}">
-    <line x1="60" y1="40" x2="60" y2="272" stroke="${C.ink}" stroke-width="8" stroke-linecap="round"/>
-    <line x1="60" y1="272" x2="392" y2="272" stroke="${C.ink}" stroke-width="8" stroke-linecap="round"/>
-    <rect x="96" y="210" width="52" height="62" fill="${C.grayLight}" stroke="${C.ink}" stroke-width="6"/>
-    <rect x="176" y="164" width="52" height="108" fill="#F3C0B6" stroke="${C.ink}" stroke-width="6"/>
-    <rect x="256" y="112" width="52" height="160" fill="${C.accent}" stroke="${C.ink}" stroke-width="6"/>
-    <polyline points="110,220 190,176 270,120 350,66" fill="none" stroke="${C.green}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M350 66 l-30 4 l16 24 Z" fill="${C.green}"/></svg>`},
-  bond:{label:"債券証書",w:300,h:360,svg:(s)=>`<svg viewBox="0 0 300 360" style="${wrapStyle(300,360,s)}">
-    <ellipse cx="150" cy="338" rx="130" ry="16" fill="#000" opacity="0.08"/>
-    <rect x="34" y="26" width="232" height="300" rx="16" fill="#fff" stroke="${C.ink}" stroke-width="9"/>
-    <rect x="34" y="26" width="232" height="70" rx="16" fill="${C.ink}"/>
-    <text x="150" y="74" font-size="42" fill="#fff" text-anchor="middle" font-weight="700">債券</text>
-    <line x1="70" y1="130" x2="230" y2="130" stroke="${C.gray}" stroke-width="8" stroke-linecap="round"/>
-    <line x1="70" y1="162" x2="230" y2="162" stroke="${C.gray}" stroke-width="8" stroke-linecap="round"/>
-    <text x="150" y="250" font-size="66" fill="${C.accent}" text-anchor="middle" font-weight="700">5.2%</text>
-    <text x="150" y="298" font-size="26" fill="${C.ink}" text-anchor="middle" font-weight="700">利回り（例）</text></svg>`},
-  scale:{label:"天秤",w:420,h:320,svg:(s)=>`<svg viewBox="0 0 420 320" style="${wrapStyle(420,320,s)}">
-    <ellipse cx="210" cy="300" rx="120" ry="16" fill="#000" opacity="0.08"/>
-    <rect x="196" y="70" width="28" height="210" rx="8" fill="${C.ink}"/>
-    <rect x="150" y="278" width="120" height="22" rx="10" fill="${C.ink}"/>
-    <circle cx="210" cy="66" r="16" fill="${C.accent}" stroke="${C.ink}" stroke-width="5"/>
-    <line x1="80" y1="90" x2="340" y2="90" stroke="${C.ink}" stroke-width="10" stroke-linecap="round"/>
-    <path d="M80 90 L44 170 A40 26 0 0 0 116 170 Z" fill="${C.grayLight}" stroke="${C.ink}" stroke-width="7" stroke-linejoin="round"/>
-    <path d="M340 90 L304 156 A40 26 0 0 0 376 156 Z" fill="#F3C0B6" stroke="${C.accent}" stroke-width="8" stroke-linejoin="round"/></svg>`},
-  arrow:{label:"右矢印",w:140,h:90,svg:(s)=>`<svg viewBox="0 0 140 90" style="${wrapStyle(140,90,s)}">
-    <path d="M14 45 L96 45 M74 20 L104 45 L74 70" fill="none" stroke="${C.ink}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/></svg>`},
-  thumbUp:{label:"グッド(親指)",w:220,h:224,svg:(s,col=C.accent)=>`<svg viewBox="0 0 220 224" style="${wrapStyle(220,224,s)}">
-    <ellipse cx="110" cy="208" rx="72" ry="12" fill="#000" opacity="0.08"/>
-    <circle cx="110" cy="104" r="86" fill="${col}" stroke="${C.ink}" stroke-width="8"/>
-    <rect x="56" y="106" width="36" height="58" rx="10" fill="#fff" stroke="${C.ink}" stroke-width="7"/>
-    <path d="M92 158 L92 108 C92 100 96 94 103 84 L120 60 C124 54 133 55 137 61 C140 66 140 72 138 78 L131 104 L159 104 C170 104 177 113 173 124 L162 158 C160 166 152 170 144 170 L100 170 C95 170 92 165 92 158 Z" fill="#fff" stroke="${C.ink}" stroke-width="7" stroke-linejoin="round"/></svg>`},
-  volatile:{label:"株:乱高下",w:420,h:260,svg:(s,col=C.accent)=>`<svg viewBox="0 0 420 260" style="${wrapStyle(420,260,s)}">
-    <line x1="34" y1="228" x2="404" y2="228" stroke="${C.gray}" stroke-width="5" stroke-linecap="round"/>
-    <line x1="34" y1="18" x2="34" y2="228" stroke="${C.gray}" stroke-width="5" stroke-linecap="round"/>
-    <polyline points="46,150 92,86 132,176 178,66 222,206 268,104 312,214 360,128" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M222 206 l-16 -26 l32 0 Z" fill="${col}"/></svg>`},
-  rise:{label:"債券:安定上昇",w:420,h:260,svg:(s,col=C.green)=>`<svg viewBox="0 0 420 260" style="${wrapStyle(420,260,s)}">
-    <line x1="34" y1="228" x2="404" y2="228" stroke="${C.gray}" stroke-width="5" stroke-linecap="round"/>
-    <line x1="34" y1="18" x2="34" y2="228" stroke="${C.gray}" stroke-width="5" stroke-linecap="round"/>
-    <polyline points="48,204 116,182 184,150 250,108 316,66 378,36" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M378 36 l-28 8 l14 22 Z" fill="${col}"/></svg>`},
-  moneyBundle:{label:"お金の束",w:320,h:240,svg:(s)=>`<svg viewBox="0 0 320 240" style="${wrapStyle(320,240,s)}">
-    <ellipse cx="160" cy="224" rx="130" ry="12" fill="#000" opacity="0.08"/>
-    <rect x="46" y="120" width="228" height="96" rx="12" fill="#CDE9C6" stroke="${C.ink}" stroke-width="7"/>
-    <line x1="46" y1="150" x2="274" y2="150" stroke="${C.ink}" stroke-width="4" opacity="0.5"/>
-    <line x1="46" y1="182" x2="274" y2="182" stroke="${C.ink}" stroke-width="4" opacity="0.5"/>
-    <rect x="60" y="70" width="200" height="86" rx="12" fill="#EAF6E4" stroke="${C.ink}" stroke-width="7"/>
-    <circle cx="160" cy="113" r="26" fill="none" stroke="${C.green}" stroke-width="6"/>
-    <text x="160" y="127" font-size="34" fill="${C.green}" text-anchor="middle" font-weight="700">¥</text>
-    <rect x="128" y="70" width="64" height="86" fill="${C.accent}" opacity="0.85"/>
-    <circle cx="96" cy="104" r="4.5" fill="${C.ink}"/><circle cx="224" cy="104" r="4.5" fill="${C.ink}"/>
-    <path d="M92 120 Q104 130 118 120" fill="none" stroke="${C.ink}" stroke-width="4" stroke-linecap="round"/>
-    <path d="M202 120 Q214 130 228 120" fill="none" stroke="${C.ink}" stroke-width="4" stroke-linecap="round"/>
-    <circle cx="86" cy="116" r="7" fill="#F6B9A9" opacity="0.7"/><circle cx="234" cy="116" r="7" fill="#F6B9A9" opacity="0.7"/></svg>`},
-  piggy:{label:"貯金箱",w:340,h:280,svg:(s)=>`<svg viewBox="0 0 340 280" style="${wrapStyle(340,280,s)}">
-    <ellipse cx="170" cy="256" rx="140" ry="14" fill="#000" opacity="0.08"/>
-    <ellipse cx="176" cy="150" rx="128" ry="100" fill="${C.accent}" stroke="${C.ink}" stroke-width="8"/>
-    <path d="M300 120 q34 -6 32 26 q-2 22 -30 20 Z" fill="${C.accent}" stroke="${C.ink}" stroke-width="8" stroke-linejoin="round"/>
-    <rect x="150" y="52" width="70" height="26" rx="8" fill="#C6381F" stroke="${C.ink}" stroke-width="7"/>
-    <circle cx="300" cy="150" r="8" fill="${C.ink}"/>
-    <path d="M96 138 Q112 132 128 138" fill="none" stroke="${C.ink}" stroke-width="5" stroke-linecap="round"/>
-    <circle cx="112" cy="120" r="10" fill="#F6B9A9" opacity="0.7"/>
-    ${[110,170,230].map(x=>`<rect x="${x}" y="232" width="30" height="26" rx="6" fill="${C.accent}" stroke="${C.ink}" stroke-width="7"/>`).join("")}
-    <circle cx="185" cy="30" r="20" fill="${C.gold}" stroke="${C.ink}" stroke-width="6"/>
-    <text x="185" y="40" font-size="22" fill="${C.ink}" text-anchor="middle" font-weight="700">¥</text></svg>`},
-  check:{label:"チェック丸",w:200,h:200,svg:(s,col=C.green)=>`<svg viewBox="0 0 200 200" style="${wrapStyle(200,200,s)}">
-    <circle cx="100" cy="100" r="86" fill="${col}" stroke="${C.ink}" stroke-width="8"/>
-    <path d="M58 104 L88 134 L146 70" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg>`},
+/* ===== イラスト（本番flatArt.tsxから移植） ===== */
+const wS=(w,h,s)=>`width:${s}px;height:${s*h/w}px;overflow:visible`;
+const ART={
+  none:{label:"（なし）",svg:()=>""},
+  car:{label:"車",svg:(s,col=C.accent)=>`<svg viewBox="0 0 520 320" style="${wS(520,320,s)}"><ellipse cx="260" cy="292" rx="205" ry="24" fill="#000" opacity="0.08"/><path d="M40 246 L70 246 L100 156 C112 128 132 116 165 116 L330 116 C360 116 380 126 398 154 L436 228 L470 242 L470 260 C470 272 462 280 450 280 L60 280 C48 280 40 272 40 260 Z" fill="${col}" stroke="${C.ink}" stroke-width="9" stroke-linejoin="round"/><path d="M150 146 L232 146 L232 196 L118 196 Z" fill="#EAF2FA" stroke="${C.ink}" stroke-width="6" stroke-linejoin="round"/><path d="M252 146 L322 146 L360 196 L252 196 Z" fill="#EAF2FA" stroke="${C.ink}" stroke-width="6" stroke-linejoin="round"/><line x1="242" y1="146" x2="242" y2="266" stroke="${C.ink}" stroke-width="5"/><circle cx="452" cy="236" r="12" fill="${C.gold}" stroke="${C.ink}" stroke-width="4"/><circle cx="150" cy="280" r="46" fill="${C.ink}"/><circle cx="150" cy="280" r="20" fill="${C.grayLight}"/><circle cx="372" cy="280" r="46" fill="${C.ink}"/><circle cx="372" cy="280" r="20" fill="${C.grayLight}"/></svg>`},
+  wallet:{label:"財布",svg:(s)=>`<svg viewBox="0 0 420 320" style="${wS(420,320,s)}"><ellipse cx="210" cy="292" rx="170" ry="20" fill="#000" opacity="0.08"/><rect x="60" y="90" width="300" height="190" rx="26" fill="${C.accent}" stroke="${C.ink}" stroke-width="9"/><rect x="60" y="150" width="300" height="130" rx="20" fill="#C6381F" stroke="${C.ink}" stroke-width="9"/><rect x="250" y="190" width="130" height="60" rx="14" fill="${C.grayLight}" stroke="${C.ink}" stroke-width="8"/><circle cx="300" cy="220" r="14" fill="${C.gold}" stroke="${C.ink}" stroke-width="6"/></svg>`},
+  bank:{label:"銀行",svg:(s)=>`<svg viewBox="0 0 400 340" style="${wS(400,340,s)}"><ellipse cx="200" cy="312" rx="180" ry="18" fill="#000" opacity="0.08"/><path d="M40 120 L200 40 L360 120 Z" fill="${C.grayLight}" stroke="${C.ink}" stroke-width="9" stroke-linejoin="round"/><circle cx="200" cy="96" r="14" fill="${C.accent}" stroke="${C.ink}" stroke-width="5"/><rect x="30" y="120" width="340" height="22" fill="#fff" stroke="${C.ink}" stroke-width="8"/>${[70,140,210,280].map(x=>`<rect x="${x}" y="150" width="42" height="120" fill="#fff" stroke="${C.ink}" stroke-width="8"/>`).join("")}<rect x="24" y="270" width="352" height="34" rx="8" fill="#fff" stroke="${C.ink}" stroke-width="9"/></svg>`},
+  coin:{label:"コイン",svg:(s)=>`<svg viewBox="0 0 120 120" style="${wS(120,120,s)}"><circle cx="60" cy="60" r="52" fill="${C.gold}" stroke="${C.ink}" stroke-width="7"/><circle cx="60" cy="60" r="36" fill="none" stroke="#D9A916" stroke-width="6"/><text x="60" y="80" font-size="56" fill="${C.ink}" text-anchor="middle" font-weight="700">¥</text></svg>`},
+  chartUp:{label:"右肩上がり(棒+線)",svg:(s)=>`<svg viewBox="0 0 420 320" style="${wS(420,320,s)}"><line x1="60" y1="40" x2="60" y2="272" stroke="${C.ink}" stroke-width="8" stroke-linecap="round"/><line x1="60" y1="272" x2="392" y2="272" stroke="${C.ink}" stroke-width="8" stroke-linecap="round"/><rect x="96" y="210" width="52" height="62" fill="${C.grayLight}" stroke="${C.ink}" stroke-width="6"/><rect x="176" y="164" width="52" height="108" fill="#F3C0B6" stroke="${C.ink}" stroke-width="6"/><rect x="256" y="112" width="52" height="160" fill="${C.accent}" stroke="${C.ink}" stroke-width="6"/><polyline points="110,220 190,176 270,120 350,66" fill="none" stroke="${C.green}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M350 66 l-30 4 l16 24 Z" fill="${C.green}"/></svg>`},
+  bond:{label:"債券証書",svg:(s)=>`<svg viewBox="0 0 300 360" style="${wS(300,360,s)}"><ellipse cx="150" cy="338" rx="130" ry="16" fill="#000" opacity="0.08"/><rect x="34" y="26" width="232" height="300" rx="16" fill="#fff" stroke="${C.ink}" stroke-width="9"/><rect x="34" y="26" width="232" height="70" rx="16" fill="${C.ink}"/><text x="150" y="74" font-size="42" fill="#fff" text-anchor="middle" font-weight="700">債券</text><line x1="70" y1="130" x2="230" y2="130" stroke="${C.gray}" stroke-width="8" stroke-linecap="round"/><line x1="70" y1="162" x2="230" y2="162" stroke="${C.gray}" stroke-width="8" stroke-linecap="round"/><text x="150" y="250" font-size="66" fill="${C.accent}" text-anchor="middle" font-weight="700">5.2%</text><text x="150" y="298" font-size="26" fill="${C.ink}" text-anchor="middle" font-weight="700">利回り（例）</text></svg>`},
+  scale:{label:"天秤",svg:(s)=>`<svg viewBox="0 0 420 320" style="${wS(420,320,s)}"><ellipse cx="210" cy="300" rx="120" ry="16" fill="#000" opacity="0.08"/><rect x="196" y="70" width="28" height="210" rx="8" fill="${C.ink}"/><rect x="150" y="278" width="120" height="22" rx="10" fill="${C.ink}"/><circle cx="210" cy="66" r="16" fill="${C.accent}" stroke="${C.ink}" stroke-width="5"/><line x1="80" y1="90" x2="340" y2="90" stroke="${C.ink}" stroke-width="10" stroke-linecap="round"/><path d="M80 90 L44 170 A40 26 0 0 0 116 170 Z" fill="${C.grayLight}" stroke="${C.ink}" stroke-width="7" stroke-linejoin="round"/><path d="M340 90 L304 156 A40 26 0 0 0 376 156 Z" fill="#F3C0B6" stroke="${C.accent}" stroke-width="8" stroke-linejoin="round"/></svg>`},
+  arrow:{label:"右矢印",svg:(s)=>`<svg viewBox="0 0 140 90" style="${wS(140,90,s)}"><path d="M14 45 L96 45 M74 20 L104 45 L74 70" fill="none" stroke="${C.ink}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/></svg>`},
+  thumbUp:{label:"グッド(親指)",svg:(s,col=C.accent)=>`<svg viewBox="0 0 220 224" style="${wS(220,224,s)}"><ellipse cx="110" cy="208" rx="72" ry="12" fill="#000" opacity="0.08"/><circle cx="110" cy="104" r="86" fill="${col}" stroke="${C.ink}" stroke-width="8"/><rect x="56" y="106" width="36" height="58" rx="10" fill="#fff" stroke="${C.ink}" stroke-width="7"/><path d="M92 158 L92 108 C92 100 96 94 103 84 L120 60 C124 54 133 55 137 61 C140 66 140 72 138 78 L131 104 L159 104 C170 104 177 113 173 124 L162 158 C160 166 152 170 144 170 L100 170 C95 170 92 165 92 158 Z" fill="#fff" stroke="${C.ink}" stroke-width="7" stroke-linejoin="round"/></svg>`},
+  volatile:{label:"株:乱高下",svg:(s,col=C.accent)=>`<svg viewBox="0 0 420 260" style="${wS(420,260,s)}"><line x1="34" y1="228" x2="404" y2="228" stroke="${C.gray}" stroke-width="5" stroke-linecap="round"/><line x1="34" y1="18" x2="34" y2="228" stroke="${C.gray}" stroke-width="5" stroke-linecap="round"/><polyline points="46,150 92,86 132,176 178,66 222,206 268,104 312,214 360,128" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><path d="M222 206 l-16 -26 l32 0 Z" fill="${col}"/></svg>`},
+  rise:{label:"債券:安定上昇",svg:(s,col=C.green)=>`<svg viewBox="0 0 420 260" style="${wS(420,260,s)}"><line x1="34" y1="228" x2="404" y2="228" stroke="${C.gray}" stroke-width="5" stroke-linecap="round"/><line x1="34" y1="18" x2="34" y2="228" stroke="${C.gray}" stroke-width="5" stroke-linecap="round"/><polyline points="48,204 116,182 184,150 250,108 316,66 378,36" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><path d="M378 36 l-28 8 l14 22 Z" fill="${col}"/></svg>`},
+  moneyBundle:{label:"お金の束",svg:(s)=>`<svg viewBox="0 0 320 240" style="${wS(320,240,s)}"><ellipse cx="160" cy="224" rx="130" ry="12" fill="#000" opacity="0.08"/><rect x="46" y="120" width="228" height="96" rx="12" fill="#CDE9C6" stroke="${C.ink}" stroke-width="7"/><rect x="60" y="70" width="200" height="86" rx="12" fill="#EAF6E4" stroke="${C.ink}" stroke-width="7"/><circle cx="160" cy="113" r="26" fill="none" stroke="${C.green}" stroke-width="6"/><text x="160" y="127" font-size="34" fill="${C.green}" text-anchor="middle" font-weight="700">¥</text><rect x="128" y="70" width="64" height="86" fill="${C.accent}" opacity="0.85"/><circle cx="96" cy="104" r="4.5" fill="${C.ink}"/><circle cx="224" cy="104" r="4.5" fill="${C.ink}"/><path d="M92 120 Q104 130 118 120" fill="none" stroke="${C.ink}" stroke-width="4" stroke-linecap="round"/><path d="M202 120 Q214 130 228 120" fill="none" stroke="${C.ink}" stroke-width="4" stroke-linecap="round"/></svg>`},
+  piggy:{label:"貯金箱",svg:(s)=>`<svg viewBox="0 0 340 280" style="${wS(340,280,s)}"><ellipse cx="170" cy="256" rx="140" ry="14" fill="#000" opacity="0.08"/><ellipse cx="176" cy="150" rx="128" ry="100" fill="${C.accent}" stroke="${C.ink}" stroke-width="8"/><path d="M300 120 q34 -6 32 26 q-2 22 -30 20 Z" fill="${C.accent}" stroke="${C.ink}" stroke-width="8" stroke-linejoin="round"/><rect x="150" y="52" width="70" height="26" rx="8" fill="#C6381F" stroke="${C.ink}" stroke-width="7"/><circle cx="300" cy="150" r="8" fill="${C.ink}"/><path d="M96 138 Q112 132 128 138" fill="none" stroke="${C.ink}" stroke-width="5" stroke-linecap="round"/>${[110,170,230].map(x=>`<rect x="${x}" y="232" width="30" height="26" rx="6" fill="${C.accent}" stroke="${C.ink}" stroke-width="7"/>`).join("")}<circle cx="185" cy="30" r="20" fill="${C.gold}" stroke="${C.ink}" stroke-width="6"/><text x="185" y="40" font-size="22" fill="${C.ink}" text-anchor="middle" font-weight="700">¥</text></svg>`},
+  check:{label:"チェック丸",svg:(s,col=C.green)=>`<svg viewBox="0 0 200 200" style="${wS(200,200,s)}"><circle cx="100" cy="100" r="86" fill="${col}" stroke="${C.ink}" stroke-width="8"/><path d="M58 104 L88 134 L146 70" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg>`},
 };
-const ART_KEYS = Object.keys(ART);
+const ART_KEYS=Object.keys(ART);
 
-/* ===== 初期データ（v3＝現在の本番と一致） ===== */
-const DEFAULT = {
-  pages:[
-    {type:"diagram", key:"P1", header:{title:"500万円の車、どう買う？"},
-      boxes:[{label:"現金一括",variant:"outline"},{label:"銀行ローン",variant:"navy",badge:"check"}],
-      statement:"結論は*“ローン”*", art:"car", artSize:330, offset:60, speed:0.7,
-      fs:{header:64,stmt:84,note:34}},
-    {type:"diagram", key:"P2", header:{title:"銀行ローンで買うと",sub:"金利2% ・ 10年"},
-      boxes:[{label:"車両 500万",variant:"outline"},{label:"利息 50万",variant:"red"}],
-      statement:"総支払は*約550万*", note:"利息の50万円は“損”に見えるけど…",
-      art:"wallet", artSize:150, offset:60, speed:1, fs:{header:64,stmt:84,note:34}},
-    {type:"diagram", key:"P3", header:{title:"元手の500万円を“運用”へ"},
-      boxes:[{label:"株？",variant:"outline"},{label:"債券？",variant:"outline"}],
-      statement:"何で増やす？", art:"wallet", artSize:230, offset:60, speed:0.7,
-      fs:{header:64,stmt:84,note:34}},
-    {type:"compare", key:"C4", header:{title:"リスクは取りたくない"},
-      left:{label:"株",art:"volatile",badge:"cross",accent:C.textgray},
-      right:{label:"債券",art:"rise",badge:"check",accent:C.ink},
-      statement:"*安定的に*増やす", offset:60, speed:0.5, fs:{header:64,stmt:84,note:34}},
-    {type:"diagram", key:"P5a", header:{title:"子育て世帯こそ“計画的”に"},
-      boxes:[{label:"株",sub:"暴落のリスク",variant:"outline",badge:"cross"},{label:"債券",sub:"約束された資産",variant:"outline",badge:"check"}],
-      statement:"将来を*計画的に*組める", note:"教育資金・老後資金・特別費に備える",
-      art:"none", artSize:220, offset:60, speed:1, fs:{header:64,stmt:84,note:34}},
-    {type:"diagram", key:"P5b", header:{title:"しかも今、米国債は"},
-      boxes:[], statement:"金利**約5%**", art:"bond", artSize:280, offset:60, speed:0.7,
-      fs:{header:64,stmt:92,note:34}},
-    {type:"chart", key:"P6", header:{title:"10年後、どうなる？"},
-      result:{base:550,delta:260,topLabel:"約810万",caption:"債券で10年運用"},
-      compare:{value:550,topLabel:"550万",caption:"車の総支払い"},
-      deltaCallout:"＋260万", pill:"利息50万 *＜* 運用益260万", footer:"だからトータルで*“得”*",
-      offset:60, speed:1, fs:{header:64,pill:58,foot:54}},
-  ]
-};
+/* ===== 初期データ（v3＝現在の本番） ===== */
+const DEFAULT={pages:[
+  {type:"diagram",key:"P1",header:{title:"500万円の車、どう買う？"},
+    boxes:[{label:"現金一括",variant:"outline"},{label:"銀行ローン",variant:"navy",badge:"check"}],
+    statement:"結論は*“ローン”*",art:"car",artSize:330,offset:60,speed:0.7,
+    fs:{header:64,box:50,stmt:84,note:34},pos:{}},
+  {type:"diagram",key:"P2",header:{title:"銀行ローンで買うと",sub:"金利2% ・ 10年"},
+    boxes:[{label:"車両 500万",variant:"outline"},{label:"利息 50万",variant:"red"}],
+    statement:"総支払は*約550万*",note:"利息の50万円は“損”に見えるけど…",
+    art:"wallet",artSize:150,offset:60,speed:1,fs:{header:64,box:50,stmt:84,note:34},pos:{note:{dy:54}}},
+  {type:"diagram",key:"P3",header:{title:"元手の500万円を“運用”へ"},
+    boxes:[{label:"株？",variant:"outline"},{label:"債券？",variant:"outline"}],
+    statement:"何で増やす？",art:"wallet",artSize:230,offset:60,speed:0.7,
+    fs:{header:64,box:50,stmt:84,note:34},pos:{}},
+  {type:"compare",key:"C4",header:{title:"リスクは取りたくない"},
+    left:{label:"株",art:"volatile",artSize:360,badge:"cross",accent:C.textgray},
+    right:{label:"債券",art:"rise",artSize:360,badge:"check",accent:C.ink},
+    statement:"*安定的に*増やす",offset:60,speed:0.5,fs:{header:64,stmt:84,note:34},pos:{}},
+  {type:"diagram",key:"P5a",header:{title:"子育て世帯こそ“計画的”に"},
+    boxes:[{label:"株",sub:"暴落のリスク",variant:"outline",badge:"cross"},{label:"債券",sub:"約束された資産",variant:"outline",badge:"check"}],
+    statement:"将来を*計画的に*組める",note:"教育資金・老後資金・特別費に備える",
+    art:"none",artSize:220,offset:60,speed:1,fs:{header:64,box:50,stmt:84,note:34},pos:{}},
+  {type:"diagram",key:"P5b",header:{title:"しかも今、米国債は"},
+    boxes:[],statement:"金利**約5%**",art:"bond",artSize:280,offset:60,speed:0.7,
+    fs:{header:64,box:50,stmt:92,note:34},pos:{}},
+  {type:"chart",key:"P6",header:{title:"10年後、どうなる？"},
+    result:{base:550,delta:260,topLabel:"約810万",caption:"債券で10年運用"},
+    compare:{value:550,topLabel:"550万",caption:"車の総支払い"},
+    deltaCallout:"＋260万",pill:"利息50万 *＜* 運用益260万",footer:"だからトータルで*“得”*",
+    offset:60,speed:1,fs:{header:64,pill:58,foot:54},pos:{}},
+]};
 
-/* ===== 状態（localStorage） ===== */
-const LSK="zukai-builder-v3";
-let state, sel=0;
-function load(){ try{const r=localStorage.getItem(LSK); if(r) return JSON.parse(r);}catch(e){} return null; }
-function save(){ try{localStorage.setItem(LSK,JSON.stringify(state)); flash("保存済み");}catch(e){} }
-state = load() || JSON.parse(JSON.stringify(DEFAULT));
-let flashT; function flash(t){const e=document.getElementById("saved");e.textContent=t;clearTimeout(flashT);flashT=setTimeout(()=>e.textContent="",1400);}
+const LSK="zukai-builder-v4";
+let state,sel=0;
+function load(){try{const r=localStorage.getItem(LSK);if(r)return JSON.parse(r);}catch(e){}return null;}
+function save(){try{localStorage.setItem(LSK,JSON.stringify(state));flash("保存済み");}catch(e){}}
+state=load()||JSON.parse(JSON.stringify(DEFAULT));
+let flashT;function flash(t){const e=document.getElementById("saved");e.textContent=t;clearTimeout(flashT);flashT=setTimeout(()=>e.textContent="",1400);}
 
-/* ===== 強調マークアップ → HTML ===== */
-function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function rich(s){
-  let h=esc(s);
-  h=h.replace(/\*\*([^*]+)\*\*/g,`<span style="font-size:96px;color:${C.gold}">$1</span>`);
-  h=h.replace(/\*([^*]+)\*/g,`<span style="color:${C.accent}">$1</span>`);
-  return h;
-}
+function esc(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function rich(s){let h=esc(s);h=h.replace(/\*\*([^*]+)\*\*/g,`<span style="font-size:96px;color:${C.gold}">$1</span>`);h=h.replace(/\*([^*]+)\*/g,`<span style="color:${C.accent}">$1</span>`);return h;}
 
-/* ===== プレビュー描画（1080x1920絶対座標・静止最終状態） ===== */
+/* ===== プレビュー描画 ===== */
 const D={HEADER_TOP:170,BOX_TOP:520,BOX_H:118,CXL:300,CXR:780,CENTER:540,STMT_TOP:760,
-  NUM_TOP:930,NOTE_TOP:1070,PILL_TOP:1160,FOOT_TOP:1360,ART_TOP:940};
-function line(x1,y1,x2,y2,col=C.ink,w=5){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;}
-function poly(pts,col,w){return `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;}
+  NOTE_TOP:1070,PILL_TOP:1160,FOOT_TOP:1360,ART_TOP:940};
+function ln(x1,y1,x2,y2,col=C.ink,w=5){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;}
+function PS(p){return p.pos||{};}
+function dxy(p,k){const q=(p.pos||{})[k]||{};return{x:q.dx||0,y:q.dy||0};}
 
-function headerBox(h,fsH){
-  const sub = h.sub?`<div style="text-align:center;font-size:36px;font-weight:700;color:${C.textgray};margin-top:12px">${esc(h.sub)}</div>`:"";
-  return `<div style="position:absolute;left:0;top:${D.HEADER_TOP}px;width:1080px;display:flex;flex-direction:column;align-items:center">
+function headerBox(p){
+  const h=p.header,F=p.fs||{},d=dxy(p,"header");
+  const sub=h.sub?`<div style="text-align:center;font-size:36px;font-weight:700;color:${C.textgray};margin-top:12px">${esc(h.sub)}</div>`:"";
+  return `<div style="position:absolute;left:${d.x}px;top:${D.HEADER_TOP+d.y}px;width:1080px;display:flex;flex-direction:column;align-items:center">
     <div style="border:5px solid ${C.ink};border-radius:18px;background:#fff;padding:22px 34px;display:inline-flex;align-items:center;gap:18px;justify-content:center;max-width:1000px">
       <div style="width:11px;height:56px;background:${C.accent};border-radius:4px;flex-shrink:0"></div>
-      <div style="font-size:${fsH||64}px;font-weight:700;color:${C.ink};line-height:1.2;white-space:nowrap">${esc(h.title)}</div>
+      <div style="font-size:${F.header||64}px;font-weight:700;color:${C.ink};line-height:1.2;white-space:nowrap">${esc(h.title)}</div>
     </div>${sub}</div>`;
 }
-function boxFill(b){
-  if(b.variant==="red")return`background:${C.accent};color:#fff;border:4px solid ${C.accent}`;
-  if(b.variant==="navy")return`background:${C.ink};color:#fff;border:4px solid ${C.ink}`;
-  return`background:#fff;color:${C.ink};border:4px solid ${C.ink}`;
-}
-function boxView(b,w){
+function boxFill(b){if(b.variant==="red")return`background:${C.accent};color:#fff;border:4px solid ${C.accent}`;if(b.variant==="navy")return`background:${C.ink};color:#fff;border:4px solid ${C.ink}`;return`background:#fff;color:${C.ink};border:4px solid ${C.ink}`;}
+function boxView(b,w,fsBox){
   const badge=b.badge?`<div style="position:absolute;top:-18px;right:-18px;width:44px;height:44px;border-radius:50%;background:${b.badge==="check"?C.green:C.accent};color:#fff;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;border:3px solid #fff">${b.badge==="check"?"✓":"×"}</div>`:"";
   const sub=b.sub?`<div style="text-align:center;font-size:34px;font-weight:700;color:${C.textgray};margin-top:12px;width:${w}px">${esc(b.sub)}</div>`:"";
-  return `<div style="position:relative">
-    <div style="border-radius:16px;padding:22px 14px;text-align:center;font-size:50px;font-weight:700;white-space:nowrap;${boxFill(b)}">${esc(b.label)}</div>${badge}${sub}</div>`;
+  return `<div style="position:relative"><div style="border-radius:16px;padding:22px 14px;text-align:center;font-size:${fsBox||50}px;font-weight:700;white-space:nowrap;${boxFill(b)}">${esc(b.label)}</div>${badge}${sub}</div>`;
 }
-function absBox(cx,top,w,inner){return `<div style="position:absolute;left:${cx-w/2}px;top:${top}px;width:${w}px">${inner}</div>`;}
+function absP(p,cx,top,w,key,inner){const d=dxy(p,key);return `<div style="position:absolute;left:${cx-w/2+d.x}px;top:${top+d.y}px;width:${w}px">${inner}</div>`;}
 
 function renderDiagram(p){
-  const F=p.fs||{}, n=(p.boxes||[]).length, two=n>=2, one=n===1;
-  const hasSub=(p.boxes||[]).some(b=>b.sub);
-  const headBottom=p.header.sub?384:322;
+  const F=p.fs||{},n=(p.boxes||[]).length,two=n>=2,one=n===1,hasSub=(p.boxes||[]).some(b=>b.sub),headBottom=p.header.sub?384:322;
   let svg="";
   if(n>0){
     if(two){
-      svg+=line(D.CENTER,headBottom,D.CENTER,470);
-      svg+=line(D.CXL,470,D.CXR,470);
-      svg+=line(D.CXL,470,D.CXL,D.BOX_TOP);
-      svg+=line(D.CXR,470,D.CXR,D.BOX_TOP);
+      svg+=ln(D.CENTER,headBottom,D.CENTER,470)+ln(D.CXL,470,D.CXR,470)+ln(D.CXL,470,D.CXL,D.BOX_TOP)+ln(D.CXR,470,D.CXR,D.BOX_TOP);
       if(p.statement){
-        if(hasSub){svg+=line(D.CENTER,702,D.CENTER,D.STMT_TOP-32,C.accent,6);}
-        else{
-          svg+=`<path d="M${D.CXL} ${D.BOX_TOP+D.BOX_H} L${D.CXL} 690 L${D.CENTER} 690" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
-          svg+=`<path d="M${D.CXR} ${D.BOX_TOP+D.BOX_H} L${D.CXR} 690 L${D.CENTER} 690" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
-          svg+=line(D.CENTER,690,D.CENTER,D.STMT_TOP-32,C.accent,6);
-        }
+        if(hasSub){svg+=ln(D.CENTER,702,D.CENTER,D.STMT_TOP-32,C.accent,6);}
+        else{svg+=`<path d="M${D.CXL} ${D.BOX_TOP+D.BOX_H} L${D.CXL} 690 L${D.CENTER} 690" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M${D.CXR} ${D.BOX_TOP+D.BOX_H} L${D.CXR} 690 L${D.CENTER} 690" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`+ln(D.CENTER,690,D.CENTER,D.STMT_TOP-32,C.accent,6);}
       }
-    }else{
-      svg+=line(D.CENTER,headBottom,D.CENTER,D.BOX_TOP);
-      if(p.statement)svg+=line(D.CENTER,D.BOX_TOP+D.BOX_H,D.CENTER,D.STMT_TOP-32,C.accent,6);
-    }
+    }else{svg+=ln(D.CENTER,headBottom,D.CENTER,D.BOX_TOP);if(p.statement)svg+=ln(D.CENTER,D.BOX_TOP+D.BOX_H,D.CENTER,D.STMT_TOP-32,C.accent,6);}
   }
   let h=`<svg width="1080" height="1920" style="position:absolute;top:0;left:0">${svg}</svg>`;
-  h+=headerBox(p.header,F.header);
-  if(one)h+=absBox(D.CENTER,D.BOX_TOP,500,boxView(p.boxes[0],500));
-  if(two){h+=absBox(D.CXL,D.BOX_TOP,360,boxView(p.boxes[0],360));h+=absBox(D.CXR,D.BOX_TOP,360,boxView(p.boxes[1],360));}
-  if(p.statement)h+=absBox(D.CENTER,D.STMT_TOP,1000,`<div style="text-align:center;font-size:${F.stmt||84}px;font-weight:700;color:${C.ink};line-height:1.15">${rich(p.statement)}</div>`);
-  if(p.art&&p.art!=="none")h+=`<div style="position:absolute;left:0;top:${D.ART_TOP}px;width:1080px;display:flex;justify-content:center">${ART[p.art].svg(p.artSize||220)}</div>`;
-  if(p.note)h+=absBox(D.CENTER,D.NOTE_TOP,1000,`<div style="text-align:center;font-size:${F.note||34}px;font-weight:700;color:${C.textgray}">${esc(p.note)}</div>`);
+  h+=headerBox(p);
+  if(one)h+=absP(p,D.CENTER,D.BOX_TOP,500,"box0",boxView(p.boxes[0],500,F.box));
+  if(two){h+=absP(p,D.CXL,D.BOX_TOP,360,"box0",boxView(p.boxes[0],360,F.box));h+=absP(p,D.CXR,D.BOX_TOP,360,"box1",boxView(p.boxes[1],360,F.box));}
+  if(p.statement)h+=absP(p,D.CENTER,D.STMT_TOP,1000,"stmt",`<div style="text-align:center;font-size:${F.stmt||84}px;font-weight:700;color:${C.ink};line-height:1.15">${rich(p.statement)}</div>`);
+  if(p.art&&p.art!=="none"){const d=dxy(p,"art");h+=`<div style="position:absolute;left:0;top:${D.ART_TOP}px;width:1080px;display:flex;justify-content:center;transform:translate(${d.x}px,${d.y}px)">${ART[p.art].svg(p.artSize||220)}</div>`;}
+  if(p.note)h+=absP(p,D.CENTER,D.NOTE_TOP,1000,"note",`<div style="text-align:center;font-size:${F.note||34}px;font-weight:700;color:${C.textgray}">${esc(p.note)}</div>`);
   return `<div style="position:absolute;inset:0;transform:translateY(${p.offset??60}px)">${h}</div>`;
 }
 
 function renderCompare(p){
-  const F=p.fs||{}, CXL=290,CXR=790,CEN=540,CW=460,CT=452,CH=388,cb=CT+CH;
-  const headBottom=p.header.sub?384:322;
-  let svg=line(CEN,headBottom,CEN,412)+line(CXL,412,CXR,412)+line(CXL,412,CXL,CT)+line(CXR,412,CXR,CT);
-  if(p.statement){
-    svg+=`<path d="M${CXL} ${cb} L${CXL} 892 L${CEN} 892" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
-    svg+=`<path d="M${CXR} ${cb} L${CXR} 892 L${CEN} 892" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
-    svg+=line(CEN,892,CEN,936,C.accent,6);
-  }
-  const card=(sd)=>`<div style="position:relative;width:${CW}px">
-    <div style="border:4px solid ${sd.accent};border-radius:20px;background:#fff;overflow:hidden">
-      <div style="background:${sd.accent};color:#fff;font-size:46px;font-weight:700;text-align:center;padding:14px 0">${esc(sd.label)}</div>
-      <div style="padding:22px 22px 26px;display:flex;justify-content:center">${ART[sd.art]?ART[sd.art].svg(360):""}</div>
-    </div>
-    <div style="position:absolute;top:-22px;right:-22px;width:56px;height:56px;border-radius:50%;background:${sd.badge==="check"?C.green:C.accent};color:#fff;font-size:34px;font-weight:700;display:flex;align-items:center;justify-content:center;border:4px solid #fff">${sd.badge==="check"?"✓":"×"}</div></div>`;
+  const F=p.fs||{},CXL=290,CXR=790,CEN=540,CW=460,CT=452,CH=388,cb=CT+CH,headBottom=p.header.sub?384:322;
+  let svg=ln(CEN,headBottom,CEN,412)+ln(CXL,412,CXR,412)+ln(CXL,412,CXL,CT)+ln(CXR,412,CXR,CT);
+  if(p.statement){svg+=`<path d="M${CXL} ${cb} L${CXL} 892 L${CEN} 892" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M${CXR} ${cb} L${CXR} 892 L${CEN} 892" fill="none" stroke="${C.accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`+ln(CEN,892,CEN,936,C.accent,6);}
+  const card=(sd)=>`<div style="position:relative;width:${CW}px"><div style="border:4px solid ${sd.accent};border-radius:20px;background:#fff;overflow:hidden"><div style="background:${sd.accent};color:#fff;font-size:46px;font-weight:700;text-align:center;padding:14px 0">${esc(sd.label)}</div><div style="padding:22px 22px 26px;display:flex;justify-content:center">${ART[sd.art]?ART[sd.art].svg(sd.artSize||360):""}</div></div><div style="position:absolute;top:-22px;right:-22px;width:56px;height:56px;border-radius:50%;background:${sd.badge==="check"?C.green:C.accent};color:#fff;font-size:34px;font-weight:700;display:flex;align-items:center;justify-content:center;border:4px solid #fff">${sd.badge==="check"?"✓":"×"}</div></div>`;
   let h=`<svg width="1080" height="1920" style="position:absolute;top:0;left:0">${svg}</svg>`;
-  h+=headerBox(p.header,F.header);
-  h+=`<div style="position:absolute;left:${CXL-CW/2}px;top:${CT}px;width:${CW}px">${card(p.left)}</div>`;
-  h+=`<div style="position:absolute;left:${CXR-CW/2}px;top:${CT}px;width:${CW}px">${card(p.right)}</div>`;
-  if(p.statement)h+=`<div style="position:absolute;left:40px;top:968px;width:1000px;text-align:center;font-size:${F.stmt||84}px;font-weight:700;color:${C.ink};line-height:1.15">${rich(p.statement)}</div>`;
-  if(p.note)h+=`<div style="position:absolute;left:40px;top:1130px;width:1000px;text-align:center;font-size:${F.note||34}px;font-weight:700;color:${C.textgray}">${esc(p.note)}</div>`;
-  if(p.footer)h+=`<div style="position:absolute;left:40px;top:1240px;width:1000px;text-align:center;font-size:${F.foot||54}px;font-weight:700;color:${C.ink};line-height:1.2">${rich(p.footer)}</div>`;
+  h+=headerBox(p);
+  const dL=dxy(p,"box0"),dR=dxy(p,"box1");
+  h+=`<div style="position:absolute;left:${CXL-CW/2+dL.x}px;top:${CT+dL.y}px;width:${CW}px">${card(p.left)}</div>`;
+  h+=`<div style="position:absolute;left:${CXR-CW/2+dR.x}px;top:${CT+dR.y}px;width:${CW}px">${card(p.right)}</div>`;
+  if(p.statement){const d=dxy(p,"stmt");h+=`<div style="position:absolute;left:${40+d.x}px;top:${968+d.y}px;width:1000px;text-align:center;font-size:${F.stmt||84}px;font-weight:700;color:${C.ink};line-height:1.15">${rich(p.statement)}</div>`;}
+  if(p.note){const d=dxy(p,"note");h+=`<div style="position:absolute;left:${40+d.x}px;top:${1130+d.y}px;width:1000px;text-align:center;font-size:${F.note||34}px;font-weight:700;color:${C.textgray}">${esc(p.note)}</div>`;}
+  if(p.footer){const d=dxy(p,"foot");h+=`<div style="position:absolute;left:${40+d.x}px;top:${1240+d.y}px;width:1000px;text-align:center;font-size:${F.foot||54}px;font-weight:700;color:${C.ink};line-height:1.2">${rich(p.footer)}</div>`;}
   return `<div style="position:absolute;inset:0;transform:translateY(${p.offset??60}px)">${h}</div>`;
 }
 
 function renderChart(p){
-  const F=p.fs||{}, r=p.result,cm=p.compare;
-  const total=(+r.base)+(+r.delta), max=Math.max(total,+cm.value)||1;
-  const H=470, BASE=1010, unit=H/max, BW=236, CXL=336, CXR=744;
-  const baseH=r.base*unit, deltaH=r.delta*unit, cmpH=cm.value*unit;
-  const baseColor=C.green, deltaColor=C.gold, cmpColor=C.textgray;
-  const leftBaseTop=BASE-baseH, leftDeltaTop=BASE-baseH-deltaH, cmpTop=BASE-cmpH, cmpLevel=BASE-baseH;
-  const barCss=(cx,top,hh,col,rt)=>`position:absolute;left:${cx-BW/2}px;top:${top}px;width:${BW}px;height:${Math.max(0,hh)}px;background:${col};border:4px solid ${C.ink};border-bottom:none;border-top-left-radius:${rt?12:0}px;border-top-right-radius:${rt?12:0}px`;
-  let h=headerBox(p.header,F.header);
-  h+=`<svg width="1080" height="1920" style="position:absolute;top:0;left:0">
-    ${line(150,BASE,930,BASE,C.ink,6)}
-    <line x1="${CXL}" y1="${cmpLevel}" x2="${CXR+BW/2}" y2="${cmpLevel}" stroke="${C.accent}" stroke-width="5" stroke-dasharray="14 12" opacity="0.9"/></svg>`;
-  h+=`<div style="${barCss(CXL,leftBaseTop,baseH,baseColor,false)}"></div>`;
-  h+=`<div style="${barCss(CXL,leftDeltaTop,deltaH,deltaColor,true)}"></div>`;
-  h+=`<div style="${barCss(CXR,cmpTop,cmpH,cmpColor,true)}"></div>`;
-  if(p.deltaCallout)h+=`<div style="position:absolute;left:${CXL+BW/2+8}px;top:${leftDeltaTop-8}px;width:300px;font-size:52px;font-weight:700;color:${C.accent};white-space:nowrap">${esc(p.deltaCallout)}</div>`;
-  h+=`<div style="position:absolute;left:${CXL-160}px;top:${BASE-total*unit-74}px;width:320px;text-align:center;font-size:60px;font-weight:700;color:${C.ink};white-space:nowrap">${esc(r.topLabel)}</div>`;
-  h+=`<div style="position:absolute;left:${CXR-160}px;top:${cmpTop-74}px;width:320px;text-align:center;font-size:60px;font-weight:700;color:${cmpColor};white-space:nowrap">${esc(cm.topLabel)}</div>`;
-  h+=`<div style="position:absolute;left:${CXL-200}px;top:${BASE+18}px;width:400px;text-align:center;font-size:40px;font-weight:700;color:${C.ink};white-space:nowrap">${esc(r.caption)}</div>`;
-  h+=`<div style="position:absolute;left:${CXR-200}px;top:${BASE+18}px;width:400px;text-align:center;font-size:40px;font-weight:700;color:${C.textgray};white-space:nowrap">${esc(cm.caption)}</div>`;
-  if(p.pill)h+=`<div style="position:absolute;left:130px;top:1160px;width:820px;background:${C.ink};color:#fff;border-radius:20px;padding:26px 0;text-align:center;font-size:${F.pill||58}px;font-weight:700;line-height:1.25">${rich(p.pill)}</div>`;
-  if(p.footer)h+=`<div style="position:absolute;left:40px;top:1360px;width:1000px;text-align:center;font-size:${F.foot||54}px;font-weight:700;color:${C.ink};line-height:1.2">${rich(p.footer)}</div>`;
+  const F=p.fs||{},r=p.result,cm=p.compare;
+  const total=(+r.base)+(+r.delta),max=Math.max(total,+cm.value)||1,H=470,BASE=1010,unit=H/max,BW=236,CXL=336,CXR=744;
+  const baseH=r.base*unit,deltaH=r.delta*unit,cmpH=cm.value*unit;
+  const leftBaseTop=BASE-baseH,leftDeltaTop=BASE-baseH-deltaH,cmpTop=BASE-cmpH,cmpLevel=BASE-baseH;
+  const bc=(cx,top,hh,col,rt)=>`position:absolute;left:${cx-BW/2}px;top:${top}px;width:${BW}px;height:${Math.max(0,hh)}px;background:${col};border:4px solid ${C.ink};border-bottom:none;border-top-left-radius:${rt?12:0}px;border-top-right-radius:${rt?12:0}px`;
+  const g=(k,bx,by)=>{const d=dxy(p,k);return `transform:translate(${(d.x)+(bx||0)}px,${(d.y)+(by||0)}px)`;};
+  let h=headerBox(p);
+  h+=`<svg width="1080" height="1920" style="position:absolute;top:0;left:0">${ln(150,BASE,930,BASE,C.ink,6)}<line x1="${CXL}" y1="${cmpLevel}" x2="${CXR+BW/2}" y2="${cmpLevel}" stroke="${C.accent}" stroke-width="5" stroke-dasharray="14 12" opacity="0.9"/></svg>`;
+  h+=`<div style="${bc(CXL,leftBaseTop,baseH,C.green,false)}"></div><div style="${bc(CXL,leftDeltaTop,deltaH,C.gold,true)}"></div><div style="${bc(CXR,cmpTop,cmpH,C.textgray,true)}"></div>`;
+  if(p.deltaCallout){const d=dxy(p,"delta");h+=`<div style="position:absolute;left:${CXL+BW/2+8+d.x}px;top:${leftDeltaTop-8+d.y}px;width:300px;font-size:52px;font-weight:700;color:${C.accent};white-space:nowrap">${esc(p.deltaCallout)}</div>`;}
+  {const d=dxy(p,"leftTop");h+=`<div style="position:absolute;left:${CXL-160+d.x}px;top:${BASE-total*unit-74+d.y}px;width:320px;text-align:center;font-size:60px;font-weight:700;color:${C.ink};white-space:nowrap">${esc(r.topLabel)}</div>`;}
+  {const d=dxy(p,"rightTop");h+=`<div style="position:absolute;left:${CXR-160+d.x}px;top:${cmpTop-74+d.y}px;width:320px;text-align:center;font-size:60px;font-weight:700;color:${C.textgray};white-space:nowrap">${esc(cm.topLabel)}</div>`;}
+  {const d=dxy(p,"leftCap");h+=`<div style="position:absolute;left:${CXL-200+d.x}px;top:${BASE+18+d.y}px;width:400px;text-align:center;font-size:40px;font-weight:700;color:${C.ink};white-space:nowrap">${esc(r.caption)}</div>`;}
+  {const d=dxy(p,"rightCap");h+=`<div style="position:absolute;left:${CXR-200+d.x}px;top:${BASE+18+d.y}px;width:400px;text-align:center;font-size:40px;font-weight:700;color:${C.textgray};white-space:nowrap">${esc(cm.caption)}</div>`;}
+  if(p.pill){const d=dxy(p,"pill");h+=`<div style="position:absolute;left:${130+d.x}px;top:${1160+d.y}px;width:820px;background:${C.ink};color:#fff;border-radius:20px;padding:26px 0;text-align:center;font-size:${F.pill||58}px;font-weight:700;line-height:1.25">${rich(p.pill)}</div>`;}
+  if(p.footer){const d=dxy(p,"foot");h+=`<div style="position:absolute;left:${40+d.x}px;top:${1360+d.y}px;width:1000px;text-align:center;font-size:${F.foot||54}px;font-weight:700;color:${C.ink};line-height:1.2">${rich(p.footer)}</div>`;}
   return `<div style="position:absolute;inset:0;transform:translateY(${p.offset??60}px)">${h}</div>`;
 }
 
-function renderStage(){
-  const p=state.pages[sel];
-  const stage=document.getElementById("stage");
-  stage.innerHTML = p.type==="compare"?renderCompare(p):p.type==="chart"?renderChart(p):renderDiagram(p);
-  fitStage();
-}
-function fitStage(){
-  const wrap=document.querySelector(".stagewrap");
-  const s=wrap.clientWidth/1080;
-  document.getElementById("stage").style.transform=`scale(${s})`;
-}
+function renderStage(){const p=state.pages[sel];document.getElementById("stage").innerHTML=p.type==="compare"?renderCompare(p):p.type==="chart"?renderChart(p):renderDiagram(p);fitStage();}
+function fitStage(){const w=document.querySelector(".stagewrap");document.getElementById("stage").style.transform=`scale(${w.clientWidth/1080})`;}
 new ResizeObserver(fitStage).observe(document.querySelector(".stagewrap"));
 
-/* ===== コントロールパネル ===== */
-function upd(){ save(); renderStage(); }
-function txt(label,val,on,ph=""){const d=el("div","fld");d.innerHTML=`<label>${label}</label>`;const i=document.createElement("input");i.type="text";i.value=val||"";i.placeholder=ph;i.oninput=e=>{on(e.target.value);};i.onchange=save;d.appendChild(i);return d;}
-function area(label,val,on,hint){const d=el("div","fld");d.innerHTML=`<label>${label}</label>`;const t=document.createElement("textarea");t.value=val||"";t.oninput=e=>on(e.target.value);t.onchange=save;d.appendChild(t);if(hint){const p=document.createElement("p");p.className="hint";p.innerHTML=hint;d.appendChild(p);}return d;}
+/* ===== コントロール ===== */
+function el(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+function txt(label,val,on){const d=el("div","fld");d.innerHTML=`<label>${label}</label>`;const i=document.createElement("input");i.type="text";i.value=val||"";i.oninput=e=>on(e.target.value);i.onchange=save;d.appendChild(i);return d;}
+function area(label,val,on,hint){const d=el("div","fld");d.innerHTML=`<label>${label}</label>`;const t=document.createElement("textarea");t.value=val||"";t.oninput=e=>on(e.target.value);t.onchange=save;d.appendChild(t);if(hint){const p=el("p","hint");p.innerHTML=hint;d.appendChild(p);}return d;}
 function rng(label,val,min,max,step,on){const d=el("div","fld");d.innerHTML=`<label>${label}</label>`;const r=el("div","rng");const i=document.createElement("input");i.type="range";i.min=min;i.max=max;i.step=step;i.value=val;const v=el("span","val");v.textContent=val;i.oninput=e=>{v.textContent=e.target.value;on(+e.target.value);};i.onchange=save;r.appendChild(i);r.appendChild(v);d.appendChild(r);return d;}
 function sel1(label,val,opts,on){const d=el("div","fld");d.innerHTML=`<label>${label}</label>`;const s=document.createElement("select");opts.forEach(o=>{const op=document.createElement("option");op.value=o.v;op.textContent=o.t;if(o.v===val)op.selected=true;s.appendChild(op);});s.onchange=e=>{on(e.target.value);save();};d.appendChild(s);return d;}
-function colorPick(label,val,on){const d=el("div","fld");d.innerHTML=`<label>${label}</label>`;const sw=el("div","swatch");const cols=[["ネイビー",C.ink],["赤",C.accent],["グレー",C.textgray],["緑",C.green],["金",C.gold]];cols.forEach(([t,c])=>{const b=document.createElement("div");b.className="sw"+(c===val?" on":"");b.style.background=c;b.title=t;b.onclick=()=>{on(c);save();};sw.appendChild(b);});d.appendChild(sw);return d;}
-function el(tag,cls){const e=document.createElement(tag);if(cls)e.className=cls;return e;}
-function grp(title){const g=el("div","grp");g.innerHTML=`<div class="gt">${title}</div>`;return g;}
+function colorPick(label,val,on){const d=el("div","fld");d.innerHTML=`<label>${label}</label>`;const sw=el("div","swatch");[["ネイビー",C.ink],["赤",C.accent],["グレー",C.textgray],["緑",C.green],["金",C.gold]].forEach(([t,c])=>{const b=el("div","sw"+(c===val?" on":""));b.style.background=c;b.title=t;b.onclick=()=>{on(c);save();buildPanel();};sw.appendChild(b);});d.appendChild(sw);return d;}
+function posCtrl(p,key){
+  const d=el("div","fld");d.innerHTML=`<label>位置ずらし（px）</label>`;
+  const q=el("div","xy");
+  const cur=(p.pos&&p.pos[key])||{};
+  const set=(axis,v)=>{p.pos=p.pos||{};p.pos[key]=p.pos[key]||{};p.pos[key][axis]=v;renderStage();};
+  const mk=(axis,lab)=>{const wr=document.createElement("template");const l=el("label");l.textContent=lab;const i=document.createElement("input");i.type="number";i.step=5;i.value=cur[axis]||0;i.oninput=e=>set(axis,+e.target.value||0);i.onchange=save;return[l,i];};
+  const[lx,ix]=mk("dx","← →");const[ly,iy]=mk("dy","↑ ↓");
+  q.appendChild(lx);q.appendChild(ix);q.appendChild(ly);q.appendChild(iy);
+  d.appendChild(q);return d;
+}
+function grp(title,open){const d=document.createElement("details");d.className="grp";if(open)d.open=true;d.innerHTML=`<summary>${title}</summary>`;const b=el("div","body");d.appendChild(b);d._body=b;return d;}
+function add(g,...els){els.forEach(e=>g._body.appendChild(e));}
+
 const ARTOPTS=ART_KEYS.map(k=>({v:k,t:ART[k].label}));
 const VAROPTS=[{v:"outline",t:"白枠(ネイビー)"},{v:"navy",t:"ネイビー塗り"},{v:"red",t:"赤塗り"}];
 const BADGEOPTS=[{v:"",t:"なし"},{v:"check",t:"✓ 緑"},{v:"cross",t:"× 赤"}];
 
 function buildPanel(){
-  const p=state.pages[sel], panel=document.getElementById("panel"); panel.innerHTML="";
-  const g0=grp(`${p.key}：見出し`);
-  g0.appendChild(txt("タイトル",p.header.title,v=>{p.header.title=v;renderStage();}));
-  g0.appendChild(txt("サブ見出し（任意）",p.header.sub,v=>{p.header.sub=v||undefined;renderStage();}));
-  panel.appendChild(g0);
+  const p=state.pages[sel],panel=document.getElementById("panel");panel.innerHTML="";
+
+  const gH=grp(`${p.key}｜見出し`,true);
+  add(gH,txt("タイトル",p.header.title,v=>{p.header.title=v;renderStage();}),
+    txt("サブ見出し（任意）",p.header.sub,v=>{p.header.sub=v||undefined;renderStage();}),
+    rng("大きさ",(p.fs&&p.fs.header)||64,36,100,1,v=>{p.fs=p.fs||{};p.fs.header=v;renderStage();}),
+    posCtrl(p,"header"));
+  panel.appendChild(gH);
 
   if(p.type==="diagram"){
     (p.boxes||[]).forEach((b,i)=>{
       const g=grp(`ボックス${i+1}`);
-      g.appendChild(txt("ラベル",b.label,v=>{b.label=v;renderStage();}));
-      g.appendChild(txt("サブ文字（任意）",b.sub,v=>{b.sub=v||undefined;renderStage();}));
-      g.appendChild(sel1("見た目",b.variant||"outline",VAROPTS,v=>{b.variant=v;renderStage();}));
-      g.appendChild(sel1("バッジ",b.badge||"",BADGEOPTS,v=>{b.badge=v||undefined;renderStage();}));
+      add(g,txt("ラベル",b.label,v=>{b.label=v;renderStage();}),
+        txt("サブ文字（任意）",b.sub,v=>{b.sub=v||undefined;renderStage();}),
+        sel1("見た目",b.variant||"outline",VAROPTS,v=>{b.variant=v;renderStage();}),
+        sel1("バッジ",b.badge||"",BADGEOPTS,v=>{b.badge=v||undefined;renderStage();}),
+        posCtrl(p,"box"+i));
       panel.appendChild(g);
     });
-    const gb=grp("ボックス数");
-    gb.appendChild(sel1("箱の数",String((p.boxes||[]).length),[{v:"0",t:"0個"},{v:"1",t:"1個"},{v:"2",t:"2個"}],v=>{
-      const n=+v; p.boxes=p.boxes||[]; while(p.boxes.length<n)p.boxes.push({label:"項目",variant:"outline"}); p.boxes.length=n; buildPanel(); renderStage();
-    }));
+    const gb=grp("ボックス数・文字");
+    add(gb,sel1("箱の数",String((p.boxes||[]).length),[{v:"0",t:"0個"},{v:"1",t:"1個"},{v:"2",t:"2個"}],v=>{const n=+v;p.boxes=p.boxes||[];while(p.boxes.length<n)p.boxes.push({label:"項目",variant:"outline"});p.boxes.length=n;buildPanel();renderStage();}),
+      rng("箱の文字サイズ",(p.fs&&p.fs.box)||50,30,70,1,v=>{p.fs=p.fs||{};p.fs.box=v;renderStage();}));
     panel.appendChild(gb);
 
-    const g2=grp("本文・注記");
-    g2.appendChild(area("結論(大)",p.statement,v=>{p.statement=v;renderStage();},"強調：<code>*赤*</code> / <code>**金・特大**</code>"));
-    g2.appendChild(txt("注記（任意）",p.note,v=>{p.note=v||undefined;renderStage();}));
-    panel.appendChild(g2);
+    const gS=grp("結論（大テキスト）",true);
+    add(gS,area("本文",p.statement,v=>{p.statement=v;renderStage();},"強調：<code>*赤*</code> / <code>**金・特大**</code>"),
+      rng("大きさ",(p.fs&&p.fs.stmt)||84,50,130,1,v=>{p.fs=p.fs||{};p.fs.stmt=v;renderStage();}),
+      posCtrl(p,"stmt"));
+    panel.appendChild(gS);
 
-    const g3=grp("イラスト");
-    g3.appendChild(sel1("種類",p.art||"none",ARTOPTS,v=>{p.art=v;renderStage();}));
-    g3.appendChild(rng("大きさ",p.artSize||220,80,520,5,v=>{p.artSize=v;renderStage();}));
-    panel.appendChild(g3);
+    const gA=grp("イラスト");
+    add(gA,sel1("種類",p.art||"none",ARTOPTS,v=>{p.art=v;renderStage();}),
+      rng("大きさ",p.artSize||220,80,560,5,v=>{p.artSize=v;renderStage();}),
+      posCtrl(p,"art"));
+    panel.appendChild(gA);
 
-    const g4=grp("文字サイズ");
-    g4.appendChild(rng("見出し",(p.fs&&p.fs.header)||64,40,90,1,v=>{p.fs=p.fs||{};p.fs.header=v;renderStage();}));
-    g4.appendChild(rng("結論",(p.fs&&p.fs.stmt)||84,50,130,1,v=>{p.fs=p.fs||{};p.fs.stmt=v;renderStage();}));
-    g4.appendChild(rng("注記",(p.fs&&p.fs.note)||34,22,50,1,v=>{p.fs=p.fs||{};p.fs.note=v;renderStage();}));
-    panel.appendChild(g4);
+    const gN=grp("注記（小さい文字）");
+    add(gN,txt("本文（任意）",p.note,v=>{p.note=v||undefined;renderStage();}),
+      rng("大きさ",(p.fs&&p.fs.note)||34,22,54,1,v=>{p.fs=p.fs||{};p.fs.note=v;renderStage();}),
+      posCtrl(p,"note"));
+    panel.appendChild(gN);
   }
 
   if(p.type==="compare"){
     ["left","right"].forEach((side,i)=>{
-      const sd=p[side], g=grp(i===0?"左カード":"右カード");
-      g.appendChild(txt("ラベル",sd.label,v=>{sd.label=v;renderStage();}));
-      g.appendChild(sel1("イラスト",sd.art,ARTOPTS,v=>{sd.art=v;renderStage();}));
-      g.appendChild(sel1("バッジ",sd.badge,[{v:"check",t:"✓ 緑"},{v:"cross",t:"× 赤"}],v=>{sd.badge=v;renderStage();}));
-      g.appendChild(colorPick("枠・帯の色",sd.accent,v=>{sd.accent=v;renderStage();}));
+      const sd=p[side],g=grp(i===0?"左カード":"右カード",i===0);
+      add(g,txt("ラベル",sd.label,v=>{sd.label=v;renderStage();}),
+        sel1("イラスト",sd.art,ARTOPTS,v=>{sd.art=v;renderStage();}),
+        rng("イラストの大きさ",sd.artSize||360,150,460,5,v=>{sd.artSize=v;renderStage();}),
+        sel1("バッジ",sd.badge,[{v:"check",t:"✓ 緑"},{v:"cross",t:"× 赤"}],v=>{sd.badge=v;renderStage();}),
+        colorPick("枠・帯の色",sd.accent,v=>{sd.accent=v;renderStage();}),
+        posCtrl(p,"box"+i));
       panel.appendChild(g);
     });
-    const g2=grp("本文");
-    g2.appendChild(area("結論(大)",p.statement,v=>{p.statement=v;renderStage();},"強調：<code>*赤*</code> / <code>**金・特大**</code>"));
-    g2.appendChild(txt("注記（任意）",p.note,v=>{p.note=v||undefined;renderStage();}));
-    g2.appendChild(area("締めの一文（任意）",p.footer,v=>{p.footer=v||undefined;renderStage();}));
-    panel.appendChild(g2);
-    const g4=grp("文字サイズ");
-    g4.appendChild(rng("結論",(p.fs&&p.fs.stmt)||84,50,130,1,v=>{p.fs=p.fs||{};p.fs.stmt=v;renderStage();}));
-    panel.appendChild(g4);
+    const gS=grp("結論（大テキスト）",true);
+    add(gS,area("本文",p.statement,v=>{p.statement=v;renderStage();},"強調：<code>*赤*</code> / <code>**金・特大**</code>"),
+      rng("大きさ",(p.fs&&p.fs.stmt)||84,50,130,1,v=>{p.fs=p.fs||{};p.fs.stmt=v;renderStage();}),posCtrl(p,"stmt"));
+    panel.appendChild(gS);
+    const gN=grp("注記・締め");
+    add(gN,txt("注記（任意）",p.note,v=>{p.note=v||undefined;renderStage();}),posCtrl(p,"note"),
+      area("締めの一文（任意）",p.footer,v=>{p.footer=v||undefined;renderStage();}),posCtrl(p,"foot"));
+    panel.appendChild(gN);
   }
 
   if(p.type==="chart"){
-    const gL=grp("左の棒（結果）");
-    gL.appendChild(rng("土台(万円)",+p.result.base,0,1500,10,v=>{p.result.base=v;renderStage();}));
-    gL.appendChild(rng("増加分(万円)",+p.result.delta,0,1000,10,v=>{p.result.delta=v;renderStage();}));
-    gL.appendChild(txt("上のラベル",p.result.topLabel,v=>{p.result.topLabel=v;renderStage();}));
-    gL.appendChild(txt("下のキャプション",p.result.caption,v=>{p.result.caption=v;renderStage();}));
+    const gL=grp("左の棒（結果）",true);
+    add(gL,rng("土台(万円)",+p.result.base,0,1500,10,v=>{p.result.base=v;renderStage();}),
+      rng("増加分(万円)",+p.result.delta,0,1000,10,v=>{p.result.delta=v;renderStage();}),
+      txt("上のラベル",p.result.topLabel,v=>{p.result.topLabel=v;renderStage();}),posCtrl(p,"leftTop"),
+      txt("下のキャプション",p.result.caption,v=>{p.result.caption=v;renderStage();}),posCtrl(p,"leftCap"));
     panel.appendChild(gL);
     const gR=grp("右の棒（比較）");
-    gR.appendChild(rng("金額(万円)",+p.compare.value,0,1500,10,v=>{p.compare.value=v;renderStage();}));
-    gR.appendChild(txt("上のラベル",p.compare.topLabel,v=>{p.compare.topLabel=v;renderStage();}));
-    gR.appendChild(txt("下のキャプション",p.compare.caption,v=>{p.compare.caption=v;renderStage();}));
+    add(gR,rng("金額(万円)",+p.compare.value,0,1500,10,v=>{p.compare.value=v;renderStage();}),
+      txt("上のラベル",p.compare.topLabel,v=>{p.compare.topLabel=v;renderStage();}),posCtrl(p,"rightTop"),
+      txt("下のキャプション",p.compare.caption,v=>{p.compare.caption=v;renderStage();}),posCtrl(p,"rightCap"));
     panel.appendChild(gR);
-    const g2=grp("ラベル・帯");
-    g2.appendChild(txt("差分の吹き出し",p.deltaCallout,v=>{p.deltaCallout=v||undefined;renderStage();}));
-    g2.appendChild(area("紺の帯(pill)",p.pill,v=>{p.pill=v||undefined;renderStage();},"強調：<code>*赤*</code>"));
-    g2.appendChild(area("締めの一文",p.footer,v=>{p.footer=v||undefined;renderStage();},"強調：<code>*赤*</code>"));
-    panel.appendChild(g2);
+    const gD=grp("差分・帯・締め");
+    add(gD,txt("差分の吹き出し",p.deltaCallout,v=>{p.deltaCallout=v||undefined;renderStage();}),posCtrl(p,"delta"),
+      area("紺の帯(pill)",p.pill,v=>{p.pill=v||undefined;renderStage();},"強調：<code>*赤*</code>"),
+      rng("帯の文字サイズ",(p.fs&&p.fs.pill)||58,36,80,1,v=>{p.fs=p.fs||{};p.fs.pill=v;renderStage();}),posCtrl(p,"pill"),
+      area("締めの一文",p.footer,v=>{p.footer=v||undefined;renderStage();},"強調：<code>*赤*</code>"),
+      rng("締めの文字サイズ",(p.fs&&p.fs.foot)||54,36,80,1,v=>{p.fs=p.fs||{};p.fs.foot=v;renderStage();}),posCtrl(p,"foot"));
+    panel.appendChild(gD);
   }
 
-  const gz=grp("配置・速度（共通）");
-  gz.appendChild(rng("全体の縦位置",p.offset??60,-80,220,2,v=>{p.offset=v;renderStage();}));
-  gz.appendChild(rng("出現スピード(大=ゆっくり)",p.speed??1,0.4,1.8,0.1,v=>{p.speed=v;renderStage();}));
+  const gz=grp("ページ全体");
+  add(gz,rng("全体の縦位置",p.offset??60,-120,260,2,v=>{p.offset=v;renderStage();}),
+    rng("出現スピード(大=ゆっくり)",p.speed??1,0.4,1.8,0.1,v=>{p.speed=v;renderStage();}));
   panel.appendChild(gz);
 }
 
-/* ===== タブ ===== */
-function buildTabs(){
-  const t=document.getElementById("tabs"); t.innerHTML="";
-  state.pages.forEach((p,i)=>{
-    const b=el("button","tab"+(i===sel?" active":""));
-    b.textContent=p.key; b.onclick=()=>{sel=i;buildTabs();buildPanel();renderStage();};
-    t.appendChild(b);
-  });
-}
+function buildTabs(){const t=document.getElementById("tabs");t.innerHTML="";state.pages.forEach((p,i)=>{const b=el("button","tab"+(i===sel?" active":""));b.textContent=p.key;b.onclick=()=>{sel=i;buildTabs();buildPanel();renderStage();};t.appendChild(b);});}
 
-/* ===== ボタン ===== */
-document.getElementById("copyBtn").onclick=async()=>{
-  const json=JSON.stringify(state,null,2);
-  try{await navigator.clipboard.writeText(json);flash("コピーしました");}
-  catch(e){showJson(json);}
-};
+document.getElementById("copyBtn").onclick=async()=>{const j=JSON.stringify(state,null,2);try{await navigator.clipboard.writeText(j);flash("コピーしました");}catch(e){showJson(j);}};
 document.getElementById("showBtn").onclick=()=>showJson(JSON.stringify(state,null,2));
 function showJson(j){const d=document.getElementById("dlg");document.getElementById("dlgTxt").value=j;d.showModal();document.getElementById("dlgTxt").select();}
-document.getElementById("resetBtn").onclick=()=>{
-  state.pages[sel]=JSON.parse(JSON.stringify(DEFAULT.pages[sel]));save();buildPanel();renderStage();flash("初期化しました");
-};
+document.getElementById("resetBtn").onclick=()=>{state.pages[sel]=JSON.parse(JSON.stringify(DEFAULT.pages[sel]));save();buildPanel();renderStage();flash("初期化しました");};
 
-/* ===== 起動 ===== */
-buildTabs(); buildPanel(); renderStage();
+buildTabs();buildPanel();renderStage();
 </script>

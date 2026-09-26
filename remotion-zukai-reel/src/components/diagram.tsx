@@ -44,8 +44,8 @@ export type DiagramData = {
   extras?: Extra[]; // 自由テキスト（好きな位置）
   offset?: number; // 全体の縦位置（既定60）。ビルダーの微調整と対応
   speed?: number; // 出現速度（既定1・大きいほどゆっくり）
-  fs?: { header?: number; stmt?: number; num?: number; note?: number; pill?: number; foot?: number }; // 文字サイズ上書き
-  pos?: { [k: string]: { dx?: number; dy?: number } }; // 要素ごとの位置ずらし（header/box0/box1/stmt/num/note/pill/foot）
+  fs?: { header?: number; box?: number; stmt?: number; num?: number; note?: number; pill?: number; foot?: number }; // 文字サイズ上書き
+  pos?: { [k: string]: { dx?: number; dy?: number } }; // 要素ごとの位置ずらし（header/box0/box1/stmt/num/note/pill/foot/art）
 };
 
 // 自由テキストのレイヤー（縦位置offsetに影響されず、キャンバス絶対座標に置く）
@@ -85,9 +85,9 @@ const boxStyle = (b: Box): React.CSSProperties => {
   return { backgroundColor: "#fff", color: COLORS.ink, border: `4px solid ${COLORS.ink}` };
 };
 
-const BoxView: React.FC<{ b: Box; cx: number; w: number }> = ({ b, cx, w }) => (
+const BoxView: React.FC<{ b: Box; cx: number; w: number; labelSize?: number }> = ({ b, cx, w, labelSize }) => (
   <div style={{ position: "relative" }}>
-    <div style={{ borderRadius: 16, padding: "22px 14px", textAlign: "center", fontSize: 50, fontWeight: 700, whiteSpace: "nowrap", ...boxStyle(b) }}>{b.label}</div>
+    <div style={{ borderRadius: 16, padding: "22px 14px", textAlign: "center", fontSize: labelSize ?? 50, fontWeight: 700, whiteSpace: "nowrap", ...boxStyle(b) }}>{b.label}</div>
     {b.badge ? (
       <div style={{ position: "absolute", top: -18, right: -18, width: 44, height: 44, borderRadius: "50%", backgroundColor: b.badge === "check" ? "#12A150" : COLORS.accent, color: "#fff", fontSize: 26, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: "3px solid #fff" }}>{b.badge === "check" ? "✓" : "×"}</div>
     ) : null}
@@ -160,16 +160,16 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
         {/* 箱 */}
         {oneBox && (
           <In delay={D(104)} speed={k} pop style={atP(CENTER, BOX_TOP, 500, "box0")}>
-            <BoxView b={data.boxes![0]} cx={CENTER} w={500} />
+            <BoxView b={data.boxes![0]} cx={CENTER} w={500} labelSize={F.box} />
           </In>
         )}
         {twoBox && (
           <>
             <In delay={D(104)} speed={k} pop style={atP(CXL, BOX_TOP, 360, "box0")}>
-              <BoxView b={data.boxes![0]} cx={CXL} w={360} />
+              <BoxView b={data.boxes![0]} cx={CXL} w={360} labelSize={F.box} />
             </In>
             <In delay={D(126)} speed={k} pop style={atP(CXR, BOX_TOP, 360, "box1")}>
-              <BoxView b={data.boxes![1]} cx={CXR} w={360} />
+              <BoxView b={data.boxes![1]} cx={CXR} w={360} labelSize={F.box} />
             </In>
           </>
         )}
@@ -182,7 +182,7 @@ export const DiagramPage: React.FC<{ data: DiagramData }> = ({ data }) => {
         )}
         {/* イラスト（結論の下・グッドボタン等） */}
         {data.art && (
-          <In delay={D(214)} speed={k} pop style={{ left: 0, top: ART_TOP, width: 1080, display: "flex", justifyContent: "center" }}>
+          <In delay={D(214)} speed={k} pop style={{ left: PS.art?.dx ?? 0, top: ART_TOP + (PS.art?.dy ?? 0), width: 1080, display: "flex", justifyContent: "center" }}>
             {data.art}
           </In>
         )}

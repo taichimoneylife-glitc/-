@@ -20,6 +20,7 @@ export type ChartData = {
   offset?: number;
   speed?: number;
   fs?: { header?: number; pill?: number; foot?: number };
+  pos?: { [k: string]: { dx?: number; dy?: number } }; // header/leftTop/rightTop/leftCap/rightCap/delta/pill/foot
 };
 
 // 数値の伸びを見せる棒グラフページ（左：結果=土台+差分、右：比較対象）
@@ -30,6 +31,9 @@ export const ChartPage: React.FC<{ data: ChartData }> = ({ data }) => {
   const k = data.speed ?? 1;
   const fk = f / k;
   const D = (nn: number) => Math.round(nn * k);
+  const PS = data.pos ?? {};
+  const px = (key: string) => PS[key]?.dx ?? 0;
+  const py = (key: string) => PS[key]?.dy ?? 0;
 
   const { base, delta } = data.result;
   const total = base + delta;
@@ -79,7 +83,7 @@ export const ChartPage: React.FC<{ data: ChartData }> = ({ data }) => {
     <Background>
       <AbsoluteFill style={{ fontFamily: FONT, transform: `translateY(${O}px)` }}>
         {/* 見出し */}
-        <In delay={D(4)} speed={k} style={{ left: 0, top: 170, width: 1080, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <In delay={D(4)} speed={k} style={{ left: px("header"), top: 170 + py("header"), width: 1080, display: "flex", flexDirection: "column", alignItems: "center" }}>
           <div style={{ border: `5px solid ${COLORS.ink}`, borderRadius: 18, backgroundColor: "#fff", padding: "22px 34px", display: "inline-flex", alignItems: "center", gap: 18, maxWidth: 1000, boxSizing: "border-box" }}>
             <div style={{ width: 11, height: 56, backgroundColor: COLORS.accent, borderRadius: 4, flexShrink: 0 }} />
             <div style={{ fontSize: F.header ?? 64, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2, whiteSpace: "nowrap" }}>{data.header.title}</div>
@@ -115,40 +119,40 @@ export const ChartPage: React.FC<{ data: ChartData }> = ({ data }) => {
 
         {/* 差分ラベル（左棒の差分の横） */}
         {data.deltaCallout && g1d > 0.6 && (
-          <In delay={D(120)} speed={k} style={{ left: CXL + BAR_W / 2 + 8, top: leftDeltaTop - 8, width: 300 }}>
+          <In delay={D(120)} speed={k} style={{ left: CXL + BAR_W / 2 + 8 + px("delta"), top: leftDeltaTop - 8 + py("delta"), width: 300 }}>
             <div style={{ fontSize: 52, fontWeight: 700, color: COLORS.accent, whiteSpace: "nowrap" }}>{data.deltaCallout}</div>
           </In>
         )}
 
         {/* 棒の上の値ラベル */}
         {g1 > 0.9 && (
-          <In delay={D(78)} speed={k} style={{ left: CXL - 160, top: BASELINE - total * unit - 74, width: 320, textAlign: "center" }}>
+          <In delay={D(78)} speed={k} style={{ left: CXL - 160 + px("leftTop"), top: BASELINE - total * unit - 74 + py("leftTop"), width: 320, textAlign: "center" }}>
             <div style={{ fontSize: 60, fontWeight: 700, color: COLORS.ink, whiteSpace: "nowrap" }}>{data.result.topLabel}</div>
           </In>
         )}
         {g2 > 0.9 && (
-          <In delay={D(94)} speed={k} style={{ left: CXR - 160, top: cmpTop - 74, width: 320, textAlign: "center" }}>
+          <In delay={D(94)} speed={k} style={{ left: CXR - 160 + px("rightTop"), top: cmpTop - 74 + py("rightTop"), width: 320, textAlign: "center" }}>
             <div style={{ fontSize: 60, fontWeight: 700, color: cmpColor, whiteSpace: "nowrap" }}>{data.compare.topLabel}</div>
           </In>
         )}
 
         {/* 棒の下のキャプション */}
-        <In delay={D(60)} speed={k} style={{ left: CXL - 200, top: BASELINE + 18, width: 400, textAlign: "center" }}>
+        <In delay={D(60)} speed={k} style={{ left: CXL - 200 + px("leftCap"), top: BASELINE + 18 + py("leftCap"), width: 400, textAlign: "center" }}>
           <div style={{ fontSize: 40, fontWeight: 700, color: COLORS.ink, whiteSpace: "nowrap" }}>{data.result.caption}</div>
         </In>
-        <In delay={D(70)} speed={k} style={{ left: CXR - 200, top: BASELINE + 18, width: 400, textAlign: "center" }}>
+        <In delay={D(70)} speed={k} style={{ left: CXR - 200 + px("rightCap"), top: BASELINE + 18 + py("rightCap"), width: 400, textAlign: "center" }}>
           <div style={{ fontSize: 40, fontWeight: 700, color: GRAY, whiteSpace: "nowrap" }}>{data.compare.caption}</div>
         </In>
 
         {/* pill */}
         {data.pill && (
-          <In delay={D(170)} speed={k} pop style={{ left: 130, top: 1160, width: 820 }}>
+          <In delay={D(170)} speed={k} pop style={{ left: 130 + px("pill"), top: 1160 + py("pill"), width: 820 }}>
             <div style={{ backgroundColor: COLORS.ink, color: "#fff", borderRadius: 20, padding: "26px 0", textAlign: "center", fontSize: F.pill ?? 58, fontWeight: 700, lineHeight: 1.25 }}>{data.pill}</div>
           </In>
         )}
         {/* footer */}
         {data.footer && (
-          <In delay={D(206)} speed={k} style={{ left: 40, top: 1360, width: 1000, textAlign: "center" }}>
+          <In delay={D(206)} speed={k} style={{ left: 40 + px("foot"), top: 1360 + py("foot"), width: 1000, textAlign: "center" }}>
             <div style={{ fontSize: F.foot ?? 54, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{data.footer}</div>
           </In>
         )}
