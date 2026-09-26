@@ -1,9 +1,9 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, interpolate } from "remotion";
+import { Background } from "./Layout";
 import { FONT } from "./font";
 import { COLORS } from "../theme";
 import { In } from "./diagram";
-import { SoftBg } from "./punchPage";
 
 const GRAY = "#6C7A93";
 const GREEN = "#12A150";
@@ -76,7 +76,7 @@ export const ChartPage: React.FC<{ data: ChartData }> = ({ data }) => {
   const compareLevelY = BASELINE - baseH; // 土台(=比較値と同額)の天面ライン
 
   return (
-    <SoftBg>
+    <Background>
       <AbsoluteFill style={{ fontFamily: FONT, transform: `translateY(${O}px)` }}>
         {/* 見出し */}
         <In delay={D(4)} speed={k} style={{ left: 0, top: 170, width: 1080, display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -153,6 +153,6 @@ export const ChartPage: React.FC<{ data: ChartData }> = ({ data }) => {
           </In>
         )}
       </AbsoluteFill>
-    </SoftBg>
+    </Background>
   );
 };
