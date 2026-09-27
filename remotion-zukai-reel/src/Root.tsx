@@ -9,6 +9,7 @@ import { CarReel, CAR_REEL_FRAMES } from "./CarReel";
 import { BoxTree, BOXTREE_FRAMES } from "./scenes/BoxTree";
 import { CarDiagramReel, CAR_DIAGRAM_FRAMES } from "./CarDiagramReel";
 import { CarSyncReel, CAR_SYNC_FRAMES } from "./CarSyncReel";
+import { CarReelV2, CAR_V2_FRAMES } from "./CarReelV2";
 import { Proto, PROTO_FRAMES } from "./Proto";
 import { FPS, TOTAL_FRAMES } from "./config";
 
@@ -106,6 +107,16 @@ export const RemotionRoot: React.FC = () => {
         id="CarDiagramReel"
         component={CarDiagramReel}
         durationInFrames={CAR_DIAGRAM_FRAMES}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+
+      {/* ── ★★最新(参考A準拠・丸ゴシック・クリーム)：1から作り直し ── */}
+      <Composition
+        id="CarReelV2"
+        component={CarReelV2}
+        durationInFrames={CAR_V2_FRAMES}
         fps={FPS}
         width={1080}
         height={1920}
