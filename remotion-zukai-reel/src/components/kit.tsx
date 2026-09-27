@@ -89,6 +89,26 @@ export const DrawLine: React.FC<{ d: string; delay: number; dur?: number; color?
   return <path d={d} fill="none" stroke={color} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} opacity={p > 0.001 ? 1 : 0} />;
 };
 
+// 常時ゆっくり浮遊（出て止まる感をなくす）＋登場
+export const Float: React.FC<{ delay?: number; amp?: number; speed?: number; style?: React.CSSProperties; children: React.ReactNode }> = ({ delay = 0, amp = 12, speed = 1, style, children }) => {
+  const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const s = spring({ frame: f - delay, fps, config: { damping: 12, stiffness: 120, mass: 0.9 }, durationInFrames: 24 });
+  const bob = Math.sin(((f - delay) / fps) * 2 * Math.PI * 0.3 * speed) * amp;
+  return <div style={{ opacity: Math.min(1, s * 1.6), transform: `translateY(${(1 - s) * 28 + bob}px) scale(${s})`, transformOrigin: "center", ...style }}>{children}</div>;
+};
+
+// シーンの入り／終わりをふわっと（軽い場面転換）
+export const SceneFade: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, children }) => {
+  const f = useCurrentFrame();
+  const o = Math.min(
+    interpolate(f, [0, 8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+    interpolate(f, [dur - 9, dur - 1], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+  );
+  const rise = interpolate(f, [0, 10], [18, 0], { extrapolateRight: "clamp" });
+  return <AbsoluteFill style={{ opacity: o, transform: `translateY(${rise}px)` }}>{children}</AbsoluteFill>;
+};
+
 // 縦グラフの1本の棒（下から伸びる）
 export const GrowBar: React.FC<{ cx: number; baseline: number; height: number; width: number; color: string; delay: number; dur?: number; radiusTop?: boolean }> = ({ cx, baseline, height, width, color, delay, dur = 26, radiusTop = true }) => {
   const f = useCurrentFrame();

@@ -1,6 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, interpolate } from "remotion";
-import { WhiteBG, CC, Appear, PopIn, SlideIn, CountUp, Mark, HeadChip, Center, DrawLine, GrowBar } from "./components/kit";
+import { WhiteBG, CC, Appear, PopIn, SlideIn, CountUp, Mark, HeadChip, Center, DrawLine, GrowBar, Float, SceneFade } from "./components/kit";
+import { IllCar, IllWalletBank, IllGrowMoney, IllFamily, IllUSA, IllTrophy } from "./components/illus";
 
 // ══════════════════════════════════════════════════════════
 //  音声(car-narration.m4a / 70.10s / 30fps)に完全同期した全8シーン
@@ -43,16 +44,17 @@ const NeedChip: React.FC<{ delay: number; icon: string; label: string; cx: numbe
 // ── S1 導入＋結論（0.0–7.1s） ──
 const S1: React.FC = () => (
   <WhiteBG>
-    <HeadChip delay={4} title="500万円の車、どう買う？" top={250} />
-    <SlideIn delay={26} from="left"><Card label="現金一括" cx={310} top={640} accent={CC.gray} /></SlideIn>
-    <SlideIn delay={34} from="right"><Card label="銀行ローン" cx={770} top={640} accent={CC.ink} /></SlideIn>
-    <Mark delay={110} type="check" style={{ position: "absolute", left: 770 + 150, top: 618 }} />
-    <PopIn delay={104} style={{ position: "absolute", left: 140, top: 1000, width: 800 }}>
+    <HeadChip delay={4} title="500万円の車、どう買う？" top={220} />
+    <Float delay={12} amp={10} style={{ position: "absolute", left: 370, top: 410, width: 340, display: "flex", justifyContent: "center" }}><IllCar size={340} /></Float>
+    <SlideIn delay={26} from="left"><Card label="現金一括" cx={310} top={720} accent={CC.gray} /></SlideIn>
+    <SlideIn delay={34} from="right"><Card label="銀行ローン" cx={770} top={720} accent={CC.ink} /></SlideIn>
+    <Mark delay={110} type="check" style={{ position: "absolute", left: 770 + 150, top: 698 }} />
+    <PopIn delay={104} style={{ position: "absolute", left: 140, top: 1010, width: 800 }}>
       <div style={{ background: CC.ink, color: "#fff", borderRadius: 22, padding: "30px 0", textAlign: "center", fontSize: 60, fontWeight: 700 }}>
         結論は <span style={{ color: CC.gold }}>“敢えてローン”</span>
       </div>
     </PopIn>
-    <Appear delay={140} style={{ position: "absolute", left: 40, top: 1180, width: 1000, textAlign: "center" }}>
+    <Appear delay={140} style={{ position: "absolute", left: 40, top: 1190, width: 1000, textAlign: "center" }}>
       <div style={{ fontSize: 34, fontWeight: 700, color: CC.gray }}>※手元資金を残したい家庭ほど</div>
     </Appear>
   </WhiteBG>
@@ -98,6 +100,7 @@ const S3: React.FC = () => {
       <PopIn delay={212} style={{ position: "absolute", left: 670, top: 1030, width: 260 }}>
         <div style={{ background: CC.green, borderRadius: 16, padding: "20px 0", textAlign: "center", fontSize: 46, fontWeight: 700, color: "#fff" }}>運用へ</div>
       </PopIn>
+      <Float delay={218} amp={10} style={{ position: "absolute", left: 440, top: 1180, width: 200, display: "flex", justifyContent: "center" }}><IllGrowMoney size={200} /></Float>
     </WhiteBG>
   );
 };
@@ -140,29 +143,31 @@ const S5: React.FC = () => (
         <div style={{ textAlign: "center", fontSize: 30, fontWeight: 700, color: CC.green }}>見通せる</div>
       </div>
     </SlideIn>
-    <PopIn delay={334} style={{ position: "absolute", left: 130, top: 1140, width: 820 }}>
+    <PopIn delay={334} style={{ position: "absolute", left: 130, top: 1120, width: 820 }}>
       <div style={{ background: CC.ink, color: "#fff", borderRadius: 22, padding: "28px 0", textAlign: "center", fontSize: 54, fontWeight: 700 }}>
         債券 ＝ <span style={{ color: CC.gold }}>約束された資産</span>
       </div>
     </PopIn>
+    <Float delay={360} amp={7} style={{ position: "absolute", left: 380, top: 1300, width: 320, display: "flex", justifyContent: "center" }}><IllFamily size={320} /></Float>
   </WhiteBG>
 );
 
 // ── S6 米国債5%（47.1–53.1s） ──
 const S6: React.FC = () => (
   <WhiteBG>
-    <HeadChip delay={4} title="しかも今、米国債は" top={300} />
-    <Center top={620}>
-      <PopIn delay={6}>
+    <HeadChip delay={4} title="しかも今、米国債は" top={240} />
+    <Float delay={6} amp={11} style={{ position: "absolute", left: 410, top: 420, width: 260, display: "flex", justifyContent: "center" }}><IllUSA size={260} /></Float>
+    <Center top={690}>
+      <PopIn delay={10}>
         <div style={{ fontSize: 70, fontWeight: 700, color: CC.ink }}>
-          金利 <span style={{ fontSize: 200, color: CC.red, verticalAlign: "-30px" }}><CountUp delay={8} to={5} dur={26} suffix="%" /></span>
+          金利 <span style={{ fontSize: 190, color: CC.red, verticalAlign: "-28px" }}><CountUp delay={12} to={5} dur={26} suffix="%" /></span>
         </div>
       </PopIn>
     </Center>
-    <PopIn delay={40} style={{ position: "absolute", left: 340, top: 940, width: 400 }}>
-      <div style={{ background: CC.gold, color: "#fff", borderRadius: 999, padding: "14px 0", textAlign: "center", fontSize: 46, fontWeight: 700 }}>高水準</div>
+    <PopIn delay={44} style={{ position: "absolute", left: 340, top: 1000, width: 400 }}>
+      <div style={{ background: "#C79A17", color: "#fff", borderRadius: 999, padding: "14px 0", textAlign: "center", fontSize: 46, fontWeight: 700 }}>高水準</div>
     </PopIn>
-    <Center top={1090}><Appear delay={97}><div style={{ fontSize: 38, fontWeight: 700, color: CC.gray }}>実際に、僕も約5%の債券を保有中</div></Appear></Center>
+    <Center top={1140}><Appear delay={97}><div style={{ fontSize: 38, fontWeight: 700, color: CC.gray }}>実際に、僕も約5%の債券を保有中</div></Appear></Center>
   </WhiteBG>
 );
 
@@ -204,15 +209,16 @@ const S7: React.FC = () => {
 // ── S8 まとめ（62.1–70.1s） ──
 const S8: React.FC = () => (
   <WhiteBG>
-    <PopIn delay={4} style={{ position: "absolute", left: 90, top: 560, width: 900 }}>
+    <PopIn delay={4} style={{ position: "absolute", left: 90, top: 420, width: 900 }}>
       <div style={{ background: CC.ink, color: "#fff", borderRadius: 22, padding: "36px 0", textAlign: "center", fontSize: 62, fontWeight: 700 }}>
-        利息50万 <span style={{ color: CC.gold, fontSize: 84 }}>＜</span> 運用益260万
+        利息50万 <span style={{ color: "#F6C544", fontSize: 84 }}>＜</span> 運用益260万
       </div>
     </PopIn>
-    <PopIn delay={154} style={{ position: "absolute", left: 40, top: 860, width: 1000, textAlign: "center" }}>
-      <div style={{ fontSize: 104, fontWeight: 700, color: CC.ink }}>トータルで <span style={{ color: CC.red }}>得</span></div>
+    <Float delay={150} amp={9} style={{ position: "absolute", left: 415, top: 660, width: 250, display: "flex", justifyContent: "center" }}><IllTrophy size={250} /></Float>
+    <PopIn delay={154} style={{ position: "absolute", left: 40, top: 980, width: 1000, textAlign: "center" }}>
+      <div style={{ fontSize: 100, fontWeight: 700, color: CC.ink }}>トータルで <span style={{ color: CC.red }}>得</span></div>
     </PopIn>
-    <Appear delay={186} style={{ position: "absolute", left: 60, top: 1080, width: 960, textAlign: "center" }}>
+    <Appear delay={186} style={{ position: "absolute", left: 60, top: 1200, width: 960, textAlign: "center" }}>
       <div style={{ fontSize: 40, fontWeight: 700, color: CC.gray, lineHeight: 1.5 }}>現金一括が絶対正解じゃない。<br />子育て世帯こそ“計画的に”。</div>
     </Appear>
   </WhiteBG>
@@ -237,7 +243,9 @@ export const CarSyncReel: React.FC = () => (
     <Audio src={staticFile("car-narration.m4a")} />
     {SCENES.map(({ c: C, from, dur }, i) => (
       <Sequence key={i} from={from} durationInFrames={dur}>
-        <C />
+        <SceneFade dur={dur}>
+          <C />
+        </SceneFade>
       </Sequence>
     ))}
   </AbsoluteFill>
