@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "audio": "public/car-narration.m4a",
+    "duration_sec": 70.10,
+    "fps": 30,
+    "description": "音声区間(unit)と、その瞬間に画面へ出す表示要素の対応。appear_frame=出現フレーム(sec*30)。話す瞬間に一致(先出し/遅れ禁止)。"
+  },
+  "alignment": [
+    { "unit": "u01", "scene": "S1", "audio": [0.05, 3.20],  "appear_frame": 6,    "display": ["title:500万円の車、どう買う？", "card:現金一括", "card:銀行ローン"] },
+    { "unit": "u02", "scene": "S1", "audio": [3.20, 7.05],  "appear_frame": 102,  "display": ["badge:結論=敢えてローン", "check:銀行ローン"] },
+    { "unit": "u03", "scene": "S2", "audio": [7.05, 9.80],  "appear_frame": 216,  "display": ["badge:金利2%・10年"] },
+    { "unit": "u04", "scene": "S2", "audio": [9.80, 11.80], "appear_frame": 297,  "display": ["countup:車両=500万"] },
+    { "unit": "u05", "scene": "S2", "audio": [11.80, 13.40],"appear_frame": 357,  "display": ["countup:利息=50万(赤)"] },
+    { "unit": "u06", "scene": "S2", "audio": [13.40, 15.05],"appear_frame": 405,  "display": ["countup:総支払=550万(強調)"] },
+    { "unit": "u07", "scene": "S3", "audio": [15.05, 18.50],"appear_frame": 456,  "display": ["text:利息50万=損?"] },
+    { "unit": "u08", "scene": "S3", "audio": [18.50, 21.05],"appear_frame": 561,  "display": ["text:カギは元手500万の使い方"] },
+    { "unit": "u09", "scene": "S3", "audio": [21.05, 24.05],"appear_frame": 636,  "display": ["arrow:元手500万→運用"] },
+    { "unit": "u10", "scene": "S4", "audio": [24.05, 28.05],"appear_frame": 726,  "display": ["card:株?", "card:債券?"] },
+    { "unit": "u11", "scene": "S4", "audio": [28.05, 33.05],"appear_frame": 846,  "display": ["mark:株=△", "check:債券=✓安定"] },
+    { "unit": "u12", "scene": "S5", "audio": [33.05, 39.05],"appear_frame": 996,  "display": ["heading:計画的に", "icon:教育資金", "icon:老後資金", "icon:特別費"] },
+    { "unit": "u13", "scene": "S5", "audio": [39.05, 44.05],"appear_frame": 1176, "display": ["chart:株=ギザギザ✗", "chart:債券=なめらか上昇"] },
+    { "unit": "u14", "scene": "S5", "audio": [44.05, 47.05],"appear_frame": 1326, "display": ["badge:債券=約束された資産✓"] },
+    { "unit": "u15", "scene": "S6", "audio": [47.05, 50.20],"appear_frame": 1416, "display": ["countup:米国債金利=5%(大)", "badge:高水準"] },
+    { "unit": "u16", "scene": "S6", "audio": [50.20, 53.05],"appear_frame": 1506, "display": ["note:実際に保有中"] },
+    { "unit": "u17", "scene": "S7", "audio": [53.05, 55.05],"appear_frame": 1592, "display": ["heading:10年後どうなる？"] },
+    { "unit": "u18", "scene": "S7", "audio": [55.05, 57.05],"appear_frame": 1652, "display": ["bar:債券=810万(伸び)"] },
+    { "unit": "u19", "scene": "S7", "audio": [57.05, 62.05],"appear_frame": 1712, "display": ["bar:車=550万", "dashed:比較", "countup:差分=+260万"] },
+    { "unit": "u20", "scene": "S8", "audio": [62.05, 67.05],"appear_frame": 1862, "display": ["pill:利息50万<運用益260万"] },
+    { "unit": "u21", "scene": "S8", "audio": [67.05, 70.05],"appear_frame": 2012, "display": ["pop:トータルで得", "text:締めコピー"] }
+  ]
+}
