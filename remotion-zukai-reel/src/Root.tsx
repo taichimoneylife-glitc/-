@@ -8,6 +8,7 @@ import { SampleSlide, SAMPLE_FRAMES } from "./scenes/SampleSlide";
 import { CarReel, CAR_REEL_FRAMES } from "./CarReel";
 import { BoxTree, BOXTREE_FRAMES } from "./scenes/BoxTree";
 import { CarDiagramReel, CAR_DIAGRAM_FRAMES } from "./CarDiagramReel";
+import { CarSyncReel, CAR_SYNC_FRAMES } from "./CarSyncReel";
 import { Proto, PROTO_FRAMES } from "./Proto";
 import { FPS, TOTAL_FRAMES } from "./config";
 
@@ -105,6 +106,16 @@ export const RemotionRoot: React.FC = () => {
         id="CarDiagramReel"
         component={CarDiagramReel}
         durationInFrames={CAR_DIAGRAM_FRAMES}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+
+      {/* ── ★本命(音声同期・白背景・全8シーン)：作り直し版 ── */}
+      <Composition
+        id="CarSyncReel"
+        component={CarSyncReel}
+        durationInFrames={CAR_SYNC_FRAMES}
         fps={FPS}
         width={1080}
         height={1920}
