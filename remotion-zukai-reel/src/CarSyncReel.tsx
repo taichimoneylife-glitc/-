@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, interpolate } from "remotion";
-import { WhiteBG, CC, Appear, PopIn, SlideIn, CountUp, Mark, HeadChip, Center, DrawLine, GrowBar, Float, SceneFade } from "./components/kit";
+import { WhiteBG, CC, Appear, PopIn, SlideIn, CountUp, Mark, HeadChip, Center, DrawLine, GrowBar, Float, SceneFade, Marker, Chara } from "./components/kit";
 import { IllCar, IllWalletBank, IllGrowMoney, IllFamily, IllUSA, IllTrophy } from "./components/illus";
 
 // ══════════════════════════════════════════════════════════
@@ -49,14 +49,15 @@ const S1: React.FC = () => (
     <SlideIn delay={26} from="left"><Card label="現金一括" cx={310} top={720} accent={CC.gray} /></SlideIn>
     <SlideIn delay={34} from="right"><Card label="銀行ローン" cx={770} top={720} accent={CC.ink} /></SlideIn>
     <Mark delay={110} type="check" style={{ position: "absolute", left: 770 + 150, top: 698 }} />
-    <PopIn delay={104} style={{ position: "absolute", left: 140, top: 1010, width: 800 }}>
-      <div style={{ background: CC.ink, color: "#fff", borderRadius: 22, padding: "30px 0", textAlign: "center", fontSize: 60, fontWeight: 700 }}>
-        結論は <span style={{ color: CC.gold }}>“敢えてローン”</span>
+    <Appear delay={104} style={{ position: "absolute", left: 40, top: 1010, width: 1000, textAlign: "center" }}>
+      <div style={{ fontSize: 78, fontWeight: 700, color: CC.ink }}>
+        結論は <Marker delay={116} color="#FBE38B"><span style={{ color: CC.ink }}>“敢えてローン”</span></Marker>
       </div>
-    </PopIn>
-    <Appear delay={140} style={{ position: "absolute", left: 40, top: 1190, width: 1000, textAlign: "center" }}>
+    </Appear>
+    <Appear delay={140} style={{ position: "absolute", left: 40, top: 1170, width: 1000, textAlign: "center" }}>
       <div style={{ fontSize: 34, fontWeight: 700, color: CC.gray }}>※手元資金を残したい家庭ほど</div>
     </Appear>
+    <Chara delay={150} size={210} col="#EE7A54" style={{ position: "absolute", left: 60, top: 1360 }} />
   </WhiteBG>
 );
 
@@ -88,7 +89,7 @@ const S3: React.FC = () => {
         <Appear delay={4}><div style={{ fontSize: 64, fontWeight: 700, color: CC.ink }}>利息50万は <span style={{ color: CC.red }}>損？</span></div></Appear>
       </div>
       <Center top={680}><Appear delay={106}><div style={{ fontSize: 46, fontWeight: 700, color: CC.gray }}>いや、カギは</div></Appear></Center>
-      <Center top={760}><PopIn delay={112}><div style={{ fontSize: 78, fontWeight: 700, color: CC.ink }}>“元手500万” の<span style={{ color: CC.red }}>使い方</span></div></PopIn></Center>
+      <Center top={760}><PopIn delay={112}><div style={{ fontSize: 78, fontWeight: 700, color: CC.ink }}>“元手500万” の<Marker delay={124} color="#FBE38B">使い方</Marker></div></PopIn></Center>
       {/* 元手500万 → 運用 */}
       <svg width="1080" height="1920" style={{ position: "absolute", left: 0, top: 0 }}>
         <DrawLine d="M430 1075 L650 1075" delay={196} dur={14} color={CC.ink} w={8} />
@@ -168,6 +169,7 @@ const S6: React.FC = () => (
       <div style={{ background: "#C79A17", color: "#fff", borderRadius: 999, padding: "14px 0", textAlign: "center", fontSize: 46, fontWeight: 700 }}>高水準</div>
     </PopIn>
     <Center top={1140}><Appear delay={97}><div style={{ fontSize: 38, fontWeight: 700, color: CC.gray }}>実際に、僕も約5%の債券を保有中</div></Appear></Center>
+    <Chara delay={70} size={210} col="#5FB878" style={{ position: "absolute", left: 720, top: 1300 }} />
   </WhiteBG>
 );
 
@@ -216,7 +218,7 @@ const S8: React.FC = () => (
     </PopIn>
     <Float delay={150} amp={9} style={{ position: "absolute", left: 415, top: 660, width: 250, display: "flex", justifyContent: "center" }}><IllTrophy size={250} /></Float>
     <PopIn delay={154} style={{ position: "absolute", left: 40, top: 980, width: 1000, textAlign: "center" }}>
-      <div style={{ fontSize: 100, fontWeight: 700, color: CC.ink }}>トータルで <span style={{ color: CC.red }}>得</span></div>
+      <div style={{ fontSize: 100, fontWeight: 700, color: CC.ink }}>トータルで <Marker delay={168} color="#FBE38B"><span style={{ color: CC.red }}>得</span></Marker></div>
     </PopIn>
     <Appear delay={186} style={{ position: "absolute", left: 60, top: 1200, width: 960, textAlign: "center" }}>
       <div style={{ fontSize: 40, fontWeight: 700, color: CC.gray, lineHeight: 1.5 }}>現金一括が絶対正解じゃない。<br />子育て世帯こそ“計画的に”。</div>

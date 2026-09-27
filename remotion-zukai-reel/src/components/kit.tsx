@@ -14,9 +14,52 @@ export const CC = {
   white: "#FFFFFF",
 };
 
+// 温かいクリーム背景＋右上のやわらかい陽だまり（参考動画Aのトーン）
 export const WhiteBG: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AbsoluteFill style={{ backgroundColor: CC.white, fontFamily: FONT, color: CC.ink }}>{children}</AbsoluteFill>
+  <AbsoluteFill style={{ backgroundColor: "#FCF4DA", fontFamily: FONT, color: CC.ink }}>
+    <AbsoluteFill style={{ background: "radial-gradient(1200px 1000px at 80% 6%, rgba(251,225,132,0.55), rgba(251,225,132,0) 62%)" }} />
+    {children}
+  </AbsoluteFill>
 );
+
+// キーワードのマーカー蛍光（左→右にサッと引く）
+export const Marker: React.FC<{ delay: number; color?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ delay, color = "#FBE38B", children, style }) => {
+  const f = useCurrentFrame();
+  const w = interpolate(f, [delay, delay + 9], [0, 100], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <span style={{ position: "relative", display: "inline-block", ...style }}>
+      <span style={{ position: "absolute", left: -6, right: `${100 - w}%`, bottom: "4%", top: "44%", background: color, borderRadius: 8, zIndex: 0 }} />
+      <span style={{ position: "relative", zIndex: 1 }}>{children}</span>
+    </span>
+  );
+};
+
+// ふんわり丸いキャラ（ナレーター）。col=服の色
+export const Chara: React.FC<{ size?: number; col?: string; delay?: number; style?: React.CSSProperties }> = ({ size = 220, col = "#5FB878", delay = 0, style }) => {
+  const skin = "#FBE0C4", hair = "#6B4A34", ink = "#3E3A33";
+  return (
+    <Float delay={delay} amp={7} style={style}>
+      <svg viewBox="0 0 220 240" style={{ width: size, height: (size * 240) / 220 }}>
+        <ellipse cx="110" cy="232" rx="86" ry="10" fill="#000" opacity="0.05" />
+        {/* 体 */}
+        <path d="M40 236 C40 176 70 150 110 150 C150 150 180 176 180 236 Z" fill={col} stroke={ink} strokeWidth="5" strokeLinejoin="round" />
+        {/* 首 */}
+        <rect x="98" y="120" width="24" height="30" fill={skin} />
+        {/* 頭 */}
+        <circle cx="110" cy="86" r="52" fill={skin} stroke={ink} strokeWidth="5" />
+        {/* 髪 */}
+        <path d="M58 84 C58 40 92 30 110 30 C128 30 162 40 162 84 C162 66 150 54 110 54 C70 54 58 66 58 84 Z" fill={hair} />
+        <circle cx="110" cy="26" r="15" fill={hair} />
+        {/* 顔 */}
+        <circle cx="92" cy="88" r="5.5" fill={ink} />
+        <circle cx="128" cy="88" r="5.5" fill={ink} />
+        <path d="M98 104 Q110 114 122 104" fill="none" stroke={ink} strokeWidth="4.5" strokeLinecap="round" />
+        <circle cx="80" cy="100" r="8" fill="#F6B7A6" opacity="0.7" />
+        <circle cx="140" cy="100" r="8" fill="#F6B7A6" opacity="0.7" />
+      </svg>
+    </Float>
+  );
+};
 
 const useSpring01 = (delay: number, dur: number, cfg: Parameters<typeof spring>[0]["config"]) => {
   const f = useCurrentFrame();
