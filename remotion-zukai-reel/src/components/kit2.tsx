@@ -5,7 +5,7 @@ import { PopIn, Float, CountUp } from "./kit";
 
 // ── 参考動画Aのデザインシステム（クリーム＋丸ゴシック＋やわらかカード）──
 export const A2 = {
-  bg: "#FBF3D0",
+  bg: "#FBF6D8",
   ink: "#2E2C26",
   sub: "#8C8471",
   green: "#2E9E6B",
@@ -20,12 +20,9 @@ export const A2 = {
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
-// 背景：クリーム＋右上のやわらかい丸い陽だまり
+// 背景：フラットな薄黄色（右上の丸い陽だまりは無し＝ユーザー指定）
 export const BG2: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AbsoluteFill style={{ background: A2.bg, fontFamily: FONT, color: A2.ink }}>
-    <div style={{ position: "absolute", width: 720, height: 720, right: -150, top: -180, borderRadius: "50%", background: "radial-gradient(circle, rgba(252,231,160,0.9) 0%, rgba(252,231,160,0) 70%)" }} />
-    {children}
-  </AbsoluteFill>
+  <AbsoluteFill style={{ background: A2.bg, fontFamily: FONT, color: A2.ink }}>{children}</AbsoluteFill>
 );
 
 // 見出し（丸ゴシック極太・チャコール）。中央寄せ絶対配置。
@@ -124,6 +121,24 @@ export const CharaCircle: React.FC<{ size?: number; col?: string; delay?: number
     </Float>
   );
 };
+
+// 前の要素を薄くする（説明が次へ進んだら過去情報をトーンダウン）＝参考Aの"色が薄くなる"演出
+export const Dim: React.FC<{ from: number; to?: number; children: React.ReactNode; style?: React.CSSProperties }> = ({ from, to = 0.32, children, style }) => {
+  const f = useCurrentFrame();
+  const o = interpolate(f, [from, from + 12], [1, to], clamp);
+  return <div style={{ opacity: o, ...style }}>{children}</div>;
+};
+
+// タグが重なって増える（例：税・税・税 が積み上がる）＝参考Aの"重なるイラスト"
+export const StackTags: React.FC<{ delay: number; items: string[]; top: number; left: number; color?: string; step?: number; size?: number }> = ({ delay, items, top, left, color = A2.red, step = 16, size = 34 }) => (
+  <>
+    {items.map((t, i) => (
+      <PopIn key={i} delay={delay + i * 7} style={{ position: "absolute", left: left + i * step, top: top - i * step }}>
+        <div style={{ background: color, color: "#fff", fontWeight: 800, fontSize: size, padding: "12px 26px", borderRadius: 14, boxShadow: "0 6px 16px rgba(80,60,20,0.18)" }}>{t}</div>
+      </PopIn>
+    ))}
+  </>
+);
 
 // 下向き太矢印（描画アニメ）
 export const ArrowDown: React.FC<{ delay: number; x: number; y: number; len?: number; color?: string }> = ({ delay, x, y, len = 90, color = A2.coral }) => {

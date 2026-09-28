@@ -4,7 +4,9 @@
 
 ## kit2.tsx（参考A：クリーム＋丸ゴシック・推奨）
 `import { ... } from "./components/kit2"`
-- `BG2` … クリーム背景＋右上のやわらかい陽だまり（全シーンの土台）
+- `BG2` … フラットな薄黄色背景 `#FBF6D8`（右上の丸い陽だまりは無し＝ユーザー指定・全シーンの土台）
+- `Dim({from, to, children})` … 前の要素を薄くする（説明が次へ進んだら過去情報をトーンダウン）
+- `StackTags({delay, items, top, left, color, step})` … タグが重なって積み上がる（例 税・税・税＝増える/重なるの可視化）
 - `Head({delay, top, size, children})` … 丸ゴシック極太の見出し（中央）
 - `Mark2({delay, color, children})` … キーワードの黄色マーカー蛍光（左→右に引く）
 - `Card2({delay, top, left, width, header, headColor, children})` … 白い角丸カード＋影、任意で色ヘッダー帯
