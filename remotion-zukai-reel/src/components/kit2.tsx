@@ -20,6 +20,20 @@ export const A2 = {
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
+// ── Instagramリールのセーフエリア（1080x1920）──
+// UI(いいね列・キャプション帯・端)には被らない。その内側は"いっぱいに"使う（下をスカスカに空けない）。
+// ただし、はみ出し・枠ギリギリはNG＝内側に約48pxの余白を必ず残す。
+export const SAFE = {
+  x0: 48,
+  x1: 1032, // 左右マージン48px（安全幅≈984）
+  top: 250, // 上：ユーザー名バー等を避けてここから
+  bottom: 1500, // 下：キャプション帯(下~410px)を避けてここまで
+  cx: 540,
+  usableH: 1250, // 250〜1500
+  // 右下の「いいね」列（この矩形に主要素を被せない）
+  likeCol: { x: 850, y0: 1150, y1: 1520 },
+};
+
 // 背景：フラットな薄黄色（右上の丸い陽だまりは無し＝ユーザー指定）
 export const BG2: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <AbsoluteFill style={{ background: A2.bg, fontFamily: FONT, color: A2.ink }}>{children}</AbsoluteFill>
