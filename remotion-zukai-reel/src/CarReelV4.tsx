@@ -47,7 +47,7 @@ const op = (label: string, x: number, y: number, delay: number, color = A2.ink) 
 // S1 導入＋結論（0–7.1s）：車→[現金一括/銀行ローン]→結論 の連結図
 const S1: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up7", at: 6, volume: 0.15 }, { file: "up3", at: 52, volume: 0.2 }, { file: "up6", at: 60, volume: 0.2 }, { file: "up1", at: 132, volume: 0.24 }]} />
+    <SfxTrack cues={[{ file: "up7", at: 6, volume: 0.09 }, { file: "up3", at: 52, volume: 0.12 }, { file: "up6", at: 60, volume: 0.12 }, { file: "up1", at: 132, volume: 0.14 }]} />
     <Head delay={4} top={230} size={72}>500万円の車、どう<Mark2 delay={20}>買う？</Mark2></Head>
     <Ill file="s1_car.png" size={360} delay={12} left={360} top={360} />
     <Svg>
@@ -66,7 +66,7 @@ const S1: React.FC = () => (
 // S2 総支払（7–15s）：車両500 ＋ 利息50 → 総支払550 の連結図＋財布
 const S2: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up7", at: 6, volume: 0.14 }, { file: "up3", at: 80, volume: 0.2 }, { file: "up6", at: 130, volume: 0.2 }, { file: "up1", at: 190, volume: 0.24 }]} />
+    <SfxTrack cues={[{ file: "up7", at: 6, volume: 0.08 }, { file: "up3", at: 80, volume: 0.12 }, { file: "up6", at: 130, volume: 0.12 }, { file: "up1", at: 190, volume: 0.14 }]} />
     <Head delay={4} top={230} size={64}>銀行ローンで買うと</Head>
     <PopIn delay={4} style={{ position: "absolute", left: 0, top: 350, width: 1080, display: "flex", justifyContent: "center" }}>
       <div style={{ background: "#fff", color: A2.sub, fontSize: 36, fontWeight: 800, padding: "9px 30px", borderRadius: 999, boxShadow: "0 8px 20px rgba(80,60,20,0.1)" }}>金利2% ・ 10年</div>
@@ -93,7 +93,7 @@ const S3: React.FC = () => {
   const dim = interpolate(f, [96, 112], [1, 0.3], clamp);
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "up9", at: 106, volume: 0.15 }, { file: "up3", at: 150, volume: 0.2 }, { file: "up10", at: 196, volume: 0.2 }]} />
+      <SfxTrack cues={[{ file: "up9", at: 106, volume: 0.09 }, { file: "up3", at: 150, volume: 0.12 }, { file: "up10", at: 196, volume: 0.12 }]} />
       <div style={{ opacity: dim }}><Head delay={4} top={250} size={60}>問題は“元手”の使い方</Head></div>
       <Head delay={106} top={470} size={66}>元手の<Mark2 delay={120}>500万を運用に回す</Mark2></Head>
       <Box label="元手500万" cx={280} top={780} w={360} delay={150} fs={44} />
@@ -110,7 +110,7 @@ const S3: React.FC = () => {
 // S4 株か債券か→債券（24–33s）：運用→[株/債券]の連結比較（イラスト織り込み）
 const S4: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up2", at: 10, volume: 0.18 }, { file: "up3", at: 26, volume: 0.2 }, { file: "up6", at: 36, volume: 0.2 }, { file: "up10", at: 160, volume: 0.24 }]} />
+    <SfxTrack cues={[{ file: "up2", at: 10, volume: 0.11 }, { file: "up3", at: 26, volume: 0.12 }, { file: "up6", at: 36, volume: 0.12 }, { file: "up10", at: 160, volume: 0.14 }]} />
     <Head delay={4} top={230} size={66}>何で運用する？</Head>
     <Svg>
       <DrawLine d="M540 340 L540 400 M300 400 L780 400 M300 400 L300 460 M780 400 L780 460" delay={10} dur={16} color={A2.ink} w={6} />
@@ -148,7 +148,7 @@ const S5: React.FC = () => {
   );
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "up7", at: 60, volume: 0.15 }, { file: "up10", at: 80, volume: 0.15 }, { file: "up7", at: 100, volume: 0.15 }, { file: "up3", at: 210, volume: 0.2 }, { file: "up6", at: 250, volume: 0.2 }, { file: "up1", at: 340, volume: 0.24 }]} />
+      <SfxTrack cues={[{ file: "up7", at: 60, volume: 0.09 }, { file: "up10", at: 80, volume: 0.09 }, { file: "up7", at: 100, volume: 0.09 }, { file: "up3", at: 210, volume: 0.12 }, { file: "up6", at: 250, volume: 0.12 }, { file: "up1", at: 340, volume: 0.14 }]} />
       <Head delay={4} top={210} size={56}>子育て世帯こそ <Mark2 delay={16}>計画的に</Mark2></Head>
       <Ill file="s4_family.png" size={300} delay={20} left={390} top={300} />
       <Svg>
@@ -172,7 +172,7 @@ const S6: React.FC = () => {
   const g = interpolate(f, [20, 50], [0, 84], clamp);
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "up6", at: 6, volume: 0.18 }, { file: "up10", at: 22, volume: 0.24 }, { file: "up2", at: 44, volume: 0.15 }]} />
+      <SfxTrack cues={[{ file: "up6", at: 6, volume: 0.11 }, { file: "up10", at: 22, volume: 0.14 }, { file: "up2", at: 44, volume: 0.09 }]} />
       <Head delay={4} top={230} size={62}>しかも今、米国債は</Head>
       <Ill file="s4_usa.png" size={360} delay={6} left={100} top={400} />
       <Svg><DrawLine d="M470 620 L640 620" delay={30} dur={10} color={A2.green} w={8} /><DrawLine d="M620 604 L652 620 L620 636" delay={38} dur={5} color={A2.green} w={8} /></Svg>
@@ -195,7 +195,7 @@ const S6: React.FC = () => {
 // S7 10年後（53–62s）：債券810 と 車550 を並べ、差分+260を連結
 const S7: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up3", at: 30, volume: 0.2 }, { file: "up6", at: 60, volume: 0.2 }, { file: "up1", at: 150, volume: 0.24 }]} />
+    <SfxTrack cues={[{ file: "up3", at: 30, volume: 0.12 }, { file: "up6", at: 60, volume: 0.12 }, { file: "up1", at: 150, volume: 0.14 }]} />
     <Head delay={4} top={230} size={64}>では10年後どうなる？</Head>
     <Box label={<><span style={{ fontSize: 30, color: A2.sub, display: "block", fontWeight: 700 }}>債券で運用</span><Big delay={40} to={810} prefix="約" suffix="万" size={60} color={A2.green} dur={22} /></>} cx={290} top={450} w={400} delay={30} fs={40} border={A2.green} />
     <Box label={<><span style={{ fontSize: 30, color: A2.sub, display: "block", fontWeight: 700 }}>車の総支払</span><CountUp delay={70} to={550} suffix="万" /></>} cx={790} top={450} w={400} delay={60} fs={54} border={A2.sub} />
@@ -214,7 +214,7 @@ const S7: React.FC = () => (
 // S8 まとめ（62–70s）：利息50万 ＜ 運用益260万 → トータルで得（トロフィー）
 const S8: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up3", at: 10, volume: 0.2 }, { file: "up6", at: 40, volume: 0.2 }, { file: "up5", at: 150, volume: 0.28 }]} />
+    <SfxTrack cues={[{ file: "up3", at: 10, volume: 0.12 }, { file: "up6", at: 40, volume: 0.12 }, { file: "up5", at: 150, volume: 0.17 }]} />
     <Head delay={4} top={330} size={56}>利息を払っても</Head>
     <Box label="利息 50万" cx={280} top={470} w={340} delay={10} fs={46} border={A2.sub} />
     {op("＜", 540, 500, 30, A2.green)}
