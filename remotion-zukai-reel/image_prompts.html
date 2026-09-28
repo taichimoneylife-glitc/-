@@ -1,0 +1,74 @@
+<title>画像プロンプト集</title>
+<style>
+  :root{
+    --bg:#FBF6D8; --card:#FFFFFF; --ink:#2E2C26; --sub:#8C8471; --line:#EAE3C7;
+    --green:#2E9E6B; --coral:#EF7D57; --accent:#2E9E6B;
+    color-scheme:light;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+    --bg:#14140F; --card:#1E1D16; --ink:#EFEAD8; --sub:#A79E86; --line:#33301F;
+    --green:#4FD08A; --coral:#FF9670; --accent:#4FD08A; color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{--bg:#14140F; --card:#1E1D16; --ink:#EFEAD8; --sub:#A79E86; --line:#33301F; --green:#4FD08A; --coral:#FF9670; --accent:#4FD08A; color-scheme:dark;}
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);margin:0;line-height:1.6}
+  .wrap{max-width:720px;margin:0 auto;padding-block:22px;padding-left:16px;padding-right:16px}
+  h1{font-size:24px;margin:0 0 4px}
+  .lead{color:var(--sub);font-size:13.5px;margin:0 0 18px}
+  .lead b{color:var(--green)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin-bottom:14px;box-shadow:0 6px 18px rgba(80,60,20,0.06)}
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .num{width:30px;height:30px;border-radius:50%;background:var(--green);color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .fn{font-weight:800;font-size:15px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .use{color:var(--sub);font-size:12.5px}
+  .prompt{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:12.5px;color:var(--ink);white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Menlo,Consolas,monospace;max-height:120px;overflow:auto}
+  .btn{margin-top:10px;background:var(--green);color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:14px;font-weight:800;cursor:pointer;width:100%}
+  .btn:active{transform:translateY(1px)}
+  .btn.done{background:var(--coral)}
+  .note{color:var(--sub);font-size:12.5px;margin-top:16px;line-height:1.6}
+  .copyall{background:var(--card);border:1px solid var(--green);color:var(--green);border-radius:10px;padding:10px 14px;font-weight:800;font-size:13.5px;cursor:pointer;margin-bottom:18px}
+</style>
+
+<div class="wrap">
+  <h1>画像プロンプト集</h1>
+  <p class="lead">「500万円の車、どう買う？」用の8枚。<b>ボタンでコピー → 画像AIに順番に依頼</b>。透過PNG・正方形で、ファイル名のとおり保存してください。</p>
+  <button class="copyall" id="copyAll">⬇ 全部まとめてコピー（番号・ファイル名付き）</button>
+  <div id="list"></div>
+  <p class="note">※ アイコン（🎓教育／🐖老後／⭐特別費）や数字・グラフ・矢印・比較・テロップは図解側で出すので画像は不要。この8枚だけでOK。<br>生成後は <b>public/gen/</b> に置いて「画像できた」と伝えてください。差し込んで動画化します。</p>
+</div>
+
+<script>
+const STYLE="cute pop flat illustration, rounded soft shapes, thick clean outlines, warm friendly palette (navy, red-orange, gold, cream and green accents), minimal, single centered subject, generous padding, NO text, no letters, no numbers, transparent background, 1:1 square, high quality";
+const ITEMS=[
+ {fn:"s1_car.png", use:"1枚目・車", subj:"a cute modern compact family car, front three-quarter view, trustworthy"},
+ {fn:"s2_wallet.png", use:"2枚目・ローン/お金", subj:"an open wallet with coins and a small bank building, loan and money concept"},
+ {fn:"s3_stock.png", use:"3枚目・株", subj:"a jagged volatile stock chart line going up and down, anxious risky feeling, red-orange"},
+ {fn:"s3_bond.png", use:"3枚目・債券", subj:"a smooth steadily rising line chart on a gentle hill, calm safe stable feeling, green"},
+ {fn:"s4_family.png", use:"4枚目・子育て世帯", subj:"a friendly young family, two parents and two small children, standing beside a red piggy bank, planning the future"},
+ {fn:"s4_usa.png", use:"4枚目・米国債5%", subj:"an American treasury bond concept, a US flag with a shining upward arrow and a gold badge, premium high-grade feeling"},
+ {fn:"s5_growth.png", use:"5枚目・10年後の成長", subj:"coins and a small money plant growing taller over time, assets increasing upward, hopeful"},
+ {fn:"s5_trophy.png", use:"5枚目・締め「得」", subj:"a shiny gold trophy with a star, celebration and winning feeling"},
+];
+const full=(it)=>`${it.subj}, ${STYLE}`;
+
+async function copy(text, btn, label){
+  try{ await navigator.clipboard.writeText(text); }
+  catch(e){ const t=document.createElement("textarea"); t.value=text; document.body.appendChild(t); t.select(); try{document.execCommand("copy");}catch(_){} t.remove(); }
+  if(btn){ const o=btn.textContent; btn.textContent=label||"✓ コピーしました"; btn.classList.add("done"); setTimeout(()=>{btn.textContent=o;btn.classList.remove("done");},1400); }
+}
+
+const list=document.getElementById("list");
+ITEMS.forEach((it,i)=>{
+  const c=document.createElement("div"); c.className="card";
+  c.innerHTML=`<div class="top"><div class="num">${i+1}</div><div class="fn">${it.fn}</div><div class="use">${it.use}</div></div>
+    <div class="prompt">${full(it)}</div>
+    <button class="btn">📋 このプロンプトをコピー</button>`;
+  c.querySelector(".btn").onclick=(e)=>copy(full(it), e.target);
+  list.appendChild(c);
+});
+document.getElementById("copyAll").onclick=(e)=>{
+  const all=ITEMS.map((it,i)=>`【${i+1}】${it.fn}（${it.use}）\n${full(it)}`).join("\n\n");
+  copy(all, e.target, "✓ 全部コピーしました");
+};
+</script>
