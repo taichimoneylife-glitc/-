@@ -134,26 +134,28 @@ const S4: React.FC = () => (
 // S5 子育て計画的（33–47s）：家族→[教育/老後/特別費]の枝分かれ→約束された資産
 const S5: React.FC = () => {
   const item = (delay: number, icon: string, label: string, cx: number) => (
-    <PopIn delay={delay} style={{ position: "absolute", left: cx - 150, top: 900, width: 300 }}>
-      <div style={{ background: "#fff", borderRadius: 20, boxShadow: "0 8px 20px rgba(80,60,20,0.1)", padding: "16px 0", textAlign: "center" }}>
-        <div style={{ fontSize: 48 }}>{icon}</div>
+    <PopIn delay={delay} style={{ position: "absolute", left: cx - 150, top: 700, width: 300 }}>
+      <div style={{ background: "#fff", borderRadius: 20, boxShadow: "0 8px 20px rgba(80,60,20,0.1)", padding: "14px 0", textAlign: "center" }}>
+        <div style={{ fontSize: 46 }}>{icon}</div>
         <div style={{ fontSize: 32, fontWeight: 800, marginTop: 2 }}>{label}</div>
       </div>
     </PopIn>
   );
   return (
     <BG2>
-      <Head delay={4} top={220} size={58}>子育て世帯こそ <Mark2 delay={16}>計画的に</Mark2></Head>
-      <Ill file="s4_family.png" size={360} delay={20} left={360} top={330} />
+      <Head delay={4} top={210} size={56}>子育て世帯こそ <Mark2 delay={16}>計画的に</Mark2></Head>
+      <Ill file="s4_family.png" size={300} delay={20} left={390} top={300} />
       <Svg>
-        <DrawLine d="M540 720 L540 800 M230 800 L850 800 M230 800 L230 890 M540 800 L540 890 M850 800 L850 890" delay={40} dur={20} color={A2.ink} w={5} />
+        <DrawLine d="M540 580 L540 650 M230 650 L850 650 M230 650 L230 700 M540 650 L540 700 M850 650 L850 700" delay={40} dur={20} color={A2.ink} w={5} />
       </Svg>
       {item(60, "🎓", "教育資金", 230)}
       {item(80, "🐖", "老後資金", 540)}
       {item(100, "⭐", "特別費", 850)}
-      <PopIn delay={334} style={{ position: "absolute", left: 130, top: 1180, width: 820 }}>
-        <div style={{ background: A2.marker, borderRadius: 22, padding: "22px 0", textAlign: "center", fontSize: 50, fontWeight: 800 }}>債券＝<span style={{ color: A2.green }}>約束された資産</span></div>
-      </PopIn>
+      {/* 株↔債券の比較図解（39–47s） */}
+      <Box label="株" sub="暴落リスク" cx={300} top={1010} w={360} delay={210} border={A2.coral} badge={<Badge delay={240} ch="×" color={A2.coral} />} />
+      <Box label="債券" sub="約束された資産" cx={780} top={1010} w={360} delay={250} fill={A2.green} badge={<Badge delay={280} ch="✓" color={A2.green} />} />
+      <Svg><DrawLine d="M780 1170 L780 1230 L540 1230 L540 1290" delay={330} dur={14} color={A2.green} w={7} /></Svg>
+      <Head delay={340} top={1310} size={54}>債券は<Mark2 delay={352}>計画的</Mark2></Head>
     </BG2>
   );
 };
