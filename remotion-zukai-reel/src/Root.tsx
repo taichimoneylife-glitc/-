@@ -10,6 +10,7 @@ import { BoxTree, BOXTREE_FRAMES } from "./scenes/BoxTree";
 import { CarDiagramReel, CAR_DIAGRAM_FRAMES } from "./CarDiagramReel";
 import { CarSyncReel, CAR_SYNC_FRAMES } from "./CarSyncReel";
 import { CarReelV2, CAR_V2_FRAMES } from "./CarReelV2";
+import { CarReelV3, CAR_V3_FRAMES } from "./CarReelV3";
 import { Proto, PROTO_FRAMES } from "./Proto";
 import { FPS, TOTAL_FRAMES } from "./config";
 
@@ -112,7 +113,10 @@ export const RemotionRoot: React.FC = () => {
         height={1920}
       />
 
-      {/* ── ★★最新(参考A準拠・丸ゴシック・クリーム)：1から作り直し ── */}
+      {/* ── ★★★本番V3(画像＋音声同期＋効果音・参考A準拠) ── */}
+      <Composition id="CarReelV3" component={CarReelV3} durationInFrames={CAR_V3_FRAMES} fps={FPS} width={1080} height={1920} />
+
+      {/* ── 参考A準拠・1から作り直し(画像なし試作) ── */}
       <Composition
         id="CarReelV2"
         component={CarReelV2}
