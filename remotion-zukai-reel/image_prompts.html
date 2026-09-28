@@ -39,18 +39,18 @@
 </div>
 
 <script>
-const STYLE="cute pop flat illustration, rounded soft shapes, thick clean outlines, warm friendly palette (navy, red-orange, gold, cream and green accents), minimal, single centered subject, generous padding, NO text, no letters, no numbers, transparent background, 1:1 square, high quality";
+const STYLE="かわいいポップなフラットイラスト、丸みのある形、太めの主線、やわらかく親しみのある配色（ネイビー・赤オレンジ・ゴールド・生成り・緑）、シンプル、被写体は中央に1つ、余白広め、文字や数字は入れない、背景は透過、正方形1:1、高品質";
 const ITEMS=[
- {fn:"s1_car.png", use:"1枚目・車", subj:"a cute modern compact family car, front three-quarter view, trustworthy"},
- {fn:"s2_wallet.png", use:"2枚目・ローン/お金", subj:"an open wallet with coins and a small bank building, loan and money concept"},
- {fn:"s3_stock.png", use:"3枚目・株", subj:"a jagged volatile stock chart line going up and down, anxious risky feeling, red-orange"},
- {fn:"s3_bond.png", use:"3枚目・債券", subj:"a smooth steadily rising line chart on a gentle hill, calm safe stable feeling, green"},
- {fn:"s4_family.png", use:"4枚目・子育て世帯", subj:"a friendly young family, two parents and two small children, standing beside a red piggy bank, planning the future"},
- {fn:"s4_usa.png", use:"4枚目・米国債5%", subj:"an American treasury bond concept, a US flag with a shining upward arrow and a gold badge, premium high-grade feeling"},
- {fn:"s5_growth.png", use:"5枚目・10年後の成長", subj:"coins and a small money plant growing taller over time, assets increasing upward, hopeful"},
- {fn:"s5_trophy.png", use:"5枚目・締め「得」", subj:"a shiny gold trophy with a star, celebration and winning feeling"},
+ {fn:"s1_car.png", use:"1枚目・車", subj:"かわいい現代的なコンパクトなファミリーカー、斜め前からの視点、安心感"},
+ {fn:"s2_wallet.png", use:"2枚目・ローン/お金", subj:"開いた財布とコイン、小さな銀行の建物、ローンとお金のイメージ"},
+ {fn:"s3_stock.png", use:"3枚目・株", subj:"ギザギザに乱高下する株価の折れ線グラフ、不安でリスキーな雰囲気、赤オレンジ"},
+ {fn:"s3_bond.png", use:"3枚目・債券", subj:"なだらかな丘の上をゆるやかに右肩上がりする折れ線グラフ、落ち着いて安全で安定した雰囲気、緑"},
+ {fn:"s4_family.png", use:"4枚目・子育て世帯", subj:"親子4人（両親と小さな子ども2人）の仲良し家族、赤い貯金箱のそば、将来に備えるイメージ"},
+ {fn:"s4_usa.png", use:"4枚目・米国債5%", subj:"米国債のイメージ、星条旗と輝く上向きの矢印とゴールドのバッジ、高級で信頼感のある雰囲気"},
+ {fn:"s5_growth.png", use:"5枚目・10年後の成長", subj:"コインと小さなお金の木が年々大きく育っていく、資産が増える上向き、希望のある雰囲気"},
+ {fn:"s5_trophy.png", use:"5枚目・締め「得」", subj:"星がついたピカピカの金のトロフィー、お祝いと勝利の雰囲気"},
 ];
-const full=(it)=>`${it.subj}, ${STYLE}`;
+const full=(it)=>`${it.subj}、${STYLE}`;
 
 async function copy(text, btn, label){
   try{ await navigator.clipboard.writeText(text); }
