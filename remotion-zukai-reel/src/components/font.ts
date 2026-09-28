@@ -2,7 +2,8 @@ import { staticFile, delayRender, continueRender } from "remotion";
 
 // 丸ゴシック（M PLUS Rounded 1c）をメインに、Noto Sans JP をフォールバックで同梱。
 // レンダー環境では Google Fonts 取得が失敗するため、public/fonts の woff2 を @font-face で使う。
-export const FONT = "M PLUS Rounded 1c, Noto Sans JP, sans-serif";
+// メインは Noto Sans JP（ユーザー指定「丸ゴシックではなく前のやつ」）。丸ゴシックは同梱だけ残す。
+export const FONT = "Noto Sans JP, sans-serif";
 export const FONT_ROUND = "M PLUS Rounded 1c";
 
 const face = (family: string, weight: number, file: string) =>
