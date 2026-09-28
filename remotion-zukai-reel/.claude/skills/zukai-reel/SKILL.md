@@ -84,3 +84,4 @@ description: >-
 詳細リファレンス：
 - `references/elements.md` … 使える図解部品（カード/数字/比較/矢印/アイコン/ライン/吹き出し/ゲージ/マーカー/キャラ/効果音）
 - `references/image-brief.md` … 画像指示書の書き方と共通スタイル
+- `references/reel-study-yunagi.md` … 参考リール研究（実写＋パネル型）。手順もの・フック・CTA・"薄→濃予告"・チェブロン比較・アイコン列など転用可能な演出の記録
