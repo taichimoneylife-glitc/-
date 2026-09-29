@@ -154,20 +154,20 @@ const P4: React.FC = () => {
   const f = useCurrentFrame();
   const base = 420; // バー下端(コンテナ内)
   const h30 = interpolate(f, [72, 112], [0, 340], clamp);
-  const h40 = interpolate(f, [82, 122], [0, 204], clamp);
+  const h40 = interpolate(f, [82, 122], [0, 178], clamp);
   return (
     <BG2>
       <SfxTrack cues={[{ file: "up2", at: 6, volume: 0.1 }, { file: "up9", at: 72, volume: 0.12 }, { file: "up6", at: 150, volume: 0.13 }]} />
       <HeadBar delay={4} no="4" title="複利の効果" />
       <IllSlot emoji="⛄" file="t2_snowball.png" size={200} delay={14} left={80} top={360} />
       <Appear delay={24} style={{ position: "absolute", left: 310, top: 400, width: 700 }}>
-        <div style={{ fontSize: 46, fontWeight: 800, lineHeight: 1.4 }}>複利＝<Mark2 delay={40}>利息が利息を生む</Mark2><div style={{ fontSize: 30, color: A2.sub, marginTop: 8 }}>毎月2万円・年利3％で積立</div></div>
+        <div style={{ fontSize: 46, fontWeight: 800, lineHeight: 1.4 }}>複利＝<Mark2 delay={40}>利息が利息を生む</Mark2><div style={{ fontSize: 30, color: A2.sub, marginTop: 8 }}>毎月3万円・年利5％で積立</div></div>
       </Appear>
       {/* 2本バー比較 */}
       <div style={{ position: "absolute", left: 0, top: 620, width: 1080, height: 480 }}>
         {[
-          { cx: 340, h: h30, col: A2.green, cap: "30歳スタート", val: 1483, d: 74 },
-          { cx: 740, h: h40, col: A2.sub, cap: "40歳スタート", val: 892, d: 84 },
+          { cx: 340, h: h30, col: A2.green, cap: "30歳スタート", val: 3400, d: 74 },
+          { cx: 740, h: h40, col: A2.sub, cap: "40歳スタート", val: 1780, d: 84 },
         ].map((b) => (
           <div key={b.cap}>
             <div style={{ position: "absolute", left: b.cx - 110, top: base - b.h, width: 220, height: b.h, background: b.col, borderRadius: "14px 14px 0 0" }} />
@@ -178,7 +178,7 @@ const P4: React.FC = () => {
           </div>
         ))}
       </div>
-      <Band delay={150} top={1160} size={44}>10年の差が <Big delay={152} to={600} prefix="約" suffix="万" size={64} color={A2.red} dur={18} />の差</Band>
+      <Band delay={150} top={1160} size={44}>10年の差が <Big delay={152} to={1600} prefix="約" suffix="万" size={60} color={A2.red} dur={18} />の差</Band>
       <Line delay={178} top={1350} size={44}>だから<Mark2 delay={190}>早く始めることが重要</Mark2></Line>
     </BG2>
   );
