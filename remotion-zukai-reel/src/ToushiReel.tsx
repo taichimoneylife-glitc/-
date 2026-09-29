@@ -1,14 +1,13 @@
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile, Img, useCurrentFrame, interpolate } from "remotion";
 import { BG2, A2, Head, Mark2, Big, SAFE } from "./components/kit2";
-import { SceneFade, Float, CountUp, PopIn, Appear, DrawLine } from "./components/kit";
+import { Float, CountUp, PopIn, Appear, DrawLine } from "./components/kit";
 import { SfxTrack } from "./components/sfx";
 
 // ══════════════════════════════════════════════════════════
 //  投資の三大原則リール（図解9ページ）＝ 音声 public/toushi-narration.m4a に同期
-//  尺 109.67s / 30fps。各ページの from/dur は文字起こしのタイムスタンプ準拠。
-//  番号(丸数字)は原則ページ(長期=1/積立=2/分散=3)のみ。他は番号なしの整った見出し。
-//  イラストは public/gen/p*.png（透過済み）。効果音は出現ごと・控えめ音量・多彩。
+//  尺 109.67s / 30fps。番号(丸数字)は原則(長期=1/積立=2/分散=3)のみ。
+//  ページ切替は「上へ抜ける」スライドアップ。効果音は出現ごと・車リールと同程度の音量。
 // ══════════════════════════════════════════════════════════
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
@@ -16,7 +15,17 @@ const Svg: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <svg width="1080" height="1920" style={{ position: "absolute", inset: 0 }}>{children}</svg>
 );
 
-// 透過イラスト（登場pop＋常時ふわふわ）
+// ページ切替：入りは下からスッと、抜けは上へスライドアウト
+const SlideTrans: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, children }) => {
+  const f = useCurrentFrame();
+  const IN = 8, OUT = 12;
+  const inY = interpolate(f, [0, IN], [48, 0], clamp);
+  const inO = interpolate(f, [0, IN], [0, 1], clamp);
+  const outY = interpolate(f, [dur - OUT, dur], [0, -100], clamp);
+  const outO = interpolate(f, [dur - OUT, dur], [1, 0], clamp);
+  return <AbsoluteFill style={{ transform: `translateY(${inY + outY}px)`, opacity: Math.min(inO, outO) }}>{children}</AbsoluteFill>;
+};
+
 const Ill: React.FC<{ file: string; size: number; delay: number; left: number; top: number; amp?: number }> = ({ file, size, delay, left, top, amp = 8 }) => (
   <PopIn delay={delay} style={{ position: "absolute", left, top, width: size, height: size }}>
     <Float delay={delay} amp={amp}>
@@ -25,7 +34,6 @@ const Ill: React.FC<{ file: string; size: number; delay: number; left: number; t
   </PopIn>
 );
 
-// 見出し（番号あり＝原則ページ）
 const HeadNum: React.FC<{ delay: number; no: string; title: string }> = ({ delay, no, title }) => (
   <PopIn delay={delay} style={{ position: "absolute", left: SAFE.x0, top: SAFE.top, width: SAFE.x1 - SAFE.x0 }}>
     <div style={{ display: "flex", alignItems: "center", gap: 20, background: A2.green, borderRadius: 999, padding: "14px 22px", boxShadow: "0 12px 26px rgba(46,158,107,0.28)" }}>
@@ -35,7 +43,6 @@ const HeadNum: React.FC<{ delay: number; no: string; title: string }> = ({ delay
   </PopIn>
 );
 
-// 見出し（番号なし＝整ったセクション見出し：中央・下線アクセント）
 const HeadPlain: React.FC<{ delay: number; title: string; size?: number }> = ({ delay, title, size = 56 }) => (
   <PopIn delay={delay} style={{ position: "absolute", left: SAFE.x0, top: SAFE.top + 4, width: SAFE.x1 - SAFE.x0, textAlign: "center" }}>
     <div style={{ fontSize: size, fontWeight: 800, color: A2.ink, letterSpacing: 2 }}>{title}</div>
@@ -68,7 +75,7 @@ const Band: React.FC<{ delay: number; top: number; children: React.ReactNode; co
 // ── P1 全体像（0–7.3s / 220f）─────────────
 const P1: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "swipe", at: 2, volume: 0.13 }, { file: "pop", at: 6, volume: 0.11 }, { file: "up6", at: 12, volume: 0.11 }, { file: "up2", at: 22, volume: 0.11 }, { file: "up3", at: 32, volume: 0.09 }, { file: "up1", at: 95, volume: 0.14 }]} />
+    <SfxTrack cues={[{ file: "swipe", at: 2, volume: 0.2 }, { file: "pop", at: 6, volume: 0.17 }, { file: "up6", at: 12, volume: 0.17 }, { file: "up2", at: 22, volume: 0.17 }, { file: "up3", at: 32, volume: 0.14 }, { file: "up1", at: 95, volume: 0.22 }]} />
     <Head delay={2} top={250} size={70}>投資の<Mark2 delay={16}>三大原則</Mark2></Head>
     <Ill file="p1_hero.png" size={230} delay={6} left={425} top={370} amp={9} />
     <Svg>
@@ -96,7 +103,7 @@ const P1: React.FC = () => (
 // ── P2 長期投資 導入（7.3–11.8s / 133f）────
 const P2: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.16 }, { file: "pop", at: 8, volume: 0.13 }, { file: "up6", at: 30, volume: 0.13 }, { file: "count", at: 44, volume: 0.09 }, { file: "swipe", at: 95, volume: 0.09 }]} />
+    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.25 }, { file: "pop", at: 8, volume: 0.2 }, { file: "up6", at: 30, volume: 0.2 }, { file: "count", at: 44, volume: 0.14 }, { file: "swipe", at: 95, volume: 0.14 }]} />
     <HeadNum delay={2} no="1" title="長期投資" />
     <Ill file="p2_tree_grow.png" size={420} delay={8} left={330} top={390} />
     <StatementCard delay={30} top={900}>
@@ -117,7 +124,7 @@ const P3: React.FC = () => {
   ];
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.16 }, { file: "swipe", at: 10, volume: 0.09 }, { file: "up3", at: 90, volume: 0.11 }, { file: "up4", at: 112, volume: 0.11 }, { file: "up6", at: 134, volume: 0.11 }, { file: "up1", at: 168, volume: 0.16 }, { file: "up1", at: 200, volume: 0.16 }, { file: "up2", at: 245, volume: 0.14 }]} />
+      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.25 }, { file: "swipe", at: 10, volume: 0.14 }, { file: "up3", at: 90, volume: 0.17 }, { file: "up4", at: 112, volume: 0.17 }, { file: "up6", at: 134, volume: 0.17 }, { file: "up1", at: 168, volume: 0.25 }, { file: "up1", at: 200, volume: 0.25 }, { file: "up2", at: 245, volume: 0.22 }]} />
       <HeadPlain delay={2} title="運用期間別リターン" size={52} />
       <Line delay={10} top={400} size={31}><span style={{ color: A2.sub }}>外国株式に100万円を投資 ／ 元本を割った回数</span></Line>
       {rows.map((r) => {
@@ -135,7 +142,6 @@ const P3: React.FC = () => {
           </PopIn>
         );
       })}
-      {/* 減少を示す下向き矢印（描画） */}
       <Svg>
         <DrawLine d="M1000 500 L1000 1130" delay={150} dur={40} color={A2.green} w={7} />
         <DrawLine d="M982 1108 L1000 1140 L1018 1108" delay={195} dur={8} color={A2.green} w={7} />
@@ -157,7 +163,7 @@ const P4: React.FC = () => {
   const h40 = interpolate(f, [340, 400], [0, 178], clamp);
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.16 }, { file: "pop", at: 10, volume: 0.13 }, { file: "count", at: 105, volume: 0.09 }, { file: "up6", at: 150, volume: 0.11 }, { file: "swipe", at: 228, volume: 0.09 }, { file: "pop", at: 235, volume: 0.13 }, { file: "correct", at: 270, volume: 0.13 }, { file: "pop", at: 340, volume: 0.11 }, { file: "correct", at: 370, volume: 0.13 }, { file: "up1", at: 468, volume: 0.18 }, { file: "up2", at: 561, volume: 0.13 }]} />
+      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.25 }, { file: "pop", at: 10, volume: 0.2 }, { file: "count", at: 105, volume: 0.14 }, { file: "up6", at: 150, volume: 0.17 }, { file: "swipe", at: 228, volume: 0.14 }, { file: "pop", at: 235, volume: 0.2 }, { file: "correct", at: 270, volume: 0.2 }, { file: "pop", at: 340, volume: 0.17 }, { file: "correct", at: 370, volume: 0.2 }, { file: "up1", at: 468, volume: 0.28 }, { file: "up2", at: 561, volume: 0.2 }]} />
       <HeadPlain delay={2} title="複利の効果" size={54} />
       <Ill file="p4_snowball.png" size={200} delay={10} left={70} top={360} />
       <Appear delay={95} style={{ position: "absolute", left: 300, top: 400, width: 710 }}>
@@ -189,17 +195,17 @@ const P4: React.FC = () => {
 // ── P5 積立投資 導入（45.7–51.9s / 186f）───
 const P5: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.16 }, { file: "pop", at: 8, volume: 0.13 }, { file: "up6", at: 40, volume: 0.13 }, { file: "up4", at: 100, volume: 0.11 }]} />
+    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.25 }, { file: "pop", at: 8, volume: 0.2 }, { file: "up6", at: 40, volume: 0.2 }, { file: "up4", at: 100, volume: 0.17 }]} />
     <HeadNum delay={2} no="2" title="積立投資" />
-    <Ill file="p5_piggy.png" size={380} delay={8} left={350} top={400} />
-    <StatementCard delay={40} top={880}>
+    <Ill file="p5_piggy.png" size={360} delay={8} left={360} top={390} />
+    <StatementCard delay={40} top={860}>
       一定の金額で買い続けることで<br /><Mark2 delay={58}>価格変動に一喜一憂せず</Mark2>続けられる
     </StatementCard>
-    <PopIn delay={100} style={{ position: "absolute", left: 260, top: 1160, width: 560 }}>
-      <Float delay={100} amp={5}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-          <Img src={staticFile("gen/p5_calendar_coin.png")} style={{ width: 200, height: 200, objectFit: "contain" }} />
-          <div style={{ fontSize: 40, fontWeight: 800, color: A2.green, lineHeight: 1.3 }}>毎月コツコツ<br />少額でOK</div>
+    <PopIn delay={100} style={{ position: "absolute", left: 130, top: 1110, width: 820 }}>
+      <Float delay={100} amp={6}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18, background: A2.marker, borderRadius: 24, padding: "20px 30px" }}>
+          <Img src={staticFile("gen/p5_calendar_coin.png")} style={{ width: 260, height: 260, objectFit: "contain" }} />
+          <div style={{ fontSize: 56, fontWeight: 800, color: A2.ink, lineHeight: 1.25 }}>毎月コツコツ<br /><span style={{ color: A2.green }}>少額でOK</span></div>
         </div>
       </Float>
     </PopIn>
@@ -220,7 +226,7 @@ const P6: React.FC = () => {
   const cardTop = 400, cardH = 320, baseY = 262;
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.16 }, { file: "up3", at: 30, volume: 0.09 }, { file: "up4", at: 36, volume: 0.09 }, { file: "up6", at: 42, volume: 0.09 }, { file: "up2", at: 48, volume: 0.09 }, { file: "up1", at: 54, volume: 0.11 }, { file: "swipe", at: 90, volume: 0.11 }, { file: "up6", at: 205, volume: 0.13 }, { file: "count", at: 255, volume: 0.09 }, { file: "pop", at: 320, volume: 0.13 }, { file: "up2", at: 380, volume: 0.13 }, { file: "up1", at: 430, volume: 0.14 }]} />
+      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.25 }, { file: "up3", at: 30, volume: 0.14 }, { file: "up4", at: 36, volume: 0.14 }, { file: "up6", at: 42, volume: 0.14 }, { file: "up2", at: 48, volume: 0.14 }, { file: "up1", at: 54, volume: 0.17 }, { file: "swipe", at: 90, volume: 0.17 }, { file: "up6", at: 205, volume: 0.2 }, { file: "count", at: 255, volume: 0.14 }, { file: "pop", at: 320, volume: 0.2 }, { file: "up2", at: 375, volume: 0.2 }, { file: "up1", at: 430, volume: 0.22 }]} />
       <HeadPlain delay={2} title="ドル・コスト平均法" size={50} />
       <div style={{ position: "absolute", left: 70, top: cardTop, width: 940, height: cardH, background: "#fff", borderRadius: 22, boxShadow: "0 10px 24px rgba(80,60,20,0.08)" }}>
         {cols.map((c, i) => {
@@ -236,7 +242,6 @@ const P6: React.FC = () => {
         })}
       </div>
       <Line delay={90} top={760} size={38}>高い時は<span style={{ color: A2.coral }}>少なく</span>／安い時は<span style={{ color: A2.green }}>多く</span>買う</Line>
-      {/* 毎月コツコツ買うイメージ＋平準化 */}
       <PopIn delay={205} style={{ position: "absolute", left: 90, top: 850, width: 900 }}>
         <Float delay={205} amp={4}>
           <div style={{ display: "flex", alignItems: "center", gap: 18, background: A2.marker, borderRadius: 22, padding: "14px 26px" }}>
@@ -261,7 +266,7 @@ const P6: React.FC = () => {
 // ── P7 分散投資 導入（68.0–71.6s / 108f）───
 const P7: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.16 }, { file: "pop", at: 8, volume: 0.13 }, { file: "up6", at: 16, volume: 0.13 }, { file: "up2", at: 34, volume: 0.13 }]} />
+    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.25 }, { file: "pop", at: 8, volume: 0.2 }, { file: "up6", at: 16, volume: 0.2 }, { file: "up2", at: 34, volume: 0.2 }]} />
     <HeadNum delay={2} no="3" title="分散投資" />
     {[
       { d: 8, f: "p7_assets_mix.png", n: "資産の分散", cx: 300 },
@@ -283,7 +288,7 @@ const P7: React.FC = () => (
 // ── P8 卵は一つのカゴに盛るな（71.6–87.2s / 469f）──
 const P8: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.16 }, { file: "up3", at: 60, volume: 0.13 }, { file: "up6", at: 150, volume: 0.13 }, { file: "up1", at: 300, volume: 0.16 }]} />
+    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.25 }, { file: "up3", at: 60, volume: 0.2 }, { file: "up6", at: 150, volume: 0.2 }, { file: "up1", at: 300, volume: 0.25 }]} />
     <HeadPlain delay={2} title="卵は一つのカゴに盛るな" size={46} />
     <PopIn delay={60} style={{ position: "absolute", left: 60, top: 430, width: 960 }}>
       <Float delay={60} amp={5}>
@@ -311,7 +316,7 @@ const P8: React.FC = () => (
   </BG2>
 );
 
-// ── P9 資産と地域の分散（87.2–109.4s / 674f）──
+// ── P9 資産と地域の分散（87.2–109.4s / 674f）＝VOに合わせて刻む ──
 const P9: React.FC = () => {
   const stocks = ["全世界株式", "全米株式", "その他の株式"];
   const assets = [
@@ -320,30 +325,34 @@ const P9: React.FC = () => {
   ];
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.16 }, { file: "swipe", at: 10, volume: 0.09 }, { file: "up3", at: 90, volume: 0.11 }, { file: "up4", at: 104, volume: 0.11 }, { file: "up6", at: 118, volume: 0.11 }, { file: "up7", at: 175, volume: 0.11 }, { file: "up2", at: 200, volume: 0.13 }, { file: "count", at: 250, volume: 0.09 }, { file: "up4", at: 262, volume: 0.11 }, { file: "up6", at: 278, volume: 0.11 }, { file: "up1", at: 294, volume: 0.11 }, { file: "up3", at: 310, volume: 0.11 }, { file: "finish", at: 340, volume: 0.18 }]} />
-      <HeadPlain delay={2} title="本当の“資産の分散”" size={50} />
-      <Line delay={10} top={400} size={37}>株の中だけで分散していませんか？</Line>
-      <PopIn delay={90} style={{ position: "absolute", left: 90, top: 480, width: 900 }}>
+      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.25 }, { file: "swipe", at: 100, volume: 0.17 }, { file: "up3", at: 130, volume: 0.17 }, { file: "up4", at: 145, volume: 0.17 }, { file: "up6", at: 160, volume: 0.17 }, { file: "up7", at: 210, volume: 0.17 }, { file: "up2", at: 250, volume: 0.22 }, { file: "count", at: 400, volume: 0.14 }, { file: "up4", at: 410, volume: 0.17 }, { file: "up6", at: 426, volume: 0.17 }, { file: "up1", at: 442, volume: 0.2 }, { file: "up3", at: 458, volume: 0.17 }, { file: "finish", at: 615, volume: 0.28 }]} />
+      {/* 0–3.4s：VO「分散には地域の分散と資産の分散」＝見出しで受ける */}
+      <HeadPlain delay={2} title="資産と地域の分散" size={52} />
+      {/* 3.4s〜：VO「資産の分散ができてない人が多い／株の中で分散」 */}
+      <Line delay={100} top={400} size={38}>株の中だけで分散していませんか？</Line>
+      <PopIn delay={130} style={{ position: "absolute", left: 90, top: 490, width: 900 }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center" }}>
           {stocks.map((s, i) => (
-            <PopIn key={s} delay={90 + i * 14}>
+            <PopIn key={s} delay={130 + i * 15}>
               <div style={{ background: A2.coral, color: "#fff", fontWeight: 800, fontSize: 36, padding: "12px 26px", borderRadius: 14, boxShadow: "0 6px 16px rgba(80,60,20,0.16)" }}>{s}</div>
             </PopIn>
           ))}
         </div>
       </PopIn>
-      <Ill file="p9_stock_crash.png" size={150} delay={175} left={70} top={620} amp={4} />
-      <PopIn delay={200} style={{ position: "absolute", left: 230, top: 640, width: 760 }}>
-        <Float delay={200} amp={4}>
+      {/* 8s〜：VO「株だけの分散→落ちる時は一気に落ちる」 */}
+      <Ill file="p9_stock_crash.png" size={150} delay={210} left={70} top={630} amp={4} />
+      <PopIn delay={250} style={{ position: "absolute", left: 230, top: 650, width: 760 }}>
+        <Float delay={250} amp={4}>
           <div style={{ background: "#FBE7E2", border: `3px solid ${A2.red}`, borderRadius: 18, padding: "18px 20px", textAlign: "center", fontSize: 38, fontWeight: 800, color: A2.red }}>“株だけ”の分散は<br />落ちる時は一気に落ちる</div>
         </Float>
       </PopIn>
-      <Svg><DrawLine d="M540 800 L540 860" delay={236} dur={10} color={A2.green} w={7} /></Svg>
-      <Line delay={244} top={876} size={40}>本当の分散は<Mark2 delay={258}>異なる資産の組み合わせ</Mark2></Line>
-      <div style={{ position: "absolute", left: 0, top: 970, width: 1080, display: "flex", justifyContent: "center", gap: 20 }}>
+      {/* 13.3s〜：VO「本当の資産の分散は現金・株・債券・ゴールド」 */}
+      <Svg><DrawLine d="M540 810 L540 870" delay={390} dur={10} color={A2.green} w={7} /></Svg>
+      <Line delay={400} top={886} size={40}>本当の分散は<Mark2 delay={414}>異なる資産の組み合わせ</Mark2></Line>
+      <div style={{ position: "absolute", left: 0, top: 980, width: 1080, display: "flex", justifyContent: "center", gap: 20 }}>
         {assets.map((a, i) => (
-          <PopIn key={a.n} delay={262 + i * 16}>
-            <Float delay={262 + i * 16} amp={4}>
+          <PopIn key={a.n} delay={410 + i * 16}>
+            <Float delay={410 + i * 16} amp={4}>
               <div style={{ width: 210, background: "#fff", border: `3px solid ${A2.green}`, borderRadius: 20, padding: "14px 0 14px", textAlign: "center", boxShadow: "0 8px 18px rgba(80,60,20,0.1)" }}>
                 <Img src={staticFile(`gen/${a.f}`)} style={{ width: 130, height: 130, objectFit: "contain" }} />
                 <div style={{ fontSize: 34, fontWeight: 800 }}>{a.n}</div>
@@ -352,7 +361,8 @@ const P9: React.FC = () => {
           </PopIn>
         ))}
       </div>
-      <Band delay={330} top={1310} size={42}>値動きの違う資産でリスクが下がる</Band>
+      {/* 20.4s〜：VO「値動きの違う資産で初めてリスクが下がる」 */}
+      <Band delay={615} top={1320} size={42}>値動きの違う資産でリスクが下がる</Band>
     </BG2>
   );
 };
@@ -376,7 +386,7 @@ export const ToushiReel: React.FC = () => (
     <Audio src={staticFile("toushi-narration.m4a")} />
     {SCENES.map(({ c: C, from, dur }, i) => (
       <Sequence key={i} from={from} durationInFrames={dur}>
-        <SceneFade dur={dur}><C /></SceneFade>
+        <SlideTrans dur={dur}><C /></SlideTrans>
       </Sequence>
     ))}
   </AbsoluteFill>
