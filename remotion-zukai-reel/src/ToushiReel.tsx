@@ -288,7 +288,7 @@ const P7: React.FC = () => (
 // ── P8 卵は一つのカゴに盛るな（71.6–87.2s / 469f）──
 const P8: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.55 }, { file: "up3", at: 60, volume: 0.48 }, { file: "up6", at: 150, volume: 0.48 }, { file: "up1", at: 300, volume: 0.55 }]} />
+    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.55 }, { file: "up3", at: 60, volume: 0.48 }, { file: "up6", at: 150, volume: 0.48 }, { file: "up1", at: 300, volume: 0.55 }, { file: "up2", at: 348, volume: 0.41 }, { file: "up6", at: 366, volume: 0.41 }]} />
     <HeadPlain delay={2} title="卵は一つのカゴに盛るな" size={46} />
     <PopIn delay={60} style={{ position: "absolute", left: 60, top: 430, width: 960 }}>
       <Float delay={60} amp={5}>
@@ -312,7 +312,22 @@ const P8: React.FC = () => (
         </div>
       </Float>
     </PopIn>
-    <Band delay={300} top={1160} size={46}>投資も同じ。<span style={{ color: A2.ink }}>いろいろな所に分ける</span></Band>
+    <Band delay={300} top={1050} size={44}>投資も同じ。<span style={{ color: A2.ink }}>いろいろな所に分ける</span></Band>
+    {/* 分ける先＝資産の分散／地域の分散（P9へのつなぎ図解） */}
+    <Svg><DrawLine d="M540 1160 L540 1210" delay={340} dur={8} color={A2.green} w={6} /></Svg>
+    {[
+      { d: 348, f: "p7_assets_mix.png", n: "資産の分散", cx: 350 },
+      { d: 366, f: "p7_world.png", n: "地域の分散", cx: 700 },
+    ].map((c) => (
+      <PopIn key={c.n} delay={c.d} style={{ position: "absolute", left: c.cx - 150, top: 1220, width: 300 }}>
+        <Float delay={c.d} amp={4}>
+          <div style={{ background: "#fff", borderRadius: 20, boxShadow: "0 8px 18px rgba(80,60,20,0.1)", padding: "12px 0 10px", textAlign: "center" }}>
+            <Img src={staticFile(`gen/${c.f}`)} style={{ width: 130, height: 130, objectFit: "contain" }} />
+            <div style={{ fontSize: 34, fontWeight: 800 }}>{c.n}</div>
+          </div>
+        </Float>
+      </PopIn>
+    ))}
   </BG2>
 );
 
