@@ -75,7 +75,7 @@ const Band: React.FC<{ delay: number; top: number; children: React.ReactNode; co
 // ── P1 全体像（0–7.3s / 220f）─────────────
 const P1: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "swipe", at: 2, volume: 0.32 }, { file: "pop", at: 6, volume: 0.27 }, { file: "up6", at: 12, volume: 0.27 }, { file: "up2", at: 22, volume: 0.27 }, { file: "up3", at: 32, volume: 0.22 }, { file: "up1", at: 95, volume: 0.35 }]} />
+    <SfxTrack cues={[{ file: "swipe", at: 2, volume: 0.48 }, { file: "pop", at: 6, volume: 0.41 }, { file: "up6", at: 12, volume: 0.41 }, { file: "up2", at: 22, volume: 0.41 }, { file: "up3", at: 32, volume: 0.33 }, { file: "up1", at: 95, volume: 0.52 }]} />
     <Head delay={2} top={250} size={70}>投資の<Mark2 delay={16}>三大原則</Mark2></Head>
     <Ill file="p1_hero.png" size={230} delay={6} left={425} top={370} amp={9} />
     <Svg>
@@ -103,7 +103,7 @@ const P1: React.FC = () => (
 // ── P2 長期投資 導入（7.3–11.8s / 133f）────
 const P2: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "pop", at: 8, volume: 0.32 }, { file: "up6", at: 30, volume: 0.32 }, { file: "count", at: 44, volume: 0.22 }, { file: "swipe", at: 95, volume: 0.22 }]} />
+    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.55 }, { file: "pop", at: 8, volume: 0.48 }, { file: "up6", at: 30, volume: 0.48 }, { file: "count", at: 44, volume: 0.33 }, { file: "swipe", at: 95, volume: 0.33 }]} />
     <HeadNum delay={2} no="1" title="長期投資" />
     <Ill file="p2_tree_grow.png" size={420} delay={8} left={330} top={390} />
     <StatementCard delay={30} top={900}>
@@ -124,7 +124,7 @@ const P3: React.FC = () => {
   ];
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "swipe", at: 10, volume: 0.22 }, { file: "up3", at: 90, volume: 0.27 }, { file: "up4", at: 112, volume: 0.27 }, { file: "up6", at: 134, volume: 0.27 }, { file: "up1", at: 168, volume: 0.4 }, { file: "up1", at: 200, volume: 0.4 }, { file: "up2", at: 245, volume: 0.35 }]} />
+      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.55 }, { file: "swipe", at: 10, volume: 0.33 }, { file: "up3", at: 90, volume: 0.41 }, { file: "up4", at: 112, volume: 0.41 }, { file: "up6", at: 134, volume: 0.41 }, { file: "up1", at: 168, volume: 0.55 }, { file: "up1", at: 200, volume: 0.55 }, { file: "up2", at: 245, volume: 0.52 }]} />
       <HeadPlain delay={2} title="運用期間別リターン" size={52} />
       <Line delay={10} top={400} size={31}><span style={{ color: A2.sub }}>外国株式に100万円を投資 ／ 元本を割った回数</span></Line>
       {rows.map((r) => {
@@ -163,7 +163,7 @@ const P4: React.FC = () => {
   const h40 = interpolate(f, [340, 400], [0, 178], clamp);
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "pop", at: 10, volume: 0.32 }, { file: "count", at: 105, volume: 0.22 }, { file: "up6", at: 150, volume: 0.27 }, { file: "swipe", at: 228, volume: 0.22 }, { file: "pop", at: 235, volume: 0.32 }, { file: "correct", at: 270, volume: 0.32 }, { file: "pop", at: 340, volume: 0.27 }, { file: "correct", at: 370, volume: 0.32 }, { file: "up1", at: 468, volume: 0.45 }, { file: "up2", at: 561, volume: 0.32 }]} />
+      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.55 }, { file: "pop", at: 10, volume: 0.48 }, { file: "count", at: 105, volume: 0.33 }, { file: "up6", at: 150, volume: 0.41 }, { file: "swipe", at: 228, volume: 0.33 }, { file: "pop", at: 235, volume: 0.48 }, { file: "correct", at: 270, volume: 0.48 }, { file: "pop", at: 340, volume: 0.41 }, { file: "correct", at: 370, volume: 0.48 }, { file: "up1", at: 468, volume: 0.55 }, { file: "up2", at: 561, volume: 0.48 }]} />
       <HeadPlain delay={2} title="複利の効果" size={54} />
       <Ill file="p4_snowball.png" size={200} delay={10} left={70} top={360} />
       <Appear delay={95} style={{ position: "absolute", left: 300, top: 400, width: 710 }}>
@@ -195,7 +195,7 @@ const P4: React.FC = () => {
 // ── P5 積立投資 導入（45.7–51.9s / 186f）───
 const P5: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "pop", at: 8, volume: 0.32 }, { file: "up6", at: 40, volume: 0.32 }, { file: "up4", at: 100, volume: 0.27 }]} />
+    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.55 }, { file: "pop", at: 8, volume: 0.48 }, { file: "up6", at: 40, volume: 0.48 }, { file: "up4", at: 100, volume: 0.41 }]} />
     <HeadNum delay={2} no="2" title="積立投資" />
     <Ill file="p5_piggy.png" size={360} delay={8} left={360} top={390} />
     <StatementCard delay={40} top={860}>
@@ -226,7 +226,7 @@ const P6: React.FC = () => {
   const cardTop = 400, cardH = 320, baseY = 262;
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "up3", at: 30, volume: 0.22 }, { file: "up4", at: 36, volume: 0.22 }, { file: "up6", at: 42, volume: 0.22 }, { file: "up2", at: 48, volume: 0.22 }, { file: "up1", at: 54, volume: 0.27 }, { file: "swipe", at: 90, volume: 0.27 }, { file: "up6", at: 205, volume: 0.32 }, { file: "count", at: 255, volume: 0.22 }, { file: "pop", at: 320, volume: 0.32 }, { file: "up2", at: 375, volume: 0.32 }, { file: "up1", at: 430, volume: 0.35 }]} />
+      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.55 }, { file: "up3", at: 30, volume: 0.33 }, { file: "up4", at: 36, volume: 0.33 }, { file: "up6", at: 42, volume: 0.33 }, { file: "up2", at: 48, volume: 0.33 }, { file: "up1", at: 54, volume: 0.41 }, { file: "swipe", at: 90, volume: 0.41 }, { file: "up6", at: 205, volume: 0.48 }, { file: "count", at: 255, volume: 0.33 }, { file: "pop", at: 320, volume: 0.48 }, { file: "up2", at: 375, volume: 0.48 }, { file: "up1", at: 430, volume: 0.52 }]} />
       <HeadPlain delay={2} title="ドル・コスト平均法" size={50} />
       <div style={{ position: "absolute", left: 70, top: cardTop, width: 940, height: cardH, background: "#fff", borderRadius: 22, boxShadow: "0 10px 24px rgba(80,60,20,0.08)" }}>
         {cols.map((c, i) => {
@@ -266,7 +266,7 @@ const P6: React.FC = () => {
 // ── P7 分散投資 導入（68.0–71.6s / 108f）───
 const P7: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "pop", at: 8, volume: 0.32 }, { file: "up6", at: 16, volume: 0.32 }, { file: "up2", at: 34, volume: 0.32 }]} />
+    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.55 }, { file: "pop", at: 8, volume: 0.48 }, { file: "up6", at: 16, volume: 0.48 }, { file: "up2", at: 34, volume: 0.48 }]} />
     <HeadNum delay={2} no="3" title="分散投資" />
     {[
       { d: 8, f: "p7_assets_mix.png", n: "資産の分散", cx: 300 },
@@ -288,7 +288,7 @@ const P7: React.FC = () => (
 // ── P8 卵は一つのカゴに盛るな（71.6–87.2s / 469f）──
 const P8: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "up3", at: 60, volume: 0.32 }, { file: "up6", at: 150, volume: 0.32 }, { file: "up1", at: 300, volume: 0.4 }]} />
+    <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.55 }, { file: "up3", at: 60, volume: 0.48 }, { file: "up6", at: 150, volume: 0.48 }, { file: "up1", at: 300, volume: 0.55 }]} />
     <HeadPlain delay={2} title="卵は一つのカゴに盛るな" size={46} />
     <PopIn delay={60} style={{ position: "absolute", left: 60, top: 430, width: 960 }}>
       <Float delay={60} amp={5}>
@@ -325,7 +325,7 @@ const P9: React.FC = () => {
   ];
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "swipe", at: 100, volume: 0.27 }, { file: "up3", at: 130, volume: 0.27 }, { file: "up4", at: 145, volume: 0.27 }, { file: "up6", at: 160, volume: 0.27 }, { file: "up7", at: 210, volume: 0.27 }, { file: "up2", at: 250, volume: 0.35 }, { file: "count", at: 400, volume: 0.22 }, { file: "up4", at: 410, volume: 0.27 }, { file: "up6", at: 426, volume: 0.27 }, { file: "up1", at: 442, volume: 0.32 }, { file: "up3", at: 458, volume: 0.27 }, { file: "finish", at: 615, volume: 0.45 }]} />
+      <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.55 }, { file: "swipe", at: 100, volume: 0.41 }, { file: "up3", at: 130, volume: 0.41 }, { file: "up4", at: 145, volume: 0.41 }, { file: "up6", at: 160, volume: 0.41 }, { file: "up7", at: 210, volume: 0.41 }, { file: "up2", at: 250, volume: 0.52 }, { file: "count", at: 400, volume: 0.33 }, { file: "up4", at: 410, volume: 0.41 }, { file: "up6", at: 426, volume: 0.41 }, { file: "up1", at: 442, volume: 0.48 }, { file: "up3", at: 458, volume: 0.41 }, { file: "finish", at: 615, volume: 0.55 }]} />
       {/* 0–3.4s：VO「分散には地域の分散と資産の分散」＝見出しで受ける */}
       <HeadPlain delay={2} title="資産と地域の分散" size={52} />
       {/* 3.4s〜：VO「資産の分散ができてない人が多い／株の中で分散」 */}
