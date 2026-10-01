@@ -37,6 +37,24 @@
 16. g6_family_future.png → 子どもと親の家族が、教育費や老後のお金を心配する。これからお金がかかる時期なのに、という不安。温かいが影のある表情。
 17. g6_savings_empty.png → 貯金箱や通帳の残高がどんどん減って底が見えてくる。「終わりが見えない治療」で切り崩し続ける不安。減り続ける矢印、空に近づく貯金箱。
 
+**🧩 追加：物・アイコン・概念（連結図解の“線の先”に置く／人物以外を多様化）**
+※同スタイル・単体アイコン・正方形・透過・文字なし・自然な色。
+18. ic_ribbon_breast.png → ピンクリボン（乳がんの象徴）
+19. ic_body_parts.png → 人体シルエットに部位マーカー（乳・前立腺・大腸に点）
+20. ic_survival_up.png → 右肩上がりの折れ線＋上向き矢印（生存率UP）
+21. ic_hospital.png → 病院の建物（十字マーク）
+22. ic_pill_iv.png → 錠剤＋点滴バッグ（薬物治療）
+23. ic_insurance_card.png → 健康保険証
+24. ic_wallet_coins.png → 財布から出ていくコイン（出費）
+25. ic_passbook_down.png → 通帳＋下向き矢印（残高が減る）
+26. ic_shield.png → 盾（備え・守る）
+27. ic_schoolbag.png → ランドセル（教育資金）
+28. ic_elderly_couple.png → 老夫婦（老後資金）
+29. ic_balance_scale.png → てんびん（損得・比較）
+30. ic_warning.png → 注意マーク（！）
+31. ic_life_timeline.png → 人生の時間軸：赤ちゃん→学生→社会人→老後 を横一列
+32. ic_calendar_years.png → 年が連なるカレンダー（長期化）
+
 ---
 
 ## 🟦 グラフ／図解＋アニメ（Remotionで僕が作成・画像生成不要）
