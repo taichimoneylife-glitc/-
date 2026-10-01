@@ -175,7 +175,26 @@ const P1: React.FC = () => {
   );
 };
 
-// ══ 図解2：生存率カード（↗を内包）＋増加カード ══
+// 円ドーナツ（0→pct%まで ドドッと満ちる）
+const Donut: React.FC<{ delay: number; pct: number; size?: number; color?: string; big: React.ReactNode; small?: React.ReactNode }> = ({ delay, pct, size = 440, color = RED, big, small }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [delay, delay + 34], [0, pct], clamp);
+  const sw = 54, r = size / 2 - sw / 2, c = 2 * Math.PI * r, cx = size / 2;
+  return (
+    <div style={{ position: "relative", width: size, height: size, fontFamily: FONT }}>
+      <svg width={size} height={size}>
+        <circle cx={cx} cy={cx} r={r} stroke={A2.track} strokeWidth={sw} fill="none" />
+        <circle cx={cx} cy={cx} r={r} stroke={color} strokeWidth={sw} fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - p / 100)} transform={`rotate(-90 ${cx} ${cx})`} />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ fontSize: 96, fontWeight: 900, color }}>{big}</div>
+        {small ? <div style={{ fontSize: 34, fontWeight: 900, color: A2.sub, marginTop: -8 }}>{small}</div> : null}
+      </div>
+    </div>
+  );
+};
+
+// ══ 図解2：生存率カード（大きく・改善は線の上）＋増加バンド（画面いっぱい）══
 const P2: React.FC = () => {
   const f = useCurrentFrame();
   const drawn = interpolate(f, [40, 100], [0, 1], clamp);
@@ -183,23 +202,26 @@ const P2: React.FC = () => {
     <BG2>
       <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.3 }, { file: "up6", at: 40, volume: 0.34 }, { file: "correct", at: 105, volume: 0.32 }]} />
       <Head>がんは“治る時代”へ</Head>
-      <Card delay={10} top={400} header="5年生存率は上がっている">
-        <div style={{ position: "relative", height: 420 }}>
-          <svg width="860" height="420" style={{ position: "absolute", inset: 0 }}>
-            <line x1="40" y1="380" x2="820" y2="380" stroke={A2.track} strokeWidth="3" />
-            <DrawLine d="M70 360 L780 90" delay={40} dur={46} color={A2.green} w={12} />
-            {drawn > 0.9 && <path d="M752 72 L790 84 L770 120" fill="none" stroke={A2.green} strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />}
+      <Card delay={10} top={380} header="5年生存率は上がっている" pad="30px 30px">
+        <div style={{ position: "relative", height: 540 }}>
+          <svg width="860" height="540" style={{ position: "absolute", inset: 0 }}>
+            <line x1="40" y1="500" x2="820" y2="500" stroke={A2.track} strokeWidth="3" />
+            <DrawLine d="M80 470 L770 150" delay={40} dur={46} color={A2.green} w={16} />
+            {drawn > 0.9 && <path d="M738 128 L782 142 L760 184" fill="none" stroke={A2.green} strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />}
           </svg>
-          <div style={{ position: "absolute", left: 40, top: 300, fontSize: 32, fontWeight: 900, color: A2.sub }}>以前</div>
-          <PopIn delay={100} style={{ position: "absolute", left: 600, top: 40, fontSize: 40, fontWeight: 900, color: A2.green }}>今</PopIn>
-          <PopIn delay={70} style={{ position: "absolute", left: 300, top: 180, fontSize: 48, fontWeight: 900, color: A2.green }}>改善 ↗</PopIn>
+          {/* 以前（線の始点・大きく） */}
+          <div style={{ position: "absolute", left: 30, top: 400, fontSize: 48, fontWeight: 900, color: A2.sub }}>以前</div>
+          {/* 今（線の終点・特大） */}
+          <PopIn delay={100} style={{ position: "absolute", left: 640, top: 40, fontSize: 80, fontWeight: 900, color: A2.green }}>今</PopIn>
+          {/* 改善 ↗（線とかぶらない左上） */}
+          <PopIn delay={70} style={{ position: "absolute", left: 120, top: 120, fontSize: 60, fontWeight: 900, color: A2.green }}>改善 ↗</PopIn>
         </div>
       </Card>
-      <PopIn delay={120} style={{ position: "absolute", left: 80, top: 980, width: 920 }}>
+      <PopIn delay={120} style={{ position: "absolute", left: 80, top: 1070, width: 920 }}>
         <Float delay={120} amp={3}>
-          <div style={{ fontFamily: FONT, background: "#E4F6EC", border: `3px solid ${A2.green}`, borderRadius: 24, padding: "16px 22px", display: "flex", alignItems: "center", gap: 16 }}>
-            <Img src={staticFile("gen/g2_recovered_smile.png")} style={{ width: 170, height: 170, objectFit: "contain", flexShrink: 0 }} />
-            <div style={{ fontSize: 44, fontWeight: 900, color: A2.ink, lineHeight: 1.3 }}>長く生きられる人が<br /><span style={{ color: A2.green }}>増えています</span></div>
+          <div style={{ fontFamily: FONT, background: "#E4F6EC", border: `4px solid ${A2.green}`, borderRadius: 28, padding: "20px 26px", display: "flex", alignItems: "center", gap: 20 }}>
+            <Img src={staticFile("gen/g2_recovered_smile.png")} style={{ width: 210, height: 210, objectFit: "contain", flexShrink: 0 }} />
+            <div style={{ fontSize: 54, fontWeight: 900, color: A2.ink, lineHeight: 1.25 }}>長く生きられる人が<br /><span style={{ color: A2.green }}>増えています</span></div>
           </div>
         </Float>
       </PopIn>
@@ -245,7 +267,14 @@ const P3: React.FC = () => {
         <IllBand delay={300} top={760} file="g3_pills_longterm" bg="#FFF6E2" border={ORANGE} flip><span style={{ color: ORANGE }}>5〜10年</span>、薬を飲み続けることも</IllBand>
       </Phase>
       <Phase a={525} b={737}>
-        <IllBand delay={540} top={500} file="g3_relapse_change" bg="#FBE7E2" border={RED} size={240}>再発・転移すれば<br /><span style={{ color: RED }}>薬を変えて数年続く</span></IllBand>
+        <IllBand delay={540} top={430} file="g3_relapse_change" bg="#FBE7E2" border={RED} size={280}>再発・転移すれば<br /><span style={{ color: RED }}>薬を変えて治療</span></IllBand>
+        <PopIn delay={590} style={{ position: "absolute", left: 80, top: 820, width: 920 }}>
+          <Float delay={590} amp={3}><div style={{ fontFamily: FONT, background: A2.ink, borderRadius: 28, padding: "34px 24px", textAlign: "center" }}>
+            <div style={{ fontSize: 44, fontWeight: 900, color: "#fff" }}>治療は</div>
+            <div style={{ fontSize: 84, fontWeight: 900, color: A2.marker }}>数年がかり</div>
+            <div style={{ fontSize: 40, fontWeight: 900, color: "#fff" }}>になることも</div>
+          </div></Float>
+        </PopIn>
       </Phase>
     </BG2>
   );
@@ -303,40 +332,41 @@ const P6: React.FC = () => {
     <BG2>
       <SfxTrack cues={[{ file: "up5", at: 2, volume: 0.3 }, { file: "up1", at: 90, volume: 0.34 }, { file: "pop", at: 220, volume: 0.3 }, { file: "up6", at: 440, volume: 0.32 }, { file: "finish", at: 560, volume: 0.42 }]} />
       <Head size={50}>一番怖いのは“収入の減少”</Head>
+      {/* フェーズ1：円グラフ 約半数＋悲しむ人（画面いっぱい） */}
       <Phase a={0} b={215}>
-        <IllBand delay={30} top={420} file="g6_income_worry" bg="#FBE7E2" border={RED} size={200}>がんのあと<br />収入が減った人</IllBand>
-        <PopIn delay={90} style={{ position: "absolute", left: 80, top: 720, width: 920 }}>
-          <Float delay={90} amp={4}><div style={{ fontFamily: FONT, background: "#fff", borderRadius: 26, boxShadow: "0 14px 32px rgba(80,60,20,0.12)", padding: "20px 0", textAlign: "center" }}><div style={{ fontSize: 96, fontWeight: 900, color: RED }}>約半数以上</div></div></Float>
+        <div style={{ position: "absolute", left: 60, top: 400, width: 500, display: "flex", justifyContent: "center" }}>
+          <PopIn delay={40}><Donut delay={55} pct={52} size={460} color={RED} big="約半数" small="以上" /></PopIn>
+        </div>
+        <Ill file="g6_income_worry" size={320} delay={70} left={610} top={450} amp={9} />
+        <PopIn delay={120} style={{ position: "absolute", left: 80, top: 940, width: 920 }}>
+          <Float delay={120} amp={4}><div style={{ fontFamily: FONT, background: "#FBE7E2", border: `4px solid ${RED}`, borderRadius: 28, padding: "24px 26px", textAlign: "center", fontSize: 48, fontWeight: 900, color: A2.ink }}>がんのあと、<span style={{ color: RED }}>収入が減った</span></div></Float>
         </PopIn>
       </Phase>
+      {/* フェーズ2：傷病手当 2/3（大きく） */}
       <Phase a={215} b={435}>
-        <Card delay={225} top={420} header="傷病手当金は給料の約2/3">
-          <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-            <Img src={staticFile("gen/g6_sick_allowance.png")} style={{ width: 180, height: 180, objectFit: "contain", flexShrink: 0 }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ position: "relative", height: 44 }}>
-                <div style={{ position: "absolute", left: 0, right: 0, top: 4, height: 36, borderRadius: 999, background: A2.track }} />
-                <div style={{ position: "absolute", left: 0, top: 4, height: 36, borderRadius: 999, background: ORANGE, width: `${interpolate(f, [260, 295], [0, 66.6], clamp)}%` }} />
-              </div>
-              <div style={{ fontSize: 34, fontWeight: 900, color: ORANGE, marginTop: 10 }}>満額には届かない</div>
-            </div>
-          </div>
-        </Card>
+        <div style={{ position: "absolute", left: 60, top: 400, width: 500, display: "flex", justifyContent: "center" }}>
+          <PopIn delay={225}><Donut delay={245} pct={66.6} size={460} color={ORANGE} big="2/3" small="だけ" /></PopIn>
+        </div>
+        <Ill file="g6_sick_allowance" size={320} delay={240} left={610} top={450} amp={8} />
+        <PopIn delay={300} style={{ position: "absolute", left: 80, top: 940, width: 920 }}>
+          <Float delay={300} amp={4}><div style={{ fontFamily: FONT, background: "#FFF6E2", border: `4px solid ${ORANGE}`, borderRadius: 28, padding: "24px 26px", textAlign: "center", fontSize: 46, fontWeight: 900, color: A2.ink }}>傷病手当金でも<span style={{ color: ORANGE }}>給料の約2/3</span></div></Float>
+        </PopIn>
       </Phase>
+      {/* フェーズ3：貯金↓＋一撃（画面いっぱい） */}
       <Phase a={435} b={662}>
-        <Card delay={445} top={400} header="貯金を切り崩し続ける…">
+        <Card delay={445} top={390} header="貯金を切り崩し続ける…">
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <Img src={staticFile("gen/g6_savings_empty.png")} style={{ width: 200, height: 200, objectFit: "contain", flexShrink: 0 }} />
-            <div style={{ flex: 1, position: "relative", height: 180 }}>
-              <svg width="420" height="180"><line x1="10" y1="30" x2="400" y2="160" stroke={RED} strokeWidth="9" strokeLinecap="round" strokeDasharray={420} strokeDashoffset={420 * (1 - savArrow)} />{savArrow > 0.9 && <path d="M372 140 L404 164 L374 178" fill="none" stroke={RED} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />}</svg>
-              <div style={{ position: "absolute", right: 0, top: 120, fontSize: 30, fontWeight: 900, color: RED }}>終わりが見えない</div>
+            <Img src={staticFile("gen/g6_savings_empty.png")} style={{ width: 240, height: 240, objectFit: "contain", flexShrink: 0 }} />
+            <div style={{ flex: 1, position: "relative", height: 220 }}>
+              <svg width="440" height="220"><line x1="10" y1="40" x2="420" y2="190" stroke={RED} strokeWidth="11" strokeLinecap="round" strokeDasharray={440} strokeDashoffset={440 * (1 - savArrow)} />{savArrow > 0.9 && <path d="M390 168 L424 194 L392 208" fill="none" stroke={RED} strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />}</svg>
+              <div style={{ position: "absolute", right: 0, top: 150, fontSize: 38, fontWeight: 900, color: RED }}>終わりが<br />見えない</div>
             </div>
           </div>
         </Card>
-        <PopIn delay={520} style={{ position: "absolute", left: 80, top: 760, width: 920 }}>
-          <Float delay={520} amp={4}><div style={{ fontFamily: FONT, background: A2.ink, borderRadius: 26, padding: "28px 22px", textAlign: "center" }}>
-            <div style={{ fontSize: 42, fontWeight: 900, color: "#fff" }}>治療費 ＋ 収入の減少</div>
-            <div style={{ fontSize: 48, fontWeight: 900, color: "#fff", marginTop: 8 }}>怖いのは<span style={{ color: A2.marker }}>“長く続く”</span>こと</div>
+        <PopIn delay={520} style={{ position: "absolute", left: 80, top: 870, width: 920 }}>
+          <Float delay={520} amp={4}><div style={{ fontFamily: FONT, background: A2.ink, borderRadius: 28, padding: "34px 24px", textAlign: "center" }}>
+            <div style={{ fontSize: 48, fontWeight: 900, color: "#fff" }}>治療費 ＋ 収入の減少</div>
+            <div style={{ fontSize: 60, fontWeight: 900, color: A2.marker, marginTop: 10 }}>“長く続く”のが怖い</div>
           </div></Float>
         </PopIn>
       </Phase>
