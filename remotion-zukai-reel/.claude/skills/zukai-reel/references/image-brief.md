@@ -4,19 +4,21 @@
 
 生成物は `assets/image_brief.md`。実際の例は `remotion-zukai-reel/assets/image_brief.md` を参照。
 
+## ★出し方のルール（ユーザー指定・必ず守る）
+- **プロンプトは必ず「まとめて1ブロック」でコピペできる形で出す。** 共通スタイルを先頭に1回、そのあと `番号. ファイル名 → 主題` を一覧に。ユーザーはこれを丸ごとコピーして一括生成する（1枚ずつバラで出さない）。
+- **色を強制しない。**「自然でOK」とだけ書く。緑・黄・特定パレットに寄せる指定は**絶対に書かない**（ユーザーが強く嫌がる）。
+- **枚数は多めでOK（投資リールは約20〜27枚）。** 多い方が分かりやすい＝ケチらず各ページに2〜4枚割る。深刻テーマ（がん等）は特に寄り添うイラストを増やす。
+
 ## 構成
-1. **共通スタイル**（毎回プロンプト末尾に付ける）を最初に置く：
+1. **共通スタイル**（先頭に1回だけ）例：
 ```
-cute pop flat illustration, rounded soft shapes, thick clean outlines,
-warm friendly palette (navy, red-orange, gold, cream/green accents),
-minimal and modern, single centered subject, generous empty padding,
-NO text, no letters, no numbers, transparent background, 1:1 square, high quality
+フラットなミニイラスト、太めの輪郭、やわらかい彩度、透過PNG、正方形、
+被写体中央・余白多め、文字は入れない、色は自然でOK（色の強制なし）
 ```
-2. **表**：`ファイル名` / `使う場所（何枚目）` / `主題プロンプト`。ファイル名はシーン準拠（例 `s4_usa.png`）。
-3. **メモ**：透過PNG・正方形・被写体中央・余白多め・文字を入れない、を明記。アイコンや図形は画像不要と書く。
+2. **一覧**：`番号. ファイル名 → 主題（名詞句＋トーン一語）`。ファイル名はシーン準拠（例 `g4_woman_worry.png`）。
+3. **メモ**：透過PNG・正方形・文字なし。図解/数字/矢印/アイコンは図解側で出すので画像不要。
 
 ## コツ
-- 1シーン1〜2枚に絞る（多すぎると画風が揃わない／手間が増える）。
 - 主題は名詞句で短く、感情/トーンを一語添える（trustworthy, anxious, calm, premium, hopeful 等）。
 - 人物は全身 or 上半身、余白多めだと配置しやすい。
 - 生成後は `public/gen/<name>.png` に置いてもらい、`GenImg name="<name>"` で差し込む。
