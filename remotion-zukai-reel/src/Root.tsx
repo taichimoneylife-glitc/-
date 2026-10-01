@@ -14,6 +14,7 @@ import { CarReelV3, CAR_V3_FRAMES } from "./CarReelV3";
 import { CarReelV4, CAR_V4_FRAMES } from "./CarReelV4";
 import { ToushiReel, TOUSHI_FRAMES } from "./ToushiReel";
 import { TalkReel, TALK_FRAMES } from "./TalkReel";
+import { GanReel, GAN_FRAMES } from "./GanReel";
 import { CorridorRunner, CORRIDOR_FRAMES } from "./CorridorRunner";
 import { LaunchFilm, LAUNCH_FRAMES } from "./LaunchFilm";
 import { TalkLaunch, TALKLAUNCH_FRAMES } from "./TalkLaunch";
@@ -125,6 +126,9 @@ export const RemotionRoot: React.FC = () => {
 
       {/* ── 投資の三大原則（図解9ページ・仮組み） ── */}
       <Composition id="ToushiReel" component={ToushiReel} durationInFrames={TOUSHI_FRAMES} fps={FPS} width={1080} height={1920} />
+
+      {/* ── がん① 図解リール(本番) ── */}
+      <Composition id="GanReel" component={GanReel} durationInFrames={GAN_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* ── トークリール自動編集（実写＋オーバーレイ／完コピ試作） ── */}
       <Composition id="TalkReel" component={TalkReel} durationInFrames={TALK_FRAMES} fps={FPS} width={1080} height={1920} />
