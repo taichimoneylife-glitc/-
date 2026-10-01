@@ -18,12 +18,27 @@ const useSp = (d: number, dur = 14, cfg: any = { damping: 13, stiffness: 150, ma
   const f = useCurrentFrame(); const { fps } = useVideoConfig();
   return spring({ frame: f - d, fps, config: cfg, durationInFrames: dur });
 };
-const Pop: React.FC<{ show: number; hide: number; delay?: number; children: React.ReactNode; style?: React.CSSProperties }> = ({ show, hide, delay = 0, children, style }) => {
-  const f = useCurrentFrame(); const s = useSp(show + delay, 14);
+// 画像スロット：public/gen/<file> に本物イラストを置き、ここに登録すると絵文字から差し替わる。
+// 例) satsuei: "rc_satsuei.png"（Codexで生成→public/gen/へ）。未登録なら絵文字プレースホルダ。
+import { Img } from "remotion";
+const GEN: Record<string, string> = {
+  // satsuei: "rc_satsuei.png", gohan: "rc_gohan.png", gym: "rc_gym.png", kansei: "rc_kansei.png",
+  // claude: "rc_claude.png", edit: "rc_edit.png", avatar: "rc_avatar.png",
+};
+const Slot: React.FC<{ k: string; emoji: string; size: number }> = ({ k, emoji, size }) => (
+  GEN[k] ? <Img src={staticFile(`gen/${GEN[k]}`)} style={{ width: size, height: size, objectFit: "contain" }} /> : <span style={{ fontSize: size * 0.9, lineHeight: 1 }}>{emoji}</span>
+);
+
+// 物理ドロップ＋バウンド登場。rot/scaleで1枚ずつ表情を変える。
+const Pop: React.FC<{ show: number; hide: number; delay?: number; bounce?: boolean; rot?: number; sc?: number; children: React.ReactNode; style?: React.CSSProperties }> = ({ show, hide, delay = 0, bounce, rot = 0, sc = 1, children, style }) => {
+  const f = useCurrentFrame();
+  const s = useSp(show + delay, bounce ? 24 : 14, bounce ? { damping: 9, stiffness: 110, mass: 1 } : { damping: 13, stiffness: 150, mass: 0.7 });
   if (f < show || f >= hide) return null;
   const out = interpolate(f, [hide - 7, hide], [1, 0], clamp);
-  const bob = Math.sin((f - show) / 32 * Math.PI * 2) * 3;
-  return <div style={{ position: "absolute", opacity: Math.min(1, s * 1.6) * out, transform: `translateY(${(1 - Math.min(1, s)) * 16 + bob}px) scale(${Math.min(1, s)})`, fontFamily: FONT, ...style }}>{children}</div>;
+  const bob = Math.sin((f - show) / 34 * Math.PI * 2) * 3;
+  const drop = (1 - Math.min(1, s)) * (bounce ? -60 : 16);
+  const wob = bounce ? Math.sin((f - show) / 40 * Math.PI * 2) * 1.2 : 0;
+  return <div style={{ position: "absolute", opacity: Math.min(1, s * 1.8) * out, transform: `translateY(${drop + bob}px) rotate(${rot + wob}deg) scale(${sc * Math.min(1, s)})`, fontFamily: FONT, ...style }}>{children}</div>;
 };
 
 // ── テロップ ──
@@ -82,23 +97,23 @@ const Telop: React.FC = () => {
 };
 
 // ── 図解パーツ ──
-const DarkIcon: React.FC<{ emoji: string; label: string; no?: string }> = ({ emoji, label, no }) => (
-  <div style={{ width: 150, background: INK, borderRadius: 20, padding: "16px 0 12px", textAlign: "center", boxShadow: "0 10px 22px rgba(0,0,0,0.3)", position: "relative" }}>
-    {no ? <div style={{ position: "absolute", left: 10, top: 8, fontSize: 20, fontWeight: 900, color: SUB }}>{no}</div> : null}
-    <div style={{ fontSize: 56, lineHeight: 1 }}>{emoji}</div>
-    <div style={{ fontSize: 30, fontWeight: 900, color: "#fff", marginTop: 2 }}>{label}</div>
+const DarkIcon: React.FC<{ emoji: string; label: string; no?: string; k?: string; w?: number }> = ({ emoji, label, no, k, w = 210 }) => (
+  <div style={{ width: w, background: INK, borderRadius: 24, padding: "22px 0 16px", textAlign: "center", boxShadow: "0 14px 30px rgba(0,0,0,0.35)", position: "relative" }}>
+    {no ? <div style={{ position: "absolute", left: 14, top: 12, fontSize: 24, fontWeight: 900, color: SUB }}>{no}</div> : null}
+    <div style={{ height: w * 0.44, display: "flex", alignItems: "center", justifyContent: "center" }}><Slot k={k || label} emoji={emoji} size={w * 0.44} /></div>
+    <div style={{ fontSize: 40, fontWeight: 900, color: "#fff", marginTop: 6 }}>{label}</div>
   </div>
 );
 
 const YtCard: React.FC = () => (
-  <Pop show={6} hide={138} style={{ left: 60, top: 150, width: 560 }}>
-    <div style={{ background: "#fff", borderRadius: 18, boxShadow: "0 10px 24px rgba(0,0,0,0.3)", overflow: "hidden" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", fontFamily: FONT, fontSize: 24, fontWeight: 800, color: INK }}>
-        <span style={{ color: "#E0352B" }}>▶</span> 昨日のYouTube <span style={{ marginLeft: "auto", fontSize: 20, color: SUB }}>どの場面でも</span>
+  <Pop show={6} hide={138} bounce rot={-2.5} style={{ left: 70, top: 150, width: 720 }}>
+    <div style={{ background: "#fff", borderRadius: 22, boxShadow: "0 16px 34px rgba(0,0,0,0.34)", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", fontFamily: FONT, fontSize: 30, fontWeight: 800, color: INK }}>
+        <span style={{ color: "#E0352B" }}>▶</span> 昨日のYouTube <span style={{ marginLeft: "auto", fontSize: 24, color: SUB }}>どの場面でも</span>
       </div>
-      <div style={{ height: 150, background: "linear-gradient(120deg,#3a3a44,#222)", display: "flex", alignItems: "center", justifyContent: "center", color: "#eee", fontFamily: FONT, fontWeight: 800 }}>🎬 編集画面</div>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", fontFamily: FONT, fontSize: 26, fontWeight: 900, color: INK }}>
-        <span style={{ background: O, color: "#fff", borderRadius: 6, padding: "2px 8px", fontSize: 20 }}>✴</span> Opus 5.5が全部編集 <span style={{ marginLeft: "auto", color: SUB }}>20:25</span>
+      <div style={{ height: 220, background: "linear-gradient(120deg,#3a3a44,#222)", display: "flex", alignItems: "center", justifyContent: "center", color: "#eee", fontFamily: FONT, fontWeight: 800, fontSize: 34 }}>🎬 編集画面</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", fontFamily: FONT, fontSize: 34, fontWeight: 900, color: INK }}>
+        <span style={{ background: O, color: "#fff", borderRadius: 8, padding: "4px 12px", fontSize: 26 }}>✴</span> Opus 5.5が全部編集 <span style={{ marginLeft: "auto", color: SUB }}>20:25</span>
       </div>
     </div>
   </Pop>
@@ -118,12 +133,12 @@ const RecentPosts: React.FC = () => (
 const Flow: React.FC = () => {
   const f = useCurrentFrame();
   return (
-    <Pop show={214} hide={336} style={{ left: 0, right: 0, top: 190, display: "flex", justifyContent: "center", alignItems: "center", gap: 16 }}>
-      <DarkIcon emoji="📷" label="撮影" no="01" />
-      <span style={{ fontSize: 44, color: INK, opacity: f > 236 ? 1 : 0 }}>→</span>
-      <div style={{ opacity: f > 240 ? 1 : 0 }}><DarkIcon emoji="✴" label="Claude" no="02" /></div>
-      <span style={{ fontSize: 44, color: INK, opacity: f > 290 ? 1 : 0 }}>→</span>
-      <div style={{ opacity: f > 294 ? 1 : 0, position: "relative" }}><DarkIcon emoji="🎞" label="自動編集" no="03" /><span style={{ position: "absolute", right: -8, top: -8, color: G, fontSize: 36 }}>✓</span></div>
+    <Pop show={214} hide={336} style={{ left: 0, right: 0, top: 230, display: "flex", justifyContent: "center", alignItems: "center", gap: 14 }}>
+      <div style={{ transform: "rotate(-3deg)" }}><DarkIcon emoji="📷" label="撮影" no="01" k="satsuei" w={240} /></div>
+      <span style={{ fontSize: 60, fontWeight: 900, color: "#fff", textShadow: OUT, opacity: f > 236 ? 1 : 0 }}>→</span>
+      <div style={{ transform: "rotate(2deg)", opacity: f > 240 ? 1 : 0 }}><DarkIcon emoji="✴" label="Claude" no="02" k="claude" w={240} /></div>
+      <span style={{ fontSize: 60, fontWeight: 900, color: "#fff", textShadow: OUT, opacity: f > 290 ? 1 : 0 }}>→</span>
+      <div style={{ transform: "rotate(-2deg)", opacity: f > 294 ? 1 : 0, position: "relative" }}><DarkIcon emoji="🎞" label="自動編集" no="03" k="edit" w={240} /><span style={{ position: "absolute", right: -6, top: -10, color: G, fontSize: 48 }}>✓</span></div>
     </Pop>
   );
 };
@@ -160,14 +175,18 @@ const ProgressPanel: React.FC = () => {
           </div>
         </div>
       </Pop>
-      {steps.map((st, i) => (
-        <Pop key={st.l} show={st.at} hide={560} style={{ left: 70 + i * 230, top: 330 }}>
-          <div style={{ width: 180, background: "#FBE7A8", borderRadius: 14, padding: "20px 0 12px", textAlign: "center", boxShadow: "0 8px 18px rgba(80,60,20,0.2)", position: "relative" }}>
-            <div style={{ position: "absolute", left: "50%", top: -12, transform: "translateX(-50%) rotate(-3deg)", width: 70, height: 22, background: "#f0cf6a", borderRadius: 3 }} />
-            <div style={{ fontSize: 52 }}>{st.e}</div><div style={{ fontSize: 30, fontWeight: 900, color: INK }}>{st.l}</div>
-          </div>
-        </Pop>
-      ))}
+      {steps.map((st, i) => {
+        const v = [{ rot: -6, sc: 1.0, c: "#BBD8F0", tp: "#8fbfe6", w: 236, x: 46 }, { rot: 4, sc: 1.08, c: "#FBE7A8", tp: "#f0cf6a", w: 252, x: 300 }, { rot: -3, sc: 1.0, c: "#C6E7C0", tp: "#9ad090", w: 236, x: 570 }, { rot: 6, sc: 1.14, c: "#F3C9B6", tp: "#e3a383", w: 268, x: 810 }][i];
+        return (
+          <Pop key={st.l} show={st.at} hide={560} bounce rot={v.rot} sc={v.sc} style={{ left: v.x, top: 320 }}>
+            <div style={{ width: v.w, background: v.c, borderRadius: 18, padding: "30px 0 18px", textAlign: "center", boxShadow: "0 14px 30px rgba(80,60,20,0.26)", position: "relative" }}>
+              <div style={{ position: "absolute", left: "50%", top: -16, transform: "translateX(-50%) rotate(-4deg)", width: 96, height: 30, background: v.tp, opacity: 0.9, borderRadius: 4 }} />
+              <div style={{ height: v.w * 0.42, display: "flex", alignItems: "center", justifyContent: "center" }}><Slot k={["satsuei", "gohan", "gym", "kansei"][i]} emoji={st.e} size={v.w * 0.42} /></div>
+              <div style={{ fontSize: 42, fontWeight: 900, color: INK, marginTop: 4 }}>{st.l}</div>
+            </div>
+          </Pop>
+        );
+      })}
     </>
   );
 };
