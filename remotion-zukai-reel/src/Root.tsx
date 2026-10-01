@@ -17,6 +17,7 @@ import { TalkReel, TALK_FRAMES } from "./TalkReel";
 import { CorridorRunner, CORRIDOR_FRAMES } from "./CorridorRunner";
 import { LaunchFilm, LAUNCH_FRAMES } from "./LaunchFilm";
 import { TalkLaunch, TALKLAUNCH_FRAMES } from "./TalkLaunch";
+import { RefClone, REFCLONE_FRAMES } from "./RefClone";
 import { Proto, PROTO_FRAMES } from "./Proto";
 import { FPS, TOTAL_FRAMES } from "./config";
 
@@ -132,6 +133,9 @@ export const RemotionRoot: React.FC = () => {
 
       {/* ── トーク×ローンチフィルム風（投資三大原則） ── */}
       <Composition id="TalkLaunch" component={TalkLaunch} durationInFrames={TALKLAUNCH_FRAMES} fps={FPS} width={1080} height={1920} />
+
+      {/* ── 参考トークリール完コピ ── */}
+      <Composition id="RefClone" component={RefClone} durationInFrames={REFCLONE_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* ── 第1関門POC：ボクセル3Dランナー（インプット誘惑） ── */}
       <Composition id="CorridorRunner" component={CorridorRunner} durationInFrames={CORRIDOR_FRAMES} fps={FPS} width={1080} height={1920} />
