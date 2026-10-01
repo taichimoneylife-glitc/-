@@ -32,40 +32,45 @@ const Pop: React.FC<{ show: number; hide: number; delay?: number; bounce?: boole
   return <div style={{ position: "absolute", opacity: Math.min(1, s * 1.8) * out, transform: `translateY(${drop + bob}px) rotate(${rot + wob}deg) scale(${sc * Math.min(1, s)})`, fontFamily: FONT, ...style }}>{children}</div>;
 };
 
-// ── テロップ（白＋オレンジ/黄/緑＋黄ボックス） ──
-type Run = { t: string; c?: string; box?: boolean };
-type T = { f: number; runs: Run[]; big?: boolean; color?: string };
-const TELOPS: T[] = [
-  { f: 0, runs: [{ t: "投資で" }, { t: "失敗", c: O }, { t: "したくないなら" }] },
-  { f: 47, runs: [{ t: "これだけ", box: true }, { t: "は抑えて" }] },
-  { f: 89, runs: [{ t: "投資の" }, { t: "3大原則", c: O }] },
-  { f: 119, runs: [{ t: "長期", c: Y }, { t: "・積立・分散" }] },
-  { f: 172, runs: [{ t: "分かりやすく解説します" }] },
-  { f: 231, runs: [{ t: "守るだけで" }] },
-  { f: 264, big: true, color: G, runs: [{ t: "安定" }] },
-  { f: 314, runs: [{ t: "特に" }, { t: "資産の分散", c: O }] },
-  { f: 356, runs: [{ t: "見落としがち", box: true }] },
-  { f: 383, runs: [{ t: "ぜひ意識してみて" }] },
-  { f: 439, runs: [{ t: "参考になったら" }, { t: "保存", c: O }] },
-  { f: 476, runs: [{ t: "見返すと嬉しいです" }] },
+// ── カラオケ字幕：喋った語が順に光る（単語タイムスタンプ基準） ──
+// chunk = [文字, 出現フレーム, 強調色?, box?]
+type Chunk = [string, number, string?, boolean?];
+const LINES: Chunk[][] = [
+  [["投資で", 0], ["失敗", 16, O], ["したくないなら", 29]],
+  [["これだけ", 47, undefined, true], ["は抑えて", 65]],
+  [["投資の", 74], ["3大原則", 80, O]],
+  [["長期", 97, Y], ["・積立", 106, Y], ["・分散", 127, Y]],
+  [["この3つを", 144], ["分かりやすく", 172], ["解説します", 199]],
+  [["この3つを", 214], ["守るだけで", 231]],
+  [["投資はグッと", 248], ["安定します", 272, G]],
+  [["特に", 294], ["資産の分散は", 302, O]],
+  [["見落としがち", 332, undefined, true]],
+  [["ぜひ", 362], ["意識してみて", 368]],
+  [["参考になったら", 383], ["保存して", 421, O]],
+  [["見返すと", 424], ["嬉しいです", 447]],
 ];
 const Telop: React.FC = () => {
   const f = useCurrentFrame();
-  let idx = 0; for (let i = 0; i < TELOPS.length; i++) if (f >= TELOPS[i].f) idx = i;
-  const seg = TELOPS[idx]; const end = idx + 1 < TELOPS.length ? TELOPS[idx + 1].f : TALKREF_FRAMES;
-  const s = useSp(seg.f, 9);
+  const { fps } = useVideoConfig();
+  let li = 0; for (let i = 0; i < LINES.length; i++) if (f >= LINES[i][0][1]) li = i;
+  const line = LINES[li];
+  const start = line[0][1];
+  const end = li + 1 < LINES.length ? LINES[li + 1][0][1] : TALKREF_FRAMES;
+  const appear = spring({ frame: f - start, fps, config: { damping: 16, stiffness: 200, mass: 0.6 }, durationInFrames: 7 });
   if (f >= end) return null;
-  if (seg.big) return (
-    <div style={{ position: "absolute", left: 0, right: 0, top: 1180, textAlign: "center", fontFamily: FONT, transform: `scale(${0.8 + 0.3 * Math.min(1, s)}) rotate(-3deg)`, opacity: Math.min(1, s * 1.6) }}>
-      <span style={{ fontSize: 190, fontWeight: 900, color: seg.color, textShadow: OUT }}>{seg.runs[0].t}</span>
-    </div>
-  );
   return (
-    <div style={{ position: "absolute", left: 50, right: 50, top: 1310, textAlign: "center", fontFamily: FONT, transform: `scale(${0.92 + 0.08 * Math.min(1, s)})` }}>
-      <div style={{ fontWeight: 900, fontSize: 76, lineHeight: 1.25 }}>
-        {seg.runs.map((r, i) => r.box ? (
-          <span key={i} style={{ display: "inline-block", background: Y, color: INK, padding: "4px 18px", borderRadius: 12, margin: "0 4px", transform: "rotate(-2deg)" }}>{r.t}</span>
-        ) : <span key={i} style={{ color: r.c || "#fff", textShadow: OUT }}>{r.t}</span>)}
+    <div style={{ position: "absolute", left: 44, right: 44, top: 1300, textAlign: "center", fontFamily: FONT, transform: `translateY(${(1 - Math.min(1, appear)) * 24}px)` }}>
+      <div style={{ fontWeight: 900, fontSize: 80, lineHeight: 1.22, letterSpacing: 0.5 }}>
+        {line.map((c, i) => {
+          const [t, cf, col, box] = c;
+          const lit = f >= cf;
+          const pop = spring({ frame: f - cf, fps, config: { damping: 11, stiffness: 240, mass: 0.5 }, durationInFrames: 8 });
+          const sc = lit ? 1 + 0.18 * (1 - Math.min(1, pop)) : 1; // 出た瞬間だけ少し大きく
+          if (box) return (
+            <span key={i} style={{ display: "inline-block", background: lit ? Y : "rgba(255,255,255,0.25)", color: lit ? INK : "rgba(255,255,255,0.5)", padding: "4px 18px", borderRadius: 12, margin: "0 4px", transform: `rotate(-2deg) scale(${sc})` }}>{t}</span>
+          );
+          return <span key={i} style={{ display: "inline-block", color: lit ? (col || "#fff") : "rgba(255,255,255,0.42)", textShadow: lit ? OUT : "none", transform: `scale(${sc})`, transition: "none" }}>{t}</span>;
+        })}
       </div>
     </div>
   );
@@ -153,8 +158,9 @@ const Flash: React.FC = () => {
 };
 const useZoom = () => {
   const f = useCurrentFrame();
-  const base = interpolate(f, [0, TALKREF_FRAMES], [1.03, 1.1], clamp);
-  const punch = [89, 264, 314, 439].reduce((a, p) => a + 0.03 * Math.max(0, 1 - Math.abs(f - (p + 6)) / 12), 0);
+  const base = interpolate(f, [0, TALKREF_FRAMES], [1.035, 1.1], clamp);
+  // フレーズの頭ごとに軽くプッシュイン（＝止まらない・本家の"寄り"）
+  const punch = [80, 97, 144, 214, 272, 302, 332, 383, 439].reduce((a, p) => a + 0.028 * Math.max(0, 1 - Math.abs(f - (p + 5)) / 10), 0);
   return base + punch;
 };
 
