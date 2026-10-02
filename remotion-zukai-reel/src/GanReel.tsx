@@ -129,7 +129,7 @@ const P2: React.FC = () => {
   const drawn = interpolate(f, [60, 120], [0, 1], clamp);
   return (
     <BG2>
-      <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "up6", at: 55, volume: 0.4 }, { file: "user/u04", at: 100, volume: 0.44 }, { file: "user/u10", at: 150, volume: 0.4 }]} />
+      <SfxTrack gain={SFX_GAIN} cues={[{ file: "up6", at: 2, volume: 0.42 }, { file: "user/u03s", at: 70, volume: 0.36 }, { file: "user/u04", at: 100, volume: 0.44 }, { file: "user/u10", at: 150, volume: 0.4 }]} />
       <Head size={50}>数年前より、がんは<br /><Mark2 delay={16}>“治りやすく”</Mark2>なった</Head>
       <Card delay={10} top={468} header="全がんの5年生存率（約20年で）">
         <div style={{ position: "relative", height: 360 }}>
@@ -160,7 +160,7 @@ const P3: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <BG2>
-      <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "user/u02s", at: 44, volume: 0.36 }, { file: "user/u02s", at: 64, volume: 0.36 }, { file: "user/u03", at: 258, volume: 0.4 }, { file: "up6", at: 290, volume: 0.42 }, { file: "user/u03", at: 528, volume: 0.4 }, { file: "user/u08", at: 590, volume: 0.42 }]} />
+      <SfxTrack gain={SFX_GAIN} cues={[{ file: "user/u07", at: 2, volume: 0.42 }, { file: "user/u02s", at: 44, volume: 0.36 }, { file: "user/u02s", at: 64, volume: 0.36 }, { file: "user/u10", at: 100, volume: 0.4 }, { file: "user/u03", at: 258, volume: 0.4 }, { file: "up6", at: 290, volume: 0.42 }, { file: "user/u03", at: 528, volume: 0.4 }, { file: "user/u08", at: 590, volume: 0.42 }]} />
       <Head size={52}>入院は短く、通院が主流に</Head>
       <Phase a={0} b={255}>
         <div style={{ position: "absolute", left: 70, top: 460, width: 940, display: "flex", gap: 26 }}>
@@ -197,7 +197,7 @@ const P3: React.FC = () => {
 // ══ 図解4（44.0–54.0s）：高額療養費があっても、じわじわかかる ══
 const P4: React.FC = () => (
   <BG2>
-    <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "user/u02s", at: 40, volume: 0.36 }, { file: "user/u05s", at: 100, volume: 0.36 }, { file: "user/u04", at: 175, volume: 0.44 }]} />
+    <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "user/u05s", at: 40, volume: 0.36 }, { file: "user/u05s", at: 100, volume: 0.36 }, { file: "user/u04", at: 175, volume: 0.44 }]} />
     <Head size={46}>高額療養費があっても、<br />じわじわかかる</Head>
     <Card delay={14} top={470} header="高額療養費は“医療費”だけ" pad="24px 28px">
       <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
@@ -224,7 +224,7 @@ const P4: React.FC = () => (
 // ══ 図解5（54.0–64.2s）：公的保険の“対象外”の費用もある ══
 const P5: React.FC = () => (
   <BG2>
-    <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "user/u02s", at: 110, volume: 0.36 }, { file: "user/u02s", at: 150, volume: 0.36 }, { file: "user/u08", at: 205, volume: 0.42 }]} />
+    <SfxTrack gain={SFX_GAIN} cues={[{ file: "up6", at: 2, volume: 0.42 }, { file: "user/u03s", at: 110, volume: 0.36 }, { file: "user/u03s", at: 150, volume: 0.36 }, { file: "user/u08", at: 205, volume: 0.42 }]} />
     <Head size={48}>公的保険の<Mark2 delay={16}>“対象外”</Mark2>の<br />費用もある</Head>
     <Band delay={10} top={470} file="g5_free_drug" bg="#fff" border={TRACK} isize={170} size={42}>保険が効かない<br /><span style={{ color: ORANGE }}>自由診療</span>もある</Band>
     <div style={{ position: "absolute", left: 80, right: 80, top: 720 }}>
@@ -243,7 +243,7 @@ const P6: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <BG2>
-      <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "user/u04", at: 55, volume: 0.44 }, { file: "user/u10", at: 120, volume: 0.4 }, { file: "user/u03", at: 225, volume: 0.4 }, { file: "user/u04", at: 245, volume: 0.44 }, { file: "up6", at: 520, volume: 0.42 }, { file: "finish", at: 560, volume: 0.5 }]} />
+      <SfxTrack gain={SFX_GAIN} cues={[{ file: "user/u07", at: 2, volume: 0.42 }, { file: "user/u04", at: 55, volume: 0.44 }, { file: "user/u10", at: 120, volume: 0.4 }, { file: "user/u03", at: 225, volume: 0.4 }, { file: "user/u04", at: 245, volume: 0.44 }, { file: "up6", at: 520, volume: 0.42 }, { file: "finish", at: 560, volume: 0.5 }]} />
       <Head size={46}>本当の怖さは、収入減が<br /><Mark2 delay={16}>“長く続く”</Mark2>こと</Head>
       <Phase a={0} b={215}>
         <div style={{ position: "absolute", left: 70, top: 470, width: 460, display: "flex", justifyContent: "center" }}>
