@@ -85,7 +85,7 @@ const NumChip: React.FC<{ delay: number; left: number; top: number; w: number; c
 // ── S1 フック：車→現金一括/銀行ローン（0–6.64s / 199f）──
 const S1: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "user/u03", at: 2, volume: 0.34 }, { file: "user/u02", at: 70, volume: 0.34 }, { file: "user/u05", at: 95, volume: 0.36 }, { file: "user/u10", at: 135, volume: 0.4 }]} />
+    <SfxTrack cues={[{ file: "user/u02", at: 70, volume: 0.36 }, { file: "user/u02", at: 95, volume: 0.36 }]} />
     <Head delay={2} top={250} size={64}>500万円の車、どう<Mark2 delay={18}>買う？</Mark2></Head>
     <Ill file="s1_car.png" size={300} delay={8} left={390} top={380} amp={9} />
     <Svg>
@@ -102,7 +102,7 @@ const S1: React.FC = () => (
 // ── S2 ローンの条件（6.64–12.24s / 168f）──
 const S2: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "user/u03", at: 2, volume: 0.34 }, { file: "user/u02", at: 40, volume: 0.32 }, { file: "user/u05", at: 80, volume: 0.32 }, { file: "user/u04", at: 110, volume: 0.42 }]} />
+    <SfxTrack cues={[{ file: "user/u02", at: 40, volume: 0.34 }, { file: "user/u02", at: 80, volume: 0.34 }, { file: "user/u02", at: 110, volume: 0.38 }]} />
     <HeadPlain delay={2} title="ローンの条件" size={54} />
     <Ill file="s2_wallet.png" size={240} delay={8} left={420} top={380} amp={7} />
     <NumChip delay={40} left={70} top={680} w={285} cap="金利" to={2} suffix="%" color={A2.green} />
@@ -126,7 +126,7 @@ const S2: React.FC = () => (
 // ── S3 総支払い550万 / 損？（12.24–17.76s / 166f）──
 const S3: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "user/u03", at: 2, volume: 0.34 }, { file: "user/u02", at: 46, volume: 0.32 }, { file: "user/u04", at: 70, volume: 0.44 }, { file: "user/u02", at: 108, volume: 0.3 }]} />
+    <SfxTrack cues={[{ file: "user/u02", at: 46, volume: 0.34 }, { file: "user/u02", at: 70, volume: 0.4 }]} />
     <HeadPlain delay={2} title="総支払い額は？" size={54} />
     {/* 500万 + 50万 = 550万 の足し算図 */}
     <div style={{ position: "absolute", left: 70, top: 470, width: 940, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
@@ -150,7 +150,7 @@ const S3: React.FC = () => (
 // ── S4 元手の使い方→運用へ（17.76–23.44s / 170f）──
 const S4: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "user/u03", at: 2, volume: 0.34 }, { file: "user/u02", at: 30, volume: 0.34 }, { file: "user/u05", at: 60, volume: 0.32 }, { file: "user/u10", at: 95, volume: 0.4 }]} />
+    <SfxTrack cues={[{ file: "user/u02", at: 30, volume: 0.36 }, { file: "user/u02", at: 95, volume: 0.36 }]} />
     <HeadPlain delay={2} title={<>問題は<Mark2 delay={16}>"元手"の使い方</Mark2></>} size={52} />
     <Ill file="s2_wallet.png" size={260} delay={10} left={90} top={520} amp={7} />
     <PopIn delay={30} style={{ position: "absolute", left: 90, top: 790, width: 300, textAlign: "center" }}>
@@ -174,7 +174,7 @@ const S4: React.FC = () => (
 // ── S5 株か債券か→債券を選ぶ（23.44–31.92s / 255f）──
 const S5: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "user/u03", at: 2, volume: 0.34 }, { file: "user/u02", at: 40, volume: 0.34 }, { file: "user/u05", at: 55, volume: 0.34 }, { file: "user/u08", at: 150, volume: 0.42 }]} />
+    <SfxTrack cues={[{ file: "user/u02", at: 40, volume: 0.34 }, { file: "user/u02", at: 55, volume: 0.34 }, { file: "user/u02", at: 150, volume: 0.38 }]} />
     <HeadPlain delay={2} title="何で運用する？" size={54} />
     <Line delay={20} top={400} size={38}><span style={{ color: A2.sub }}>株か、債券か</span></Line>
     <IllCard delay={40} left={70} top={500} w={440} file="s3_stock.png" label="株" imgH={200} />
@@ -188,7 +188,7 @@ const S5: React.FC = () => (
 // ── S6 子育て世代の備え（31.92–40.12s / 246f）──
 const S6: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "user/u03", at: 2, volume: 0.34 }, { file: "user/u02", at: 70, volume: 0.32 }, { file: "user/u05", at: 88, volume: 0.32 }, { file: "user/u02", at: 106, volume: 0.32 }, { file: "user/u10", at: 130, volume: 0.4 }]} />
+    <SfxTrack cues={[{ file: "user/u02", at: 70, volume: 0.34 }, { file: "user/u02", at: 88, volume: 0.34 }, { file: "user/u02", at: 106, volume: 0.34 }]} />
     <Head delay={2} top={250} size={58}>子育て世代こそ<Mark2 delay={20}>計画的に</Mark2></Head>
     <Ill file="s4_family.png" size={300} delay={10} left={390} top={360} amp={7} />
     <Svg>
@@ -206,7 +206,7 @@ const S6: React.FC = () => (
 // ── S7 株(暴落) vs 債券(約束)（40.12–44.96s / 145f）──
 const S7: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "user/u03", at: 2, volume: 0.34 }, { file: "user/u02", at: 30, volume: 0.34 }, { file: "user/u05", at: 60, volume: 0.34 }, { file: "user/u08", at: 110, volume: 0.42 }]} />
+    <SfxTrack cues={[{ file: "user/u02", at: 30, volume: 0.36 }, { file: "user/u02", at: 60, volume: 0.36 }]} />
     <HeadPlain delay={2} title="株と債券のちがい" size={52} />
     <PopIn delay={30} style={{ position: "absolute", left: 60, top: 440, width: 960 }}>
       <Float delay={30} amp={4}>
@@ -231,7 +231,7 @@ const S7: React.FC = () => (
 // ── S8 米国債5%（44.96–50.18s / 156f）──
 const S8: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "user/u03", at: 2, volume: 0.34 }, { file: "user/u04", at: 44, volume: 0.44 }]} />
+    <SfxTrack cues={[{ file: "user/u02", at: 44, volume: 0.4 }]} />
     <HeadPlain delay={2} title="いまの米国債は？" size={54} />
     <Ill file="s4_usa.png" size={300} delay={10} left={390} top={360} amp={8} />
     <PopIn delay={44} style={{ position: "absolute", left: 160, top: 760, width: 760 }}>
@@ -254,7 +254,7 @@ const S9: React.FC = () => {
   const h810 = interpolate(f, [120, 190], [0, maxH], clamp);
   return (
     <BG2>
-      <SfxTrack cues={[{ file: "user/u03", at: 2, volume: 0.34 }, { file: "user/u02", at: 60, volume: 0.34 }, { file: "user/u04", at: 180, volume: 0.44 }, { file: "user/u10", at: 210, volume: 0.4 }]} />
+      <SfxTrack cues={[{ file: "user/u02", at: 60, volume: 0.36 }, { file: "user/u02", at: 180, volume: 0.4 }]} />
       <HeadPlain delay={2} title="10年後、どうなる？" size={54} />
       <Ill file="s5_growth.png" size={170} delay={10} left={455} top={330} amp={6} />
       {/* バー比較 */}
@@ -280,7 +280,7 @@ const S9: React.FC = () => {
 // ── S10 天秤→結論（59.36–65.02s / 170f）──
 const S10: React.FC = () => (
   <BG2>
-    <SfxTrack cues={[{ file: "user/u03", at: 2, volume: 0.34 }, { file: "user/u02", at: 44, volume: 0.32 }, { file: "user/u05", at: 95, volume: 0.34 }, { file: "user/u07", at: 120, volume: 0.44 }]} />
+    <SfxTrack cues={[{ file: "user/u02", at: 44, volume: 0.36 }, { file: "user/u07", at: 120, volume: 0.42 }]} />
     <HeadPlain delay={2} title="どっちが大きい？" size={54} />
     <Ill file="s_scale.png" size={240} delay={10} left={420} top={360} amp={6} />
     <div style={{ position: "absolute", left: 60, top: 640, width: 960, display: "flex", alignItems: "center", justifyContent: "center", gap: 24 }}>
