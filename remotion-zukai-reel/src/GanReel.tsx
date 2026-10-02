@@ -13,7 +13,7 @@ import { FONT } from "./components/font";
 // ══════════════════════════════════════════════════════════
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 export const GAN_FRAMES = 2589;
-export const SFX_GAIN = 0.55; // ★効果音の音量つまみ（0=無音）
+export const SFX_GAIN = 0; // ★効果音の音量つまみ（0=無音）
 const BLUE = "#4A90D9", PINK = "#EC7FA0", RED = "#E8553B", ORANGE = "#EF7D4E";
 const INK = A2.ink, GREEN = A2.green, SUB = A2.sub, TRACK = A2.track, MK = A2.marker;
 
@@ -116,6 +116,7 @@ const P1: React.FC = () => {
           })}
         </div>
       </Card>
+      <Ill file="g1_two_of_two" size={230} delay={60} left={425} top={898} amp={7} />
       <Band delay={185} top={1230} file="g1_woman_young" bg="#FBE7E2" border={RED} isize={150} size={40}>
         50歳までは女性が<span style={{ color: RED }}>約2.4倍</span><br /><span style={{ fontSize: 34 }}>70歳頃まで女性が多い＝<span style={{ color: RED }}>特に注意</span></span>
       </Band>
@@ -229,15 +230,15 @@ const P5: React.FC = () => (
   <BG2>
     <SfxTrack gain={SFX_GAIN} cues={[{ file: "up6", at: 2, volume: 0.42 }, { file: "user/u03s", at: 125, volume: 0.36 }, { file: "user/u03s", at: 165, volume: 0.36 }, { file: "user/u08", at: 235, volume: 0.42 }]} />
     <Head size={48}>公的保険の<Mark2 delay={16}>“対象外”</Mark2>の<br />費用もある</Head>
-    <Band delay={14} top={470} file="g5_free_drug" bg="#fff" border={TRACK} isize={170} size={42}>公的保険で<br /><span style={{ color: ORANGE }}>全部はカバーされない</span></Band>
-    <div style={{ position: "absolute", left: 80, right: 80, top: 720 }}>
-      {[{ t: "先進医療の技術料", d: 125 }, { t: "自由診療・未承認薬", d: 165 }, { t: "＝ぜんぶ対象外", d: 225, hi: true }].map((r, i) => (
-        <PopIn key={i} delay={r.d} style={{ marginBottom: 18 }}>
-          <Float delay={r.d} amp={3}><div style={{ fontFamily: FONT, background: r.hi ? INK : "#fff", border: `3px solid ${r.hi ? INK : ORANGE}`, borderRadius: 20, padding: "20px 0", fontSize: 42, fontWeight: 900, color: r.hi ? MK : INK, textAlign: "center", boxShadow: "0 10px 22px rgba(80,60,20,0.1)" }}>{r.t}</div></Float>
+    <Band delay={14} top={456} file="g5_free_drug" bg="#fff" border={TRACK} isize={160} size={42}>公的保険で<br /><span style={{ color: ORANGE }}>全部はカバーされない</span></Band>
+    <div style={{ position: "absolute", left: 80, right: 80, top: 686 }}>
+      {[{ t: "先進医療の技術料", ic: "ic_hospital", d: 125 }, { t: "自由診療・未承認薬", ic: "ic_pill_iv", d: 165 }, { t: "＝ぜんぶ対象外", ic: "ic_warning", d: 225, hi: true }].map((r, i) => (
+        <PopIn key={i} delay={r.d} style={{ marginBottom: 16 }}>
+          <Float delay={r.d} amp={3}><div style={{ fontFamily: FONT, background: r.hi ? INK : "#fff", border: `3px solid ${r.hi ? INK : ORANGE}`, borderRadius: 20, padding: "12px 24px", fontSize: 42, fontWeight: 900, color: r.hi ? MK : INK, display: "flex", alignItems: "center", gap: 18, boxShadow: "0 10px 22px rgba(80,60,20,0.1)" }}><Img src={staticFile(`gen/${r.ic}.png`)} style={{ width: 84, height: 84, objectFit: "contain", flexShrink: 0, background: "#fff", borderRadius: 14 }} /><span style={{ flex: 1, textAlign: "center" }}>{r.t}</span></div></Float>
         </PopIn>
       ))}
     </div>
-    <Band delay={235} top={1210} bg="#FBE7E2" border={RED} size={42}>未承認薬は<span style={{ color: RED }}>86.3%</span>が<span style={{ color: RED }}>月100万円超</span></Band>
+    <Band delay={235} top={1176} file="g5_coverage_gap" bg="#FBE7E2" border={RED} isize={150} size={40} flip>未承認薬は<span style={{ color: RED }}>86.3%</span>が<br /><span style={{ color: RED }}>月100万円超</span></Band>
   </BG2>
 );
 
@@ -275,12 +276,14 @@ const P6: React.FC = () => {
             </svg>
             <PopIn delay={355} style={{ position: "absolute", left: 560, top: 36, fontSize: 30, fontWeight: 900, color: GREEN }}>貯めるべき↗</PopIn>
             <PopIn delay={375} style={{ position: "absolute", left: 560, top: 212, fontSize: 30, fontWeight: 900, color: RED }}>現実の貯金↘</PopIn>
-            <div style={{ position: "absolute", left: 20, top: 256, fontSize: 25, fontWeight: 800, color: SUB }}>教育・老後にお金がかかる時期なのに…</div>
+            <div style={{ position: "absolute", left: 20, top: 256, display: "flex", alignItems: "center", gap: 10, fontSize: 25, fontWeight: 800, color: SUB }}>
+              <Img src={staticFile("gen/ic_schoolbag.png")} style={{ width: 52, height: 52, objectFit: "contain" }} />
+              <Img src={staticFile("gen/ic_elderly_couple.png")} style={{ width: 52, height: 52, objectFit: "contain" }} />
+              教育・老後にお金がかかる時期なのに…
+            </div>
           </div>
         </Card>
-        <PopIn delay={410} style={{ position: "absolute", left: 70, top: 900, width: 940 }}>
-          <Float delay={410} amp={3}><div style={{ fontFamily: FONT, background: "#fff", border: `3px solid ${RED}`, borderRadius: 22, padding: "16px 20px", textAlign: "center", fontSize: 38, fontWeight: 900 }}>貯金を<span style={{ color: RED }}>切り崩しながら何年も</span></div></Float>
-        </PopIn>
+        <Band delay={410} top={852} file="g6_savings_empty" bg="#fff" border={RED} isize={140} size={40} flip>貯金を<span style={{ color: RED }}>切り崩しながら</span><br />何年も続く</Band>
         <PopIn delay={548} style={{ position: "absolute", left: 70, top: 1060, width: 940 }}>
           <Float delay={548} amp={3}><div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "30px 24px", textAlign: "center" }}>
             <div style={{ fontSize: 44, fontWeight: 900, color: "#fff" }}>治療費 ＋ 収入の減少が</div>
