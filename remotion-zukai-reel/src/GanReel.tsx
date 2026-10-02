@@ -209,40 +209,63 @@ const P3: React.FC = () => {
   );
 };
 
-// ══ 図解4（44.0–54.0s）：高額療養費があっても、じわじわかかる ══
+// ══ 図解4（44.0–54.0s）：高額療養費があっても、じわじわかかる（誤解を崩す）══
 const P4: React.FC = () => (
   <BG2>
-    <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "user/u05s", at: 40, volume: 0.36 }, { file: "user/u05s", at: 100, volume: 0.36 }, { file: "user/u04", at: 175, volume: 0.44 }]} />
+    <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "user/u03s", at: 20, volume: 0.36 }, { file: "user/u08", at: 55, volume: 0.42 }, { file: "user/u03", at: 90, volume: 0.4 }, { file: "user/u05s", at: 120, volume: 0.36 }, { file: "user/u04", at: 178, volume: 0.44 }]} />
     <Head size={42}>高額療養費制度があっても、<br />じわじわかかる</Head>
-    <Card delay={14} top={430} header="高額療養費制度は“医療費”だけ" pad="20px 26px">
-      <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-        <Img src={staticFile("gen/ic_insurance_card.png")} style={{ width: 118, height: 118, objectFit: "contain", flexShrink: 0 }} />
-        <div style={{ fontSize: 36, fontWeight: 900, lineHeight: 1.35 }}>上限があるのは医療費だけ。<br /><span style={{ color: RED }}>差額ベッド・交通費は対象外</span></div>
-      </div>
-    </Card>
-    <PopIn delay={100} style={{ position: "absolute", left: 70, top: 690, width: 940 }}>
-      <Float delay={100} amp={3}>
-        <div style={{ fontFamily: FONT, background: "#FFF6E2", border: `3px solid ${ORANGE}`, borderRadius: 26, padding: "18px 26px", display: "flex", alignItems: "center", gap: 18 }}>
-          <Img src={staticFile("gen/g4_extra_costs_set.png")} style={{ width: 150, height: 150, objectFit: "contain", flexShrink: 0 }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 36, fontWeight: 900, color: INK }}>差額ベッド代は<span style={{ color: ORANGE }}>1日 約6,700円</span><span style={{ fontSize: 26, color: SUB }}>（平均）</span></div>
-            <div style={{ fontSize: 32, fontWeight: 900, color: RED, marginTop: 6 }}>高いと1日1万円超のケースも</div>
+    {/* rel0–75：思い込み（「大丈夫」と思っていませんか？）を先に見せる */}
+    <Phase a={0} b={78}>
+      <PopIn delay={16} style={{ position: "absolute", left: 60, top: 480, width: 960, textAlign: "center" }}>
+        <div style={{ fontFamily: FONT, fontSize: 38, fontWeight: 900, color: SUB }}>こんな風に思っていませんか？</div>
+      </PopIn>
+      <PopIn delay={24} style={{ position: "absolute", left: 90, top: 560, width: 900 }}>
+        <Float delay={24} amp={4}>
+          <div style={{ position: "relative", fontFamily: FONT, background: "#fff", border: `3px solid ${TRACK}`, borderRadius: 32, padding: "40px 34px", display: "flex", alignItems: "center", gap: 20, boxShadow: "0 14px 32px rgba(80,60,20,0.12)" }}>
+            <Img src={staticFile("gen/ic_insurance_card.png")} style={{ width: 140, height: 140, objectFit: "contain", flexShrink: 0 }} />
+            <div style={{ fontSize: 50, fontWeight: 900, color: INK, lineHeight: 1.3 }}>「高額療養費が<br />あるから<span style={{ color: BLUE }}>ウチは大丈夫</span>」</div>
+            <div style={{ position: "absolute", left: 90, bottom: -22, width: 40, height: 40, background: "#fff", borderRight: `3px solid ${TRACK}`, borderBottom: `3px solid ${TRACK}`, transform: "rotate(45deg)" }} />
           </div>
+        </Float>
+      </PopIn>
+      <PopIn delay={55} style={{ position: "absolute", left: 300, top: 840, width: 480 }}>
+        <Float delay={55} amp={5}>
+          <div style={{ fontFamily: FONT, background: RED, color: "#fff", fontSize: 54, fontWeight: 900, textAlign: "center", borderRadius: 20, padding: "18px 0", transform: "rotate(-4deg)", boxShadow: "0 12px 26px rgba(232,85,59,0.34)" }}>ちょっと待って！</div>
+        </Float>
+      </PopIn>
+    </Phase>
+    {/* rel78–300：現実（医療費だけ→差額ベッド→年100万） */}
+    <Phase a={78} b={299}>
+      <Card delay={86} top={430} header="高額療養費制度は“医療費”だけ" pad="20px 26px">
+        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+          <Img src={staticFile("gen/ic_insurance_card.png")} style={{ width: 118, height: 118, objectFit: "contain", flexShrink: 0 }} />
+          <div style={{ fontSize: 36, fontWeight: 900, lineHeight: 1.35 }}>上限があるのは医療費だけ。<br /><span style={{ color: RED }}>差額ベッド・交通費は対象外</span></div>
         </div>
-      </Float>
-    </PopIn>
-    <PopIn delay={175} style={{ position: "absolute", left: 70, top: 930, width: 940 }}>
-      <Float delay={175} amp={4}>
-        <div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "28px 24px", textAlign: "center", display: "flex", alignItems: "center", gap: 18, justifyContent: "center" }}>
-          <Img src={staticFile("gen/g4_money_fly.png")} style={{ width: 160, height: 160, objectFit: "contain" }} />
-          <div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: "#fff" }}>医療費以外で</div>
-            <div style={{ fontSize: 78, fontWeight: 900, color: MK }}>年<CountUp delay={175} to={100} dur={26} />万円</div>
-            <div style={{ fontSize: 34, fontWeight: 900, color: "#fff" }}>近く飛ぶ覚悟も</div>
+      </Card>
+      <PopIn delay={120} style={{ position: "absolute", left: 70, top: 690, width: 940 }}>
+        <Float delay={120} amp={3}>
+          <div style={{ fontFamily: FONT, background: "#FFF6E2", border: `3px solid ${ORANGE}`, borderRadius: 26, padding: "18px 26px", display: "flex", alignItems: "center", gap: 18 }}>
+            <Img src={staticFile("gen/g4_extra_costs_set.png")} style={{ width: 150, height: 150, objectFit: "contain", flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 36, fontWeight: 900, color: INK }}>差額ベッド代は<span style={{ color: ORANGE }}>1日 約6,700円</span><span style={{ fontSize: 26, color: SUB }}>（平均）</span></div>
+              <div style={{ fontSize: 32, fontWeight: 900, color: RED, marginTop: 6 }}>高いと1日1万円超のケースも</div>
+            </div>
           </div>
-        </div>
-      </Float>
-    </PopIn>
+        </Float>
+      </PopIn>
+      <PopIn delay={178} style={{ position: "absolute", left: 70, top: 930, width: 940 }}>
+        <Float delay={178} amp={4}>
+          <div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "28px 24px", textAlign: "center", display: "flex", alignItems: "center", gap: 18, justifyContent: "center" }}>
+            <Img src={staticFile("gen/g4_money_fly.png")} style={{ width: 160, height: 160, objectFit: "contain" }} />
+            <div>
+              <div style={{ fontSize: 36, fontWeight: 900, color: "#fff" }}>医療費以外で</div>
+              <div style={{ fontSize: 78, fontWeight: 900, color: MK }}>年<CountUp delay={178} to={100} dur={26} />万円</div>
+              <div style={{ fontSize: 34, fontWeight: 900, color: "#fff" }}>近く飛ぶ覚悟も</div>
+            </div>
+          </div>
+        </Float>
+      </PopIn>
+    </Phase>
   </BG2>
 );
 
