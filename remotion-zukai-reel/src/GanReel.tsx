@@ -91,13 +91,13 @@ const P1: React.FC = () => {
   const H = 330, baseY = H, x0 = 36, gw = (880 - 72) / 6;
   return (
     <BG2>
-      <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "user/u02s", at: 120, volume: 0.36 }, { file: "user/u02s", at: 170, volume: 0.36 }, { file: "user/u04", at: 250, volume: 0.42 }, { file: "user/u10", at: 300, volume: 0.4 }]} />
+      <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "user/u02s", at: 60, volume: 0.36 }, { file: "user/u02s", at: 110, volume: 0.36 }, { file: "user/u04", at: 185, volume: 0.42 }, { file: "user/u10", at: 230, volume: 0.4 }]} />
       <Head size={52}>がんは<Mark2 delay={16}>2人に1人</Mark2>。<br />しかも女性は若くから</Head>
       <Card delay={10} top={448} header="年代別のがん罹患リスク（男性/女性）">
         <div style={{ position: "relative", height: H + 56 }}>
           <div style={{ position: "absolute", left: 0, right: 0, top: baseY, height: 3, background: TRACK }} />
           {groups.map((gr, i) => {
-            const cx = x0 + i * gw, d = 110 + i * 14;
+            const cx = x0 + i * gw, d = 44 + i * 13;
             const hm = interpolate(f, [d, d + 14], [0, (gr.m / 70) * H], clamp);
             const hw = interpolate(f, [d + 5, d + 19], [0, (gr.w / 70) * H], clamp);
             const femaleUp = gr.w > gr.m, last = gr.g === "生涯";
@@ -116,7 +116,7 @@ const P1: React.FC = () => {
           })}
         </div>
       </Card>
-      <Band delay={250} top={1230} file="g1_woman_young" bg="#FBE7E2" border={RED} isize={150} size={40}>
+      <Band delay={185} top={1230} file="g1_woman_young" bg="#FBE7E2" border={RED} isize={150} size={40}>
         50歳までは女性が<span style={{ color: RED }}>約2.4倍</span><br /><span style={{ fontSize: 34 }}>70歳頃まで女性が多い＝<span style={{ color: RED }}>特に注意</span></span>
       </Band>
     </BG2>
@@ -129,7 +129,7 @@ const P2: React.FC = () => {
   const drawn = interpolate(f, [60, 120], [0, 1], clamp);
   return (
     <BG2>
-      <SfxTrack gain={SFX_GAIN} cues={[{ file: "up6", at: 2, volume: 0.42 }, { file: "user/u03s", at: 70, volume: 0.36 }, { file: "user/u04", at: 100, volume: 0.44 }, { file: "user/u10", at: 150, volume: 0.4 }]} />
+      <SfxTrack gain={SFX_GAIN} cues={[{ file: "up6", at: 2, volume: 0.42 }, { file: "user/u03s", at: 60, volume: 0.36 }, { file: "user/u04", at: 108, volume: 0.44 }, { file: "user/u10", at: 140, volume: 0.4 }]} />
       <Head size={50}>数年前より、がんは<br /><Mark2 delay={16}>“治りやすく”</Mark2>なった</Head>
       <Card delay={10} top={468} header="全がんの5年生存率（約20年で）">
         <div style={{ position: "relative", height: 360 }}>
@@ -148,7 +148,7 @@ const P2: React.FC = () => {
           <div style={{ flex: 1, background: "#FCEAF1", borderRadius: 16, padding: "12px 0", textAlign: "center", fontSize: 32, fontWeight: 900, color: PINK }}>女性 +8pt</div>
         </div>
       </Card>
-      <Band delay={150} top={1200} file="g2_recovered_smile" bg="#E4F6EC" border={GREEN} isize={180} size={46}>
+      <Band delay={140} top={1200} file="g2_recovered_smile" bg="#E4F6EC" border={GREEN} isize={180} size={46}>
         長く生きられる人が<br /><span style={{ color: GREEN }}>増えています</span>
       </Band>
     </BG2>
@@ -160,30 +160,33 @@ const P3: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <BG2>
-      <SfxTrack gain={SFX_GAIN} cues={[{ file: "user/u07", at: 2, volume: 0.42 }, { file: "user/u02s", at: 44, volume: 0.36 }, { file: "user/u02s", at: 64, volume: 0.36 }, { file: "user/u10", at: 100, volume: 0.4 }, { file: "user/u03", at: 258, volume: 0.4 }, { file: "up6", at: 290, volume: 0.42 }, { file: "user/u03", at: 528, volume: 0.4 }, { file: "user/u08", at: 590, volume: 0.42 }]} />
+      <SfxTrack gain={SFX_GAIN} cues={[{ file: "user/u07", at: 2, volume: 0.42 }, { file: "user/u02s", at: 104, volume: 0.36 }, { file: "user/u02s", at: 120, volume: 0.36 }, { file: "user/u10", at: 150, volume: 0.4 }, { file: "user/u03", at: 250, volume: 0.4 }, { file: "up6", at: 280, volume: 0.42 }, { file: "user/u03", at: 391, volume: 0.4 }, { file: "user/u08", at: 540, volume: 0.42 }]} />
       <Head size={52}>入院は短く、通院が主流に</Head>
-      <Phase a={0} b={255}>
+      {/* rel104–247：入院短く・通院しながら */}
+      <Phase a={0} b={247}>
         <div style={{ position: "absolute", left: 70, top: 460, width: 940, display: "flex", gap: 26 }}>
-          <PopIn delay={44} style={{ flex: 1 }}><Float delay={44} amp={4}><div style={{ fontFamily: FONT, background: "#fff", borderRadius: 28, boxShadow: "0 14px 30px rgba(80,60,20,0.12)", padding: "40px 0", textAlign: "center", borderTop: `10px solid ${BLUE}` }}><div style={{ fontSize: 46, fontWeight: 900 }}>入院</div><div style={{ fontSize: 54, fontWeight: 900, color: BLUE }}>短く ↓</div></div></Float></PopIn>
-          <PopIn delay={64} style={{ flex: 1 }}><Float delay={64} amp={4}><div style={{ fontFamily: FONT, background: "#fff", borderRadius: 28, boxShadow: "0 14px 30px rgba(80,60,20,0.12)", padding: "40px 0", textAlign: "center", borderTop: `10px solid ${GREEN}` }}><div style={{ fontSize: 46, fontWeight: 900 }}>通院</div><div style={{ fontSize: 54, fontWeight: 900, color: GREEN }}>主流に ↑</div></div></Float></PopIn>
+          <PopIn delay={104} style={{ flex: 1 }}><Float delay={104} amp={4}><div style={{ fontFamily: FONT, background: "#fff", borderRadius: 28, boxShadow: "0 14px 30px rgba(80,60,20,0.12)", padding: "40px 0", textAlign: "center", borderTop: `10px solid ${BLUE}` }}><div style={{ fontSize: 46, fontWeight: 900 }}>入院</div><div style={{ fontSize: 54, fontWeight: 900, color: BLUE }}>短く ↓</div></div></Float></PopIn>
+          <PopIn delay={120} style={{ flex: 1 }}><Float delay={120} amp={4}><div style={{ fontFamily: FONT, background: "#fff", borderRadius: 28, boxShadow: "0 14px 30px rgba(80,60,20,0.12)", padding: "40px 0", textAlign: "center", borderTop: `10px solid ${GREEN}` }}><div style={{ fontSize: 46, fontWeight: 900 }}>通院</div><div style={{ fontSize: 54, fontWeight: 900, color: GREEN }}>主流に ↑</div></div></Float></PopIn>
         </div>
-        <Band delay={100} top={820} file="g3_commute_hospital" bg="#E4F6EC" border={GREEN} isize={180} size={44}>いまは<span style={{ color: GREEN }}>通院しながら</span><br />治療する時代</Band>
+        <Band delay={150} top={820} file="g3_commute_hospital" bg="#E4F6EC" border={GREEN} isize={180} size={44}>いまは<span style={{ color: GREEN }}>通院しながら</span><br />治療する時代</Band>
       </Phase>
-      <Phase a={255} b={525}>
-        <Card delay={265} top={460} header="乳がんのホルモン療法の期間">
+      {/* rel247–391：ホルモン療法5〜10年 */}
+      <Phase a={247} b={391}>
+        <Card delay={255} top={460} header="乳がんのホルモン療法の期間">
           <div style={{ position: "relative", height: 170 }}>
             <div style={{ position: "absolute", left: 0, right: 0, top: 54, height: 52, borderRadius: 999, background: TRACK }} />
-            <div style={{ position: "absolute", left: 0, top: 54, height: 52, borderRadius: 999, background: ORANGE, width: interpolate(f, [290, 345], [0, 884], clamp) }} />
+            <div style={{ position: "absolute", left: 0, top: 54, height: 52, borderRadius: 999, background: ORANGE, width: interpolate(f, [278, 335], [0, 884], clamp) }} />
             <div style={{ position: "absolute", left: 8, top: 120, fontSize: 26, fontWeight: 800, color: SUB }}>0年</div>
-            <div style={{ position: "absolute", right: 8, top: 116, fontSize: 40, fontWeight: 900, color: ORANGE }}>6〜10年が最多</div>
+            <div style={{ position: "absolute", right: 8, top: 116, fontSize: 40, fontWeight: 900, color: ORANGE }}>5〜10年つづくことも</div>
           </div>
         </Card>
-        <Band delay={300} top={880} file="g3_pills_longterm" bg="#FFF6E2" border={ORANGE} isize={170} size={44} flip><span style={{ color: ORANGE }}>6〜10年</span>、薬を<br />飲み続けることも</Band>
+        <Band delay={300} top={880} file="g3_pills_longterm" bg="#FFF6E2" border={ORANGE} isize={170} size={44} flip><span style={{ color: ORANGE }}>5〜10年</span>、薬を<br />飲み続けることも</Band>
       </Phase>
-      <Phase a={525} b={737}>
-        <Band delay={540} top={470} file="g3_relapse_change" bg="#FBE7E2" border={RED} isize={260} size={48}>再発・転移は<br /><span style={{ color: RED }}>40.2%</span>に</Band>
-        <PopIn delay={590} style={{ position: "absolute", left: 70, top: 900, width: 940 }}>
-          <Float delay={590} amp={3}><div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "40px 24px", textAlign: "center" }}>
+      {/* rel391–737：再発→薬変更→数年 */}
+      <Phase a={391} b={737}>
+        <Band delay={398} top={470} file="g3_relapse_change" bg="#FBE7E2" border={RED} isize={260} size={48}>再発・転移すれば<br /><span style={{ color: RED }}>薬を変えて治療</span></Band>
+        <PopIn delay={540} style={{ position: "absolute", left: 70, top: 900, width: 940 }}>
+          <Float delay={540} amp={3}><div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "40px 24px", textAlign: "center" }}>
             <div style={{ fontSize: 46, fontWeight: 900, color: "#fff" }}>薬を変えながら</div>
             <div style={{ fontSize: 92, fontWeight: 900, color: MK }}>数年がかり</div>
             <div style={{ fontSize: 42, fontWeight: 900, color: "#fff" }}>になることも</div>
@@ -224,17 +227,17 @@ const P4: React.FC = () => (
 // ══ 図解5（54.0–64.2s）：公的保険の“対象外”の費用もある ══
 const P5: React.FC = () => (
   <BG2>
-    <SfxTrack gain={SFX_GAIN} cues={[{ file: "up6", at: 2, volume: 0.42 }, { file: "user/u03s", at: 110, volume: 0.36 }, { file: "user/u03s", at: 150, volume: 0.36 }, { file: "user/u08", at: 205, volume: 0.42 }]} />
+    <SfxTrack gain={SFX_GAIN} cues={[{ file: "up6", at: 2, volume: 0.42 }, { file: "user/u03s", at: 125, volume: 0.36 }, { file: "user/u03s", at: 165, volume: 0.36 }, { file: "user/u08", at: 235, volume: 0.42 }]} />
     <Head size={48}>公的保険の<Mark2 delay={16}>“対象外”</Mark2>の<br />費用もある</Head>
-    <Band delay={10} top={470} file="g5_free_drug" bg="#fff" border={TRACK} isize={170} size={42}>保険が効かない<br /><span style={{ color: ORANGE }}>自由診療</span>もある</Band>
+    <Band delay={14} top={470} file="g5_free_drug" bg="#fff" border={TRACK} isize={170} size={42}>公的保険で<br /><span style={{ color: ORANGE }}>全部はカバーされない</span></Band>
     <div style={{ position: "absolute", left: 80, right: 80, top: 720 }}>
-      {[{ t: "先進医療の技術料", d: 110 }, { t: "自由診療・未承認薬", d: 150 }, { t: "＝ぜんぶ対象外", d: 195, hi: true }].map((r, i) => (
+      {[{ t: "先進医療の技術料", d: 125 }, { t: "自由診療・未承認薬", d: 165 }, { t: "＝ぜんぶ対象外", d: 225, hi: true }].map((r, i) => (
         <PopIn key={i} delay={r.d} style={{ marginBottom: 18 }}>
           <Float delay={r.d} amp={3}><div style={{ fontFamily: FONT, background: r.hi ? INK : "#fff", border: `3px solid ${r.hi ? INK : ORANGE}`, borderRadius: 20, padding: "20px 0", fontSize: 42, fontWeight: 900, color: r.hi ? MK : INK, textAlign: "center", boxShadow: "0 10px 22px rgba(80,60,20,0.1)" }}>{r.t}</div></Float>
         </PopIn>
       ))}
     </div>
-    <Band delay={205} top={1210} bg="#FBE7E2" border={RED} size={42}>未承認薬は<span style={{ color: RED }}>86.3%</span>が<span style={{ color: RED }}>月100万円超</span></Band>
+    <Band delay={235} top={1210} bg="#FBE7E2" border={RED} size={42}>未承認薬は<span style={{ color: RED }}>86.3%</span>が<span style={{ color: RED }}>月100万円超</span></Band>
   </BG2>
 );
 
@@ -243,39 +246,45 @@ const P6: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <BG2>
-      <SfxTrack gain={SFX_GAIN} cues={[{ file: "user/u07", at: 2, volume: 0.42 }, { file: "user/u04", at: 55, volume: 0.44 }, { file: "user/u10", at: 120, volume: 0.4 }, { file: "user/u03", at: 225, volume: 0.4 }, { file: "user/u04", at: 245, volume: 0.44 }, { file: "up6", at: 520, volume: 0.42 }, { file: "finish", at: 560, volume: 0.5 }]} />
+      <SfxTrack gain={SFX_GAIN} cues={[{ file: "user/u07", at: 2, volume: 0.42 }, { file: "user/u04", at: 92, volume: 0.44 }, { file: "user/u10", at: 125, volume: 0.4 }, { file: "user/u03", at: 190, volume: 0.4 }, { file: "user/u04", at: 240, volume: 0.44 }, { file: "user/u03", at: 302, volume: 0.4 }, { file: "user/u10", at: 410, volume: 0.4 }, { file: "up6", at: 505, volume: 0.42 }, { file: "finish", at: 550, volume: 0.5 }]} />
       <Head size={46}>本当の怖さは、収入減が<br /><Mark2 delay={16}>“長く続く”</Mark2>こと</Head>
-      <Phase a={0} b={215}>
+      {/* rel90–183：収入減った約半数 */}
+      <Phase a={0} b={183}>
         <div style={{ position: "absolute", left: 70, top: 470, width: 460, display: "flex", justifyContent: "center" }}>
-          <PopIn delay={40}><Donut delay={55} pct={49.4} size={430} color={RED} big="約半数" small="が減収" /></PopIn>
+          <PopIn delay={88}><Donut delay={92} pct={49.4} size={430} color={RED} big="約半数" small="が減収" /></PopIn>
         </div>
-        <Ill file="g6_income_worry" size={320} delay={70} left={610} top={520} amp={9} />
-        <Band delay={120} top={1010} bg="#FBE7E2" border={RED} size={46}>がんのあと、本人の<span style={{ color: RED }}>49.4%が減収</span></Band>
+        <Ill file="g6_income_worry" size={320} delay={100} left={610} top={520} amp={9} />
+        <Band delay={125} top={1010} bg="#FBE7E2" border={RED} size={46}>がんのあと、本人の<span style={{ color: RED }}>約半数が減収</span></Band>
       </Phase>
-      <Phase a={215} b={435}>
+      {/* rel183–300：傷病手当2/3 */}
+      <Phase a={183} b={300}>
         <div style={{ position: "absolute", left: 70, top: 470, width: 460, display: "flex", justifyContent: "center" }}>
-          <PopIn delay={225}><Donut delay={245} pct={66.6} size={430} color={ORANGE} big="2/3" small="だけ" /></PopIn>
+          <PopIn delay={190}><Donut delay={205} pct={66.6} size={430} color={ORANGE} big="2/3" small="だけ" /></PopIn>
         </div>
-        <Ill file="g6_sick_allowance" size={320} delay={240} left={610} top={520} amp={8} />
-        <Band delay={300} top={1010} bg="#FFF6E2" border={ORANGE} size={46}>傷病手当金でも<span style={{ color: ORANGE }}>給料の約2/3</span></Band>
+        <Ill file="g6_sick_allowance" size={320} delay={200} left={610} top={520} amp={8} />
+        <Band delay={240} top={1010} bg="#FFF6E2" border={ORANGE} size={46}>傷病手当金でも<span style={{ color: ORANGE }}>給料の約2/3</span></Band>
       </Phase>
-      <Phase a={435} b={662}>
-        <Card delay={445} top={440} header="貯めたい時期に、逆に減っていく">
-          <div style={{ position: "relative", height: 380 }}>
-            <svg width="884" height="340" style={{ position: "absolute", inset: 0 }}>
-              <line x1="30" y1="300" x2="854" y2="300" stroke={TRACK} strokeWidth="3" />
-              <DrawLine d="M70 250 L820 70" delay={455} dur={58} color={GREEN} w={10} />
-              <DrawLine d="M70 80 L820 285" delay={478} dur={58} color={RED} w={12} />
+      {/* rel300–662：教育/老後の時期に貯金切り崩し→長く続く */}
+      <Phase a={300} b={662}>
+        <Card delay={305} top={398} header="貯めたい時期に、逆に減っていく">
+          <div style={{ position: "relative", height: 300 }}>
+            <svg width="884" height="268" style={{ position: "absolute", inset: 0 }}>
+              <line x1="30" y1="238" x2="854" y2="238" stroke={TRACK} strokeWidth="3" />
+              <DrawLine d="M70 200 L820 56" delay={315} dur={58} color={GREEN} w={10} />
+              <DrawLine d="M70 64 L820 226" delay={340} dur={58} color={RED} w={12} />
             </svg>
-            <PopIn delay={495} style={{ position: "absolute", left: 560, top: 48, fontSize: 32, fontWeight: 900, color: GREEN }}>貯めるべき↗</PopIn>
-            <PopIn delay={515} style={{ position: "absolute", left: 560, top: 270, fontSize: 32, fontWeight: 900, color: RED }}>現実の貯金↘</PopIn>
-            <div style={{ position: "absolute", left: 24, top: 318, fontSize: 26, fontWeight: 800, color: SUB }}>教育・老後にお金がかかる時期なのに…</div>
+            <PopIn delay={355} style={{ position: "absolute", left: 560, top: 36, fontSize: 30, fontWeight: 900, color: GREEN }}>貯めるべき↗</PopIn>
+            <PopIn delay={375} style={{ position: "absolute", left: 560, top: 212, fontSize: 30, fontWeight: 900, color: RED }}>現実の貯金↘</PopIn>
+            <div style={{ position: "absolute", left: 20, top: 256, fontSize: 25, fontWeight: 800, color: SUB }}>教育・老後にお金がかかる時期なのに…</div>
           </div>
         </Card>
-        <PopIn delay={530} style={{ position: "absolute", left: 70, top: 1010, width: 940 }}>
-          <Float delay={530} amp={3}><div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "32px 24px", textAlign: "center" }}>
+        <PopIn delay={410} style={{ position: "absolute", left: 70, top: 900, width: 940 }}>
+          <Float delay={410} amp={3}><div style={{ fontFamily: FONT, background: "#fff", border: `3px solid ${RED}`, borderRadius: 22, padding: "16px 20px", textAlign: "center", fontSize: 38, fontWeight: 900 }}>貯金を<span style={{ color: RED }}>切り崩しながら何年も</span></div></Float>
+        </PopIn>
+        <PopIn delay={548} style={{ position: "absolute", left: 70, top: 1060, width: 940 }}>
+          <Float delay={548} amp={3}><div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "30px 24px", textAlign: "center" }}>
             <div style={{ fontSize: 44, fontWeight: 900, color: "#fff" }}>治療費 ＋ 収入の減少が</div>
-            <div style={{ fontSize: 64, fontWeight: 900, color: MK, marginTop: 8 }}>“長く続く”のが怖い</div>
+            <div style={{ fontSize: 62, fontWeight: 900, color: MK, marginTop: 8 }}>“長く続く”のが怖い</div>
           </div></Float>
         </PopIn>
       </Phase>
