@@ -112,6 +112,7 @@ description: >-
 
 詳細リファレンス：
 - `references/edit-directives.md` … **★編集ディレクティブ集（ユーザー指示の一元ナレッジ・累積）。毎回最初に参照し、新指示はここに追記**
+- `references/sfx-library.md` … **★効果音ライブラリ（全効果音の一元カタログ）。効果音は必ずここから選ぶ。ユーザー常用10種(public/sfx/user)を最優先**
 - `references/connected-diagram.md` … **線でつなぐ連結図解の型（ユーザーが一番好き・毎回1枚入れる）**
 - `references/production-flow.md` … **制作フロー（台本→情報整理→設計図→画像→ビルド）**
 - `references/reel-qa-checklist.md` … **品質ルール＆出す前セルフチェック（絶対厳守）**
