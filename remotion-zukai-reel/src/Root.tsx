@@ -12,6 +12,7 @@ import { CarSyncReel, CAR_SYNC_FRAMES } from "./CarSyncReel";
 import { CarReelV2, CAR_V2_FRAMES } from "./CarReelV2";
 import { CarReelV3, CAR_V3_FRAMES } from "./CarReelV3";
 import { CarReelV4, CAR_V4_FRAMES } from "./CarReelV4";
+import { CarReelV5, CAR_V5_FRAMES } from "./CarReelV5";
 import { ToushiReel, TOUSHI_FRAMES } from "./ToushiReel";
 import { TalkReel, TALK_FRAMES } from "./TalkReel";
 import { GanReel, GAN_FRAMES } from "./GanReel";
@@ -123,6 +124,7 @@ export const RemotionRoot: React.FC = () => {
       />
 
       <Composition id="CarReelV4" component={CarReelV4} durationInFrames={CAR_V4_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="CarReelV5" component={CarReelV5} durationInFrames={CAR_V5_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* ── 投資の三大原則（図解9ページ・仮組み） ── */}
       <Composition id="ToushiReel" component={ToushiReel} durationInFrames={TOUSHI_FRAMES} fps={FPS} width={1080} height={1920} />
