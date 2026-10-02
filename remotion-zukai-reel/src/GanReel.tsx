@@ -52,13 +52,14 @@ const Card: React.FC<{ delay: number; top: number; left?: number; width?: number
   </PopIn>
 );
 // 下部まとめ帯（イラスト＋テキスト／テキストのみ）
+// ★E3：枠内で左右に寄せない。イラスト+文字をひとかたまりにして中央配置・文字も中央寄せ。
 const Band: React.FC<{ delay: number; top: number; file?: string; bg?: string; border?: string; children: React.ReactNode; size?: number; isize?: number; flip?: boolean; color?: string }>
-  = ({ delay, top, file, bg = MK, border, children, size = 44, isize = 150, flip, color = INK }) => (
+  = ({ delay, top, file, bg = MK, border, children, size = 44, isize = 150, color = INK }) => (
   <PopIn delay={delay} style={{ position: "absolute", left: 70, top, width: 940 }}>
     <Float delay={delay} amp={3}>
-      <div style={{ fontFamily: FONT, background: bg, border: border ? `3px solid ${border}` : "none", borderRadius: 26, padding: file ? "18px 26px" : "24px 26px", display: "flex", flexDirection: flip ? "row-reverse" : "row", alignItems: "center", gap: 20, justifyContent: file ? "flex-start" : "center" }}>
+      <div style={{ fontFamily: FONT, background: bg, border: border ? `3px solid ${border}` : "none", borderRadius: 26, padding: file ? "22px 26px" : "26px 26px", display: "flex", alignItems: "center", gap: 24, justifyContent: "center" }}>
         {file ? <Img src={staticFile(`gen/${file}.png`)} style={{ width: isize, height: isize, objectFit: "contain", flexShrink: 0 }} /> : null}
-        <div style={{ flex: file ? 1 : "none", fontSize: size, fontWeight: 900, color, lineHeight: 1.3, textAlign: file ? (flip ? "right" : "left") : "center" }}>{children}</div>
+        <div style={{ fontSize: size, fontWeight: 900, color, lineHeight: 1.3, textAlign: "center" }}>{children}</div>
       </div>
     </Float>
   </PopIn>
@@ -165,11 +166,11 @@ const P3: React.FC = () => {
       <Head size={52}>入院は短く、通院が主流に</Head>
       {/* rel104–247：入院短く・通院しながら */}
       <Phase a={0} b={247}>
-        <div style={{ position: "absolute", left: 70, top: 460, width: 940, display: "flex", gap: 26 }}>
-          <PopIn delay={104} style={{ flex: 1 }}><Float delay={104} amp={4}><div style={{ fontFamily: FONT, background: "#fff", borderRadius: 28, boxShadow: "0 14px 30px rgba(80,60,20,0.12)", padding: "40px 0", textAlign: "center", borderTop: `10px solid ${BLUE}` }}><div style={{ fontSize: 46, fontWeight: 900 }}>入院</div><div style={{ fontSize: 54, fontWeight: 900, color: BLUE }}>短く ↓</div></div></Float></PopIn>
-          <PopIn delay={120} style={{ flex: 1 }}><Float delay={120} amp={4}><div style={{ fontFamily: FONT, background: "#fff", borderRadius: 28, boxShadow: "0 14px 30px rgba(80,60,20,0.12)", padding: "40px 0", textAlign: "center", borderTop: `10px solid ${GREEN}` }}><div style={{ fontSize: 46, fontWeight: 900 }}>通院</div><div style={{ fontSize: 54, fontWeight: 900, color: GREEN }}>主流に ↑</div></div></Float></PopIn>
+        <div style={{ position: "absolute", left: 70, top: 470, width: 940, display: "flex", gap: 30 }}>
+          <PopIn delay={104} style={{ flex: 1 }}><Float delay={104} amp={4}><div style={{ fontFamily: FONT, background: "#fff", borderRadius: 30, boxShadow: "0 16px 34px rgba(80,60,20,0.13)", padding: "66px 0", textAlign: "center", borderTop: `12px solid ${BLUE}` }}><div style={{ fontSize: 52, fontWeight: 900 }}>入院</div><div style={{ fontSize: 68, fontWeight: 900, color: BLUE, marginTop: 6 }}>短く ↓</div></div></Float></PopIn>
+          <PopIn delay={120} style={{ flex: 1 }}><Float delay={120} amp={4}><div style={{ fontFamily: FONT, background: "#fff", borderRadius: 30, boxShadow: "0 16px 34px rgba(80,60,20,0.13)", padding: "66px 0", textAlign: "center", borderTop: `12px solid ${GREEN}` }}><div style={{ fontSize: 52, fontWeight: 900 }}>通院</div><div style={{ fontSize: 68, fontWeight: 900, color: GREEN, marginTop: 6 }}>主流に ↑</div></div></Float></PopIn>
         </div>
-        <Band delay={150} top={820} file="g3_commute_hospital" bg="#E4F6EC" border={GREEN} isize={180} size={44}>いまは<span style={{ color: GREEN }}>通院しながら</span><br />治療する時代</Band>
+        <Band delay={150} top={900} file="g3_commute_hospital" bg="#E4F6EC" border={GREEN} isize={240} size={50}>いまは<span style={{ color: GREEN }}>通院しながら</span><br />治療する時代</Band>
       </Phase>
       {/* rel247–391：ホルモン療法5〜10年 */}
       <Phase a={247} b={391}>
@@ -283,7 +284,7 @@ const P6: React.FC = () => {
           <PopIn delay={190}><Donut delay={205} pct={66.6} size={430} color={ORANGE} big="2/3" small="だけ" /></PopIn>
         </div>
         <Ill file="g6_sick_allowance" size={320} delay={200} left={610} top={520} amp={8} />
-        <Band delay={240} top={1010} bg="#FFF6E2" border={ORANGE} size={46}>傷病手当金でも<span style={{ color: ORANGE }}>給料の約2/3</span></Band>
+        <Band delay={240} top={1000} bg="#FFF6E2" border={ORANGE} size={44}>傷病手当金でも<span style={{ color: ORANGE }}>給料の約2/3</span><br /><span style={{ fontSize: 34, color: RED }}>しかも最長1年6か月まで</span></Band>
       </Phase>
       {/* rel300–662：教育/老後の時期に貯金切り崩し→長く続く */}
       <Phase a={300} b={662}>
