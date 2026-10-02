@@ -9,10 +9,11 @@ export const Sfx: React.FC<{ file: string; at: number; volume?: number }> = ({ f
   </Sequence>
 );
 
-export const SfxTrack: React.FC<{ cues: { file: string; at: number; volume?: number }[] }> = ({ cues }) => (
+// gain = 全効果音の音量を一括で上下させるつまみ（1=そのまま, 0.5=半分, 0=無音）
+export const SfxTrack: React.FC<{ cues: { file: string; at: number; volume?: number }[]; gain?: number }> = ({ cues, gain = 1 }) => (
   <>
     {cues.map((c, i) => (
-      <Sfx key={i} file={c.file} at={c.at} volume={c.volume} />
+      <Sfx key={i} file={c.file} at={c.at} volume={(c.volume ?? 0.22) * gain} />
     ))}
   </>
 );
