@@ -194,16 +194,25 @@ const P3: React.FC = () => {
           </Float>
         </PopIn>
       </Phase>
-      {/* rel391–737：再発→薬変更→数年→備え重要 */}
+      {/* rel391–737：再発→薬変更→数年→備え重要（枠にゆとり） */}
       <Phase a={391} b={737}>
-        <Band delay={398} top={436} file="g3_relapse_change" bg="#FBE7E2" border={RED} isize={190} size={46}>再発・転移すれば<br /><span style={{ color: RED }}>薬を変えて治療</span></Band>
-        <PopIn delay={500} style={{ position: "absolute", left: 70, top: 700, width: 940 }}>
-          <Float delay={500} amp={3}><div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "26px 24px", textAlign: "center" }}>
-            <div style={{ fontSize: 40, fontWeight: 900, color: "#fff" }}>薬を変えながら</div>
-            <div style={{ fontSize: 78, fontWeight: 900, color: MK }}>数年がかり</div>
+        <Band delay={398} top={410} file="g3_relapse_change" bg="#FBE7E2" border={RED} isize={180} size={44}>再発・転移すれば<br /><span style={{ color: RED }}>薬を変えて治療</span></Band>
+        <PopIn delay={500} style={{ position: "absolute", left: 70, top: 668, width: 940 }}>
+          <Float delay={500} amp={3}><div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "22px 24px", textAlign: "center" }}>
+            <div style={{ fontSize: 38, fontWeight: 900, color: "#fff" }}>薬を変えながら</div>
+            <div style={{ fontSize: 72, fontWeight: 900, color: MK }}>数年がかり</div>
           </div></Float>
         </PopIn>
-        <Band delay={605} top={940} file="ic_shield" bg="#E4F6EC" border={GREEN} isize={150} size={42}>長い通院・薬への<br /><span style={{ color: GREEN }}>備えが重要</span></Band>
+        <PopIn delay={605} style={{ position: "absolute", left: 70, top: 1000, width: 940 }}>
+          <Float delay={605} amp={3}>
+            <div style={{ fontFamily: FONT, background: "#E4F6EC", border: `3px solid ${GREEN}`, borderRadius: 28, padding: "24px 26px", display: "flex", alignItems: "center", justifyContent: "center", gap: 24 }}>
+              <Img src={staticFile("gen/ic_hospital.png")} style={{ width: 90, height: 90, objectFit: "contain", flexShrink: 0 }} />
+              <Img src={staticFile("gen/ic_pill_iv.png")} style={{ width: 90, height: 90, objectFit: "contain", flexShrink: 0 }} />
+              <div style={{ fontSize: 44, fontWeight: 900, color: INK, lineHeight: 1.3 }}>長い通院・薬への<br /><span style={{ color: GREEN }}>備えが重要</span></div>
+              <Img src={staticFile("gen/ic_shield.png")} style={{ width: 130, height: 130, objectFit: "contain", flexShrink: 0 }} />
+            </div>
+          </Float>
+        </PopIn>
       </Phase>
     </BG2>
   );
