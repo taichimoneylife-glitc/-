@@ -161,7 +161,7 @@ const P3: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <BG2>
-      <SfxTrack gain={SFX_GAIN} cues={[{ file: "user/u07", at: 2, volume: 0.42 }, { file: "user/u02s", at: 104, volume: 0.36 }, { file: "user/u02s", at: 120, volume: 0.36 }, { file: "user/u10", at: 150, volume: 0.4 }, { file: "user/u03", at: 250, volume: 0.4 }, { file: "up6", at: 280, volume: 0.42 }, { file: "user/u03", at: 391, volume: 0.4 }, { file: "user/u08", at: 540, volume: 0.42 }]} />
+      <SfxTrack gain={SFX_GAIN} cues={[{ file: "user/u07", at: 2, volume: 0.42 }, { file: "user/u02s", at: 104, volume: 0.36 }, { file: "user/u02s", at: 120, volume: 0.36 }, { file: "user/u10", at: 150, volume: 0.4 }, { file: "user/u03", at: 250, volume: 0.4 }, { file: "up6", at: 280, volume: 0.42 }, { file: "user/u03", at: 398, volume: 0.4 }, { file: "user/u08", at: 500, volume: 0.42 }, { file: "user/u10", at: 605, volume: 0.4 }]} />
       <Head size={52}>入院は短く、通院が主流に</Head>
       {/* rel104–247：入院短く・通院しながら */}
       <Phase a={0} b={247}>
@@ -181,18 +181,28 @@ const P3: React.FC = () => {
             <div style={{ position: "absolute", right: 8, top: 116, fontSize: 40, fontWeight: 900, color: ORANGE }}>5〜10年つづくことも</div>
           </div>
         </Card>
-        <Band delay={300} top={880} file="g3_pills_longterm" bg="#FFF6E2" border={ORANGE} isize={170} size={44} flip><span style={{ color: ORANGE }}>5〜10年</span>、薬を<br />飲み続けることも</Band>
+        <PopIn delay={300} style={{ position: "absolute", left: 70, top: 870, width: 940 }}>
+          <Float delay={300} amp={3}>
+            <div style={{ fontFamily: FONT, background: "#FFF6E2", border: `3px solid ${ORANGE}`, borderRadius: 26, padding: "22px 30px", display: "flex", alignItems: "center", gap: 20 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 96, fontWeight: 900, color: ORANGE, lineHeight: 1 }}>5〜10年</div>
+                <div style={{ fontSize: 40, fontWeight: 900, color: INK, marginTop: 10 }}>薬を飲み続けることも</div>
+              </div>
+              <Img src={staticFile("gen/g3_pills_longterm.png")} style={{ width: 200, height: 200, objectFit: "contain", flexShrink: 0 }} />
+            </div>
+          </Float>
+        </PopIn>
       </Phase>
-      {/* rel391–737：再発→薬変更→数年 */}
+      {/* rel391–737：再発→薬変更→数年→備え重要 */}
       <Phase a={391} b={737}>
-        <Band delay={398} top={470} file="g3_relapse_change" bg="#FBE7E2" border={RED} isize={260} size={48}>再発・転移すれば<br /><span style={{ color: RED }}>薬を変えて治療</span></Band>
-        <PopIn delay={540} style={{ position: "absolute", left: 70, top: 900, width: 940 }}>
-          <Float delay={540} amp={3}><div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "40px 24px", textAlign: "center" }}>
-            <div style={{ fontSize: 46, fontWeight: 900, color: "#fff" }}>薬を変えながら</div>
-            <div style={{ fontSize: 92, fontWeight: 900, color: MK }}>数年がかり</div>
-            <div style={{ fontSize: 42, fontWeight: 900, color: "#fff" }}>になることも</div>
+        <Band delay={398} top={436} file="g3_relapse_change" bg="#FBE7E2" border={RED} isize={190} size={46}>再発・転移すれば<br /><span style={{ color: RED }}>薬を変えて治療</span></Band>
+        <PopIn delay={500} style={{ position: "absolute", left: 70, top: 700, width: 940 }}>
+          <Float delay={500} amp={3}><div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "26px 24px", textAlign: "center" }}>
+            <div style={{ fontSize: 40, fontWeight: 900, color: "#fff" }}>薬を変えながら</div>
+            <div style={{ fontSize: 78, fontWeight: 900, color: MK }}>数年がかり</div>
           </div></Float>
         </PopIn>
+        <Band delay={605} top={940} file="ic_shield" bg="#E4F6EC" border={GREEN} isize={150} size={42}>長い通院・薬への<br /><span style={{ color: GREEN }}>備えが重要</span></Band>
       </Phase>
     </BG2>
   );
@@ -202,15 +212,25 @@ const P3: React.FC = () => {
 const P4: React.FC = () => (
   <BG2>
     <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "user/u05s", at: 40, volume: 0.36 }, { file: "user/u05s", at: 100, volume: 0.36 }, { file: "user/u04", at: 175, volume: 0.44 }]} />
-    <Head size={46}>高額療養費があっても、<br />じわじわかかる</Head>
-    <Card delay={14} top={470} header="高額療養費は“医療費”だけ" pad="24px 28px">
+    <Head size={42}>高額療養費制度があっても、<br />じわじわかかる</Head>
+    <Card delay={14} top={430} header="高額療養費制度は“医療費”だけ" pad="20px 26px">
       <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-        <Img src={staticFile("gen/ic_insurance_card.png")} style={{ width: 130, height: 130, objectFit: "contain", flexShrink: 0 }} />
-        <div style={{ fontSize: 38, fontWeight: 900, lineHeight: 1.35 }}>上限があるのは医療費だけ。<br /><span style={{ color: RED }}>差額ベッド・交通費は対象外</span></div>
+        <Img src={staticFile("gen/ic_insurance_card.png")} style={{ width: 118, height: 118, objectFit: "contain", flexShrink: 0 }} />
+        <div style={{ fontSize: 36, fontWeight: 900, lineHeight: 1.35 }}>上限があるのは医療費だけ。<br /><span style={{ color: RED }}>差額ベッド・交通費は対象外</span></div>
       </div>
     </Card>
-    <Band delay={100} top={720} file="g4_extra_costs_set" bg="#FFF6E2" border={ORANGE} isize={160} size={42} flip>差額ベッドは<span style={{ color: ORANGE }}>日6,714円</span><br />通院のたびに積み上がる</Band>
-    <PopIn delay={175} style={{ position: "absolute", left: 70, top: 980, width: 940 }}>
+    <PopIn delay={100} style={{ position: "absolute", left: 70, top: 690, width: 940 }}>
+      <Float delay={100} amp={3}>
+        <div style={{ fontFamily: FONT, background: "#FFF6E2", border: `3px solid ${ORANGE}`, borderRadius: 26, padding: "18px 26px", display: "flex", alignItems: "center", gap: 18 }}>
+          <Img src={staticFile("gen/g4_extra_costs_set.png")} style={{ width: 150, height: 150, objectFit: "contain", flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 36, fontWeight: 900, color: INK }}>差額ベッド代は<span style={{ color: ORANGE }}>1日 約6,700円</span><span style={{ fontSize: 26, color: SUB }}>（平均）</span></div>
+            <div style={{ fontSize: 32, fontWeight: 900, color: RED, marginTop: 6 }}>高いと1日1万円超のケースも</div>
+          </div>
+        </div>
+      </Float>
+    </PopIn>
+    <PopIn delay={175} style={{ position: "absolute", left: 70, top: 930, width: 940 }}>
       <Float delay={175} amp={4}>
         <div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "28px 24px", textAlign: "center", display: "flex", alignItems: "center", gap: 18, justifyContent: "center" }}>
           <Img src={staticFile("gen/g4_money_fly.png")} style={{ width: 160, height: 160, objectFit: "contain" }} />
@@ -283,7 +303,7 @@ const P6: React.FC = () => {
             </div>
           </div>
         </Card>
-        <Band delay={410} top={852} file="g6_savings_empty" bg="#fff" border={RED} isize={140} size={40} flip>貯金を<span style={{ color: RED }}>切り崩しながら</span><br />何年も続く</Band>
+        <Band delay={410} top={852} file="g6_savings_empty" bg="#fff" border={RED} isize={140} size={40}>貯金を<span style={{ color: RED }}>切り崩しながら</span><br />何年も続く</Band>
         <PopIn delay={548} style={{ position: "absolute", left: 70, top: 1060, width: 940 }}>
           <Float delay={548} amp={3}><div style={{ fontFamily: FONT, background: INK, borderRadius: 30, padding: "30px 24px", textAlign: "center" }}>
             <div style={{ fontSize: 44, fontWeight: 900, color: "#fff" }}>治療費 ＋ 収入の減少が</div>
