@@ -13,7 +13,7 @@ import { FONT } from "./components/font";
 // ══════════════════════════════════════════════════════════
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 export const GAN_FRAMES = 2589;
-export const SFX_GAIN = 0; // ★効果音の音量つまみ（0=無音）
+export const SFX_GAIN = 0.55; // ★効果音の音量つまみ（0=無音）
 const BLUE = "#4A90D9", PINK = "#EC7FA0", RED = "#E8553B", ORANGE = "#EF7D4E";
 const INK = A2.ink, GREEN = A2.green, SUB = A2.sub, TRACK = A2.track, MK = A2.marker;
 
