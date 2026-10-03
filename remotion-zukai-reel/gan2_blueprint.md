@@ -37,6 +37,16 @@
 - アニメ：各ブロックの小アイコンがパラパラ出る→最後に4つが中央へスライド集合。
 - イラスト（新規多め）：`c_cost_treat` `c_cost_commute`(電車) `c_cost_meal`(食事) `c_cost_bed`(差額ベッド) `c_cost_wig`(ウィッグ) `c_cost_family`(付添) `c_life_food` `c_life_loan`(家) `c_life_edu`(ランドセル) `c_life_old`(老夫婦) `c_income_down`(給料減)。
 
+## 図解3.5｜家計のバランスが崩れる（★ここでガツンと自分ごと化）
+- 喋り：ただでさえ住宅ローンや積立もあるのに、これが重なると家計のバランスは崩れる
+- 図で解説：**天秤／シーソー**。
+  - 左の皿（これまでの家計）：住宅ローン🏠・車のローン🚗・毎月の積立・教育費🎒…でギリギリ均衡
+  - 右に **がん（治療費＋収入の減少）** がドンと乗る → 天秤が**ガクッと傾いて崩れる**
+- 一撃（赤・特大）：「**対策しないと、家計は崩れる**」。
+- アニメ：バランスが取れている→右にがんブロックがドスン→傾く→左皿のコイン/家計アイコンがこぼれ落ちる。
+- ブリッジ：「だから、がん保険で“ここ”を補う」→次（守り方2本柱）へ。
+- イラスト：`c_balance_break`(傾く天秤/崩れる家計) ＋ ic_balance_scale / c_life_loan / `c_car_loan`(車ローン)。
+
 ## 図解4｜守り方は2本柱（★タイムラインで違いを見せる）
 - 喋り：診断一時金／月額給付＝「なった時」と「治り続けるまで」
 - 図：横タイムライン（診断→治療→療養）。
@@ -91,17 +101,21 @@
 - 一撃：赤特大「入院前提だと**通院に1円も出ない**ことも」。
 - イラスト：ic各種＋`c_checklist`。
 
-## 図解10｜締め・CTA
-- 喋り：保険は進化／昔のは合わないかも／女性は検討価値大／個別相談へ
-- 図：まとめ3点カード（①日々アップデートで保険料↓保障↑②昔のは要見直し③特に女性）＋**CTAカード**「各社を比較してご提案／プロフィールから個別相談」＋矢印でプロフへ。
-- イラスト：`c_consult`(相談) / ic_survival_up / ic_shield。
+## 図解10｜締め・CTA（★2つの相手に向けて）
+- 喋り：未加入→なったら家計が崩れる・ぜひ検討／加入済→保障が薄い・古いかも・見直しを／各社比較・個別相談へ
+- 図で解説：**2カード対比**で相手別メッセージ：
+  - **まだ入っていない人へ**：もしなったら**家計が一気に崩れる**→「ぜひ検討を」（ic_warning＋崩れる家計）
+  - **もう入っている人へ**：保障が薄い／数年前のままは**今の治療に合わない**かも→「一度、見直しを」（ic_insurance_card＋虫めがね）
+- 下にCTAカード：「各社を比較してご提案します／**プロフィールから個別相談**」＋矢印でプロフへ。
+- アニメ：2カードが左右からスッと→CTAがポン→矢印が上（プロフ）へ。
+- イラスト：`c_consult`(相談) / `c_balance_break` / ic_insurance_card / ic_shield。
 
 ---
 ## 🖼 必要イラスト一覧（新規・30〜40枚目標／車・投資と同じ画風指定で別途プロンプト化）
 g2_relax_insurance, g2_shock_face, t_surgery, t_radiation, t_drug,
 c_cost_treat, c_cost_commute, c_cost_meal, c_cost_bed, c_cost_wig, c_cost_family,
 c_life_food, c_life_loan, c_life_edu, c_life_old, c_income_down,
-c_lumpsum, c_monthly, c_combine, c_advanced, c_checklist, c_consult
+c_balance_break, c_car_loan, c_lumpsum, c_monthly, c_combine, c_advanced, c_checklist, c_consult
 ＋既存流用：ic_pill_iv, ic_hospital, ic_body_parts, ic_insurance_card, ic_wallet_coins,
 ic_balance_scale, ic_calendar_years, ic_warning, ic_schoolbag, ic_elderly_couple, ic_survival_up, ic_shield
 ※この一覧は確定後に `gan2_image_prompts.txt`（1ブロックコピペ）へ。
