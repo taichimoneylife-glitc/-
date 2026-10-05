@@ -63,28 +63,36 @@ const Label: React.FC<{ left: number; top: number; w: number; delay: number; tit
   </PopIn>
 );
 
-// ══ P1 三大治療（三角形）0–209 ══
+// ══ P1 三大治療（三角形・カード型／線は枠の手前で止める）0–209 ══
+const TriCard: React.FC<{ delay: number; cx: number; cy: number; w?: number; file: string; isize: number; title: string; sub: string }>
+  = ({ delay, cx, cy, w = 304, file, isize, title, sub }) => (
+  <PopIn delay={delay} style={{ position: "absolute", left: cx - w / 2, top: cy - (isize + 120) / 2, width: w }}>
+    <Float delay={delay} amp={4}>
+      <div style={{ fontFamily: FONT, background: "#fff", border: `3px solid ${TRACK}`, borderRadius: 24, padding: "14px 10px 16px", textAlign: "center", boxShadow: "0 12px 26px rgba(80,60,20,0.12)" }}>
+        <Img src={IMG(file)} style={{ width: isize, height: isize, objectFit: "contain" }} />
+        <div style={{ fontSize: 40, fontWeight: 900, color: INK, marginTop: 2 }}>{title}</div>
+        <div style={{ fontSize: 26, fontWeight: 800, color: SUB }}>{sub}</div>
+      </div>
+    </Float>
+  </PopIn>
+);
 const P1: React.FC = () => (
   <BG2>
     <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.42 }, { file: "user/u02s", at: 40, volume: 0.36 }, { file: "user/u02s", at: 70, volume: 0.36 }, { file: "user/u02s", at: 100, volume: 0.36 }, { file: "up6", at: 125, volume: 0.4 }, { file: "swipe", at: 170, volume: 0.32 }]} />
     <Head>がんになったら、受ける治療は3つ</Head>
+    {/* 中心ハブ→各カードの“手前”までの線（文字に被せない） */}
     <Svg>
-      <DrawLine d="M540 760 L540 560" delay={30} dur={10} color={GREEN} w={7} />
-      <DrawLine d="M540 760 L320 1010" delay={55} dur={12} color={GREEN} w={7} />
-      <DrawLine d="M540 760 L760 1010" delay={85} dur={12} color={GREEN} w={7} />
-      <DrawLine d="M540 560 L320 1010 L760 1010 Z" delay={120} dur={22} color={A2.track} w={5} />
+      <DrawLine d="M540 724 L540 632" delay={30} dur={10} color={GREEN} w={7} />
+      <DrawLine d="M470 796 L306 866" delay={55} dur={12} color={GREEN} w={7} />
+      <DrawLine d="M610 796 L774 866" delay={85} dur={12} color={GREEN} w={7} />
     </Svg>
-    {/* hub */}
-    <PopIn delay={18} style={{ position: "absolute", left: 360, top: 712, width: 360 }}>
+    <TriCard delay={38} cx={540} cy={492} isize={176} file="t_surgery" title="手術" sub="切って取り除く" />
+    <TriCard delay={68} cx={252} cy={1004} isize={152} file="t_radiation" title="放射線" sub="狙い撃ち" />
+    <TriCard delay={98} cx={828} cy={1004} isize={152} file="t_drug" title="薬物療法" sub="全身に効かせる" />
+    {/* hub（最前面） */}
+    <PopIn delay={18} style={{ position: "absolute", left: 360, top: 722, width: 360 }}>
       <Float delay={18} amp={3}><div style={{ fontFamily: FONT, background: GREEN, color: "#fff", fontSize: 38, fontWeight: 900, textAlign: "center", padding: "18px 10px", borderRadius: 999, boxShadow: "0 12px 26px rgba(46,158,107,0.3)" }}>がんの三大治療</div></Float>
     </PopIn>
-    {/* vertices */}
-    <Ill file="t_surgery" size={210} delay={38} left={435} top={360} />
-    <Label left={370} top={575} w={340} delay={44} title="手術" sub="切って取り除く" />
-    <Ill file="t_radiation" size={185} delay={68} left={120} top={820} />
-    <Label left={60} top={1010} w={320} delay={74} title="放射線" sub="狙い撃ち" />
-    <Ill file="t_drug" size={185} delay={98} left={700} top={820} />
-    <Label left={640} top={1010} w={340} delay={104} title="薬物療法" sub="全身に効かせる" />
     <Band delay={168} top={1300} file="g3_commute_hospital" isize={120} size={38}>今は“入院より通院”で<br />続けるのが主流</Band>
   </BG2>
 );
