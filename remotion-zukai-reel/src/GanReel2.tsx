@@ -264,20 +264,35 @@ const P7: React.FC = () => (
   </BG2>
 );
 
-// ══ P8 まとめ＝入院→通院へ 2077–2358 / dur 281 ══
+// ══ P8 まとめ＝入院→通院／チェックを1つずつ 2077–2358 / dur 281 ══
+const CheckCard: React.FC<{ delay: number; top: number; files: string[]; q: React.ReactNode }> = ({ delay, top, files, q }) => (
+  <PopIn delay={delay} style={{ position: "absolute", left: 60, top, width: 960 }}>
+    <Float delay={delay} amp={3}>
+      <div style={{ display: "flex", alignItems: "center", gap: 18, background: "#fff", border: `3px solid ${GREEN}`, borderRadius: 22, padding: "14px 24px", boxShadow: "0 8px 18px rgba(80,60,20,0.08)", fontFamily: FONT }}>
+        <div style={{ width: 150, display: "flex", gap: 4, justifyContent: "center", flexShrink: 0 }}>
+          {files.map((f, i) => <Img key={i} src={IMG(f)} style={{ width: files.length > 1 ? 72 : 100, height: files.length > 1 ? 72 : 100, objectFit: "contain" }} />)}
+        </div>
+        <div style={{ flex: 1, fontSize: 38, fontWeight: 900, color: INK, lineHeight: 1.25 }}>{q}</div>
+        <div style={{ flexShrink: 0 }}><Mark delay={delay + 10} type="check" size={48} /></div>
+      </div>
+    </Float>
+  </PopIn>
+);
 const P8: React.FC = () => (
   <BG2>
-    <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "swipe", at: 40, volume: 0.34 }, { file: "user/u02s", at: 120, volume: 0.36 }, { file: "user/u02s", at: 150, volume: 0.36 }, { file: "user/u02s", at: 180, volume: 0.36 }]} />
-    <Head>がん治療は「入院中心」から「通院」へ</Head>
-    <PopIn delay={16} style={{ position: "absolute", left: 60, top: 430, width: 300 }}>
-      <Float delay={16} amp={3}><div style={{ fontFamily: FONT, background: "#fff", border: `3px solid ${TRACK}`, borderRadius: 24, padding: "26px 10px", textAlign: "center", fontSize: 40, fontWeight: 900, color: SUB }}>昔<br />入院中心</div></Float>
+    <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "swipe", at: 40, volume: 0.34 }, { file: "user/u02s", at: 92, volume: 0.38 }, { file: "user/u02s", at: 160, volume: 0.38 }, { file: "user/u02s", at: 230, volume: 0.38 }]} />
+    <Head>入院中心から、“通院”の時代へ</Head>
+    {/* 入院→通院 コンパクト帯 */}
+    <PopIn delay={14} style={{ position: "absolute", left: 70, top: 370, width: 300 }}>
+      <Float delay={14} amp={3}><div style={{ fontFamily: FONT, background: "#fff", border: `3px solid ${TRACK}`, borderRadius: 20, padding: "20px 8px", textAlign: "center", fontSize: 34, fontWeight: 900, color: SUB }}>昔は<br />入院中心</div></Float>
     </PopIn>
-    <Svg><DrawLine d="M380 530 L700 530" delay={40} dur={12} color={GREEN} w={9} /><DrawLine d="M672 512 L704 530 L672 548" delay={52} dur={8} color={GREEN} w={9} /></Svg>
-    <Ill file="g3_commute_hospital" size={280} delay={60} left={700} top={400} />
-    <PopIn delay={70} style={{ position: "absolute", left: 700, top: 690, width: 300, textAlign: "center" }}><div style={{ fontFamily: FONT, fontSize: 40, fontWeight: 900, color: GREEN }}>今<br />通院で長期</div></PopIn>
-    <PopIn delay={108} style={{ position: "absolute", left: 60, top: 840, width: 960, textAlign: "center" }}><div style={{ fontFamily: FONT, fontSize: 36, fontWeight: 900, color: INK }}>だから、見るのは“金額”だけじゃない</div></PopIn>
-    <Band delay={150} top={940} bg="#fff" border={TRACK} size={36}>繰り返し出る？／抗がん剤・ホルモンまで対象？<br />通院に対応してる？</Band>
-    <Band delay={200} top={1240} bg={MK} size={44}>大事なのは“今の治療に合ってるか”</Band>
+    <Svg><DrawLine d="M390 455 L560 455" delay={40} dur={10} color={GREEN} w={9} /><DrawLine d="M534 438 L562 455 L534 472" delay={50} dur={7} color={GREEN} w={9} /></Svg>
+    <Ill file="g3_commute_hospital" size={210} delay={55} left={590} top={352} />
+    <PopIn delay={64} style={{ position: "absolute", left: 800, top: 420, width: 220, textAlign: "center" }}><div style={{ fontFamily: FONT, fontSize: 36, fontWeight: 900, color: GREEN }}>今は<br />通院で長期</div></PopIn>
+    <PopIn delay={82} style={{ position: "absolute", left: 60, top: 600, width: 960, textAlign: "center" }}><div style={{ fontFamily: FONT, fontSize: 36, fontWeight: 900, color: INK }}>だから、見るのは“金額”だけじゃない</div></PopIn>
+    <CheckCard delay={92} top={690} files={["c_lumpsum_gift"]} q={<>診断一時金は“<b style={{ color: GREEN }}>繰り返し</b>”出る？</>} />
+    <CheckCard delay={160} top={852} files={["t_anticancer", "t_hormone"]} q={<>抗がん剤・ホルモン療法まで対象？</>} />
+    <CheckCard delay={230} top={1014} files={["ic_outpatient"]} q={<>“通院”治療に対応してる？</>} />
   </BG2>
 );
 
