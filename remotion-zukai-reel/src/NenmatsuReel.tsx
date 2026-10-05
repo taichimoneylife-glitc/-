@@ -1,7 +1,6 @@
 import React from "react";
 import {
   AbsoluteFill,
-  Sequence,
   useCurrentFrame,
   useVideoConfig,
   spring,
@@ -10,37 +9,36 @@ import {
 import { FONT } from "./components/font";
 
 // ───────────────────────────────────────────────────────────────
-// 年末調整リール「完全再現」= 参考スタイルのテンプレ（音声なし・練習）
-//   ・白背景 ＋ 積み上げ連結図解（カメラが下へパンしながら要素が増える）
-//   ・下部に大きい青テロップ（読み上げ想定で順番に切替）
-//   ・アクセントはオレンジ（年末調整・還付）／対象外はグレー
-//   ・アイコンは全部コード内SVG（画像生成なし）
-//   ・前後の実写トークはプレースホルダーのカードで代用
+// 年末調整リール「完全再現」= 1画面で完結する積み上げ連結図解
+//   ・白背景。スクロール/場面転換なし。全ノードが同じ1枚に収まる
+//   ・喋り(想定)に合わせて要素が1個ずつ足されていき、消えずに残る
+//   ・最後に全体図が1画面に完成する
+//   ・アクセントはオレンジ(年末調整・還付)、対象外はグレー(自営業)
+//   ・下部に大きい青テロップ(読み上げ想定で順次切替)
+//   ・アイコンは全部コード内SVG。音声なし(練習・今後のテンプレ用)
 // ───────────────────────────────────────────────────────────────
 
 const C = {
   bg: "#FFFFFF",
-  ink: "#223049", // ダークネイビー（線・文字・アイコン）
+  ink: "#223049",
   sub: "#6B7686",
-  orange: "#F0872A", // 年末調整・還付
+  orange: "#F0872A",
   orangeBg: "#FDEBD8",
-  gray: "#9AA6B2", // 対象外（自営業）
+  gray: "#AAB4C0",
   grayBg: "#EEF1F4",
   line: "#C9D2DD",
-  blue: "#1F6FEB", // 下部大テロップ
-  navy: "#1A2640", // トークカード背景
+  blue: "#1F6FEB",
 };
 
 const FPS_LOCAL = 30;
 
-// 全体フレーム：冒頭トーク(150) + 図解(1080) + 締め(120) = 1350 = 45s
-export const NEN_FRAMES = 1350;
-const TALK_IN = 150;
-const DIAGRAM = 1080;
-const TALK_OUT = 120;
+// 全体 35秒。要素は ~720fまでに全部出て、以降は完成図を保持
+export const NEN_FRAMES = 1050;
 
-// ── 小物 ───────────────────────────────────────────────
-const useS = (delay: number, dur = 22, cfg: Parameters<typeof spring>[0]["config"] = { damping: 13, stiffness: 130, mass: 0.9 }) => {
+const CX = 540;
+
+// ── 共通アニメ ───────────────────────────────────────
+const useS = (delay: number, dur = 20, cfg: Parameters<typeof spring>[0]["config"] = { damping: 14, stiffness: 140, mass: 0.8 }) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   return spring({ frame: f - delay, fps, config: cfg, durationInFrames: dur });
@@ -48,291 +46,175 @@ const useS = (delay: number, dur = 22, cfg: Parameters<typeof spring>[0]["config
 
 const Pop: React.FC<{ delay: number; style?: React.CSSProperties; children: React.ReactNode }> = ({ delay, style, children }) => {
   const s = useS(delay);
-  return <div style={{ opacity: Math.min(1, s * 1.8), transform: `scale(${s})`, transformOrigin: "center", ...style }}>{children}</div>;
+  return <div style={{ opacity: Math.min(1, s * 1.9), transform: `scale(${s})`, transformOrigin: "center", ...style }}>{children}</div>;
 };
 
-// つなぎ線（上のノード下端→下のノード上端）。board座標。
+// つなぎ線（上ノード下端→下ノード上端）。board座標・固定。
 const Link: React.FC<{ x1: number; y1: number; x2: number; y2: number; delay: number; color?: string; dash?: boolean }> = ({ x1, y1, x2, y2, delay, color = C.line, dash }) => {
   const f = useCurrentFrame();
-  const p = interpolate(f, [delay, delay + 12], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const p = interpolate(f, [delay, delay + 10], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const midY = (y1 + y2) / 2;
   const d = `M${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
   return (
-    <path
-      d={d}
-      fill="none"
-      stroke={color}
-      strokeWidth={6}
-      strokeLinecap="round"
-      pathLength={1}
-      strokeDasharray={dash ? "10 12" : 1}
-      strokeDashoffset={dash ? 0 : 1 - p}
-      opacity={dash ? p : p > 0.001 ? 1 : 0}
-    />
+    <path d={d} fill="none" stroke={color} strokeWidth={5} strokeLinecap="round"
+      pathLength={1} strokeDasharray={dash ? "8 10" : 1} strokeDashoffset={dash ? 0 : 1 - p}
+      opacity={dash ? p : p > 0.001 ? 1 : 0} />
   );
 };
 
-// ── アイコン（コード内SVG・ネイビー） ─────────────────
-type IcoProps = { s?: number; color?: string };
-const IPerson: React.FC<IcoProps> = ({ s = 56, color = C.ink }) => (
-  <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-    <circle cx="24" cy="15" r="9" fill={color} />
-    <path d="M8 42c0-9 7-15 16-15s16 6 16 15" fill={color} />
-  </svg>
+// ── アイコン（コード内SVG） ─────────────────────────
+type I = { s?: number; color?: string };
+const IPerson: React.FC<I> = ({ s = 40, color = C.ink }) => (
+  <svg width={s} height={s} viewBox="0 0 48 48"><circle cx="24" cy="15" r="9" fill={color} /><path d="M8 42c0-9 7-15 16-15s16 6 16 15" fill={color} /></svg>
 );
-const ICalc: React.FC<IcoProps> = ({ s = 56, color = C.ink }) => (
-  <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-    <rect x="9" y="5" width="30" height="38" rx="5" fill={color} />
-    <rect x="14" y="10" width="20" height="8" rx="2" fill="#fff" />
-    <circle cx="16" cy="25" r="2.6" fill="#fff" /><circle cx="24" cy="25" r="2.6" fill="#fff" /><circle cx="32" cy="25" r="2.6" fill="#fff" />
-    <circle cx="16" cy="33" r="2.6" fill="#fff" /><circle cx="24" cy="33" r="2.6" fill="#fff" /><circle cx="32" cy="33" r="2.6" fill="#fff" />
-  </svg>
+const IFamily: React.FC<I> = ({ s = 44, color = C.ink }) => (
+  <svg width={s} height={s * 0.86} viewBox="0 0 56 48"><circle cx="18" cy="14" r="7" fill={color} /><path d="M6 40c0-7 5-12 12-12s12 5 12 12" fill={color} /><circle cx="40" cy="17" r="5.5" fill={color} /><path d="M30 40c0-6 4-10 10-10s10 4 10 10" fill={color} /></svg>
 );
-const IEnvelope: React.FC<IcoProps> = ({ s = 56, color = C.ink }) => (
-  <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-    <rect x="5" y="11" width="38" height="26" rx="4" fill={color} />
-    <path d="M7 14l17 12 17-12" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
+const ICalc: React.FC<I> = ({ s = 40, color = C.ink }) => (
+  <svg width={s} height={s} viewBox="0 0 48 48"><rect x="9" y="5" width="30" height="38" rx="5" fill={color} /><rect x="14" y="10" width="20" height="7" rx="2" fill="#fff" /><circle cx="16" cy="25" r="2.4" fill="#fff" /><circle cx="24" cy="25" r="2.4" fill="#fff" /><circle cx="32" cy="25" r="2.4" fill="#fff" /><circle cx="16" cy="33" r="2.4" fill="#fff" /><circle cx="24" cy="33" r="2.4" fill="#fff" /><circle cx="32" cy="33" r="2.4" fill="#fff" /></svg>
 );
-const ICoin: React.FC<IcoProps> = ({ s = 56, color = C.orange }) => (
-  <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-    <circle cx="24" cy="24" r="18" fill={color} />
-    <text x="24" y="31" textAnchor="middle" fontSize="20" fontWeight="800" fill="#fff" fontFamily={FONT}>¥</text>
-  </svg>
+const IEnvelope: React.FC<I> = ({ s = 40, color = C.ink }) => (
+  <svg width={s} height={s} viewBox="0 0 48 48"><rect x="5" y="11" width="38" height="26" rx="4" fill={color} /><path d="M7 14l17 12 17-12" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
 );
-const ICalendar: React.FC<IcoProps> = ({ s = 56, color = C.ink }) => (
-  <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-    <rect x="7" y="9" width="34" height="32" rx="5" fill={color} />
-    <rect x="7" y="9" width="34" height="10" rx="5" fill={C.orange} />
-    <rect x="14" y="5" width="4" height="8" rx="2" fill={color} /><rect x="30" y="5" width="4" height="8" rx="2" fill={color} />
-    <rect x="13" y="24" width="6" height="5" rx="1.5" fill="#fff" /><rect x="22" y="24" width="6" height="5" rx="1.5" fill="#fff" /><rect x="31" y="24" width="4" height="5" rx="1.5" fill="#fff" />
-    <rect x="13" y="32" width="6" height="5" rx="1.5" fill="#fff" /><rect x="22" y="32" width="6" height="5" rx="1.5" fill="#fff" />
-  </svg>
+const ICoin: React.FC<I> = ({ s = 40, color = C.orange }) => (
+  <svg width={s} height={s} viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill={color} /><text x="24" y="31" textAnchor="middle" fontSize="20" fontWeight="800" fill="#fff" fontFamily={FONT}>¥</text></svg>
 );
-const IHouse: React.FC<IcoProps> = ({ s = 56, color = C.ink }) => (
-  <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-    <path d="M24 7L7 21v20h34V21z" fill={color} />
-    <rect x="20" y="29" width="8" height="12" fill="#fff" />
-  </svg>
+const ICalendar: React.FC<I> = ({ s = 40, color = C.ink }) => (
+  <svg width={s} height={s} viewBox="0 0 48 48"><rect x="7" y="9" width="34" height="32" rx="5" fill={color} /><rect x="7" y="9" width="34" height="9" rx="5" fill={C.orange} /><rect x="14" y="5" width="4" height="8" rx="2" fill={color} /><rect x="30" y="5" width="4" height="8" rx="2" fill={color} /><rect x="13" y="24" width="6" height="5" rx="1.5" fill="#fff" /><rect x="22" y="24" width="6" height="5" rx="1.5" fill="#fff" /><rect x="31" y="24" width="4" height="5" rx="1.5" fill="#fff" /><rect x="13" y="32" width="6" height="5" rx="1.5" fill="#fff" /><rect x="22" y="32" width="6" height="5" rx="1.5" fill="#fff" /></svg>
 );
-const IShield: React.FC<IcoProps> = ({ s = 56, color = C.ink }) => (
-  <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-    <path d="M24 5l15 6v12c0 11-7 17-15 20-8-3-15-9-15-20V11z" fill={color} />
-    <path d="M17 24l5 5 10-11" stroke="#fff" strokeWidth="3.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
+const IHouse: React.FC<I> = ({ s = 40, color = C.ink }) => (
+  <svg width={s} height={s} viewBox="0 0 48 48"><path d="M24 7L7 21v20h34V21z" fill={color} /><rect x="20" y="29" width="8" height="12" fill="#fff" /></svg>
 );
-const IPiggy: React.FC<IcoProps> = ({ s = 56, color = C.ink }) => (
-  <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-    <ellipse cx="23" cy="26" rx="17" ry="13" fill={color} />
-    <circle cx="16" cy="24" r="2.4" fill="#fff" />
-    <rect x="20" y="11" width="10" height="4" rx="2" fill={color} />
-    <rect x="12" y="37" width="4" height="6" fill={color} /><rect x="30" y="37" width="4" height="6" fill={color} />
-    <path d="M40 22c4 0 4 7 0 7" fill={color} />
-  </svg>
+const IShield: React.FC<I> = ({ s = 40, color = C.ink }) => (
+  <svg width={s} height={s} viewBox="0 0 48 48"><path d="M24 5l15 6v12c0 11-7 17-15 20-8-3-15-9-15-20V11z" fill={color} /><path d="M17 24l5 5 10-11" stroke="#fff" strokeWidth="3.5" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
 );
-const IFamily: React.FC<IcoProps> = ({ s = 56, color = C.ink }) => (
-  <svg width={s} height={s} viewBox="0 0 56 48" fill="none">
-    <circle cx="18" cy="14" r="7" fill={color} /><path d="M6 40c0-7 5-12 12-12s12 5 12 12" fill={color} />
-    <circle cx="40" cy="17" r="5.5" fill={color} /><path d="M30 40c0-6 4-10 10-10s10 4 10 10" fill={color} />
-  </svg>
+const IPiggy: React.FC<I> = ({ s = 40, color = C.ink }) => (
+  <svg width={s} height={s} viewBox="0 0 48 48"><ellipse cx="23" cy="26" rx="17" ry="13" fill={color} /><circle cx="16" cy="24" r="2.2" fill="#fff" /><rect x="20" y="11" width="10" height="4" rx="2" fill={color} /><rect x="12" y="37" width="4" height="6" fill={color} /><rect x="30" y="37" width="4" height="6" fill={color} /><path d="M40 22c4 0 4 7 0 7" fill={color} /></svg>
 );
 
-// ── ノード（ラベル付きのカード） ─────────────────────
+// ── 連結ノード（コンパクト・1行完結） ─────────────────
 const Node: React.FC<{
-  x: number; y: number; delay: number; w?: number;
-  icon?: React.ReactNode; title: string; tag?: string; tagColor?: string; tagBg?: string;
-  dim?: boolean; big?: boolean;
-}> = ({ x, y, delay, w = 560, icon, title, tag, tagColor, tagBg, dim, big }) => {
-  const border = dim ? C.gray : C.ink;
+  x: number; y: number; w: number; delay: number;
+  icon?: React.ReactNode; title: string; tag?: string; tagBg?: string;
+  dim?: boolean; hero?: boolean; stack?: boolean; h?: number;
+}> = ({ x, y, w, delay, icon, title, tag, tagBg, dim, hero, stack, h = 104 }) => {
+  const border = dim ? C.gray : hero ? C.orange : C.ink;
   const txt = dim ? C.gray : C.ink;
+  const tagEl = tag && <div style={{ flexShrink: 0, padding: "5px 15px", borderRadius: 999, fontSize: 26, fontWeight: 800, color: "#fff", background: tagBg ?? C.orange }}>{tag}</div>;
   return (
-    <Pop delay={delay} style={{ position: "absolute", left: x - w / 2, top: y - (big ? 86 : 64), width: w }}>
+    <Pop delay={delay} style={{ position: "absolute", left: x - w / 2, top: y - h / 2, width: w, height: h }}>
       <div style={{
-        display: "flex", alignItems: "center", justifyContent: "center", gap: 20,
-        background: "#fff", border: `5px solid ${border}`, borderRadius: 22,
-        padding: big ? "30px 30px" : "22px 26px",
-        boxShadow: "0 8px 22px rgba(34,48,73,0.10)",
+        width: "100%", height: "100%", boxSizing: "border-box",
+        display: "flex", flexDirection: stack ? "column" : "row", alignItems: "center", justifyContent: "center", gap: stack ? 8 : 14,
+        background: hero ? C.orangeBg : "#fff", border: `${hero ? 5 : 4}px solid ${border}`, borderRadius: 18,
+        padding: "0 18px", boxShadow: "0 6px 16px rgba(34,48,73,0.09)",
       }}>
-        {icon && <div style={{ flexShrink: 0, opacity: dim ? 0.6 : 1 }}>{icon}</div>}
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: big ? 56 : 44, fontWeight: 800, color: txt, lineHeight: 1.18, whiteSpace: "pre-line" }}>{title}</div>
-          {tag && (
-            <div style={{ display: "inline-block", marginTop: 12, padding: "6px 20px", borderRadius: 999, fontSize: 32, fontWeight: 800, color: tagColor ?? "#fff", background: tagBg ?? C.orange }}>{tag}</div>
-          )}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {icon && <div style={{ flexShrink: 0, opacity: dim ? 0.65 : 1, display: "flex" }}>{icon}</div>}
+          <div style={{ fontSize: hero ? 42 : 37, fontWeight: 800, color: txt, lineHeight: 1.12, textAlign: "center", whiteSpace: "nowrap" }}>{title}</div>
+          {!stack && tagEl}
         </div>
+        {stack && tagEl}
       </div>
     </Pop>
   );
 };
 
-// ── チェック項目チップ（家族/保険/iDeCo/住宅ローン） ──
-const Chip: React.FC<{ x: number; y: number; delay: number; icon: React.ReactNode; label: string }> = ({ x, y, delay, icon, label }) => (
-  <Pop delay={delay} style={{ position: "absolute", left: x - 125, top: y - 70, width: 250 }}>
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, background: C.orangeBg, border: `4px solid ${C.orange}`, borderRadius: 18, padding: "16px 10px" }}>
+// チェック項目チップ（家族/保険/iDeCo/住宅ローン）
+const Chip: React.FC<{ x: number; y: number; w: number; delay: number; icon: React.ReactNode; label: string }> = ({ x, y, w, delay, icon, label }) => (
+  <Pop delay={delay} style={{ position: "absolute", left: x - w / 2, top: y - 52, width: w, height: 104 }}>
+    <div style={{ width: "100%", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, background: C.orangeBg, border: `3px solid ${C.orange}`, borderRadius: 14 }}>
       {icon}
-      <div style={{ fontSize: 30, fontWeight: 800, color: C.ink }}>{label}</div>
+      <div style={{ fontSize: 26, fontWeight: 800, color: C.ink }}>{label}</div>
     </div>
   </Pop>
 );
 
-// ── 下部の大きい青テロップ（順番に切替） ───────────────
+// ── 下部の大きい青テロップ ───────────────────────────
 type Tel = { at: number; text: string };
-const BottomTelop: React.FC<{ cues: Tel[]; base: number }> = ({ cues, base }) => {
-  const f = useCurrentFrame() - base;
+const BottomTelop: React.FC<{ cues: Tel[] }> = ({ cues }) => {
+  const f = useCurrentFrame();
   let cur = cues[0];
   for (const c of cues) if (f >= c.at) cur = c;
-  const local = f - cur.at;
-  const s = spring({ frame: local, fps: FPS_LOCAL, config: { damping: 18 }, durationInFrames: 16 });
-  const op = Math.min(1, s * 1.6);
-  const y = (1 - s) * 26;
+  const s = spring({ frame: f - cur.at, fps: FPS_LOCAL, config: { damping: 18 }, durationInFrames: 14 });
   return (
-    <div style={{ position: "absolute", left: 60, right: 60, bottom: 150, display: "flex", justifyContent: "center" }}>
-      <div style={{ opacity: op, transform: `translateY(${y}px)`, background: C.blue, color: "#fff", borderRadius: 20, padding: "22px 34px", maxWidth: 940, textAlign: "center", boxShadow: "0 10px 30px rgba(31,111,235,0.30)" }}>
-        <span style={{ fontSize: 56, fontWeight: 800, lineHeight: 1.26, whiteSpace: "pre-line" }}>{cur.text}</span>
+    <div style={{ position: "absolute", left: 50, right: 50, bottom: 70, display: "flex", justifyContent: "center" }}>
+      <div style={{ opacity: Math.min(1, s * 1.6), transform: `translateY(${(1 - s) * 22}px)`, background: C.blue, color: "#fff", borderRadius: 18, padding: "20px 30px", maxWidth: 960, textAlign: "center", boxShadow: "0 10px 26px rgba(31,111,235,0.28)" }}>
+        <span style={{ fontSize: 50, fontWeight: 800, lineHeight: 1.22, whiteSpace: "pre-line" }}>{cur.text}</span>
       </div>
     </div>
   );
 };
 
-// ── 実写トーク代用カード（顔アイコンで隠す） ─────────────
-const TalkCard: React.FC<{ cues: Tel[]; base: number; dur: number }> = ({ cues, base, dur }) => {
-  const f = useCurrentFrame() - base;
-  const fade = Math.min(
-    interpolate(f, [0, 10], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-    interpolate(f, [dur - 10, dur], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
-  );
-  let cur = cues[0];
-  for (const c of cues) if (f >= c.at) cur = c;
-  const local = f - cur.at;
-  const s = spring({ frame: local, fps: FPS_LOCAL, config: { damping: 18 }, durationInFrames: 14 });
-  return (
-    <AbsoluteFill style={{ background: C.navy, opacity: fade, alignItems: "center", justifyContent: "center" }}>
-      {/* 実写の代わり：顔を隠す丸＋「撮影」プレースホルダ */}
-      <div style={{ position: "absolute", top: 430, width: 320, height: 320, borderRadius: "50%", background: "#2A3A5C", border: "6px solid #3C5080", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <IPerson s={150} color="#5A6E96" />
-      </div>
-      <div style={{ position: "absolute", top: 770, fontSize: 30, color: "#7E8EB2", fontWeight: 700 }}>（実写トーク）</div>
-      <div style={{ position: "absolute", bottom: 360, left: 60, right: 60, display: "flex", justifyContent: "center" }}>
-        <div style={{ opacity: Math.min(1, s * 1.6), transform: `translateY(${(1 - s) * 24}px)`, textAlign: "center" }}>
-          <span style={{ fontSize: 64, fontWeight: 800, color: "#fff", lineHeight: 1.3, borderBottom: `8px solid ${C.orange}`, paddingBottom: 6, whiteSpace: "pre-line" }}>{cur.text}</span>
-        </div>
-      </div>
-    </AbsoluteFill>
-  );
-};
-
-// ── 図解パート：積み上げ連結＋カメラパン ──────────────
-const Diagram: React.FC = () => {
-  const f = useCurrentFrame();
-
-  // ノードのboard座標（縦に積む）とリール上の登場フレーム
-  const CX = 540;
-  const nodes = {
-    hub: { x: CX, y: 150, at: 10 },
-    emp: { x: 320, y: 420, at: 110 }, // 会社員→年末調整(orange)
-    self: { x: 770, y: 420, at: 150 }, // 自営業(gray)
-    tenbiki: { x: CX, y: 700, at: 250 },
-    calc: { x: CX, y: 980, at: 360 },
-    kazoku: { x: CX, y: 1230, at: 470 },
-    check: { y: 1430 }, // chips row
-    hagaki: { x: CX, y: 1700, at: 700 },
-    ok: { x: CX, y: 1940, at: 800 },
-    salary: { x: CX, y: 2180, at: 890 },
-    kampu: { x: CX, y: 2440, at: 980 }, // 還付(orange, big)
+// ── 本体（1画面・積み上げ） ──────────────────────────
+export const NenmatsuReel: React.FC = () => {
+  // ノード座標（全部1画面に収める。y: 190〜1560）とreveal frame
+  const Y = {
+    hub: 210, emp: 360, self: 360, tenbiki: 520, calc: 670,
+    kazoku: 820, chip: 965, hagaki: 1130, ok: 1270, salary: 1410, kampu: 1555,
+  };
+  const d = {
+    hub: 12, emp: 60, self: 85, tenbiki: 140, calc: 205,
+    kazoku: 280, chip: 340, hagaki: 470, ok: 540, salary: 610, kampu: 690,
   };
 
-  // カメラパン：active node のyをビューポートy=540付近へ
-  const camBP = [
-    [10, 150], [110, 420], [250, 700], [360, 980], [470, 1230],
-    [590, 1430], [700, 1700], [800, 1940], [890, 2180], [980, 2440], [DIAGRAM, 2440],
-  ];
-  const camY = interpolate(f, camBP.map((b) => b[0]), camBP.map((b) => b[1]), { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const offset = -(camY - 760);
-
   const telops: Tel[] = [
-    { at: 10, text: "日本で働く人は" },
-    { at: 110, text: "会社員なら「年末調整」" },
-    { at: 250, text: "毎月ざっくり\n天引きされてる" },
-    { at: 360, text: "年末にまとめて\n答え合わせするのが年末調整" },
-    { at: 470, text: "書くのは家族のことなど" },
-    { at: 590, text: "家族・保険・iDeCo・住宅ローン" },
-    { at: 700, text: "保険会社のハガキを見ながら" },
-    { at: 800, text: "答えるだけでOK" },
-    { at: 890, text: "12月か1月の給料と" },
-    { at: 980, text: "今年は減税分も\nまとめて戻ってくるよ" },
+    { at: 12, text: "日本で働く人は" },
+    { at: 60, text: "会社員なら「年末調整」" },
+    { at: 140, text: "毎月ざっくり天引きされてる" },
+    { at: 205, text: "年末にまとめて答え合わせ\n＝ 年末調整" },
+    { at: 280, text: "書くのは家族のことなど" },
+    { at: 340, text: "家族・保険・iDeCo・住宅ローン" },
+    { at: 470, text: "保険会社のハガキを見ながら" },
+    { at: 540, text: "答えるだけでOK" },
+    { at: 610, text: "12月か1月の給料と一緒に" },
+    { at: 690, text: "今年は減税分も\nまとめて戻ってくるよ" },
   ];
 
+  const half = 232; // branch node width
   return (
     <AbsoluteFill style={{ background: C.bg, fontFamily: FONT }}>
-      {/* カメラ移動するレイヤー */}
-      <AbsoluteFill style={{ transform: `translateY(${offset}px)` }}>
-        {/* つなぎ線 */}
-        <svg width={1080} height={2700} style={{ position: "absolute", inset: 0 }}>
-          <Link x1={nodes.hub.x} y1={nodes.hub.y + 64} x2={nodes.emp.x} y2={nodes.emp.y - 64} delay={nodes.emp.at - 8} color={C.orange} />
-          <Link x1={nodes.hub.x} y1={nodes.hub.y + 64} x2={nodes.self.x} y2={nodes.self.y - 64} delay={nodes.self.at - 8} color={C.gray} dash />
-          <Link x1={nodes.emp.x} y1={nodes.emp.y + 64} x2={nodes.tenbiki.x} y2={nodes.tenbiki.y - 64} delay={nodes.tenbiki.at - 8} color={C.line} />
-          <Link x1={nodes.tenbiki.x} y1={nodes.tenbiki.y + 64} x2={nodes.calc.x} y2={nodes.calc.y - 64} delay={nodes.calc.at - 8} color={C.line} />
-          <Link x1={nodes.calc.x} y1={nodes.calc.y + 64} x2={nodes.kazoku.x} y2={nodes.kazoku.y - 64} delay={nodes.kazoku.at - 8} color={C.line} />
-          <Link x1={nodes.kazoku.x} y1={nodes.kazoku.y + 64} x2={CX} y2={nodes.check.y - 90} delay={582} color={C.line} />
-          <Link x1={CX} y1={nodes.check.y + 90} x2={nodes.hagaki.x} y2={nodes.hagaki.y - 64} delay={nodes.hagaki.at - 8} color={C.line} />
-          <Link x1={nodes.hagaki.x} y1={nodes.hagaki.y + 64} x2={nodes.ok.x} y2={nodes.ok.y - 64} delay={nodes.ok.at - 8} color={C.line} />
-          <Link x1={nodes.ok.x} y1={nodes.ok.y + 64} x2={nodes.salary.x} y2={nodes.salary.y - 64} delay={nodes.salary.at - 8} color={C.line} />
-          <Link x1={nodes.salary.x} y1={nodes.salary.y + 64} x2={nodes.kampu.x} y2={nodes.kampu.y - 86} delay={nodes.kampu.at - 8} color={C.orange} />
-        </svg>
+      {/* ヘッダー */}
+      <div style={{ position: "absolute", top: 54, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 40, fontWeight: 800, color: C.ink, borderBottom: `6px solid ${C.orange}`, paddingBottom: 4 }}>
+          会社員の「年末調整」まるわかり
+        </span>
+      </div>
 
-        <Node x={nodes.hub.x} y={nodes.hub.y} delay={nodes.hub.at} w={520} icon={<IFamily s={70} />} title="日本で働く人" />
-        <Node x={nodes.emp.x} y={nodes.emp.y} delay={nodes.emp.at} w={430} icon={<IPerson s={54} />} title={"会社員"} tag="年末調整" tagBg={C.orange} />
-        <Node x={nodes.self.x} y={nodes.self.y} delay={nodes.self.at} w={430} icon={<IPerson s={54} color={C.gray} />} title={"自営業・\nフリーランス"} tag="確定申告" tagBg={C.gray} dim />
-        <Node x={nodes.tenbiki.x} y={nodes.tenbiki.y} delay={nodes.tenbiki.at} w={620} icon={<ICoin s={56} />} title={"毎月ざっくり天引き"} />
-        <Node x={nodes.calc.x} y={nodes.calc.y} delay={nodes.calc.at} w={640} icon={<ICalc s={58} />} title={"年末に答え合わせ"} tag="＝ 年末調整" tagBg={C.orange} />
-        <Node x={nodes.kazoku.x} y={nodes.kazoku.y} delay={nodes.kazoku.at} w={560} title={"書くのは家族のことなど"} />
+      {/* つなぎ線（固定・全部1枚） */}
+      <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
+        <Link x1={CX} y1={Y.hub + 52} x2={272} y2={Y.emp - 65} delay={d.emp - 6} color={C.orange} />
+        <Link x1={CX} y1={Y.hub + 52} x2={808} y2={Y.self - 65} delay={d.self - 6} color={C.gray} dash />
+        <Link x1={272} y1={Y.emp + 65} x2={CX} y2={Y.tenbiki - 52} delay={d.tenbiki - 6} />
+        <Link x1={CX} y1={Y.tenbiki + 52} x2={CX} y2={Y.calc - 52} delay={d.calc - 6} />
+        <Link x1={CX} y1={Y.calc + 52} x2={CX} y2={Y.kazoku - 52} delay={d.kazoku - 6} />
+        <Link x1={CX} y1={Y.kazoku + 52} x2={CX} y2={Y.chip - 52} delay={d.chip - 6} />
+        <Link x1={CX} y1={Y.chip + 52} x2={CX} y2={Y.hagaki - 52} delay={d.hagaki - 6} />
+        <Link x1={CX} y1={Y.hagaki + 52} x2={CX} y2={Y.ok - 52} delay={d.ok - 6} />
+        <Link x1={CX} y1={Y.ok + 52} x2={CX} y2={Y.salary - 52} delay={d.salary - 6} />
+        <Link x1={CX} y1={Y.salary + 52} x2={CX} y2={Y.kampu - 60} delay={d.kampu - 6} color={C.orange} />
+      </svg>
 
-        {/* チェック項目4つ */}
-        <Chip x={CX - 390} y={nodes.check.y} delay={590} icon={<IFamily s={46} />} label="家族" />
-        <Chip x={CX - 130} y={nodes.check.y} delay={615} icon={<IShield s={46} />} label="保険" />
-        <Chip x={CX + 130} y={nodes.check.y} delay={640} icon={<IPiggy s={46} />} label="iDeCo" />
-        <Chip x={CX + 390} y={nodes.check.y} delay={665} icon={<IHouse s={46} />} label="住宅ローン" />
+      {/* ノード */}
+      <Node x={CX} y={Y.hub} w={440} delay={d.hub} icon={<IFamily s={46} />} title="日本で働く人" />
+      <Node x={272} y={Y.emp} w={300} h={130} stack delay={d.emp} icon={<IPerson s={32} />} title="会社員" tag="年末調整" tagBg={C.orange} />
+      <Node x={808} y={Y.self} w={300} h={130} stack delay={d.self} icon={<IPerson s={32} color={C.gray} />} title="自営業" tag="確定申告" tagBg={C.gray} dim />
+      <Node x={CX} y={Y.tenbiki} w={560} delay={d.tenbiki} icon={<ICoin s={42} />} title="毎月ざっくり天引き" />
+      <Node x={CX} y={Y.calc} w={620} delay={d.calc} icon={<ICalc s={42} />} title="年末に答え合わせ" tag="＝年末調整" tagBg={C.orange} />
+      <Node x={CX} y={Y.kazoku} w={540} delay={d.kazoku} title="書くのは家族のことなど" />
 
-        <Node x={nodes.hagaki.x} y={nodes.hagaki.y} delay={nodes.hagaki.at} w={620} icon={<IEnvelope s={56} />} title={"保険会社のハガキを見て"} />
-        <Node x={nodes.ok.x} y={nodes.ok.y} delay={nodes.ok.at} w={460} title={"答えるだけでOK"} />
-        <Node x={nodes.salary.x} y={nodes.salary.y} delay={nodes.salary.at} w={620} icon={<ICalendar s={56} />} title={"12月 or 1月の給料と"} />
-        <Node x={nodes.kampu.x} y={nodes.kampu.y} delay={nodes.kampu.at} w={700} big icon={<ICoin s={76} />} title={"今年は減税分も"} tag="還付（戻ってくる）" tagBg={C.orange} />
-      </AbsoluteFill>
+      {/* チェック項目4つ（横並び） */}
+      <Chip x={CX - 363} y={Y.chip} w={228} delay={d.chip} icon={<IFamily s={38} />} label="家族" />
+      <Chip x={CX - 121} y={Y.chip} w={228} delay={d.chip + 20} icon={<IShield s={34} />} label="保険" />
+      <Chip x={CX + 121} y={Y.chip} w={228} delay={d.chip + 40} icon={<IPiggy s={34} />} label="iDeCo" />
+      <Chip x={CX + 363} y={Y.chip} w={228} delay={d.chip + 60} icon={<IHouse s={34} />} label="住宅ローン" />
 
-      {/* 固定の下部テロップ */}
-      <BottomTelop cues={telops} base={0} />
-    </AbsoluteFill>
-  );
-};
+      <Node x={CX} y={Y.hagaki} w={600} delay={d.hagaki} icon={<IEnvelope s={42} />} title="保険会社のハガキを見て" />
+      <Node x={CX} y={Y.ok} w={420} delay={d.ok} title="答えるだけでOK" />
+      <Node x={CX} y={Y.salary} w={600} delay={d.salary} icon={<ICalendar s={42} />} title="12月 or 1月の給料と" />
+      <Node x={CX} y={Y.kampu} w={680} delay={d.kampu} hero h={120} icon={<ICoin s={54} />} title="今年は減税分も" tag="還付" tagBg={C.orange} />
 
-// ── 本体 ───────────────────────────────────────────────
-export const NenmatsuReel: React.FC = () => {
-  return (
-    <AbsoluteFill style={{ background: C.bg, fontFamily: FONT }}>
-      <Sequence from={0} durationInFrames={TALK_IN}>
-        <TalkCard
-          base={0}
-          dur={TALK_IN}
-          cues={[
-            { at: 0, text: "年末調整って今年は" },
-            { at: 40, text: "税金のルールが変わって" },
-            { at: 80, text: "お金が例年より動くから" },
-            { at: 115, text: "損しないように解説するね" },
-          ]}
-        />
-      </Sequence>
-
-      <Sequence from={TALK_IN} durationInFrames={DIAGRAM}>
-        <Diagram />
-      </Sequence>
-
-      <Sequence from={TALK_IN + DIAGRAM} durationInFrames={TALK_OUT}>
-        <TalkCard
-          base={0}
-          dur={TALK_OUT}
-          cues={[{ at: 0, text: "大切な友達や家族にも\n教えてあげてね" }]}
-        />
-      </Sequence>
+      <BottomTelop cues={telops} />
     </AbsoluteFill>
   );
 };
