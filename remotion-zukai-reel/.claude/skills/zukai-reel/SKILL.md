@@ -112,6 +112,11 @@ description: >-
 
 詳細リファレンス：
 - `references/edit-directives.md` … **★編集ディレクティブ集（ユーザー指示の一元ナレッジ・累積）。毎回最初に参照し、新指示はここに追記**
+- `references/script-manual.md` … **★台本マニュアル（社長の全台本指示を集約）。台本を書く/直す前に必ず読む**
+- `references/viral-checklist.md` … **★伸びる投稿7要素＋短尺バズ構成（序盤フック→中盤 共感+特別感→終盤クロージング）。台本の最上位チェック**
+- `references/script-length-guide.md` … **★文字数とメリハリ基準（車リール実測：平均46字・山場75-90字）。フラット禁止**
+- `references/reel-study-buzz-kiso.md` … **他リール分析＝バズ動画の基礎（フック=利益/損/危機感、共感=心の声代弁、特別感=あなただけに、クロージング）**
+- `references/gan-insurance-research.md` … がん保険の事実（一時金回数/上皮内/ホルモン療法/古い保険/先進医療）出典つき。台本の事実はここで裏取り
 - `references/sfx-library.md` … **★効果音ライブラリ（全効果音の一元カタログ）。効果音は必ずここから選ぶ。ユーザー常用10種(public/sfx/user)を最優先**
 - `references/connected-diagram.md` … **線でつなぐ連結図解の型（ユーザーが一番好き・毎回1枚入れる）**
 - `references/production-flow.md` … **制作フロー（台本→情報整理→設計図→画像→ビルド）**
