@@ -16,6 +16,7 @@ import { CarReelV5, CAR_V5_FRAMES } from "./CarReelV5";
 import { ToushiReel, TOUSHI_FRAMES } from "./ToushiReel";
 import { TalkReel, TALK_FRAMES } from "./TalkReel";
 import { GanReel, GAN_FRAMES } from "./GanReel";
+import { GanReel2, GAN2_FRAMES } from "./GanReel2";
 import { CorridorRunner, CORRIDOR_FRAMES } from "./CorridorRunner";
 import { LaunchFilm, LAUNCH_FRAMES } from "./LaunchFilm";
 import { TalkLaunch, TALKLAUNCH_FRAMES } from "./TalkLaunch";
@@ -131,6 +132,7 @@ export const RemotionRoot: React.FC = () => {
 
       {/* ── がん① 図解リール(本番) ── */}
       <Composition id="GanReel" component={GanReel} durationInFrames={GAN_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="GanReel2" component={GanReel2} durationInFrames={GAN2_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* ── トークリール自動編集（実写＋オーバーレイ／完コピ試作） ── */}
       <Composition id="TalkReel" component={TalkReel} durationInFrames={TALK_FRAMES} fps={FPS} width={1080} height={1920} />
