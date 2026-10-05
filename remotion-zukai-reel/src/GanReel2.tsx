@@ -253,12 +253,12 @@ const OX: React.FC<{ delay: number; top: number; file: string; name: string; ox:
 const P7: React.FC = () => (
   <BG2>
     <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "user/u02s", at: 26, volume: 0.36 }, { file: "user/u02s", at: 54, volume: 0.36 }, { file: "user/u02s", at: 82, volume: 0.36 }, { file: "user/u02s", at: 110, volume: 0.36 }, { file: "user/u02s", at: 138, volume: 0.36 }, { file: "up6", at: 255, volume: 0.44 }]} />
-    <Head>【落とし穴②】月額は“カバー範囲”がバラバラ</Head>
-    <OX delay={26} top={420} file="t_anticancer" name="抗がん剤" ox="check" />
-    <OX delay={54} top={540} file="t_hormone" name="ホルモン療法" ox="cross" />
-    <OX delay={82} top={660} file="t_radiation" name="放射線治療" ox="check" />
-    <OX delay={110} top={780} file="ic_relapse" name="再発予防の治療" ox="cross" />
-    <OX delay={138} top={900} file="ic_outpatient" name="通院" ox="cross" />
+    <Head>【落とし穴②】月額保障は<br />“カバー範囲”がバラバラ</Head>
+    <OX delay={26} top={448} file="t_anticancer" name="抗がん剤" ox="check" />
+    <OX delay={54} top={564} file="t_hormone" name="ホルモン療法" ox="cross" />
+    <OX delay={82} top={680} file="t_radiation" name="放射線治療" ox="check" />
+    <OX delay={110} top={796} file="ic_relapse" name="再発予防のホルモン剤" ox="cross" />
+    <OX delay={138} top={912} file="ic_outpatient" name="通院" ox="cross" />
     <Band delay={200} top={1060} bg={MK} size={42} color={RED}>同じ“月額給付”でも、中身は別物</Band>
     <Band delay={255} top={1250} bg="#fff" border={RED} size={38} color={RED}>いくら出るかだけで選ぶのは危険</Band>
   </BG2>
