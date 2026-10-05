@@ -18,6 +18,7 @@ import { TalkReel, TALK_FRAMES } from "./TalkReel";
 import { GanReel, GAN_FRAMES } from "./GanReel";
 import { GanReel2, GAN2_FRAMES } from "./GanReel2";
 import { NenmatsuReel, NEN_FRAMES } from "./NenmatsuReel";
+import { AeOverlayReel, AE_FRAMES } from "./AeOverlayReel";
 import { CorridorRunner, CORRIDOR_FRAMES } from "./CorridorRunner";
 import { LaunchFilm, LAUNCH_FRAMES } from "./LaunchFilm";
 import { TalkLaunch, TALKLAUNCH_FRAMES } from "./TalkLaunch";
@@ -137,6 +138,9 @@ export const RemotionRoot: React.FC = () => {
 
       {/* ── 年末調整リール完全再現（参考スタイルのテンプレ・白背景＋積み上げ連結＋青テロップ） ── */}
       <Composition id="NenmatsuReel" component={NenmatsuReel} durationInFrames={NEN_FRAMES} fps={FPS} width={1080} height={1920} />
+
+      {/* ── AI自動編集リールの「周りのアニメーション」再現デモ ── */}
+      <Composition id="AeOverlayReel" component={AeOverlayReel} durationInFrames={AE_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* ── トークリール自動編集（実写＋オーバーレイ／完コピ試作） ── */}
       <Composition id="TalkReel" component={TalkReel} durationInFrames={TALK_FRAMES} fps={FPS} width={1080} height={1920} />
