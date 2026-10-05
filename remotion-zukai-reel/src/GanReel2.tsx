@@ -233,7 +233,7 @@ const P6: React.FC = () => (
       <Cond delay={60} top={640} q="受け取りは、1年に1回？" ox="check" />
       <Cond delay={96} top={780} q="2年に1回・入院が条件？" ox="cross" />
       <Band delay={150} top={960} bg={MK} size={44} color={RED}>条件は、商品でかなり違う</Band>
-      <Band delay={185} top={1160} bg="#fff" border={TRACK} size={32} color={SUB}>※契約から約90日は“待機期間”で出ないことも</Band>
+      <Band delay={185} top={1160} bg="#fff" border={GREEN} size={32} color={INK}>ちなみに、がん保険は基本“90日の免責期間”あり。<br />検討中なら、早めの加入を</Band>
     </Phase>
   </BG2>
 );
