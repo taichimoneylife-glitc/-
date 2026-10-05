@@ -176,29 +176,36 @@ const P4: React.FC = () => (
 // ══ P5 公的保険の“外”にも備える 1084–1349 / dur 265 ══
 const P5: React.FC = () => {
   const f = useCurrentFrame();
-  const selfW = interpolate(f, [40, 70], [0, 300], clamp);
+  const selfW = interpolate(f, [30, 58], [0, 330], clamp);
   return (
     <BG2>
-      <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "swipe", at: 38, volume: 0.33 }, { file: "user/u04", at: 70, volume: 0.44 }, { file: "count", at: 95, volume: 0.33 }, { file: "up6", at: 175, volume: 0.42 }]} />
-      <Head>公的保険の“外”にも備えが要る</Head>
-      {/* 費用バー */}
-      <PopIn delay={20} style={{ position: "absolute", left: 70, top: 400, width: 940 }}>
-        <div style={{ fontFamily: FONT }}>
-          <div style={{ display: "flex", height: 92, borderRadius: 16, overflow: "hidden", border: `3px solid ${TRACK}` }}>
-            <div style={{ width: 560, background: A2.green, color: "#fff", fontSize: 30, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>公的保険でカバー</div>
-            <div style={{ width: selfW, background: RED, color: "#fff", fontSize: 28, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", whiteSpace: "nowrap" }}>全額自己負担</div>
-          </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: SUB, marginTop: 10, textAlign: "right" }}>先進医療の技術料・自由診療 → 全額自己負担</div>
+      <SfxTrack gain={SFX_GAIN} cues={[{ file: "up5", at: 2, volume: 0.4 }, { file: "swipe", at: 28, volume: 0.33 }, { file: "user/u04", at: 58, volume: 0.44 }, { file: "count", at: 120, volume: 0.33 }, { file: "up6", at: 190, volume: 0.42 }]} />
+      <Head>公的保険の“外”にも、備えが要る</Head>
+      {/* 費用バー（ラベルは大きく） */}
+      <PopIn delay={16} style={{ position: "absolute", left: 70, top: 390, width: 940 }}>
+        <div style={{ display: "flex", height: 96, borderRadius: 18, overflow: "hidden", border: `3px solid ${TRACK}`, fontFamily: FONT }}>
+          <div style={{ width: 560, background: A2.green, color: "#fff", fontSize: 34, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>公的保険でOK</div>
+          <div style={{ width: selfW, background: RED, color: "#fff", fontSize: 32, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", whiteSpace: "nowrap" }}>自己負担</div>
         </div>
       </PopIn>
-      <Ill file="c_advanced" size={300} delay={60} left={80} top={620} />
-      <Ill file="g4_money_fly" size={180} delay={95} left={420} top={700} amp={12} />
-      <PopIn delay={80} style={{ position: "absolute", left: 600, top: 650, width: 420, textAlign: "center", fontFamily: FONT }}>
-        <div style={{ fontSize: 34, fontWeight: 900, color: INK }}>例：重粒子線</div>
-        <div style={{ fontSize: 110, fontWeight: 900, color: RED, lineHeight: 1 }}>約<CountUp delay={95} to={300} dur={22} />万</div>
-        <div style={{ fontSize: 26, fontWeight: 800, color: SUB, marginTop: 6 }}>高額療養費も“ここ”には使えない</div>
+      {/* ★強調テロップ：自由診療・先進医療＝全額自己負担 */}
+      <PopIn delay={42} style={{ position: "absolute", left: 60, top: 530, width: 960 }}>
+        <Float delay={42} amp={3}>
+          <div style={{ fontFamily: FONT, background: "#FFF2D6", borderRadius: 26, padding: "22px 18px", textAlign: "center", boxShadow: "0 10px 24px rgba(80,60,20,0.1)" }}>
+            <span style={{ fontSize: 50, fontWeight: 900, color: CORAL }}>先進医療・自由診療</span>
+            <span style={{ fontSize: 40, fontWeight: 900, color: INK }}>は</span>
+            <div style={{ fontSize: 62, fontWeight: 900, color: RED, marginTop: 2 }}>全額、自己負担</div>
+          </div>
+        </Float>
       </PopIn>
-      <Band delay={175} top={1180} file="ic_shield" isize={120} bg={MK} size={44}>だから、“特約”で備えておく</Band>
+      <Ill file="c_advanced" size={290} delay={70} left={60} top={740} />
+      <Ill file="g4_money_fly" size={170} delay={120} left={410} top={820} amp={12} />
+      <PopIn delay={96} style={{ position: "absolute", left: 560, top: 770, width: 470, textAlign: "center", fontFamily: FONT }}>
+        <div style={{ fontSize: 36, fontWeight: 900, color: INK }}>例：重粒子線</div>
+        <div style={{ fontSize: 100, fontWeight: 900, color: RED, lineHeight: 1.05, whiteSpace: "nowrap" }}>約<CountUp delay={120} to={300} dur={22} />万</div>
+      </PopIn>
+      <Band delay={160} top={1120} bg="#fff" border={RED} size={38} color={RED}>しかも、あの高額療養費も“ここ”には使えない</Band>
+      <Band delay={200} top={1290} file="ic_shield" isize={120} bg={MK} size={46}>だから、“特約”で備えておく</Band>
     </BG2>
   );
 };
