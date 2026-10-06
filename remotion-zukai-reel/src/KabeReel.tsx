@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
+import { AbsoluteFill, Sequence, Audio, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { FONT } from "./components/font";
 
 // ───────────────────────────────────────────────────────────────
@@ -18,15 +18,17 @@ const C = {
 };
 const CX = 540;
 
+// 音声(kabe_narration.wav 84.15s)にページ単位で同期（文字数比＋ポーズアンカー）
 const P = {
-  intro: { from: 0, dur: 95 },
-  tax:   { from: 95, dur: 150 },
-  fuyo:  { from: 245, dur: 135 },
-  shaho: { from: 380, dur: 220 }, // 山場
-  merit: { from: 600, dur: 125 },
-  matome:{ from: 725, dur: 205 },
+  intro: { from: 0, dur: 316 },     // フック＋4つの壁
+  tax:   { from: 316, dur: 257 },   // ①税金
+  fuyo:  { from: 573, dur: 133 },   // ②扶養
+  shaho: { from: 706, dur: 776 },   // ③社会保険（山場）
+  merit: { from: 1482, dur: 386 },  // ④メリット
+  matome:{ from: 1868, dur: 424 },  // ⑤まとめ＋⑥やること
+  end:   { from: 2292, dur: 232 },  // 締め
 };
-export const KABE_FRAMES = P.matome.from + P.matome.dur; // 930 = 31s
+export const KABE_FRAMES = P.end.from + P.end.dur; // 2524 = 84.1s
 
 // ── 共通アニメ（Sequence内でframeは0起点）──
 const useSp = (delay: number, dur = 14, cfg: Parameters<typeof spring>[0]["config"] = { damping: 14, stiffness: 150, mass: 0.8 }) => {
@@ -292,13 +294,33 @@ const PageMatome: React.FC = () => {
   );
 };
 
+// ───────────── 締め（CTA）─────────────
+const PageEnd: React.FC = () => {
+  const f = useCurrentFrame();
+  return (
+    <AbsoluteFill style={{ opacity: pageFade(f, P.end.dur) }}>
+      <Pop delay={6} style={{ position: "absolute", top: 440, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 40, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "16px 30px", display: "inline-block" }}>「壁を超えない」が正解じゃない</span>
+      </Pop>
+      <Drop delay={24} style={{ position: "absolute", top: 660, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 44, fontWeight: 900, color: C.ink, lineHeight: 1.5 }}>世帯全体の<span style={{ color: C.orange }}>手取りと保障</span>で<br />働き方を決めよう</span>
+      </Drop>
+      <Drop delay={44} style={{ position: "absolute", top: 1020, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 30, fontWeight: 900, color: "#fff", background: C.ink, borderRadius: 999, padding: "16px 42px" }}>気になる人は、プロフから相談を</span>
+      </Drop>
+    </AbsoluteFill>
+  );
+};
+
 export const KabeReel: React.FC = () => (
   <AbsoluteFill style={{ background: C.bg, fontFamily: FONT, overflow: "hidden" }}>
+    <Audio src={staticFile("kabe_narration.wav")} />
     <Sequence from={P.intro.from} durationInFrames={P.intro.dur}><PageIntro /></Sequence>
     <Sequence from={P.tax.from} durationInFrames={P.tax.dur}><PageTax /></Sequence>
     <Sequence from={P.fuyo.from} durationInFrames={P.fuyo.dur}><PageFuyo /></Sequence>
     <Sequence from={P.shaho.from} durationInFrames={P.shaho.dur}><PageShaho /></Sequence>
     <Sequence from={P.merit.from} durationInFrames={P.merit.dur}><PageMerit /></Sequence>
     <Sequence from={P.matome.from} durationInFrames={P.matome.dur}><PageMatome /></Sequence>
+    <Sequence from={P.end.from} durationInFrames={P.end.dur}><PageEnd /></Sequence>
   </AbsoluteFill>
 );
