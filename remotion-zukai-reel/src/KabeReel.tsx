@@ -166,6 +166,28 @@ const TreeHeader: React.FC<{ active?: string; animate?: boolean }> = ({ active =
 // ナレ:「まず税金。住民税は119万円前後、所得税は178万円。これを超えると
 //        税金がかかり始めます。でも少し超えてもそんなにかからないから、
 //        ここまで気にしなくてOK」
+// ── マーカー強調（数字の下をいつものマーカーでスッと引く）──
+const MarkNum: React.FC<{ delay: number; color?: string; dur?: number; children: React.ReactNode }> = ({ delay, color = C.orange, dur = 11, children }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [delay, delay + dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <span style={{ position: "relative", display: "inline-block", padding: "0 8px" }}>
+      <span style={{ position: "relative", zIndex: 1 }}>{children}</span>
+      <span style={{ position: "absolute", left: 0, right: 0, bottom: 8, height: "32%", background: color, opacity: 0.34, transform: `scaleX(${p})`, transformOrigin: "left center", borderRadius: 6, zIndex: 0 }} />
+    </span>
+  );
+};
+
+// ── シーン切替（Beat）：山場など情報量が多い所を1枚に詰めず、パッと切り替える ──
+const BeatInner: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, children }) => {
+  const f = useCurrentFrame();
+  const o = interpolate(f, [0, 6, dur - 8, dur], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return <AbsoluteFill style={{ opacity: o }}>{children}</AbsoluteFill>;
+};
+const Beat: React.FC<{ from: number; dur: number; children: React.ReactNode }> = ({ from, dur, children }) => (
+  <Sequence from={from} durationInFrames={dur}><BeatInner dur={dur}>{children}</BeatInner></Sequence>
+);
+
 const NumCircle: React.FC<{ delay: number; children: React.ReactNode; cw?: number; ch?: number; color?: string }> = ({ delay, children, cw = 250, ch = 118, color = C.orange }) => (
   <div style={{ position: "relative", display: "inline-block", padding: "2px 10px" }}>
     {children}
@@ -190,10 +212,12 @@ const PageTax: React.FC = () => {
             <div key={c.t} style={{ width: 400 }}>
               <GenImg name={c.img} w={230} delay={d(c.delay, "tax")} style={{ margin: "0 auto", display: "block" }} />
               <div style={{ fontSize: 30, fontWeight: 900, color: C.ink, marginTop: 4 }}>{c.t}</div>
-              <NumCircle delay={d(c.delay + 0.35, "tax")}>
-                <span style={{ fontSize: 84, fontWeight: 900, color: C.orange, lineHeight: 1.05 }}>{c.n}</span>
+              <div style={{ marginTop: 2 }}>
+                <MarkNum delay={d(c.delay + 0.35, "tax")} color={C.orange}>
+                  <span style={{ fontSize: 84, fontWeight: 900, color: C.orange, lineHeight: 1.05 }}>{c.n}</span>
+                </MarkNum>
                 {c.suf && <span style={{ fontSize: 30, fontWeight: 900, color: C.orange }}>{c.suf}</span>}
-              </NumCircle>
+              </div>
             </div>
           ))}
         </div>
@@ -236,9 +260,9 @@ const PageFuyo: React.FC = () => {
           <GenImg name="kabe_wall_fuyo" w={300} delay={d(11.0, "fuyo")} />
           <Pop delay={d(11.0, "fuyo")}>
             <div style={{ background: C.greenBg, border: `5px solid ${C.green}`, borderRadius: 24, padding: "22px 30px" }}>
-              <NumCircle delay={d(11.5, "fuyo")} color={C.green} cw={270} ch={120}>
+              <MarkNum delay={d(11.5, "fuyo")} color={C.green}>
                 <span style={{ fontSize: 92, fontWeight: 900, color: C.ink, lineHeight: 1 }}>169万</span>
-              </NumCircle>
+              </MarkNum>
               <div style={{ fontSize: 26, fontWeight: 900, color: C.green }}>まで</div>
             </div>
           </Pop>
@@ -268,72 +292,102 @@ const PageFuyo: React.FC = () => {
 //        国民年金や国民健康保険を自分で払うことに。ここが税金との大きな違い。
 //        税金は少しずつだけど、社会保険は新しい保険料の負担が生まれるので
 //        手取りへの影響が大きいです」
+// 山場は情報量が多いので「1枚詰め込み」をやめ、ナレに合わせてシーンをパッと切替。
+const ShahoStrike: React.FC = () => {
+  const f = useCurrentFrame();
+  const strike = interpolate(f, [118, 128], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <div style={{ position: "absolute", top: 900, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 20 }}>
+      <Pop delay={46} style={{ position: "relative" }}>
+        <span style={{ fontSize: 76, fontWeight: 900, color: C.gray }}>106万の壁</span>
+        <div style={{ position: "absolute", top: "50%", left: -8, width: `${strike * 100}%`, height: 8, background: C.red, transform: "rotate(-7deg)", transformOrigin: "left center" }} />
+      </Pop>
+      <Pop delay={118}>
+        <span style={{ fontSize: 34, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "10px 24px" }}>この10月に撤廃</span>
+      </Pop>
+    </div>
+  );
+};
 const PageShaho: React.FC = () => {
   const f = useCurrentFrame();
-  const strike = interpolate(f, [d(20.44, "shaho"), d(20.44, "shaho") + 10], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const B = { A: 135, B: 153, C: 291, D: 213, E: 241 };
+  const fr = { A: 0, B: 135, C: 288, D: 579, E: 792 };
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.shaho.dur) }}>
       <TreeHeader active="shaho" />
-      {/* badge */}
-      <Pop delay={d(16.9, "shaho")} style={{ position: "absolute", top: 538, left: 0, width: 1080, textAlign: "center" }}>
-        <span style={{ fontSize: 36, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "8px 30px" }}>★ 本当に気をつける壁</span>
-      </Pop>
-      {/* 106万の壁 → 撤廃：18.04s / strike 20.44s */}
-      <div style={{ position: "absolute", top: 614, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 18 }}>
-        <Pop delay={d(18.04, "shaho")} style={{ position: "relative" }}>
-          <span style={{ fontSize: 48, fontWeight: 900, color: C.gray }}>106万の壁</span>
-          <div style={{ position: "absolute", top: "50%", left: -6, width: `${strike * 100}%`, height: 6, background: C.red, transform: "rotate(-8deg)", transformOrigin: "left center" }} />
+      {/* ── シーン①：106万の壁は撤廃（16.5〜21.0s）── */}
+      <Beat from={fr.A} dur={B.A}>
+        <Pop delay={10} style={{ position: "absolute", top: 640, left: 0, width: 1080, textAlign: "center" }}>
+          <span style={{ fontSize: 40, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "10px 34px" }}>★ 本当に気をつける壁</span>
         </Pop>
-        <Pop delay={d(20.44, "shaho")}>
-          <span style={{ fontSize: 28, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "7px 18px" }}>この10月に撤廃</span>
-        </Pop>
-      </div>
-      {/* 51人以上(ビル)・週20h(時計) → 加入：20.96s */}
-      <Drop delay={d(20.96, "shaho")} style={{ position: "absolute", top: 684, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
-        <GenImg name="kabe_company_building" w={80} delay={d(21.0, "shaho")} float={4} />
-        <span style={{ fontSize: 30, fontWeight: 900, color: C.red }}>51人以上</span>
-        <span style={{ fontSize: 24, fontWeight: 800, color: C.gray }}>の会社など</span>
-        <GenImg name="kabe_clock_20h" w={90} delay={d(23.5, "shaho")} float={4} />
-        <span style={{ fontSize: 30, fontWeight: 900, color: C.red }}>週20h</span>
-        <span style={{ fontSize: 30, fontWeight: 900, color: C.ink }}>→ 社保加入</span>
-      </Drop>
-      {/* ★130万＝扶養から外れる（傘から出る）：26.10s / 税金とは別28.16s / 外れる31.58s */}
-      <div style={{ position: "absolute", top: 770, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
-        <GenImg name="kabe_leave_fuyo" w={250} delay={d(31.58, "shaho")} />
-        <Pop delay={d(26.10, "shaho")} style={{ textAlign: "center" }}>
-          <NumCircle delay={d(26.6, "shaho")} color={C.red} cw={260} ch={120}>
-            <span style={{ fontSize: 92, fontWeight: 900, color: C.red, lineHeight: 1 }}>130万</span>
-          </NumCircle>
-          <Drop delay={d(31.58, "shaho")}>
-            <div style={{ fontSize: 30, fontWeight: 900, color: C.ink }}>夫の扶養から</div>
-            <div style={{ fontSize: 34, fontWeight: 900, color: C.red }}>外れることがある</div>
-          </Drop>
-        </Pop>
-      </div>
-      <Drop delay={d(28.16, "shaho")} style={{ position: "absolute", top: 1030, left: 0, width: 1080, textAlign: "center" }}>
-        <span style={{ fontSize: 24, fontWeight: 900, color: C.ink, background: "#fff", border: `2px dashed ${C.red}`, borderRadius: 10, padding: "6px 16px" }}>税金の扶養とは別の“社会保険の扶養”</span>
-      </Drop>
-      {/* 外れると自分で払う（納付書）：35.82s */}
-      <div style={{ position: "absolute", top: 1098, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 14 }}>
-        <GenImg name="kabe_nenkin_kokuho_paper" w={150} delay={d(36.2, "shaho")} />
-        <Drop delay={d(35.82, "shaho")} style={{ textAlign: "left", maxWidth: 560 }}>
-          <div style={{ fontSize: 24, fontWeight: 800, color: C.gray }}>今まで保険料はかからなかったけど…</div>
-          <div style={{ fontSize: 36, fontWeight: 900, color: C.ink, marginTop: 4, lineHeight: 1.3 }}>外れると<Hi delay={d(40.0, "shaho")} color={C.red}>国民年金・国保</Hi>を<br /><span style={{ color: C.red }}>自分で払う</span>ことに</div>
+        <ShahoStrike />
+      </Beat>
+      {/* ── シーン②：加入の条件（21.0〜26.1s）── */}
+      <Beat from={fr.B} dur={B.B}>
+        <Drop delay={0} style={{ position: "absolute", top: 620, left: 0, width: 1080, textAlign: "center" }}>
+          <span style={{ fontSize: 40, fontWeight: 900, color: C.ink }}>こんな働き方だと<span style={{ color: C.red }}>社保に加入</span></span>
         </Drop>
-      </div>
-      {/* 税金との違い＝保険料負担で手取り減（財布）：42.92s / 44.72s */}
-      <div style={{ position: "absolute", top: 1290, left: 0, width: 1080, textAlign: "center" }}>
-        <Drop delay={d(42.92, "shaho")}>
-          <span style={{ fontSize: 28, fontWeight: 900, color: C.ink }}>税金は少しずつ、でも<span style={{ color: C.red }}>社保は保険料の負担</span></span>
-        </Drop>
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10, marginTop: 8 }}>
-          <GenImg name="kabe_takehome_down" w={170} delay={d(45.0, "shaho")} float={4} />
-          <Drop delay={d(44.72, "shaho")}>
-            <span style={{ fontSize: 38, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 14, padding: "12px 28px", display: "inline-block" }}>手取りへの影響が大きい</span>
-          </Drop>
+        <div style={{ position: "absolute", top: 760, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 36 }}>
+          <Pop delay={24} style={{ textAlign: "center" }}>
+            <GenImg name="kabe_company_building" w={180} delay={24} />
+            <div style={{ fontSize: 40, fontWeight: 900, color: C.red, marginTop: 6 }}>51人以上</div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: C.gray }}>の会社など</div>
+          </Pop>
+          <Pop delay={60}><span style={{ fontSize: 44, fontWeight: 900, color: C.ink }}>＋</span></Pop>
+          <Pop delay={75} style={{ textAlign: "center" }}>
+            <GenImg name="kabe_clock_20h" w={190} delay={75} />
+            <div style={{ fontSize: 40, fontWeight: 900, color: C.red, marginTop: 6 }}>週20時間〜</div>
+          </Pop>
         </div>
-        <div style={{ fontSize: 18, fontWeight: 700, color: C.gray, marginTop: 10 }}>※加入にはその他の要件があります。勤務先の社保に入れる場合もあります</div>
-      </div>
+        <Drop delay={120} style={{ position: "absolute", top: 1110, left: 0, width: 1080, textAlign: "center" }}>
+          <span style={{ fontSize: 40, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 14, padding: "12px 34px" }}>→ 社会保険に加入</span>
+        </Drop>
+      </Beat>
+      {/* ── シーン③：130万で夫の扶養から外れる（26.1〜35.8s）── */}
+      <Beat from={fr.C} dur={B.C}>
+        <Pop delay={0} style={{ position: "absolute", top: 600, left: 0, width: 1080, textAlign: "center" }}>
+          <span style={{ fontSize: 96, fontWeight: 900, color: C.red, lineHeight: 1 }}><MarkNum delay={10} color={C.red}>130万</MarkNum>の壁</span>
+        </Pop>
+        <Drop delay={62} style={{ position: "absolute", top: 740, left: 0, width: 1080, textAlign: "center" }}>
+          <span style={{ fontSize: 26, fontWeight: 900, color: C.ink, background: "#fff", border: `2px dashed ${C.red}`, borderRadius: 10, padding: "7px 18px" }}>税金の扶養とは別の“社会保険の扶養”</span>
+        </Drop>
+        <GenImg name="kabe_leave_fuyo" w={330} delay={164} style={{ position: "absolute", top: 820, left: 180 }} />
+        <Drop delay={164} style={{ position: "absolute", top: 940, left: 520, width: 460, textAlign: "left" }}>
+          <div style={{ fontSize: 40, fontWeight: 900, color: C.ink }}>夫の扶養から</div>
+          <div style={{ fontSize: 52, fontWeight: 900, color: C.red, marginTop: 6 }}>外れることがある</div>
+        </Drop>
+      </Beat>
+      {/* ── シーン④：外れると自分で払う（35.8〜42.9s）── */}
+      <Beat from={fr.D} dur={B.D}>
+        <Drop delay={0} style={{ position: "absolute", top: 600, left: 0, width: 1080, textAlign: "center" }}>
+          <span style={{ fontSize: 30, fontWeight: 800, color: C.gray }}>今まで保険料はかからなかったけど…</span>
+        </Drop>
+        <GenImg name="kabe_nenkin_kokuho_paper" w={300} delay={12} style={{ position: "absolute", top: 700, left: 0, right: 0, margin: "0 auto" }} />
+        <Drop delay={20} style={{ position: "absolute", top: 1070, left: 0, width: 1080, textAlign: "center" }}>
+          <div style={{ fontSize: 44, fontWeight: 900, color: C.ink, lineHeight: 1.35 }}>外れると<Hi delay={40} color={C.red}>国民年金・国保</Hi>を<br /><span style={{ color: C.red }}>自分で払う</span>ことに</div>
+        </Drop>
+      </Beat>
+      {/* ── シーン⑤：手取りへの影響が大きい（42.9〜50.94s）── */}
+      <Beat from={fr.E} dur={B.E}>
+        <Drop delay={0} style={{ position: "absolute", top: 600, left: 0, width: 1080, textAlign: "center" }}>
+          <span style={{ fontSize: 32, fontWeight: 900, color: C.ink }}>ここが税金との大きな違い</span>
+        </Drop>
+        <div style={{ position: "absolute", top: 690, left: 0, width: 1080, display: "flex", justifyContent: "center", gap: 20 }}>
+          <Pop delay={8} style={{ width: 300, background: C.orangeBg, borderRadius: 16, padding: "18px 10px", textAlign: "center" }}>
+            <div style={{ fontSize: 26, fontWeight: 900, color: C.orange }}>税金</div>
+            <div style={{ fontSize: 32, fontWeight: 900, color: C.ink }}>少しずつ</div>
+          </Pop>
+          <Pop delay={20} style={{ width: 360, background: C.redBg, border: `3px solid ${C.red}`, borderRadius: 16, padding: "18px 10px", textAlign: "center" }}>
+            <div style={{ fontSize: 26, fontWeight: 900, color: C.red }}>社会保険</div>
+            <div style={{ fontSize: 30, fontWeight: 900, color: C.ink }}>保険料の負担が生まれる</div>
+          </Pop>
+        </div>
+        <GenImg name="kabe_takehome_down" w={230} delay={55} style={{ position: "absolute", top: 870, left: 0, right: 0, margin: "0 auto" }} />
+        <Drop delay={55} style={{ position: "absolute", top: 1110, left: 0, width: 1080, textAlign: "center" }}>
+          <span style={{ fontSize: 46, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "14px 36px", display: "inline-block" }}>手取りへの影響が大きい</span>
+          <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 16 }}>※加入にはその他の要件があります。勤務先の社保に入れる場合もあります</div>
+        </Drop>
+      </Beat>
     </AbsoluteFill>
   );
 };
@@ -405,9 +459,9 @@ const PageMatome: React.FC = () => {
             <div style={{ display: "flex", alignItems: "center", gap: 20, background: w.star ? C.redBg : "#fff", border: `${w.star ? 6 : 3}px solid ${w.c}`, borderRadius: 18, padding: "18px 26px", boxShadow: "0 5px 14px rgba(31,58,95,0.07)" }}>
               <div style={{ minWidth: 220, textAlign: "center", lineHeight: 1 }}>
                 {w.star ? (
-                  <NumCircle delay={d(w.sec + 0.5, "matome")} color={C.red} cw={210} ch={96}>
+                  <MarkNum delay={d(w.sec + 0.5, "matome")} color={C.red}>
                     <span style={{ fontSize: 60, fontWeight: 900, color: w.c }}>{w.amt}</span>
-                  </NumCircle>
+                  </MarkNum>
                 ) : (
                   <span style={{ fontSize: 52, fontWeight: 900, color: w.c }}>{w.amt}</span>
                 )}
