@@ -142,7 +142,7 @@ const PageTax: React.FC = () => {
           <div style={{ fontSize: 26, fontWeight: 900, color: C.ink, marginTop: 4 }}>年収<span style={{ color: C.orange }}>170万</span>でも所得税は<span style={{ color: C.orange }}>ほぼ0円</span></div>
         </Drop>
         <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
-          <Myth x="178万まで何もかからない" o="所得税だけ。住民税は119万から先にかかる" delay={64} />
+          <Myth x="178万まで何もかからない" o="それは所得税だけ。住民税は119万円前後から" delay={64} />
         </div>
       </div>
     </AbsoluteFill>
@@ -190,24 +190,21 @@ const PageShaho: React.FC = () => {
           <Pop delay={16} style={{ position: "relative" }}><span style={{ fontSize: 40, fontWeight: 900, color: C.gray }}>106万</span><div style={{ position: "absolute", top: "48%", left: -4, right: -4, height: 5, background: C.red, transform: "rotate(-9deg)" }} /></Pop>
           <Pop delay={22}><span style={{ fontSize: 24, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "5px 14px" }}>2026年10月 撤廃</span></Pop>
         </div>
-        <Drop delay={30} style={{ marginTop: 10 }}><div style={{ fontSize: 30, fontWeight: 900, color: C.ink }}>今は<span style={{ color: C.red }}>“週20時間”</span>で決まる</div></Drop>
+        <Drop delay={30} style={{ marginTop: 10 }}><div style={{ fontSize: 28, fontWeight: 900, color: C.ink }}>51人以上の会社<span style={{ fontSize: 22, color: C.gray }}>などで</span> <span style={{ color: C.red }}>週20時間以上</span>で加入</div></Drop>
         <Pop delay={44} style={{ marginTop: 18 }}>
-          <div style={{ display: "inline-block", background: C.redBg, border: `5px solid ${C.red}`, borderRadius: 20, padding: "18px 30px" }}>
+          <div style={{ display: "inline-block", background: C.redBg, border: `5px solid ${C.red}`, borderRadius: 20, padding: "18px 32px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
               <span style={{ fontSize: 68, fontWeight: 900, color: C.red, lineHeight: 1 }}>130万</span>
-              <div style={{ textAlign: "left" }}><div style={{ fontSize: 28, fontWeight: 900, color: C.ink }}>扶養を外れて</div><div style={{ fontSize: 28, fontWeight: 900, color: C.red }}>手取りが急に減る</div></div>
+              <div style={{ textAlign: "left" }}><div style={{ fontSize: 28, fontWeight: 900, color: C.ink }}>夫の扶養から</div><div style={{ fontSize: 28, fontWeight: 900, color: C.red }}>外れることがある</div></div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 12 }}>
-              <span style={{ fontSize: 26, fontWeight: 900, color: C.ink }}>129万→手取り<span style={{ color: C.green }}>126万</span></span>
-              <span style={{ fontSize: 26, color: C.red }}>→</span>
-              <span style={{ fontSize: 26, fontWeight: 900, color: C.ink }}>130万超→<span style={{ color: C.red, fontSize: 34 }}>約109万</span></span>
-            </div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: C.ink, marginTop: 12, lineHeight: 1.35 }}>入れない場合は、国民年金や<br />国保を<span style={{ color: C.red }}>自分で払う</span>ことに</div>
           </div>
         </Pop>
-        <Drop delay={62} style={{ marginTop: 14 }}>
-          <span style={{ fontSize: 34, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 12, padding: "10px 26px" }}>本当に怖いのは、この130万</span>
+        <Drop delay={62} style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 30, fontWeight: 900, color: C.ink }}>収入は増えても、保険料で</div>
+          <span style={{ fontSize: 34, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 12, padding: "10px 26px", display: "inline-block", marginTop: 6 }}>手取りが思ったほど増えない</span>
         </Drop>
-        <div style={{ fontSize: 20, fontWeight: 700, color: C.gray, marginTop: 14 }}>※国民年金＋国保で年27〜35万／働き損が解消するのは約150万・目安</div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: C.gray, marginTop: 14 }}>※勤務先の社保に入れる人もいる／負担や影響は人により違う</div>
       </div>
     </AbsoluteFill>
   );
@@ -243,10 +240,10 @@ const PageMerit: React.FC = () => {
 // ───────────── ⑥ まとめ：壁リスト＋やること2つ ─────────────
 const WALLS = [
   { amt: "週20h〜", tag: "社保", desc: "会社の社保に入る", c: C.red },
-  { amt: "119万", tag: "税金", desc: "住民税がかかる", c: C.orange },
-  { amt: "130万", tag: "社保", desc: "扶養を外れる（★一番キケン）", c: C.red, star: true },
+  { amt: "119万", tag: "税金", desc: "住民税がかかる目安", c: C.orange },
+  { amt: "130万", tag: "社保", desc: "扶養を外れることも（★一番注意）", c: C.red, star: true },
   { amt: "136万", tag: "扶養", desc: "夫の控除（169万まで満額）", c: C.ink },
-  { amt: "178万", tag: "税金", desc: "所得税がかかる", c: C.orange },
+  { amt: "178万", tag: "税金", desc: "本人の所得税がかかる目安", c: C.orange },
 ];
 const PageMatome: React.FC = () => {
   const f = useCurrentFrame();
@@ -270,7 +267,7 @@ const PageMatome: React.FC = () => {
         <div style={{ fontSize: 30, fontWeight: 900, color: "#fff", background: C.ink, borderRadius: 12, padding: "10px 0", textAlign: "center", marginBottom: 16 }}>やることは、2つだけ</div>
         {[
           { n: "1", t: "勤め先の社保の条件を確認", s: "週20時間・51人以上に当てはまる？" },
-          { n: "2", t: "130万を超えるなら、どう超えるか", s: "中途半端が一番損。約150万まで働くか" },
+          { n: "2", t: "130万を超えるなら、どう超えるか", s: "少し超えるより、手取りがしっかり増えるまで" },
         ].map((x, i) => (
           <Drop key={i} delay={80 + i * 12} dy={-18} style={{ marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, background: C.orangeBg, border: `3px solid ${C.orange}`, borderRadius: 14, padding: "14px 20px" }}>
