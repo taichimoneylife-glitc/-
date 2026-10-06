@@ -70,6 +70,42 @@ const Wall: React.FC<{ s?: number; color?: string }> = ({ s = 56, color = C.ink 
   <svg width={s} height={s} viewBox="0 0 48 48"><rect x="5" y="10" width="38" height="30" rx="3" fill="none" stroke={color} strokeWidth="3" /><line x1="5" y1="20" x2="43" y2="20" stroke={color} strokeWidth="2.5" /><line x1="5" y1="30" x2="43" y2="30" stroke={color} strokeWidth="2.5" /><line x1="24" y1="10" x2="24" y2="20" stroke={color} strokeWidth="2.5" /><line x1="14" y1="20" x2="14" y2="30" stroke={color} strokeWidth="2.5" /><line x1="34" y1="20" x2="34" y2="30" stroke={color} strokeWidth="2.5" /><line x1="24" y1="30" x2="24" y2="40" stroke={color} strokeWidth="2.5" /></svg>
 );
 
+// ── 背景の奥行き（やわらかいグラデ＋ぼかしブロブ＋ドットグリッド）──
+const BackgroundFX: React.FC = () => {
+  const f = useCurrentFrame();
+  const drift = (spd: number, amp: number, ph: number) => Math.sin(f / spd + ph) * amp;
+  return (
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      <AbsoluteFill style={{ background: "radial-gradient(125% 80% at 50% -5%, #FFFDF8 0%, #FAF6EC 55%, #F1EBDD 100%)" }} />
+      <div style={{ position: "absolute", width: 760, height: 760, borderRadius: "50%", background: C.orange, opacity: 0.08, filter: "blur(90px)", left: -170 + drift(120, 34, 0), top: 120 + drift(150, 46, 1) }} />
+      <div style={{ position: "absolute", width: 640, height: 640, borderRadius: "50%", background: C.green, opacity: 0.07, filter: "blur(90px)", right: -140 + drift(140, 34, 2), top: 860 + drift(130, 46, 0.5) }} />
+      <div style={{ position: "absolute", width: 560, height: 560, borderRadius: "50%", background: C.red, opacity: 0.055, filter: "blur(100px)", left: 300 + drift(160, 40, 3), bottom: -140 + drift(120, 34, 1.5) }} />
+      <AbsoluteFill style={{ backgroundImage: `radial-gradient(${C.line} 1.4px, transparent 1.4px)`, backgroundSize: "48px 48px", opacity: 0.16, maskImage: "radial-gradient(120% 90% at 50% 40%, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(120% 90% at 50% 40%, #000 55%, transparent 100%)" }} />
+    </AbsoluteFill>
+  );
+};
+
+// ── 進捗バー（上部・プロっぽい細い帯）──
+const Progress: React.FC<{ total: number }> = ({ total }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [0, total], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <div style={{ position: "absolute", top: 0, left: 0, width: 1080, height: 7, zIndex: 60, background: "rgba(31,58,95,0.06)" }}>
+      <div style={{ height: "100%", width: `${p * 100}%`, background: `linear-gradient(90deg, ${C.orange}, ${C.red})`, borderRadius: "0 4px 4px 0" }} />
+    </div>
+  );
+};
+
+// ── 数字カウントアップ＋着地のパンチ（プロ感モーション）──
+const NumCount: React.FC<{ to: number; delay: number; dur?: number; style?: React.CSSProperties }> = ({ to, delay, dur = 16, style }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [delay, delay + dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const eased = 1 - Math.pow(1 - p, 3);
+  const v = Math.round(to * eased);
+  const punch = interpolate(f, [delay + dur - 3, delay + dur + 1, delay + dur + 7], [1, 1.14, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return <span style={{ display: "inline-block", transform: `scale(${punch})`, transformOrigin: "center bottom", ...style }}>{v}</span>;
+};
+
 // ── イラスト（透過PNG）：ポップイン＋ゆらぎフロート ──
 const GenImg: React.FC<{ name: string; w: number; h?: number; delay?: number; float?: number; style?: React.CSSProperties }> = ({ name, w, h, delay = 0, float = 7, style }) => {
   const f = useCurrentFrame();
@@ -197,8 +233,8 @@ const NumCircle: React.FC<{ delay: number; children: React.ReactNode; cw?: numbe
 const PageTax: React.FC = () => {
   const f = useCurrentFrame();
   const cols = [
-    { img: "kabe_wall_resident", t: "住民税", n: "119万", suf: "前後", delay: 0.70 },
-    { img: "kabe_wall_income", t: "所得税", n: "178万", suf: "", delay: 2.90 },
+    { img: "kabe_wall_resident", t: "住民税", num: 119, suf: "前後", delay: 0.70 },
+    { img: "kabe_wall_income", t: "所得税", num: 178, suf: "", delay: 2.90 },
   ];
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.tax.dur) }}>
@@ -213,8 +249,8 @@ const PageTax: React.FC = () => {
               <GenImg name={c.img} w={230} delay={d(c.delay, "tax")} style={{ margin: "0 auto", display: "block" }} />
               <div style={{ fontSize: 30, fontWeight: 900, color: C.ink, marginTop: 4 }}>{c.t}</div>
               <div style={{ marginTop: 2 }}>
-                <MarkNum delay={d(c.delay + 0.35, "tax")} color={C.orange}>
-                  <span style={{ fontSize: 84, fontWeight: 900, color: C.orange, lineHeight: 1.05 }}>{c.n}</span>
+                <MarkNum delay={d(c.delay, "tax") + 18} color={C.orange}>
+                  <span style={{ fontSize: 84, fontWeight: 900, color: C.orange, lineHeight: 1.05 }}><NumCount to={c.num} delay={d(c.delay, "tax")} />万</span>
                 </MarkNum>
                 {c.suf && <span style={{ fontSize: 30, fontWeight: 900, color: C.orange }}>{c.suf}</span>}
               </div>
@@ -260,8 +296,8 @@ const PageFuyo: React.FC = () => {
           <GenImg name="kabe_wall_fuyo" w={300} delay={d(11.0, "fuyo")} />
           <Pop delay={d(11.0, "fuyo")}>
             <div style={{ background: C.greenBg, border: `5px solid ${C.green}`, borderRadius: 24, padding: "22px 30px" }}>
-              <MarkNum delay={d(11.5, "fuyo")} color={C.green}>
-                <span style={{ fontSize: 92, fontWeight: 900, color: C.ink, lineHeight: 1 }}>169万</span>
+              <MarkNum delay={d(11.0, "fuyo") + 18} color={C.green}>
+                <span style={{ fontSize: 92, fontWeight: 900, color: C.ink, lineHeight: 1 }}><NumCount to={169} delay={d(11.0, "fuyo")} />万</span>
               </MarkNum>
               <div style={{ fontSize: 26, fontWeight: 900, color: C.green }}>まで</div>
             </div>
@@ -346,7 +382,7 @@ const PageShaho: React.FC = () => {
       {/* ── シーン③：130万で夫の扶養から外れる（26.1〜35.8s）── */}
       <Beat from={fr.C} dur={B.C}>
         <Pop delay={0} style={{ position: "absolute", top: 600, left: 0, width: 1080, textAlign: "center" }}>
-          <span style={{ fontSize: 96, fontWeight: 900, color: C.red, lineHeight: 1 }}><MarkNum delay={10} color={C.red}>130万</MarkNum>の壁</span>
+          <span style={{ fontSize: 96, fontWeight: 900, color: C.red, lineHeight: 1 }}><MarkNum delay={20} color={C.red}><NumCount to={130} delay={2} />万</MarkNum>の壁</span>
         </Pop>
         <Drop delay={62} style={{ position: "absolute", top: 740, left: 0, width: 1080, textAlign: "center" }}>
           <span style={{ fontSize: 26, fontWeight: 900, color: C.ink, background: "#fff", border: `2px dashed ${C.red}`, borderRadius: 10, padding: "7px 18px" }}>税金の扶養とは別の“社会保険の扶養”</span>
@@ -494,11 +530,13 @@ const PageMatome: React.FC = () => {
 
 export const KabeReel: React.FC = () => (
   <AbsoluteFill style={{ background: C.bg, fontFamily: FONT, overflow: "hidden" }}>
+    <BackgroundFX />
     <Audio src={staticFile("kabe_narration.wav")} />
     <Sequence from={P.tax.from} durationInFrames={P.tax.dur}><PageTax /></Sequence>
     <Sequence from={P.fuyo.from} durationInFrames={P.fuyo.dur}><PageFuyo /></Sequence>
     <Sequence from={P.shaho.from} durationInFrames={P.shaho.dur}><PageShaho /></Sequence>
     <Sequence from={P.merit.from} durationInFrames={P.merit.dur}><PageMerit /></Sequence>
     <Sequence from={P.matome.from} durationInFrames={P.matome.dur}><PageMatome /></Sequence>
+    <Progress total={KABE_FRAMES} />
   </AbsoluteFill>
 );
