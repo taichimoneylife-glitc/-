@@ -1,6 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Sequence, Audio, Img, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { FONT } from "./components/font";
+import { SfxTrack } from "./components/sfx";
 
 // ───────────────────────────────────────────────────────────────
 // 年収の壁(2026)｜ツリー固定＋枝ごと展開（太一さん指定の型）
@@ -570,34 +571,35 @@ const PageMatome: React.FC = () => {
   );
 };
 
-// ── 効果音（自前合成の上質パック・リバーブ余韻つき / public/sfx/q_*.wav）──
-const QSfx: React.FC<{ file: string; at: number; volume: number }> = ({ file, at, volume }) => (
-  <Sequence from={at} durationInFrames={80}><Audio src={staticFile(`sfx/${file}.wav`)} volume={volume} /></Sequence>
-);
+// ── 効果音：マニュアル(references/sfx-library.md)準拠 ──
+//   必ず user/u* 常用セット＋up6 を使用。中音(u02s/u03/u05/u07)が主役、高音(u04/u06/u08/u09/u10)は
+//   各シーン最大1回のキメ、ラスト締めはfinish/u07。低音ダダン系(合成音)は不使用。1シーン2〜4個・音量0.3〜0.46。
+const SFX_GAIN = 0.6;
 const KABE_SFX = [
-  // 税金
-  { file: "q_pop", at: 6, volume: 0.34 }, { file: "q_chime", at: 37, volume: 0.34 }, { file: "q_chime", at: 103, volume: 0.34 }, { file: "q_pop", at: 252, volume: 0.34 },
-  // 扶養（切替＋数字）
-  { file: "q_whoosh", at: 304, volume: 0.32 }, { file: "q_chime", at: 346, volume: 0.34 }, { file: "q_tap", at: 390, volume: 0.28 },
-  // 社会保険（切替＋各シーン）
-  { file: "q_whoosh", at: 495, volume: 0.34 }, { file: "q_pop", at: 505, volume: 0.3 }, { file: "q_thud", at: 613, volume: 0.42 },
-  { file: "q_whoosh", at: 630, volume: 0.3 }, { file: "q_pop", at: 750, volume: 0.32 },
-  { file: "q_whoosh", at: 783, volume: 0.3 }, { file: "q_impact", at: 799, volume: 0.52 }, { file: "q_pop", at: 947, volume: 0.3 },
-  { file: "q_whoosh", at: 1074, volume: 0.3 }, { file: "q_pop", at: 1094, volume: 0.32 },
-  { file: "q_whoosh", at: 1287, volume: 0.3 }, { file: "q_impact", at: 1357, volume: 0.52 },
-  // メリット（ツリー抜け＋4項目を上昇音で）
-  { file: "q_swipe", at: 1528, volume: 0.34 }, { file: "q_pop", at: 1540, volume: 0.3 },
-  { file: "q_note1", at: 1605, volume: 0.32 }, { file: "q_note2", at: 1655, volume: 0.32 }, { file: "q_note3", at: 1725, volume: 0.32 }, { file: "q_note4", at: 1801, volume: 0.32 },
-  // まとめ（切替＋5行＋締め）
-  { file: "q_swipe", at: 1895, volume: 0.34 }, { file: "q_pop", at: 1900, volume: 0.3 },
-  { file: "q_chime", at: 1919, volume: 0.32 }, { file: "q_chime", at: 2066, volume: 0.32 }, { file: "q_impact", at: 2167, volume: 0.44 }, { file: "q_chime", at: 2288, volume: 0.32 }, { file: "q_chime", at: 2406, volume: 0.32 },
-  { file: "q_ding", at: 2422, volume: 0.4 },
+  // ① 税金
+  { file: "up6", at: 2, volume: 0.42 }, { file: "user/u02s", at: 37, volume: 0.4 }, { file: "user/u04", at: 103, volume: 0.42 }, { file: "user/u05", at: 252, volume: 0.42 },
+  // ② 扶養
+  { file: "user/u03", at: 304, volume: 0.42 }, { file: "user/u04", at: 346, volume: 0.42 }, { file: "user/u02s", at: 390, volume: 0.38 },
+  // ③ 社会保険（シーン切替＝u07/u03・中音の出現＝u02s/u05・キメ高音は各シーン1回）
+  { file: "user/u07", at: 495, volume: 0.44 }, { file: "user/u05", at: 505, volume: 0.4 }, { file: "user/u06", at: 613, volume: 0.36 },
+  { file: "user/u03", at: 630, volume: 0.4 }, { file: "user/u02s", at: 655, volume: 0.38 }, { file: "user/u02s", at: 706, volume: 0.38 }, { file: "user/u05", at: 750, volume: 0.42 },
+  { file: "user/u03", at: 783, volume: 0.4 }, { file: "user/u09", at: 801, volume: 0.46 }, { file: "user/u02s", at: 947, volume: 0.4 },
+  { file: "user/u03", at: 1074, volume: 0.4 }, { file: "user/u02s", at: 1086, volume: 0.38 }, { file: "user/u05", at: 1100, volume: 0.42 },
+  { file: "user/u03", at: 1287, volume: 0.4 }, { file: "user/u02s", at: 1295, volume: 0.38 }, { file: "user/u10", at: 1357, volume: 0.46 },
+  // ④ メリット（大きな転換＝u07・4項目は中音の出現＋最後だけ高音キメ）
+  { file: "user/u07", at: 1528, volume: 0.44 }, { file: "user/u05", at: 1540, volume: 0.42 },
+  { file: "user/u02s", at: 1605, volume: 0.4 }, { file: "user/u02s", at: 1655, volume: 0.4 }, { file: "user/u02s", at: 1725, volume: 0.4 }, { file: "user/u04", at: 1801, volume: 0.42 },
+  // ⑤ まとめ（転換＝u07・各行は中音・★130は高音キメ・結論帯＝u10・ラスト締め＝finish）
+  { file: "user/u07", at: 1895, volume: 0.44 }, { file: "user/u05", at: 1900, volume: 0.42 },
+  { file: "user/u02s", at: 1919, volume: 0.4 }, { file: "user/u02s", at: 2066, volume: 0.4 }, { file: "user/u04", at: 2167, volume: 0.44 }, { file: "user/u02s", at: 2288, volume: 0.4 }, { file: "user/u02s", at: 2406, volume: 0.4 },
+  { file: "user/u10", at: 2422, volume: 0.46 }, { file: "finish", at: 2470, volume: 0.46 },
 ];
-export const KabeReel: React.FC = () => (
+// audio: "full"=ナレ＋効果音ミックス / "voice"=ナレのみ / "sfx"=効果音のみ（3点書き出し用）
+export const KabeReel: React.FC<{ audio?: "full" | "voice" | "sfx" }> = ({ audio = "full" }) => (
   <AbsoluteFill style={{ background: C.bg, fontFamily: FONT, overflow: "hidden" }}>
     <BackgroundFX />
-    <Audio src={staticFile("kabe_narration.wav")} />
-    {KABE_SFX.map((c, i) => <QSfx key={i} file={c.file} at={c.at} volume={c.volume} />)}
+    {audio !== "sfx" && <Audio src={staticFile("kabe_narration.wav")} />}
+    {audio !== "voice" && <SfxTrack cues={KABE_SFX} gain={SFX_GAIN} />}
     <Sequence from={P.tax.from} durationInFrames={P.tax.dur}><PageTax /></Sequence>
     <Sequence from={P.fuyo.from} durationInFrames={P.fuyo.dur}><PageFuyo /></Sequence>
     <Sequence from={P.shaho.from} durationInFrames={P.shaho.dur}><PageShaho /></Sequence>

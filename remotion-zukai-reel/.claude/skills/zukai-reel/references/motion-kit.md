@@ -68,11 +68,15 @@ const punch = interpolate(f,[delay+13,delay+17,delay+23],[1,1.14,1],{clamp}); //
 方向スライドイン＋弾み（`useSp` damping:11＝低めで軽く弾む）。
 `dir="left|right|up"` で入ってくる向きを指定（例：傘から出る=left／財布=right／納付書=up）。
 
-## 9. 効果音（SfxTrack）※BGMは別途
-`src/components/sfx.tsx` の `SfxTrack` に `{file, at(frame), volume}` の配列を渡す。
-素材は `public/sfx/*.mp3`（効果音ラボ）＋自前合成wav。音声に同期して：
-- 出現=`pop`/リスト=`tap`,`up1..`/数字=`coin`/切替=`whoosh2`,`swipe`/山場=`dadan`(ドン)/締め=`bell`
-- 音量は 0.18〜0.30（ナレの下で控えめ）。`gain` で一括調整。
+## 9. 効果音（SfxTrack）※必ず `references/sfx-library.md` から選ぶ
+★鉄則：効果音は**マニュアル `sfx-library.md` のパレットからのみ選ぶ**。自前合成は作らない。
+低音ダダン系（合成音 dadan/thud/coin/bell/whoosh2 等）は**ユーザーNG・不使用**。
+`src/components/sfx.tsx` の `SfxTrack` に `{file, at(frame), volume}`（＋`gain`）を渡す。
+使い分け（中音を主役・高音はキメ1回／1シーン2〜4個／音量0.3〜0.46）：
+- 出現=`user/u02s`・`user/u05`（中）／転換=`user/u03`・強めは`user/u07`（中）
+- カウント=`user/u06`（短）／数字の特大キメ=`user/u04`・`user/u08`（高・各シーン1回）
+- 結論帯=`user/u10`／ラスト締め=`finish`（低）or `user/u07`。`up6` は数少ない中音で普段使い可。
+GanReel.tsx / ToushiReel.tsx のキュー配列が実例。
 
 ---
 
