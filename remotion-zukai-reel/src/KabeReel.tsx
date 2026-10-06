@@ -343,14 +343,14 @@ const PageFuyo: React.FC = () => {
         <Drop delay={d(12.6, "fuyo")} style={{ marginTop: 6 }}>
           <span style={{ fontSize: 44, fontWeight: 900, color: C.ink }}>夫の税金は<Hi delay={d(13.0, "fuyo")} color={C.green}>増えない</Hi></span>
         </Drop>
-        {/* 超えても少しずつ：14.66s */}
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 14, marginTop: 24 }}>
-          <GenImg name="kabe_husband_tax_same" w={210} delay={d(14.66, "fuyo")} dir="right" />
+        {/* 超えても少しずつ：14.66s（上の行と被らないよう間隔を広げ、1行に） */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 26, marginTop: 56 }}>
+          <GenImg name="kabe_husband_tax_same" w={200} delay={d(14.66, "fuyo")} dir="right" />
           <Drop delay={d(14.66, "fuyo")}>
-            <span style={{ fontSize: 34, fontWeight: 900, color: C.ink, background: C.grayBg, borderRadius: 14, padding: "14px 26px" }}>超えても、<br />少しずつ増えるだけ</span>
+            <span style={{ fontSize: 34, fontWeight: 900, color: C.ink, background: C.grayBg, borderRadius: 14, padding: "14px 28px", whiteSpace: "nowrap" }}>超えても、少しずつ増えるだけ</span>
           </Drop>
         </div>
-        <div style={{ fontSize: 22, fontWeight: 700, color: C.gray, marginTop: 30 }}>※夫の所得などによって控除額は異なります</div>
+        <div style={{ fontSize: 22, fontWeight: 700, color: C.gray, marginTop: 40 }}>※夫の所得などによって控除額は異なります</div>
       </div>
     </AbsoluteFill>
   );
@@ -440,7 +440,7 @@ const PageShaho: React.FC = () => {
         </Drop>
         <GenImg name="kabe_nenkin_kokuho_paper" w={300} delay={12} dir="up" style={{ position: "absolute", top: 700, left: 0, right: 0, margin: "0 auto" }} />
         <Drop delay={20} style={{ position: "absolute", top: 1070, left: 0, width: 1080, textAlign: "center" }}>
-          <div style={{ fontSize: 44, fontWeight: 900, color: C.ink, lineHeight: 1.35 }}>外れると<Hi delay={40} color={C.red}>国民年金・国保</Hi>を<br /><span style={{ color: C.red }}>自分で払う</span>ことに</div>
+          <div style={{ fontSize: 42, fontWeight: 900, color: C.ink, lineHeight: 1.35 }}>外れると<Hi delay={40} color={C.red}>国民年金・国保</Hi>の<br /><span style={{ color: C.red }}>保険料を自分で払う</span>ことに</div>
         </Drop>
       </Beat>
       {/* ── シーン⑤：手取りへの影響が大きい（42.9〜50.94s）── */}
@@ -589,7 +589,7 @@ const PageMatome: React.FC = () => {
 // ── 効果音：マニュアル(references/sfx-library.md)準拠 ──
 //   必ず user/u* 常用セット＋up6 を使用。中音(u02s/u03/u05/u07)が主役、高音(u04/u06/u08/u09/u10)は
 //   各シーン最大1回のキメ、ラスト締めはfinish/u07。低音ダダン系(合成音)は不使用。1シーン2〜4個・音量0.3〜0.46。
-const SFX_GAIN = 0.6;
+const SFX_GAIN = 1.0; // ★効果音の音量つまみ（ユーザー要望で大きめに）
 const KABE_SFX = [
   // ① 税金
   { file: "up6", at: 2, volume: 0.42 }, { file: "user/u02s", at: 37, volume: 0.4 }, { file: "user/u04", at: 103, volume: 0.42 }, { file: "user/u05", at: 252, volume: 0.42 },
