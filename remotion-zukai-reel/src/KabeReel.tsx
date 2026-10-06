@@ -1,7 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Sequence, Audio, Img, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { FONT } from "./components/font";
-import { SfxTrack } from "./components/sfx";
 
 // ───────────────────────────────────────────────────────────────
 // 年収の壁(2026)｜ツリー固定＋枝ごと展開（太一さん指定の型）
@@ -571,31 +570,34 @@ const PageMatome: React.FC = () => {
   );
 };
 
-// ── 効果音キュー（効果音ラボ・自前合成）：出現/数字/切替/山場に同期 ──
+// ── 効果音（自前合成の上質パック・リバーブ余韻つき / public/sfx/q_*.wav）──
+const QSfx: React.FC<{ file: string; at: number; volume: number }> = ({ file, at, volume }) => (
+  <Sequence from={at} durationInFrames={80}><Audio src={staticFile(`sfx/${file}.wav`)} volume={volume} /></Sequence>
+);
 const KABE_SFX = [
   // 税金
-  { file: "pop", at: 6, volume: 0.2 }, { file: "coin", at: 37, volume: 0.22 }, { file: "coin", at: 103, volume: 0.22 }, { file: "pop", at: 252, volume: 0.22 },
+  { file: "q_pop", at: 6, volume: 0.34 }, { file: "q_chime", at: 37, volume: 0.34 }, { file: "q_chime", at: 103, volume: 0.34 }, { file: "q_pop", at: 252, volume: 0.34 },
   // 扶養（切替＋数字）
-  { file: "whoosh2", at: 304, volume: 0.2 }, { file: "coin", at: 346, volume: 0.22 }, { file: "tap", at: 390, volume: 0.2 },
+  { file: "q_whoosh", at: 304, volume: 0.32 }, { file: "q_chime", at: 346, volume: 0.34 }, { file: "q_tap", at: 390, volume: 0.28 },
   // 社会保険（切替＋各シーン）
-  { file: "whoosh2", at: 495, volume: 0.22 }, { file: "pop", at: 505, volume: 0.2 }, { file: "thunk", at: 613, volume: 0.24 },
-  { file: "whoosh2", at: 630, volume: 0.18 }, { file: "pop", at: 750, volume: 0.22 },
-  { file: "whoosh2", at: 783, volume: 0.18 }, { file: "dadan", at: 799, volume: 0.3 }, { file: "pop", at: 947, volume: 0.2 },
-  { file: "whoosh2", at: 1074, volume: 0.18 }, { file: "pop", at: 1094, volume: 0.22 },
-  { file: "whoosh2", at: 1287, volume: 0.18 }, { file: "dadan", at: 1357, volume: 0.3 },
+  { file: "q_whoosh", at: 495, volume: 0.34 }, { file: "q_pop", at: 505, volume: 0.3 }, { file: "q_thud", at: 613, volume: 0.42 },
+  { file: "q_whoosh", at: 630, volume: 0.3 }, { file: "q_pop", at: 750, volume: 0.32 },
+  { file: "q_whoosh", at: 783, volume: 0.3 }, { file: "q_impact", at: 799, volume: 0.52 }, { file: "q_pop", at: 947, volume: 0.3 },
+  { file: "q_whoosh", at: 1074, volume: 0.3 }, { file: "q_pop", at: 1094, volume: 0.32 },
+  { file: "q_whoosh", at: 1287, volume: 0.3 }, { file: "q_impact", at: 1357, volume: 0.52 },
   // メリット（ツリー抜け＋4項目を上昇音で）
-  { file: "swipe", at: 1528, volume: 0.22 }, { file: "pop", at: 1540, volume: 0.2 },
-  { file: "up1", at: 1605, volume: 0.2 }, { file: "up2", at: 1655, volume: 0.2 }, { file: "up3", at: 1725, volume: 0.2 }, { file: "up4", at: 1801, volume: 0.2 },
+  { file: "q_swipe", at: 1528, volume: 0.34 }, { file: "q_pop", at: 1540, volume: 0.3 },
+  { file: "q_note1", at: 1605, volume: 0.32 }, { file: "q_note2", at: 1655, volume: 0.32 }, { file: "q_note3", at: 1725, volume: 0.32 }, { file: "q_note4", at: 1801, volume: 0.32 },
   // まとめ（切替＋5行＋締め）
-  { file: "swipe", at: 1895, volume: 0.22 }, { file: "pop", at: 1900, volume: 0.2 },
-  { file: "coin", at: 1919, volume: 0.2 }, { file: "coin", at: 2066, volume: 0.2 }, { file: "dadan", at: 2167, volume: 0.26 }, { file: "coin", at: 2288, volume: 0.2 }, { file: "coin", at: 2406, volume: 0.2 },
-  { file: "bell", at: 2420, volume: 0.24 },
+  { file: "q_swipe", at: 1895, volume: 0.34 }, { file: "q_pop", at: 1900, volume: 0.3 },
+  { file: "q_chime", at: 1919, volume: 0.32 }, { file: "q_chime", at: 2066, volume: 0.32 }, { file: "q_impact", at: 2167, volume: 0.44 }, { file: "q_chime", at: 2288, volume: 0.32 }, { file: "q_chime", at: 2406, volume: 0.32 },
+  { file: "q_ding", at: 2422, volume: 0.4 },
 ];
 export const KabeReel: React.FC = () => (
   <AbsoluteFill style={{ background: C.bg, fontFamily: FONT, overflow: "hidden" }}>
     <BackgroundFX />
     <Audio src={staticFile("kabe_narration.wav")} />
-    <SfxTrack cues={KABE_SFX} gain={1} />
+    {KABE_SFX.map((c, i) => <QSfx key={i} file={c.file} at={c.at} volume={c.volume} />)}
     <Sequence from={P.tax.from} durationInFrames={P.tax.dur}><PageTax /></Sequence>
     <Sequence from={P.fuyo.from} durationInFrames={P.fuyo.dur}><PageFuyo /></Sequence>
     <Sequence from={P.shaho.from} durationInFrames={P.shaho.dur}><PageShaho /></Sequence>
