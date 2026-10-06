@@ -191,19 +191,23 @@ const PageShaho: React.FC = () => {
           <Pop delay={22}><span style={{ fontSize: 24, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "5px 14px" }}>2026年10月 撤廃</span></Pop>
         </div>
         <Drop delay={30} style={{ marginTop: 10 }}><div style={{ fontSize: 30, fontWeight: 900, color: C.ink }}>今は<span style={{ color: C.red }}>“週20時間”</span>で決まる</div></Drop>
-        <Pop delay={44} style={{ marginTop: 20 }}>
-          <div style={{ display: "inline-block", background: C.redBg, border: `5px solid ${C.red}`, borderRadius: 20, padding: "20px 34px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
-              <span style={{ fontSize: 80, fontWeight: 900, color: C.red, lineHeight: 1 }}>130万</span>
-              <div style={{ textAlign: "left" }}><div style={{ fontSize: 30, fontWeight: 900, color: C.ink }}>扶養を外れて</div><div style={{ fontSize: 30, fontWeight: 900, color: C.red }}>手取りが急に減る</div></div>
+        <Pop delay={44} style={{ marginTop: 18 }}>
+          <div style={{ display: "inline-block", background: C.redBg, border: `5px solid ${C.red}`, borderRadius: 20, padding: "18px 30px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
+              <span style={{ fontSize: 68, fontWeight: 900, color: C.red, lineHeight: 1 }}>130万</span>
+              <div style={{ textAlign: "left" }}><div style={{ fontSize: 28, fontWeight: 900, color: C.ink }}>扶養を外れて</div><div style={{ fontSize: 28, fontWeight: 900, color: C.red }}>手取りが急に減る</div></div>
             </div>
-            <div style={{ fontSize: 26, fontWeight: 900, color: C.ink, marginTop: 10 }}>保険料が <span style={{ color: C.red, fontSize: 34 }}>年15〜20万</span> 以上かかる</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 12 }}>
+              <span style={{ fontSize: 26, fontWeight: 900, color: C.ink }}>129万→手取り<span style={{ color: C.green }}>126万</span></span>
+              <span style={{ fontSize: 26, color: C.red }}>→</span>
+              <span style={{ fontSize: 26, fontWeight: 900, color: C.ink }}>130万超→<span style={{ color: C.red, fontSize: 34 }}>約109万</span></span>
+            </div>
           </div>
         </Pop>
-        <Drop delay={62} style={{ marginTop: 16 }}>
+        <Drop delay={62} style={{ marginTop: 14 }}>
           <span style={{ fontSize: 34, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 12, padding: "10px 26px" }}>本当に怖いのは、この130万</span>
         </Drop>
-        <div style={{ fontSize: 20, fontWeight: 700, color: C.gray, marginTop: 14 }}>※大きい会社(51人以上)で週20時間なら130万を待たず社保／回復は約160万・目安</div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: C.gray, marginTop: 14 }}>※国民年金＋国保で年27〜35万／働き損が解消するのは約150万・目安</div>
       </div>
     </AbsoluteFill>
   );
@@ -266,7 +270,7 @@ const PageMatome: React.FC = () => {
         <div style={{ fontSize: 30, fontWeight: 900, color: "#fff", background: C.ink, borderRadius: 12, padding: "10px 0", textAlign: "center", marginBottom: 16 }}>やることは、2つだけ</div>
         {[
           { n: "1", t: "勤め先の社保の条件を確認", s: "週20時間・51人以上に当てはまる？" },
-          { n: "2", t: "130万を超えるなら、どう超えるか", s: "中途半端が一番損。約160万まで働くか" },
+          { n: "2", t: "130万を超えるなら、どう超えるか", s: "中途半端が一番損。約150万まで働くか" },
         ].map((x, i) => (
           <Drop key={i} delay={80 + i * 12} dy={-18} style={{ marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, background: C.orangeBg, border: `3px solid ${C.orange}`, borderRadius: 14, padding: "14px 20px" }}>
