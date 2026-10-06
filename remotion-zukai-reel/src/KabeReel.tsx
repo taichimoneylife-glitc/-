@@ -215,26 +215,32 @@ const PageShaho: React.FC = () => {
 // ───────────── ⑤ とはいえ：メリット（ポンポン）─────────────
 const PageMerit: React.FC = () => {
   const f = useCurrentFrame();
-  const items = [{ t: "将来の年金が増える", i: "↑" }, { t: "傷病手当金（病気で休んでも）", i: "＋" }, { t: "出産手当金（産休中ももらえる）", i: "＋" }];
+  const items = [
+    { t: "将来の年金が増える", i: "1" },
+    { t: "傷病手当金（病気で休んでも）", i: "2" },
+    { t: "出産手当金（産休中も）", i: "3" },
+    { t: "障害・遺族の年金も手厚い", i: "4" },
+    { t: "保険料は会社が半分負担", i: "5" },
+  ];
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.merit.dur) }}>
-      <Drop delay={0} style={{ position: "absolute", top: 230, left: 0, width: 1080, textAlign: "center" }}>
+      <Drop delay={0} style={{ position: "absolute", top: 200, left: 0, width: 1080, textAlign: "center" }}>
         <div style={{ fontSize: 30, fontWeight: 900, color: C.green }}>とはいえ…</div>
-        <div style={{ fontSize: 50, fontWeight: 900, color: C.ink, marginTop: 4 }}>社保に<span style={{ color: C.green }}>入れば</span>、いいことも</div>
+        <div style={{ fontSize: 48, fontWeight: 900, color: C.ink, marginTop: 4 }}>社保に入るメリットは<span style={{ color: C.green }}>5つ</span></div>
       </Drop>
-      <div style={{ position: "absolute", top: 440, left: 0, width: 1080 }}>
+      <div style={{ position: "absolute", top: 360, left: 0, width: 1080 }}>
         {items.map((it, i) => (
-          <Drop key={i} delay={14 + i * 16} dy={-28} style={{ marginBottom: 26, display: "flex", justifyContent: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 20, width: 840, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 20, padding: "22px 30px" }}>
-              <span style={{ width: 62, height: 62, borderRadius: "50%", background: C.green, color: "#fff", fontSize: 38, fontWeight: 900, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{it.i}</span>
-              <span style={{ fontSize: 34, fontWeight: 900, color: C.ink }}>{it.t}</span>
+          <Drop key={i} delay={12 + i * 13} dy={-24} style={{ marginBottom: 18, display: "flex", justifyContent: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 18, width: 850, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 18, padding: "18px 28px" }}>
+              <span style={{ width: 56, height: 56, borderRadius: "50%", background: C.green, color: "#fff", fontSize: 30, fontWeight: 900, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{it.i}</span>
+              <span style={{ fontSize: 33, fontWeight: 900, color: C.ink }}>{it.t}</span>
             </div>
           </Drop>
         ))}
       </div>
-      <Drop delay={70} style={{ position: "absolute", top: 1110, left: 90, width: 900, textAlign: "center" }}>
-        <span style={{ fontSize: 28, fontWeight: 900, color: C.ink, background: C.orangeBg, borderRadius: 12, padding: "12px 24px" }}>国民健康保険には、原則こうした手当はない</span>
-        <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 16 }}>※各手当には支給要件があります</div>
+      <Drop delay={78} style={{ position: "absolute", top: 1230, left: 90, width: 900, textAlign: "center" }}>
+        <span style={{ fontSize: 27, fontWeight: 900, color: C.ink, background: C.orangeBg, borderRadius: 12, padding: "12px 24px" }}>国民健康保険には、原則こうした手当はない</span>
+        <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 14 }}>※各手当には支給要件があります</div>
       </Drop>
     </AbsoluteFill>
   );
