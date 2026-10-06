@@ -527,11 +527,16 @@ const PageMerit: React.FC = () => {
 //        扶養から外れることがある。169万円までは条件を満たせば夫の控除は満額。
 //        178万円を超えると本人の所得税がかかり始める目安」
 const ROWS = [
-  { sec: 63.96, amt: "週20h〜", tag: "社保", desc: "51人以上の会社などで加入", c: C.red },
-  { sec: 68.86, amt: "119万", tag: "税金", desc: "住民税がかかり始める目安", c: C.orange },
-  { sec: 72.24, amt: "130万", tag: "社保", desc: "夫の扶養から外れることがある", c: C.red, star: true },
-  { sec: 76.26, amt: "169万", tag: "扶養", desc: "条件を満たせば夫の控除は満額", c: C.ink },
-  { sec: 80.20, amt: "178万", tag: "税金", desc: "本人の所得税がかかり始める目安", c: C.orange },
+  { sec: 63.96, amt: "週20時間〜", fs: 40, role: "勤務先の社会保険", sub: "51人以上の会社などで加入", c: C.red },
+  { sec: 68.86, amt: "119万円", fs: 54, role: "本人の住民税", sub: "かかり始める目安", c: C.orange },
+  { sec: 72.24, amt: "130万円", fs: 54, role: "社会保険の扶養", sub: "夫の扶養から外れる目安", c: C.red, star: true },
+  { sec: 76.26, amt: "169万円", fs: 54, role: "夫の配偶者特別控除", sub: "条件を満たせば満額", c: C.ink },
+  { sec: 80.20, amt: "178万円", fs: 54, role: "本人の所得税", sub: "かかり始める目安", c: C.orange },
+];
+const NOTES = [
+  "※給与収入のみの場合。社会保険は雇用期間などの条件あり。",
+  "※住民税は自治体・扶養人数などにより異なり、2027年度分の目安。",
+  "※配偶者特別控除の満額は、夫の合計所得900万円以下の場合。",
 ];
 const PageMatome: React.FC = () => {
   const f = useCurrentFrame();
@@ -539,34 +544,44 @@ const PageMatome: React.FC = () => {
   const enterY = interpolate(f, [0, 14], [90, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.matome.dur), transform: `translateY(${enterY}px)` }}>
-      <Drop delay={d(63.18, "matome")} style={{ position: "absolute", top: 160, left: 0, width: 1080, textAlign: "center" }}>
-        <span style={{ fontSize: 52, fontWeight: 900, color: C.ink }}>まとめると、<span style={{ color: C.orange }}>この5つ</span></span>
+      <Drop delay={d(63.18, "matome")} style={{ position: "absolute", top: 110, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 50, fontWeight: 900, color: C.ink }}>まとめると、<span style={{ color: C.orange }}>この5つ</span></span>
+        <div style={{ marginTop: 10 }}><span style={{ fontSize: 24, fontWeight: 900, color: C.ink, background: C.orangeBg, borderRadius: 999, padding: "6px 22px" }}>2026年の給与収入の目安</span></div>
       </Drop>
-      <div style={{ position: "absolute", top: 340, left: 60, width: 960 }}>
+      <div style={{ position: "absolute", top: 268, left: 60, width: 960 }}>
         {ROWS.map((w, i) => (
-          <Drop key={i} delay={d(w.sec, "matome")} dy={-22} style={{ marginBottom: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 20, background: w.star ? C.redBg : "#fff", border: `${w.star ? 6 : 3}px solid ${w.c}`, borderRadius: 18, padding: "18px 26px", boxShadow: "0 5px 14px rgba(31,58,95,0.07)" }}>
-              <div style={{ minWidth: 220, textAlign: "center", lineHeight: 1 }}>
+          <Drop key={i} delay={d(w.sec, "matome")} dy={-22} style={{ marginBottom: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", background: w.star ? C.redBg : "#fff", border: `${w.star ? 5 : 3}px solid ${w.c}`, borderRadius: 16, padding: "12px 22px", boxShadow: "0 5px 14px rgba(31,58,95,0.06)" }}>
+              <div style={{ width: 266, textAlign: "center", lineHeight: 1, flexShrink: 0 }}>
                 {w.star ? (
-                  <MarkNum delay={d(w.sec + 0.5, "matome")} color={C.red}>
-                    <span style={{ fontSize: 60, fontWeight: 900, color: w.c }}>{w.amt}</span>
-                  </MarkNum>
+                  <MarkNum delay={d(w.sec + 0.5, "matome")} color={C.red}><span style={{ fontSize: w.fs, fontWeight: 900, color: w.c }}>{w.amt}</span></MarkNum>
                 ) : (
-                  <span style={{ fontSize: 52, fontWeight: 900, color: w.c }}>{w.amt}</span>
+                  <span style={{ fontSize: w.fs, fontWeight: 900, color: w.c }}>{w.amt}</span>
                 )}
               </div>
-              <span style={{ fontSize: 20, fontWeight: 900, color: "#fff", background: w.c, borderRadius: 7, padding: "3px 12px" }}>{w.tag}</span>
-              <span style={{ fontSize: w.star ? 34 : 31, fontWeight: 900, color: C.ink, textAlign: "left" }}>{w.desc}</span>
+              <div style={{ width: 2, alignSelf: "stretch", background: w.c, opacity: 0.4, margin: "2px 0" }} />
+              <div style={{ flex: 1, paddingLeft: 22, textAlign: "left" }}>
+                <span style={{ display: "inline-block", fontSize: 23, fontWeight: 900, color: "#fff", background: w.c, borderRadius: 8, padding: "3px 14px" }}>{w.role}</span>
+                <div style={{ fontSize: 28, fontWeight: 900, color: C.ink, marginTop: 5 }}>{w.sub}</div>
+              </div>
             </div>
           </Drop>
         ))}
       </div>
-      <div style={{ position: "absolute", top: 1010, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
-        <GenImg name="kabe_family_money_guard" w={150} delay={d(80.5, "matome")} />
+      <div style={{ position: "absolute", top: 940, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
+        <GenImg name="kabe_family_money_guard" w={140} delay={d(80.5, "matome")} dir="left" />
         <Drop delay={d(80.20, "matome")}>
-          <span style={{ fontSize: 36, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 14, padding: "14px 32px" }}>一番影響するのは、社会保険</span>
+          <div style={{ background: C.red, borderRadius: 16, padding: "12px 30px", textAlign: "center" }}>
+            <div style={{ fontSize: 26, fontWeight: 900, color: "#fff" }}>手取りに大きく影響するのは</div>
+            <div style={{ fontSize: 42, fontWeight: 900, color: "#fff", lineHeight: 1.1 }}>社会保険</div>
+          </div>
         </Drop>
       </div>
+      <Drop delay={d(78.0, "matome")} style={{ position: "absolute", top: 1150, left: 80, width: 860 }}>
+        {NOTES.map((n, i) => (
+          <div key={i} style={{ fontSize: 20, fontWeight: 700, color: C.gray, textAlign: "left", marginBottom: 7, lineHeight: 1.35 }}>{n}</div>
+        ))}
+      </Drop>
     </AbsoluteFill>
   );
 };
