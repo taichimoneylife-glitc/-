@@ -21,6 +21,12 @@ const CX = 540;
 const FPS = 30;
 const s2f = (sec: number) => Math.round(sec * FPS);
 
+// ── Instagramリール セーフゾーン ──
+//   下キャプション帯：画面下 約420px(y≳1500)にアカウント名/キャプション/音源/シークバー
+//   右いいね欄：右端 x≳940・縦 y≈950〜1680 に ♡💬📤🔖＋音源アイコン
+//   ⇒ 重要要素は y≤1470 に収め、下段(y>950)は中央寄せ＆横幅を抑えて右端を避ける
+const SAFE_BOTTOM = 1470;
+
 // ── 音声アンカー（whisper語タイムスタンプ, 秒）→ ページ境界 ──
 const A = {
   tax: 0.0,     // 「まず税金…」
@@ -186,57 +192,57 @@ const PageShaho: React.FC = () => {
     <AbsoluteFill style={{ opacity: pageFade(f, P.shaho.dur) }}>
       <TreeHeader active="shaho" />
       {/* badge */}
-      <Pop delay={d(16.9, "shaho")} style={{ position: "absolute", top: 560, left: 0, width: 1080, textAlign: "center" }}>
+      <Pop delay={d(16.9, "shaho")} style={{ position: "absolute", top: 540, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 36, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "8px 30px" }}>★ 本当に気をつける壁</span>
       </Pop>
       {/* 106万の壁 → なくなった：18.04s / strike 20.44s */}
-      <div style={{ position: "absolute", top: 660, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 20 }}>
+      <div style={{ position: "absolute", top: 624, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 20 }}>
         <Pop delay={d(18.04, "shaho")} style={{ position: "relative" }}>
-          <span style={{ fontSize: 56, fontWeight: 900, color: C.gray }}>106万の壁</span>
+          <span style={{ fontSize: 52, fontWeight: 900, color: C.gray }}>106万の壁</span>
           <div style={{ position: "absolute", top: "50%", left: -6, width: `${strike * 100}%`, height: 6, background: C.red, transform: "rotate(-8deg)", transformOrigin: "left center" }} />
         </Pop>
         <Pop delay={d(20.44, "shaho")}>
-          <span style={{ fontSize: 30, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "8px 20px" }}>この10月に撤廃</span>
+          <span style={{ fontSize: 28, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "8px 20px" }}>この10月に撤廃</span>
         </Pop>
       </div>
       {/* 51人以上・週20h → 加入：20.96s */}
-      <Drop delay={d(20.96, "shaho")} style={{ position: "absolute", top: 760, left: 0, width: 1080, textAlign: "center" }}>
-        <div style={{ fontSize: 36, fontWeight: 900, color: C.ink }}>
-          <span style={{ color: C.red }}>51人以上</span>の会社<span style={{ fontSize: 26, color: C.gray }}>など</span>で
+      <Drop delay={d(20.96, "shaho")} style={{ position: "absolute", top: 712, left: 0, width: 1080, textAlign: "center" }}>
+        <div style={{ fontSize: 34, fontWeight: 900, color: C.ink }}>
+          <span style={{ color: C.red }}>51人以上</span>の会社<span style={{ fontSize: 24, color: C.gray }}>など</span>で
           <span style={{ color: C.red }}> 週20時間以上</span> → 社保に加入
         </div>
       </Drop>
-      {/* 130万の壁カード：26.10s（「税金とは別」28.16s） */}
-      <Pop delay={d(26.10, "shaho")} style={{ position: "absolute", top: 850, left: 0, width: 1080, textAlign: "center" }}>
-        <div style={{ display: "inline-block", background: C.redBg, border: `6px solid ${C.red}`, borderRadius: 24, padding: "22px 40px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
-            <span style={{ fontSize: 96, fontWeight: 900, color: C.red, lineHeight: 1 }}>130万</span>
+      {/* 130万の壁カード：26.10s（「税金とは別」28.16s）※y786〜970=いいね欄より上 */}
+      <Pop delay={d(26.10, "shaho")} style={{ position: "absolute", top: 786, left: 0, width: 1080, textAlign: "center" }}>
+        <div style={{ display: "inline-block", background: C.redBg, border: `6px solid ${C.red}`, borderRadius: 22, padding: "16px 34px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18 }}>
+            <span style={{ fontSize: 84, fontWeight: 900, color: C.red, lineHeight: 1 }}>130万</span>
             <div style={{ textAlign: "left" }}>
-              <div style={{ fontSize: 34, fontWeight: 900, color: C.ink }}>夫の社会保険の扶養から</div>
-              <div style={{ fontSize: 38, fontWeight: 900, color: C.red }}>外れることがある</div>
+              <div style={{ fontSize: 32, fontWeight: 900, color: C.ink }}>夫の社会保険の扶養から</div>
+              <div style={{ fontSize: 36, fontWeight: 900, color: C.red }}>外れることがある</div>
             </div>
           </div>
-          <Drop delay={d(28.16, "shaho")} style={{ marginTop: 14 }}>
-            <span style={{ fontSize: 26, fontWeight: 900, color: C.ink, background: "#fff", border: `2px dashed ${C.red}`, borderRadius: 10, padding: "6px 18px" }}>税金の扶養とは別の“社会保険の扶養”</span>
+          <Drop delay={d(28.16, "shaho")} style={{ marginTop: 12 }}>
+            <span style={{ fontSize: 24, fontWeight: 900, color: C.ink, background: "#fff", border: `2px dashed ${C.red}`, borderRadius: 10, padding: "6px 16px" }}>税金の扶養とは別の“社会保険の扶養”</span>
           </Drop>
         </div>
       </Pop>
-      {/* 外れると自分で払う：35.82s */}
-      <Drop delay={d(35.82, "shaho")} style={{ position: "absolute", top: 1180, left: 90, width: 900, textAlign: "center" }}>
-        <div style={{ fontSize: 30, fontWeight: 800, color: C.gray }}>今まで保険料はかからなかったけど…</div>
-        <div style={{ fontSize: 40, fontWeight: 900, color: C.ink, marginTop: 8, lineHeight: 1.35 }}>外れると、<span style={{ color: C.red }}>国民年金・国保</span>を<br /><span style={{ color: C.red }}>自分で払う</span>ことに</div>
+      {/* 外れると自分で払う：35.82s（下段＝中央寄せの素テキストで右いいね欄を避ける） */}
+      <Drop delay={d(35.82, "shaho")} style={{ position: "absolute", top: 1030, left: 140, width: 800, textAlign: "center" }}>
+        <div style={{ fontSize: 28, fontWeight: 800, color: C.gray }}>今まで保険料はかからなかったけど…</div>
+        <div style={{ fontSize: 38, fontWeight: 900, color: C.ink, marginTop: 8, lineHeight: 1.35 }}>外れると、<span style={{ color: C.red }}>国民年金・国保</span>を<br /><span style={{ color: C.red }}>自分で払う</span>ことに</div>
       </Drop>
       {/* 税金との違い＝保険料負担で手取り影響大：42.92s / 44.72s */}
-      <Drop delay={d(42.92, "shaho")} style={{ position: "absolute", top: 1420, left: 60, width: 960, textAlign: "center" }}>
-        <div style={{ fontSize: 30, fontWeight: 900, color: C.ink }}>ここが税金との大きな違い</div>
-        <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 16, alignItems: "stretch" }}>
-          <div style={{ flex: 1, background: C.orangeBg, borderRadius: 14, padding: "14px 10px" }}><div style={{ fontSize: 24, fontWeight: 900, color: C.orange }}>税金</div><div style={{ fontSize: 26, fontWeight: 900, color: C.ink }}>少しずつ</div></div>
-          <div style={{ flex: 1.3, background: C.redBg, border: `3px solid ${C.red}`, borderRadius: 14, padding: "14px 10px" }}><div style={{ fontSize: 24, fontWeight: 900, color: C.red }}>社会保険</div><div style={{ fontSize: 26, fontWeight: 900, color: C.ink }}>保険料の負担が生まれる</div></div>
+      <Drop delay={d(42.92, "shaho")} style={{ position: "absolute", top: 1210, left: 160, width: 760, textAlign: "center" }}>
+        <div style={{ fontSize: 28, fontWeight: 900, color: C.ink }}>ここが税金との大きな違い</div>
+        <div style={{ display: "flex", justifyContent: "center", gap: 14, marginTop: 12, alignItems: "stretch" }}>
+          <div style={{ flex: 1, background: C.orangeBg, borderRadius: 14, padding: "12px 8px" }}><div style={{ fontSize: 22, fontWeight: 900, color: C.orange }}>税金</div><div style={{ fontSize: 24, fontWeight: 900, color: C.ink }}>少しずつ</div></div>
+          <div style={{ flex: 1.3, background: C.redBg, border: `3px solid ${C.red}`, borderRadius: 14, padding: "12px 8px" }}><div style={{ fontSize: 22, fontWeight: 900, color: C.red }}>社会保険</div><div style={{ fontSize: 24, fontWeight: 900, color: C.ink }}>保険料の負担が生まれる</div></div>
         </div>
       </Drop>
-      <Drop delay={d(44.72, "shaho")} style={{ position: "absolute", top: 1620, left: 0, width: 1080, textAlign: "center" }}>
-        <span style={{ fontSize: 40, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 14, padding: "14px 32px", display: "inline-block" }}>手取りへの影響が大きい</span>
-        <div style={{ fontSize: 20, fontWeight: 700, color: C.gray, marginTop: 20 }}>※加入にはその他の要件があります。勤務先の社保に入れる場合もあります</div>
+      <Drop delay={d(44.72, "shaho")} style={{ position: "absolute", top: 1370, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 38, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 14, padding: "12px 30px", display: "inline-block" }}>手取りへの影響が大きい</span>
+        <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 14 }}>※加入にはその他の要件があります。勤務先の社保に入れる場合もあります</div>
       </Drop>
     </AbsoluteFill>
   );
@@ -263,7 +269,7 @@ const PageMerit: React.FC = () => {
       <div style={{ position: "absolute", top: 500, left: 0, width: 1080 }}>
         {items.map((it, i) => (
           <Drop key={i} delay={d(it.sec, "merit")} dy={-24} style={{ marginBottom: 26, display: "flex", justifyContent: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 20, width: 880, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 18, padding: "20px 30px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 20, width: 800, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 18, padding: "20px 28px" }}>
               <span style={{ width: 62, height: 62, borderRadius: "50%", background: C.green, color: "#fff", fontSize: 34, fontWeight: 900, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{i + 1}</span>
               <div style={{ textAlign: "left" }}>
                 <div style={{ fontSize: 36, fontWeight: 900, color: C.ink, lineHeight: 1.15 }}>{it.t}</div>
@@ -273,7 +279,7 @@ const PageMerit: React.FC = () => {
           </Drop>
         ))}
       </div>
-      <Drop delay={d(61.5, "merit")} style={{ position: "absolute", top: 1240, left: 90, width: 900, textAlign: "center" }}>
+      <Drop delay={d(61.5, "merit")} style={{ position: "absolute", top: 1180, left: 140, width: 800, textAlign: "center" }}>
         <span style={{ fontSize: 26, fontWeight: 900, color: C.ink, background: C.orangeBg, borderRadius: 12, padding: "12px 24px" }}>国民健康保険には、原則こうした手当はない</span>
         <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 14 }}>※各手当には支給要件があります</div>
       </Drop>
@@ -311,8 +317,8 @@ const PageMatome: React.FC = () => {
           </Drop>
         ))}
       </div>
-      <Drop delay={d(72.24, "matome")} style={{ position: "absolute", top: 1760, left: 0, width: 1080, textAlign: "center" }}>
-        <span style={{ fontSize: 30, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 12, padding: "12px 30px" }}>一番影響するのは、社会保険</span>
+      <Drop delay={d(80.20, "matome")} style={{ position: "absolute", top: 1040, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 34, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 14, padding: "14px 34px" }}>一番影響するのは、社会保険</span>
       </Drop>
     </AbsoluteFill>
   );
