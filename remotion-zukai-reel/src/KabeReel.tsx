@@ -69,6 +69,66 @@ const Draw: React.FC<{ d: string; delay: number; dur?: number; color?: string; w
 const Wall: React.FC<{ s?: number; color?: string }> = ({ s = 56, color = C.ink }) => (
   <svg width={s} height={s} viewBox="0 0 48 48"><rect x="5" y="10" width="38" height="30" rx="3" fill="none" stroke={color} strokeWidth="3" /><line x1="5" y1="20" x2="43" y2="20" stroke={color} strokeWidth="2.5" /><line x1="5" y1="30" x2="43" y2="30" stroke={color} strokeWidth="2.5" /><line x1="24" y1="10" x2="24" y2="20" stroke={color} strokeWidth="2.5" /><line x1="14" y1="20" x2="14" y2="30" stroke={color} strokeWidth="2.5" /><line x1="34" y1="20" x2="34" y2="30" stroke={color} strokeWidth="2.5" /><line x1="24" y1="30" x2="24" y2="40" stroke={color} strokeWidth="2.5" /></svg>
 );
+
+// ── イラスト（透過PNG）：ポップイン＋ゆらぎフロート ──
+const GenImg: React.FC<{ name: string; w: number; h?: number; delay?: number; float?: number; style?: React.CSSProperties }> = ({ name, w, h, delay = 0, float = 7, style }) => {
+  const f = useCurrentFrame();
+  const s = useSp(delay, 18, { damping: 12, stiffness: 120, mass: 0.9 });
+  const fy = Math.sin((f - delay) / 24) * float;
+  return <Img src={staticFile(`gen/${name}.png`)} style={{ width: w, height: h ?? "auto", objectFit: "contain", opacity: Math.min(1, s * 1.6), transform: `translateY(${(1 - s) * 22 + fy}px) scale(${0.9 + s * 0.1})`, ...style }} />;
+};
+
+// ── 手書き風の丸囲み（一筆書きの楕円を描き込む）──
+const CircleMark: React.FC<{ delay: number; w?: number; h?: number; color?: string; sw?: number; rot?: number; dur?: number; style?: React.CSSProperties }> =
+  ({ delay, w = 300, h = 150, color = C.red, sw = 7, rot = -4, dur = 15, style }) => {
+    const f = useCurrentFrame();
+    const p = interpolate(f, [delay, delay + dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    const cx = w / 2, cy = h / 2, rx = w / 2 - sw, ry = h / 2 - sw;
+    const d = `M ${cx + rx * 0.95} ${cy - ry * 0.22} C ${cx + rx * 1.05} ${cy - ry * 0.95}, ${cx - rx * 0.15} ${cy - ry * 1.12}, ${cx - rx * 0.8} ${cy - ry * 0.55} C ${cx - rx * 1.12} ${cy + ry * 0.2}, ${cx - rx * 0.35} ${cy + ry * 1.12}, ${cx + rx * 0.55} ${cy + ry * 0.85} C ${cx + rx * 1.1} ${cy + ry * 0.55}, ${cx + rx * 1.03} ${cy - ry * 0.25}, ${cx + rx * 0.82} ${cy - ry * 0.55}`;
+    return (
+      <svg width={w} height={h} style={{ transform: `rotate(${rot}deg)`, ...style }}>
+        <path d={d} fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} opacity={p > 0.001 ? 1 : 0} />
+      </svg>
+    );
+  };
+
+// ── ハイライト（インライン文字の背後をマーカーで引く）──
+const Hi: React.FC<{ delay: number; color?: string; dur?: number; children: React.ReactNode }> = ({ delay, color = C.orange, dur = 12, children }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [delay, delay + dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <span style={{ position: "relative", display: "inline-block" }}>
+      <span style={{ position: "absolute", left: -6, right: -6, bottom: 1, height: "44%", background: color, opacity: 0.3, transform: `scaleX(${p})`, transformOrigin: "left center", borderRadius: 4, zIndex: 0 }} />
+      <span style={{ position: "relative", zIndex: 1 }}>{children}</span>
+    </span>
+  );
+};
+
+// ── アンダーブレース（下に添える「ここ！」の括弧線）＋ラベル ──
+const Brace: React.FC<{ delay: number; w: number; color?: string; dur?: number }> = ({ delay, w, color = C.ink, dur = 14 }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [delay, delay + dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const h = 26, mid = w / 2;
+  const d = `M4 4 Q4 ${h - 6} ${mid - 14} ${h - 10} Q${mid} ${h - 6} ${mid} ${h} Q${mid} ${h - 6} ${mid + 14} ${h - 10} Q${w - 4} ${h - 6} ${w - 4} 4`;
+  return (
+    <svg width={w} height={h + 6}><path d={d} fill="none" stroke={color} strokeWidth={5} strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} opacity={p > 0.001 ? 1 : 0} /></svg>
+  );
+};
+
+// ── 描き込む矢印（エルボー＋先端）──
+const ArrowDraw: React.FC<{ delay: number; d: string; head: [number, number, number]; color?: string; w?: number; dur?: number; vb: string; svgW: number; svgH: number; style?: React.CSSProperties }> =
+  ({ delay, d, head, color = C.ink, w = 6, dur = 14, vb, svgW, svgH, style }) => {
+    const f = useCurrentFrame();
+    const p = interpolate(f, [delay, delay + dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    const ha = interpolate(f, [delay + dur * 0.7, delay + dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    const [hx, hy, rot] = head;
+    return (
+      <svg width={svgW} height={svgH} viewBox={vb} style={style}>
+        <path d={d} fill="none" stroke={color} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} opacity={p > 0.001 ? 1 : 0} />
+        <path d={`M${hx - 16} ${hy - 11} L${hx} ${hy} L${hx - 16} ${hy + 11}`} fill="none" stroke={color} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" transform={`rotate(${rot} ${hx} ${hy})`} opacity={ha} />
+      </svg>
+    );
+  };
 const pageFade = (f: number, dur: number) => interpolate(f, [0, 8, dur - 10, dur], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
 // ── 固定ツリー見出し（active枝をハイライト）──
