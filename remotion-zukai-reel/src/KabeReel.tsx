@@ -144,6 +144,7 @@ const PageTax: React.FC = () => {
         <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
           <Myth x="178万まで何もかからない" o="それは所得税だけ。住民税は119万円前後から" delay={64} />
         </div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: C.gray, marginTop: 20 }}>※住民税は自治体や家族構成などによって異なります</div>
       </div>
     </AbsoluteFill>
   );
@@ -171,6 +172,7 @@ const PageFuyo: React.FC = () => {
         <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}>
           <Myth x="税金の壁が上がったから130万も上がった" o="社保の130万は据え置き。別物です" delay={54} />
         </div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: C.gray, marginTop: 20 }}>※夫の所得などによって控除額は異なります</div>
       </div>
     </AbsoluteFill>
   );
@@ -204,7 +206,7 @@ const PageShaho: React.FC = () => {
           <div style={{ fontSize: 30, fontWeight: 900, color: C.ink }}>収入は増えても、保険料で</div>
           <span style={{ fontSize: 34, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 12, padding: "10px 26px", display: "inline-block", marginTop: 6 }}>手取りが思ったほど増えない</span>
         </Drop>
-        <div style={{ fontSize: 20, fontWeight: 700, color: C.gray, marginTop: 14 }}>※勤務先の社保に入れる人もいる／負担や影響は人により違う</div>
+        <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 14, lineHeight: 1.5 }}>※社会保険の加入にはその他の要件があります。勤務先の社保に入れる人もいます</div>
       </div>
     </AbsoluteFill>
   );
@@ -230,8 +232,9 @@ const PageMerit: React.FC = () => {
           </Drop>
         ))}
       </div>
-      <Drop delay={70} style={{ position: "absolute", top: 1120, left: 90, width: 900, textAlign: "center" }}>
-        <span style={{ fontSize: 28, fontWeight: 900, color: C.ink, background: C.orangeBg, borderRadius: 12, padding: "12px 24px" }}>国民健康保険には、この手当が“ない”</span>
+      <Drop delay={70} style={{ position: "absolute", top: 1110, left: 90, width: 900, textAlign: "center" }}>
+        <span style={{ fontSize: 28, fontWeight: 900, color: C.ink, background: C.orangeBg, borderRadius: 12, padding: "12px 24px" }}>国民健康保険には、原則こうした手当はない</span>
+        <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 16 }}>※各手当には支給要件があります</div>
       </Drop>
     </AbsoluteFill>
   );
