@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Sequence, Audio, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
+import { AbsoluteFill, Sequence, Audio, Img, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { FONT } from "./components/font";
 
 // ───────────────────────────────────────────────────────────────
@@ -107,16 +107,24 @@ const PageIntro: React.FC = () => {
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.intro.dur) }}>
       <TreeHeader active="all" animate />
-      <Drop delay={44} style={{ position: "absolute", top: 560, left: 0, width: 1080, textAlign: "center" }}>
-        <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
-          {[{ n: "119・178万", c: C.orange }, { n: "130万・週20h", c: C.red }, { n: "136・169万", c: C.ink }].map((x, i) => (
-            <span key={i} style={{ fontSize: 22, fontWeight: 900, color: "#fff", background: x.c, borderRadius: 999, padding: "6px 14px" }}>{x.n}</span>
-          ))}
-        </div>
-      </Drop>
-      <Drop delay={60} style={{ position: "absolute", top: 700, left: 0, width: 1080, textAlign: "center" }}>
-        <div style={{ fontSize: 46, fontWeight: 900, color: C.ink, lineHeight: 1.4 }}>壁は色々あるけど、<br />本当に大事なのは<span style={{ color: C.red }}>130万だけ</span></div>
-        <div style={{ fontSize: 26, fontWeight: 800, color: C.gray, marginTop: 16 }}>1つずつ、仕分けていきましょう</div>
+      {/* ポップな壁イラストで4つの壁を見せる */}
+      <div style={{ position: "absolute", top: 560, left: 40, width: 1000, display: "flex", justifyContent: "space-between" }}>
+        {[
+          { img: "kabe_wall_resident", t: "住民税", n: "119万", c: C.orange },
+          { img: "kabe_wall_tax", t: "所得税", n: "178万", c: C.orange },
+          { img: "kabe_wall_shaho", t: "社会保険", n: "130万", c: C.red, star: true },
+          { img: "kabe_wall_plain", t: "扶養", n: "136万", c: C.ink },
+        ].map((w, i) => (
+          <Pop key={i} delay={34 + i * 8} style={{ width: 235, textAlign: "center" }}>
+            <Img src={staticFile(`gen/${w.img}.png`)} style={{ width: 200, height: 150, objectFit: "contain" }} />
+            <div style={{ fontSize: 26, fontWeight: 900, color: C.ink, marginTop: 2 }}>{w.t}</div>
+            <div style={{ display: "inline-block", fontSize: 22, fontWeight: 900, color: "#fff", background: w.c, borderRadius: 999, padding: "3px 14px", marginTop: 4, border: w.star ? "3px solid #B5341F" : "none" }}>{w.n}{w.star ? " ★" : ""}</div>
+          </Pop>
+        ))}
+      </div>
+      <Drop delay={66} style={{ position: "absolute", top: 1030, left: 0, width: 1080, textAlign: "center" }}>
+        <div style={{ fontSize: 44, fontWeight: 900, color: C.ink, lineHeight: 1.4 }}>壁は色々あるけど、<br />本当に大事なのは<span style={{ color: C.red }}>130万だけ</span></div>
+        <div style={{ fontSize: 26, fontWeight: 800, color: C.gray, marginTop: 14 }}>1つずつ、仕分けていきましょう</div>
       </Drop>
     </AbsoluteFill>
   );
