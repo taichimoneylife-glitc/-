@@ -1,6 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Sequence, Audio, Img, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { FONT } from "./components/font";
+import { SfxTrack } from "./components/sfx";
 
 // ───────────────────────────────────────────────────────────────
 // 年収の壁(2026)｜ツリー固定＋枝ごと展開（太一さん指定の型）
@@ -106,12 +107,33 @@ const NumCount: React.FC<{ to: number; delay: number; dur?: number; style?: Reac
   return <span style={{ display: "inline-block", transform: `scale(${punch})`, transformOrigin: "center bottom", ...style }}>{v}</span>;
 };
 
-// ── イラスト（透過PNG）：ポップイン＋ゆらぎフロート ──
-const GenImg: React.FC<{ name: string; w: number; h?: number; delay?: number; float?: number; style?: React.CSSProperties }> = ({ name, w, h, delay = 0, float = 7, style }) => {
+// ── イラスト（透過PNG）：スライドイン＋弾み＋ゆらぎフロート ──
+const GenImg: React.FC<{ name: string; w: number; h?: number; delay?: number; float?: number; dir?: "left" | "right" | "up"; style?: React.CSSProperties }> = ({ name, w, h, delay = 0, float = 7, dir, style }) => {
   const f = useCurrentFrame();
-  const s = useSp(delay, 18, { damping: 12, stiffness: 120, mass: 0.9 });
+  const s = useSp(delay, 20, { damping: 11, stiffness: 135, mass: 0.9 }); // 低damping＝軽く弾む
   const fy = Math.sin((f - delay) / 24) * float;
-  return <Img src={staticFile(`gen/${name}.png`)} style={{ width: w, height: h ?? "auto", objectFit: "contain", opacity: Math.min(1, s * 1.6), transform: `translateY(${(1 - s) * 22 + fy}px) scale(${0.9 + s * 0.1})`, ...style }} />;
+  const sx = dir === "left" ? (1 - s) * -95 : dir === "right" ? (1 - s) * 95 : 0;
+  const sy = dir === "up" ? (1 - s) * 80 : (1 - s) * 22;
+  return <Img src={staticFile(`gen/${name}.png`)} style={{ width: w, height: h ?? "auto", objectFit: "contain", opacity: Math.min(1, s * 1.7), transform: `translate(${sx}px, ${sy + fy}px) scale(${0.88 + s * 0.12})`, ...style }} />;
+};
+// ── バースト（山場の「ため→パッ」：リングが弾けて消える）──
+const Burst: React.FC<{ delay: number; color?: string; size?: number; style?: React.CSSProperties }> = ({ delay, color = C.red, size = 440, style }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [delay, delay + 18], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  if (p <= 0 || p >= 1) return null;
+  const sc = 0.25 + p * 1.25;
+  const op = (1 - p) * 0.55;
+  return (
+    <div style={{ position: "absolute", left: "50%", top: "50%", width: size, height: size, borderRadius: "50%", border: `7px solid ${color}`, transform: `translate(-50%,-50%) scale(${sc})`, opacity: op, pointerEvents: "none", ...style }} />
+  );
+};
+// 「ため→パッ」で出す強調ラッパ：小さく出て一瞬タメ、パッと弾けて出る
+const Pap: React.FC<{ delay: number; children: React.ReactNode; style?: React.CSSProperties }> = ({ delay, children, style }) => {
+  const f = useCurrentFrame();
+  const s = useSp(delay, 14, { damping: 9, stiffness: 180, mass: 0.7 }); // 強めオーバーシュート
+  const appear = interpolate(f, [delay - 10, delay - 7], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const sc = f < delay ? 0.8 : 0.8 + s * 0.2 + Math.max(0, s - 1) * 0.18;
+  return <div style={{ display: "inline-block", transform: `scale(${sc})`, transformOrigin: "center", opacity: appear, ...style }}>{children}</div>;
 };
 
 // ── 手書き風の丸囲み（一筆書きの楕円を描き込む）──
@@ -230,6 +252,12 @@ const BeatInner: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, 
 const Beat: React.FC<{ from: number; dur: number; children: React.ReactNode }> = ({ from, dur, children }) => (
   <Sequence from={from} durationInFrames={dur}><BeatInner dur={dur}>{children}</BeatInner></Sequence>
 );
+// 横からスッと入る（ページ/シーン切替の統一演出）
+const SlideIn: React.FC<{ from?: number; dur?: number; children: React.ReactNode }> = ({ from = 80, dur = 12, children }) => {
+  const f = useCurrentFrame();
+  const x = interpolate(f, [0, dur], [from, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return <AbsoluteFill style={{ transform: `translateX(${x}px)` }}>{children}</AbsoluteFill>;
+};
 
 const NumCircle: React.FC<{ delay: number; children: React.ReactNode; cw?: number; ch?: number; color?: string }> = ({ delay, children, cw = 250, ch = 118, color = C.orange }) => (
   <div style={{ position: "relative", display: "inline-block", padding: "2px 10px" }}>
@@ -239,6 +267,7 @@ const NumCircle: React.FC<{ delay: number; children: React.ReactNode; cw?: numbe
 );
 const PageTax: React.FC = () => {
   const f = useCurrentFrame();
+  const enterX = interpolate(f, [0, 12], [80, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const cols = [
     { img: "kabe_wall_resident", t: "住民税", num: 119, suf: "前後", delay: 0.70 },
     { img: "kabe_wall_income", t: "所得税", num: 178, suf: "", delay: 2.90 },
@@ -246,7 +275,7 @@ const PageTax: React.FC = () => {
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.tax.dur) }}>
       <TreeHeader active="tax" />
-      <div style={{ position: "absolute", top: 560, left: 0, width: 1080, textAlign: "center" }}>
+      <div style={{ position: "absolute", top: 560, left: 0, width: 1080, textAlign: "center", transform: `translateX(${enterX}px)` }}>
         <Pop delay={d(0.2, "tax")} style={{ display: "inline-block" }}>
           <span style={{ fontSize: 34, fontWeight: 900, color: "#fff", background: C.green, borderRadius: 999, padding: "8px 28px" }}>まずは税金の壁</span>
         </Pop>
@@ -290,17 +319,18 @@ const PageTax: React.FC = () => {
 //        超えても少しずつ増えるだけ」
 const PageFuyo: React.FC = () => {
   const f = useCurrentFrame();
+  const enterX = interpolate(f, [0, 12], [80, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.fuyo.dur) }}>
       <TreeHeader active="fuyo" />
-      <div style={{ position: "absolute", top: 560, left: 0, width: 1080, textAlign: "center" }}>
+      <div style={{ position: "absolute", top: 560, left: 0, width: 1080, textAlign: "center", transform: `translateX(${enterX}px)` }}>
         <Pop delay={d(10.3, "fuyo")} style={{ display: "inline-block" }}>
           <span style={{ fontSize: 34, fontWeight: 900, color: "#fff", background: C.green, borderRadius: 999, padding: "8px 28px" }}>次に、扶養の壁</span>
         </Pop>
         <div style={{ fontSize: 30, fontWeight: 800, color: C.gray, marginTop: 10 }}>これは“夫の税金”が減る話</div>
         {/* 夫婦イラスト＋169万（丸囲み）：11.00s */}
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 20, marginTop: 10 }}>
-          <GenImg name="kabe_wall_fuyo" w={300} delay={d(11.0, "fuyo")} />
+          <GenImg name="kabe_wall_fuyo" w={300} delay={d(11.0, "fuyo")} dir="left" />
           <Pop delay={d(11.0, "fuyo")}>
             <div style={{ background: C.greenBg, border: `5px solid ${C.green}`, borderRadius: 24, padding: "22px 30px" }}>
               <MarkNum delay={d(11.0, "fuyo") + 18} color={C.green}>
@@ -315,7 +345,7 @@ const PageFuyo: React.FC = () => {
         </Drop>
         {/* 超えても少しずつ：14.66s */}
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 14, marginTop: 24 }}>
-          <GenImg name="kabe_husband_tax_same" w={210} delay={d(14.66, "fuyo")} />
+          <GenImg name="kabe_husband_tax_same" w={210} delay={d(14.66, "fuyo")} dir="right" />
           <Drop delay={d(14.66, "fuyo")}>
             <span style={{ fontSize: 34, fontWeight: 900, color: C.ink, background: C.grayBg, borderRadius: 14, padding: "14px 26px" }}>超えても、<br />少しずつ増えるだけ</span>
           </Drop>
@@ -360,10 +390,12 @@ const PageShaho: React.FC = () => {
       <TreeHeader active="shaho" />
       {/* ── シーン①：106万の壁は撤廃（16.5〜21.0s）── */}
       <Beat from={fr.A} dur={B.A}>
-        <Pop delay={10} style={{ position: "absolute", top: 640, left: 0, width: 1080, textAlign: "center" }}>
-          <span style={{ fontSize: 40, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "10px 34px" }}>★ 本当に気をつける壁</span>
-        </Pop>
-        <ShahoStrike />
+        <SlideIn>
+          <Pop delay={10} style={{ position: "absolute", top: 640, left: 0, width: 1080, textAlign: "center" }}>
+            <span style={{ fontSize: 40, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "10px 34px" }}>★ 本当に気をつける壁</span>
+          </Pop>
+          <ShahoStrike />
+        </SlideIn>
       </Beat>
       {/* ── シーン②：加入の条件（21.0〜26.1s）── */}
       <Beat from={fr.B} dur={B.B}>
@@ -388,13 +420,14 @@ const PageShaho: React.FC = () => {
       </Beat>
       {/* ── シーン③：130万で夫の扶養から外れる（26.1〜35.8s）── */}
       <Beat from={fr.C} dur={B.C}>
-        <Pop delay={0} style={{ position: "absolute", top: 600, left: 0, width: 1080, textAlign: "center" }}>
-          <span style={{ fontSize: 96, fontWeight: 900, color: C.red, lineHeight: 1 }}><MarkNum delay={20} color={C.red}><NumCount to={130} delay={2} />万</MarkNum>の壁</span>
-        </Pop>
+        <Burst delay={16} color={C.red} size={430} style={{ left: 540, top: 652 }} />
+        <Pap delay={14} style={{ position: "absolute", top: 600, left: 0, width: 1080, textAlign: "center" }}>
+          <span style={{ fontSize: 96, fontWeight: 900, color: C.red, lineHeight: 1 }}><MarkNum delay={22} color={C.red}><NumCount to={130} delay={2} />万</MarkNum>の壁</span>
+        </Pap>
         <Drop delay={62} style={{ position: "absolute", top: 740, left: 0, width: 1080, textAlign: "center" }}>
           <span style={{ fontSize: 26, fontWeight: 900, color: C.ink, background: "#fff", border: `2px dashed ${C.red}`, borderRadius: 10, padding: "7px 18px" }}>税金の扶養とは別の“社会保険の扶養”</span>
         </Drop>
-        <GenImg name="kabe_leave_fuyo" w={330} delay={164} style={{ position: "absolute", top: 820, left: 180 }} />
+        <GenImg name="kabe_leave_fuyo" w={330} delay={164} dir="left" style={{ position: "absolute", top: 820, left: 180 }} />
         <Drop delay={164} style={{ position: "absolute", top: 940, left: 520, width: 460, textAlign: "left" }}>
           <div style={{ fontSize: 40, fontWeight: 900, color: C.ink }}>夫の扶養から</div>
           <div style={{ fontSize: 52, fontWeight: 900, color: C.red, marginTop: 6 }}>外れることがある</div>
@@ -405,7 +438,7 @@ const PageShaho: React.FC = () => {
         <Drop delay={0} style={{ position: "absolute", top: 600, left: 0, width: 1080, textAlign: "center" }}>
           <span style={{ fontSize: 30, fontWeight: 800, color: C.gray }}>今まで保険料はかからなかったけど…</span>
         </Drop>
-        <GenImg name="kabe_nenkin_kokuho_paper" w={300} delay={12} style={{ position: "absolute", top: 700, left: 0, right: 0, margin: "0 auto" }} />
+        <GenImg name="kabe_nenkin_kokuho_paper" w={300} delay={12} dir="up" style={{ position: "absolute", top: 700, left: 0, right: 0, margin: "0 auto" }} />
         <Drop delay={20} style={{ position: "absolute", top: 1070, left: 0, width: 1080, textAlign: "center" }}>
           <div style={{ fontSize: 44, fontWeight: 900, color: C.ink, lineHeight: 1.35 }}>外れると<Hi delay={40} color={C.red}>国民年金・国保</Hi>を<br /><span style={{ color: C.red }}>自分で払う</span>ことに</div>
         </Drop>
@@ -425,11 +458,14 @@ const PageShaho: React.FC = () => {
             <div style={{ fontSize: 30, fontWeight: 900, color: C.ink }}>保険料の負担が生まれる</div>
           </Pop>
         </div>
-        <GenImg name="kabe_takehome_down" w={230} delay={55} style={{ position: "absolute", top: 870, left: 0, right: 0, margin: "0 auto" }} />
-        <Drop delay={55} style={{ position: "absolute", top: 1110, left: 0, width: 1080, textAlign: "center" }}>
-          <span style={{ fontSize: 46, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "14px 36px", display: "inline-block" }}>手取りへの影響が大きい</span>
+        <GenImg name="kabe_takehome_down" w={230} delay={55} dir="right" style={{ position: "absolute", top: 870, left: 0, right: 0, margin: "0 auto" }} />
+        <Burst delay={70} color={C.red} size={520} style={{ left: 540, top: 1160 }} />
+        <div style={{ position: "absolute", top: 1110, left: 0, width: 1080, textAlign: "center" }}>
+          <Pap delay={70}>
+            <span style={{ fontSize: 46, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "14px 36px", display: "inline-block" }}>手取りへの影響が大きい</span>
+          </Pap>
           <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 16 }}>※加入にはその他の要件があります。勤務先の社保に入れる場合もあります</div>
-        </Drop>
+        </div>
       </Beat>
     </AbsoluteFill>
   );
@@ -535,10 +571,31 @@ const PageMatome: React.FC = () => {
   );
 };
 
+// ── 効果音キュー（効果音ラボ・自前合成）：出現/数字/切替/山場に同期 ──
+const KABE_SFX = [
+  // 税金
+  { file: "pop", at: 6, volume: 0.2 }, { file: "coin", at: 37, volume: 0.22 }, { file: "coin", at: 103, volume: 0.22 }, { file: "pop", at: 252, volume: 0.22 },
+  // 扶養（切替＋数字）
+  { file: "whoosh2", at: 304, volume: 0.2 }, { file: "coin", at: 346, volume: 0.22 }, { file: "tap", at: 390, volume: 0.2 },
+  // 社会保険（切替＋各シーン）
+  { file: "whoosh2", at: 495, volume: 0.22 }, { file: "pop", at: 505, volume: 0.2 }, { file: "thunk", at: 613, volume: 0.24 },
+  { file: "whoosh2", at: 630, volume: 0.18 }, { file: "pop", at: 750, volume: 0.22 },
+  { file: "whoosh2", at: 783, volume: 0.18 }, { file: "dadan", at: 799, volume: 0.3 }, { file: "pop", at: 947, volume: 0.2 },
+  { file: "whoosh2", at: 1074, volume: 0.18 }, { file: "pop", at: 1094, volume: 0.22 },
+  { file: "whoosh2", at: 1287, volume: 0.18 }, { file: "dadan", at: 1357, volume: 0.3 },
+  // メリット（ツリー抜け＋4項目を上昇音で）
+  { file: "swipe", at: 1528, volume: 0.22 }, { file: "pop", at: 1540, volume: 0.2 },
+  { file: "up1", at: 1605, volume: 0.2 }, { file: "up2", at: 1655, volume: 0.2 }, { file: "up3", at: 1725, volume: 0.2 }, { file: "up4", at: 1801, volume: 0.2 },
+  // まとめ（切替＋5行＋締め）
+  { file: "swipe", at: 1895, volume: 0.22 }, { file: "pop", at: 1900, volume: 0.2 },
+  { file: "coin", at: 1919, volume: 0.2 }, { file: "coin", at: 2066, volume: 0.2 }, { file: "dadan", at: 2167, volume: 0.26 }, { file: "coin", at: 2288, volume: 0.2 }, { file: "coin", at: 2406, volume: 0.2 },
+  { file: "bell", at: 2420, volume: 0.24 },
+];
 export const KabeReel: React.FC = () => (
   <AbsoluteFill style={{ background: C.bg, fontFamily: FONT, overflow: "hidden" }}>
     <BackgroundFX />
     <Audio src={staticFile("kabe_narration.wav")} />
+    <SfxTrack cues={KABE_SFX} gain={1} />
     <Sequence from={P.tax.from} durationInFrames={P.tax.dur}><PageTax /></Sequence>
     <Sequence from={P.fuyo.from} durationInFrames={P.fuyo.dur}><PageFuyo /></Sequence>
     <Sequence from={P.shaho.from} durationInFrames={P.shaho.dur}><PageShaho /></Sequence>
