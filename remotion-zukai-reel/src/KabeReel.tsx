@@ -107,7 +107,7 @@ const PageIntro: React.FC = () => {
       <TreeHeader active="all" animate />
       <Drop delay={44} style={{ position: "absolute", top: 560, left: 0, width: 1080, textAlign: "center" }}>
         <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
-          {[{ n: "110・178万", c: C.orange }, { n: "130万・週20h", c: C.red }, { n: "136・169万", c: C.ink }].map((x, i) => (
+          {[{ n: "119・178万", c: C.orange }, { n: "130万・週20h", c: C.red }, { n: "136・169万", c: C.ink }].map((x, i) => (
             <span key={i} style={{ fontSize: 22, fontWeight: 900, color: "#fff", background: x.c, borderRadius: 999, padding: "6px 14px" }}>{x.n}</span>
           ))}
         </div>
@@ -142,7 +142,7 @@ const PageTax: React.FC = () => {
           <div style={{ fontSize: 26, fontWeight: 900, color: C.ink, marginTop: 4 }}>年収<span style={{ color: C.orange }}>170万</span>でも所得税は<span style={{ color: C.orange }}>ほぼ0円</span></div>
         </Drop>
         <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
-          <Myth x="178万まで何もかからない" o="所得税だけ。住民税は110万から先にかかる" delay={64} />
+          <Myth x="178万まで何もかからない" o="所得税だけ。住民税は119万から先にかかる" delay={64} />
         </div>
       </div>
     </AbsoluteFill>
@@ -243,7 +243,7 @@ const PageMerit: React.FC = () => {
 // ───────────── ⑥ まとめ：壁リスト＋やること2つ ─────────────
 const WALLS = [
   { amt: "週20h〜", tag: "社保", desc: "会社の社保に入る", c: C.red },
-  { amt: "110万", tag: "税金", desc: "住民税がかかる", c: C.orange },
+  { amt: "119万", tag: "税金", desc: "住民税がかかる", c: C.orange },
   { amt: "130万", tag: "社保", desc: "扶養を外れる（★一番キケン）", c: C.red, star: true },
   { amt: "136万", tag: "扶養", desc: "夫の控除（169万まで満額）", c: C.ink },
   { amt: "178万", tag: "税金", desc: "所得税がかかる", c: C.orange },
