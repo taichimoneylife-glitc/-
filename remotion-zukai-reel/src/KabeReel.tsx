@@ -404,32 +404,40 @@ const PageMerit: React.FC = () => {
     { sec: 57.52, img: "kabe_merit_birth", t: "出産で休むときも手当がもらえる", sub: "出産手当金" },
     { sec: 60.06, img: "kabe_merit_family_guard", t: "万一のとき、家族の保障も手厚い", sub: "障害・遺族年金" },
   ];
+  // ツリーが上にシュッとはけて、メリット画面に切り替わる
+  const treeY = interpolate(f, [0, 15], [0, -660], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const treeOp = interpolate(f, [0, 9, 15], [1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // ページ終わりに全体が上へシュッと抜ける（→まとめへ）
+  const exitY = interpolate(f, [P.merit.dur - 16, P.merit.dur], [0, -720], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.merit.dur) }}>
-      <Drop delay={d(50.94, "merit")} style={{ position: "absolute", top: 230, left: 0, width: 1080, textAlign: "center" }}>
-        <div style={{ fontSize: 34, fontWeight: 900, color: C.green }}>とはいえ…</div>
-        <div style={{ fontSize: 52, fontWeight: 900, color: C.ink, marginTop: 6 }}>社保に入るメリットは<span style={{ color: C.green }}>4つ</span></div>
-      </Drop>
-      <div style={{ position: "absolute", top: 410, left: 0, width: 1080 }}>
-        {items.map((it, i) => (
-          <Drop key={i} delay={d(it.sec, "merit")} dy={-24} style={{ marginBottom: 20, display: "flex", justifyContent: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16, width: 820, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 20, padding: "14px 24px" }}>
-              <div style={{ position: "relative", width: 120, height: 120, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <GenImg name={it.img} w={120} delay={d(it.sec, "merit")} float={5} style={{ maxHeight: 120 }} />
-                <span style={{ position: "absolute", left: -6, top: -6, width: 42, height: 42, borderRadius: "50%", background: C.green, color: "#fff", fontSize: 24, fontWeight: 900, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
+      <div style={{ position: "absolute", inset: 0, transform: `translateY(${treeY}px)`, opacity: treeOp }}><TreeHeader active="shaho" /></div>
+      <div style={{ position: "absolute", inset: 0, transform: `translateY(${exitY}px)` }}>
+        <Drop delay={12} style={{ position: "absolute", top: 230, left: 0, width: 1080, textAlign: "center" }}>
+          <div style={{ fontSize: 34, fontWeight: 900, color: C.green }}>とはいえ…</div>
+          <div style={{ fontSize: 52, fontWeight: 900, color: C.ink, marginTop: 6 }}>社保に入るメリットは<span style={{ color: C.green }}>4つ</span></div>
+        </Drop>
+        <div style={{ position: "absolute", top: 410, left: 0, width: 1080 }}>
+          {items.map((it, i) => (
+            <Drop key={i} delay={d(it.sec, "merit")} dy={-24} style={{ marginBottom: 20, display: "flex", justifyContent: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16, width: 820, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 20, padding: "14px 24px" }}>
+                <div style={{ position: "relative", width: 120, height: 120, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <GenImg name={it.img} w={120} delay={d(it.sec, "merit")} float={5} style={{ maxHeight: 120 }} />
+                  <span style={{ position: "absolute", left: -6, top: -6, width: 42, height: 42, borderRadius: "50%", background: C.green, color: "#fff", fontSize: 24, fontWeight: 900, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
+                </div>
+                <div style={{ textAlign: "left" }}>
+                  <div style={{ fontSize: 35, fontWeight: 900, color: C.ink, lineHeight: 1.15 }}>{it.t}</div>
+                  <div style={{ fontSize: 23, fontWeight: 800, color: C.green, marginTop: 4 }}>{it.sub}</div>
+                </div>
               </div>
-              <div style={{ textAlign: "left" }}>
-                <div style={{ fontSize: 35, fontWeight: 900, color: C.ink, lineHeight: 1.15 }}>{it.t}</div>
-                <div style={{ fontSize: 23, fontWeight: 800, color: C.green, marginTop: 4 }}>{it.sub}</div>
-              </div>
-            </div>
-          </Drop>
-        ))}
+            </Drop>
+          ))}
+        </div>
+        <Drop delay={d(61.5, "merit")} style={{ position: "absolute", top: 1130, left: 140, width: 800, textAlign: "center" }}>
+          <span style={{ fontSize: 26, fontWeight: 900, color: C.ink, background: C.orangeBg, borderRadius: 12, padding: "12px 24px" }}>国民健康保険には、原則こうした手当はない</span>
+          <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 14 }}>※各手当には支給要件があります</div>
+        </Drop>
       </div>
-      <Drop delay={d(61.5, "merit")} style={{ position: "absolute", top: 1130, left: 140, width: 800, textAlign: "center" }}>
-        <span style={{ fontSize: 26, fontWeight: 900, color: C.ink, background: C.orangeBg, borderRadius: 12, padding: "12px 24px" }}>国民健康保険には、原則こうした手当はない</span>
-        <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 14 }}>※各手当には支給要件があります</div>
-      </Drop>
     </AbsoluteFill>
   );
 };
@@ -448,8 +456,10 @@ const ROWS = [
 ];
 const PageMatome: React.FC = () => {
   const f = useCurrentFrame();
+  // メリットから上へシュッと切り替わって、下からまとめが入ってくる
+  const enterY = interpolate(f, [0, 14], [90, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
-    <AbsoluteFill style={{ opacity: pageFade(f, P.matome.dur) }}>
+    <AbsoluteFill style={{ opacity: pageFade(f, P.matome.dur), transform: `translateY(${enterY}px)` }}>
       <Drop delay={d(63.18, "matome")} style={{ position: "absolute", top: 160, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 52, fontWeight: 900, color: C.ink }}>まとめると、<span style={{ color: C.orange }}>この5つ</span></span>
       </Drop>
