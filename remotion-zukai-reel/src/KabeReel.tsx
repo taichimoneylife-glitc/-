@@ -174,29 +174,36 @@ const BR = [
   { key: "fuyo", t: "扶養", s: "家族の税金", c: C.ink },
 ];
 const BX = [250, 540, 830];
-const TreeHeader: React.FC<{ active?: string; animate?: boolean }> = ({ active = "", animate = false }) => (
-  <div style={{ position: "absolute", top: 0, left: 0, width: 1080, height: 520 }}>
-    <Drop delay={animate ? 0 : -100} style={{ position: "absolute", top: 70, left: 0, width: 1080, textAlign: "center" }}>
-      <span style={{ fontSize: 48, fontWeight: 900, color: C.ink, borderBottom: `6px solid ${C.orange}`, paddingBottom: 4 }}>年収の壁</span>
-      <div style={{ fontSize: 22, fontWeight: 900, color: C.orange, marginTop: 8 }}>2026年版・こう変わった</div>
-    </Drop>
-    <svg width={1080} height={520} style={{ position: "absolute", inset: 0 }}>
-      <Draw d={`M${CX} 210 L${CX} 270 M250 270 L830 270 M250 270 L250 330 M540 270 L540 330 M830 270 L830 330`} delay={animate ? 10 : -100} dur={animate ? 16 : 1} color={C.orange} />
-    </svg>
-    {BR.map((b, i) => {
-      const dim = active && active !== "all" && active !== b.key;
-      return (
-        <Pop key={b.key} delay={animate ? 24 + i * 8 : -100} style={{ position: "absolute", top: 340, left: BX[i] - 140, width: 280, textAlign: "center", opacity: dim ? 0.4 : 1 }}>
-          <div style={{ background: active === b.key ? b.c + "14" : "#fff", border: `${active === b.key ? 5 : 3}px solid ${dim ? C.line : b.c}`, borderRadius: 18, padding: "16px 8px 14px", boxShadow: dim ? "none" : "0 6px 16px rgba(31,58,95,0.10)" }}>
-            <div style={{ display: "flex", justifyContent: "center" }}><Wall s={46} color={dim ? C.gray : b.c} /></div>
-            <div style={{ fontSize: 30, fontWeight: 900, color: dim ? C.gray : C.ink, marginTop: 2 }}>{b.t}</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: dim ? C.gray : b.c }}>{b.s}</div>
-          </div>
-        </Pop>
-      );
-    })}
-  </div>
-);
+const TreeHeader: React.FC<{ active?: string; animate?: boolean }> = ({ active = "", animate = false }) => {
+  const f = useCurrentFrame();
+  // 解説中の枝＝大きく小さくを反復（参考動画のように注目させる）
+  const pulse = 1 + (Math.sin(f / 7) * 0.5 + 0.5) * 0.07; // 1.00〜1.07
+  const glow = 0.12 + (Math.sin(f / 7) * 0.5 + 0.5) * 0.22;
+  return (
+    <div style={{ position: "absolute", top: 0, left: 0, width: 1080, height: 520 }}>
+      <Drop delay={animate ? 0 : -100} style={{ position: "absolute", top: 70, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 48, fontWeight: 900, color: C.ink, borderBottom: `6px solid ${C.orange}`, paddingBottom: 4 }}>年収の壁</span>
+        <div style={{ fontSize: 22, fontWeight: 900, color: C.orange, marginTop: 8 }}>2026年版・こう変わった</div>
+      </Drop>
+      <svg width={1080} height={520} style={{ position: "absolute", inset: 0 }}>
+        <Draw d={`M${CX} 210 L${CX} 270 M250 270 L830 270 M250 270 L250 330 M540 270 L540 330 M830 270 L830 330`} delay={animate ? 10 : -100} dur={animate ? 16 : 1} color={C.orange} />
+      </svg>
+      {BR.map((b, i) => {
+        const on = active === b.key;
+        const dim = active && active !== "all" && active !== b.key;
+        return (
+          <Pop key={b.key} delay={animate ? 24 + i * 8 : -100} style={{ position: "absolute", top: 340, left: BX[i] - 140, width: 280, textAlign: "center", opacity: dim ? 0.4 : 1 }}>
+            <div style={{ background: on ? b.c + "14" : "#fff", border: `${on ? 5 : 3}px solid ${dim ? C.line : b.c}`, borderRadius: 18, padding: "16px 8px 14px", boxShadow: on ? `0 8px 22px ${b.c}${Math.round(glow * 255).toString(16).padStart(2, "0")}` : dim ? "none" : "0 6px 16px rgba(31,58,95,0.10)", transform: on ? `scale(${pulse})` : undefined, transformOrigin: "center" }}>
+              <div style={{ display: "flex", justifyContent: "center" }}><Wall s={46} color={dim ? C.gray : b.c} /></div>
+              <div style={{ fontSize: 30, fontWeight: 900, color: dim ? C.gray : C.ink, marginTop: 2 }}>{b.t}</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: dim ? C.gray : b.c }}>{b.s}</div>
+            </div>
+          </Pop>
+        );
+      })}
+    </div>
+  );
+};
 
 // ───────────── ① 税金（0.00s〜）─────────────
 // ナレ:「まず税金。住民税は119万円前後、所得税は178万円。これを超えると
@@ -537,6 +544,5 @@ export const KabeReel: React.FC = () => (
     <Sequence from={P.shaho.from} durationInFrames={P.shaho.dur}><PageShaho /></Sequence>
     <Sequence from={P.merit.from} durationInFrames={P.merit.dur}><PageMerit /></Sequence>
     <Sequence from={P.matome.from} durationInFrames={P.matome.dur}><PageMatome /></Sequence>
-    <Progress total={KABE_FRAMES} />
   </AbsoluteFill>
 );
