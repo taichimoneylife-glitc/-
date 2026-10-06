@@ -220,15 +220,14 @@ const PageMerit: React.FC = () => {
     { t: "傷病手当金（病気で休んでも）", i: "2" },
     { t: "出産手当金（産休中も）", i: "3" },
     { t: "障害・遺族の年金も手厚い", i: "4" },
-    { t: "保険料は会社が半分負担", i: "5" },
   ];
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.merit.dur) }}>
-      <Drop delay={0} style={{ position: "absolute", top: 200, left: 0, width: 1080, textAlign: "center" }}>
+      <Drop delay={0} style={{ position: "absolute", top: 260, left: 0, width: 1080, textAlign: "center" }}>
         <div style={{ fontSize: 30, fontWeight: 900, color: C.green }}>とはいえ…</div>
-        <div style={{ fontSize: 48, fontWeight: 900, color: C.ink, marginTop: 4 }}>社保に入るメリットは<span style={{ color: C.green }}>5つ</span></div>
+        <div style={{ fontSize: 48, fontWeight: 900, color: C.ink, marginTop: 4 }}>社保に入るメリットは<span style={{ color: C.green }}>4つ</span></div>
       </Drop>
-      <div style={{ position: "absolute", top: 360, left: 0, width: 1080 }}>
+      <div style={{ position: "absolute", top: 440, left: 0, width: 1080 }}>
         {items.map((it, i) => (
           <Drop key={i} delay={12 + i * 13} dy={-24} style={{ marginBottom: 18, display: "flex", justifyContent: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 18, width: 850, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 18, padding: "18px 28px" }}>
