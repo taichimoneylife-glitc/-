@@ -19,6 +19,7 @@ import { GanReel, GAN_FRAMES } from "./GanReel";
 import { GanReel2, GAN2_FRAMES } from "./GanReel2";
 import { NenmatsuReel, NEN_FRAMES } from "./NenmatsuReel";
 import { AeOverlayReel, AE_FRAMES } from "./AeOverlayReel";
+import { IgTreeReel, IG_FRAMES } from "./IgTreeReel";
 import { CorridorRunner, CORRIDOR_FRAMES } from "./CorridorRunner";
 import { LaunchFilm, LAUNCH_FRAMES } from "./LaunchFilm";
 import { TalkLaunch, TALKLAUNCH_FRAMES } from "./TalkLaunch";
@@ -141,6 +142,9 @@ export const RemotionRoot: React.FC = () => {
 
       {/* ── AI自動編集リールの「周りのアニメーション」再現デモ ── */}
       <Composition id="AeOverlayReel" component={AeOverlayReel} durationInFrames={AE_FRAMES} fps={FPS} width={1080} height={1920} />
+
+      {/* ── Instagram攻略リールの図解パート再現（薄グレー積み上げツリー） ── */}
+      <Composition id="IgTreeReel" component={IgTreeReel} durationInFrames={IG_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* ── トークリール自動編集（実写＋オーバーレイ／完コピ試作） ── */}
       <Composition id="TalkReel" component={TalkReel} durationInFrames={TALK_FRAMES} fps={FPS} width={1080} height={1920} />
