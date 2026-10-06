@@ -15,7 +15,7 @@ const C = {
   gray: "#AEB8C2", grayBg: "#EEF1F4", line: "#C9D2DD",
 };
 const FPS = 30;
-export const KABE_FRAMES = 1230; // 41s
+export const KABE_FRAMES = 1470; // 49s（4ビート＋早見表）
 const CX = 540;
 
 const useS = (delay: number, dur = 10, cfg: Parameters<typeof spring>[0]["config"] = { damping: 13, stiffness: 150, mass: 0.7 }) => {
@@ -228,12 +228,55 @@ const Summary: React.FC = () => {
   );
 };
 
+// 山場：働き損グラフ（kantaro実数 129→126 / 131→105 / 153で追いつく）
+const Hatarakizon: React.FC<{ dur: number }> = ({ dur }) => {
+  const f = useCurrentFrame();
+  const fade = Math.min(interpolate(f, [0, 10], [0, 1], { extrapolateRight: "clamp" }), interpolate(f, [dur - 14, dur - 2], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+  const cards = [
+    { y: "129万", t: "126万", c: C.green, bg: C.greenBg, note: "扶養内", d: 14 },
+    { y: "131万", t: "105万", c: C.red, bg: C.redBg, note: "−21万!", d: 44 },
+    { y: "153万", t: "126万", c: C.ink, bg: "#EEF2F7", note: "やっと追いつく", d: 74 },
+  ];
+  return (
+    <AbsoluteFill style={{ opacity: fade }}>
+      <Feeder x={540} />
+      <Rise delay={8} style={{ position: "absolute", top: 560, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 40, fontWeight: 900, color: C.ink }}>130万を“ちょっと”超えると…</span>
+      </Rise>
+      <div style={{ position: "absolute", top: 660, left: 40, right: 40, display: "flex", justifyContent: "center", alignItems: "flex-start", gap: 14 }}>
+        {cards.map((c, i) => (
+          <React.Fragment key={i}>
+            <Pop delay={c.d} style={{ width: 300 }}>
+              <div style={{ background: c.bg, border: `4px solid ${c.c}`, borderRadius: 18, padding: "20px 12px", textAlign: "center" }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: C.gray }}>年収</div>
+                <div style={{ fontSize: 46, fontWeight: 900, color: C.ink }}>{c.y}</div>
+                <svg width="30" height="34" viewBox="0 0 30 34" style={{ margin: "6px 0" }}><path d="M15 2v22M6 18l9 10 9-10" fill="none" stroke={c.c} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.gray }}>手取り</div>
+                <div style={{ fontSize: 56, fontWeight: 900, color: c.c }}>{c.t}</div>
+                <div style={{ marginTop: 8, display: "inline-block", background: c.c, color: "#fff", borderRadius: 999, padding: "4px 14px", fontSize: 24, fontWeight: 900 }}>{c.note}</div>
+              </div>
+            </Pop>
+            {i < 2 && <div style={{ alignSelf: "center", paddingTop: 40 }}><span style={{ fontSize: 40, color: C.gray }}>→</span></div>}
+          </React.Fragment>
+        ))}
+      </div>
+      <Rise delay={100} style={{ position: "absolute", top: 1050, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 34, fontWeight: 900, color: C.ink }}>年収を<span style={{ color: C.red }}>2万増やしただけ</span>で、手取りは<span style={{ color: C.red }}>21万ダウン</span></span>
+      </Rise>
+      <Rise delay={120} style={{ position: "absolute", top: 1130, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 40, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 12, padding: "12px 26px" }}>本当に損が出るのは、この間だけ</span>
+      </Rise>
+    </AbsoluteFill>
+  );
+};
+
 export const KabeReel: React.FC = () => {
-  const B = 320; const intro = 90;
+  const B = 300; const intro = 90;
   const act = (f: number) => {
-    if (f < intro + B) return 0;
-    if (f < intro + B * 2) return 1;
-    if (f < intro + B * 3) return 2;
+    if (f < intro + B) return 0;       // 税金
+    if (f < intro + B * 2) return 1;   // 社保
+    if (f < intro + B * 3) return 1;   // 働き損(社保)
+    if (f < intro + B * 4) return 2;   // 扶養
     return -1;
   };
   const Head: React.FC = () => { const f = useCurrentFrame(); return <Header active={act(f)} />; };
@@ -242,8 +285,9 @@ export const KabeReel: React.FC = () => {
       <Head />
       <Sequence from={intro} durationInFrames={B}><Kabe1 dur={B} /></Sequence>
       <Sequence from={intro + B} durationInFrames={B}><Kabe2 dur={B} /></Sequence>
-      <Sequence from={intro + B * 2} durationInFrames={B}><Kabe3 dur={B} /></Sequence>
-      <Sequence from={intro + B * 3} durationInFrames={KABE_FRAMES - (intro + B * 3)}><Summary /></Sequence>
+      <Sequence from={intro + B * 2} durationInFrames={B}><Hatarakizon dur={B} /></Sequence>
+      <Sequence from={intro + B * 3} durationInFrames={B}><Kabe3 dur={B} /></Sequence>
+      <Sequence from={intro + B * 4} durationInFrames={KABE_FRAMES - (intro + B * 4)}><Summary /></Sequence>
     </AbsoluteFill>
   );
 };
