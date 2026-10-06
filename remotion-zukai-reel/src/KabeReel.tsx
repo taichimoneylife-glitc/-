@@ -216,10 +216,10 @@ const PageShaho: React.FC = () => {
 const PageMerit: React.FC = () => {
   const f = useCurrentFrame();
   const items = [
-    { t: "将来の年金が増える", i: "1" },
-    { t: "傷病手当金（病気で休んでも）", i: "2" },
-    { t: "出産手当金（産休中も）", i: "3" },
-    { t: "障害・遺族の年金も手厚い", i: "4" },
+    { t: "将来もらえる年金が増える", sub: "基礎年金＋厚生年金の2階建て", i: "1" },
+    { t: "働けないとき、お金がもらえる", sub: "病気・ケガのとき＝傷病手当金", i: "2" },
+    { t: "出産で休むときも手当がもらえる", sub: "出産手当金", i: "3" },
+    { t: "万一のとき、家族の保障も手厚い", sub: "障害・遺族年金", i: "4" },
   ];
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.merit.dur) }}>
@@ -229,10 +229,13 @@ const PageMerit: React.FC = () => {
       </Drop>
       <div style={{ position: "absolute", top: 440, left: 0, width: 1080 }}>
         {items.map((it, i) => (
-          <Drop key={i} delay={12 + i * 13} dy={-24} style={{ marginBottom: 18, display: "flex", justifyContent: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 18, width: 850, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 18, padding: "18px 28px" }}>
+          <Drop key={i} delay={12 + i * 13} dy={-24} style={{ marginBottom: 20, display: "flex", justifyContent: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 18, width: 860, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 18, padding: "16px 26px" }}>
               <span style={{ width: 56, height: 56, borderRadius: "50%", background: C.green, color: "#fff", fontSize: 30, fontWeight: 900, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{it.i}</span>
-              <span style={{ fontSize: 33, fontWeight: 900, color: C.ink }}>{it.t}</span>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ fontSize: 32, fontWeight: 900, color: C.ink, lineHeight: 1.15 }}>{it.t}</div>
+                <div style={{ fontSize: 21, fontWeight: 800, color: C.green, marginTop: 3 }}>{it.sub}</div>
+              </div>
             </div>
           </Drop>
         ))}
