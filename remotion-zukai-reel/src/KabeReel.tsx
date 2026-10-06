@@ -70,36 +70,50 @@ const Header: React.FC<{ active: number }> = ({ active }) => {
   );
 };
 
-// ───────────── ① 全体像：3分岐ツリー（静止1枚）─────────────
+// ───────────── ① 全体像：壁リスト（金額｜内容・ポンポン積み上げ）─────────────
+// 参考リールの"積み上げリスト"の角度を採用。数字はうちの出典、色=種類、130万を★強調。
+const WALLS = [
+  { amt: "週20h〜", tag: "社保", desc: "会社の社保に加入", note: "51人以上の会社", c: C.red, bg: C.redBg },
+  { amt: "110万", tag: "税金", desc: "住民税がかかる", note: "一番先にかかる", c: C.orange, bg: C.orangeBg },
+  { amt: "130万", tag: "社保", desc: "社保の扶養を外れる", note: "★ここが一番キケン", c: C.red, bg: C.redBg, star: true },
+  { amt: "136万", tag: "扶養", desc: "夫の控除（配偶者控除）", note: "169万まで特別控除は満額", c: C.ink, bg: "#EEF2F7" },
+  { amt: "178万", tag: "税金", desc: "所得税がかかる", note: "去年160万→今年178万", c: C.orange, bg: C.orangeBg },
+];
 const PageZentai: React.FC = () => {
   const f = useCurrentFrame();
-  const branches = [
-    { x: 250, t: "税金", s: "自分の税金", n: "103→178万", c: C.orange },
-    { x: 540, t: "社会保険", s: "★本命", n: "106撤廃→時間", c: C.red },
-    { x: 830, t: "扶養", s: "夫の税金", n: "136万〜", c: C.ink },
-  ];
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.zentai.dur) }}>
       <Header active={0} />
-      <Drop delay={0} style={{ position: "absolute", top: 300, left: 0, width: 1080, textAlign: "center" }}>
-        <div style={{ fontSize: 52, fontWeight: 900, color: C.ink }}>壁は、<span style={{ color: C.orange }}>3種類</span></div>
-        <div style={{ fontSize: 28, fontWeight: 800, color: C.gray, marginTop: 6 }}>分ければ、かんたん</div>
+      <Drop delay={0} style={{ position: "absolute", top: 290, left: 0, width: 1080, textAlign: "center" }}>
+        <div style={{ fontSize: 48, fontWeight: 900, color: C.ink }}>年収の壁、<span style={{ color: C.orange }}>ぜんぶ見せます</span></div>
+        <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 12 }}>
+          {[{ t: "税金", c: C.orange }, { t: "社会保険", c: C.red }, { t: "扶養", c: C.ink }].map((x, i) => (
+            <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 22, fontWeight: 900, color: C.ink }}>
+              <span style={{ width: 16, height: 16, borderRadius: 4, background: x.c }} />{x.t}
+            </span>
+          ))}
+        </div>
       </Drop>
-      <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
-        <Draw d={`M${CX} 460 L${CX} 560 M250 560 L830 560 M250 560 L250 640 M540 560 L540 640 M830 560 L830 640`} delay={14} dur={16} color={C.orange} />
-      </svg>
-      {branches.map((b, i) => (
-        <Pop key={i} delay={30 + i * 8} style={{ position: "absolute", top: 650, left: b.x - 150, width: 300, textAlign: "center" }}>
-          <div style={{ background: "#fff", border: `4px solid ${b.c}`, borderRadius: 22, padding: "26px 10px 22px", boxShadow: "0 8px 20px rgba(31,58,95,0.10)" }}>
-            <div style={{ display: "flex", justifyContent: "center" }}><Wall s={64} color={b.c} /></div>
-            <div style={{ fontSize: 38, fontWeight: 900, color: C.ink, marginTop: 6 }}>{b.t}</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: b.c, marginTop: 2 }}>{b.s}</div>
-            <div style={{ marginTop: 12, fontSize: 24, fontWeight: 900, color: "#fff", background: b.c, borderRadius: 999, padding: "6px 10px" }}>{b.n}</div>
-          </div>
-        </Pop>
-      ))}
-      <Drop delay={60} style={{ position: "absolute", top: 1080, left: 0, width: 1080, textAlign: "center" }}>
-        <span style={{ fontSize: 30, fontWeight: 900, color: C.ink, background: C.orangeBg, borderRadius: 14, padding: "12px 26px" }}>1つずつ、見ていきましょう</span>
+      <div style={{ position: "absolute", top: 440, left: 70, width: 940 }}>
+        {WALLS.map((w, i) => (
+          <Drop key={i} delay={14 + i * 12} dy={-26} style={{ marginBottom: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 18, background: w.star ? w.bg : "#fff", border: `${w.star ? 5 : 3}px solid ${w.c}`, borderRadius: 18, padding: "16px 22px", boxShadow: "0 6px 16px rgba(31,58,95,0.08)" }}>
+              <div style={{ minWidth: 190, textAlign: "center" }}>
+                <div style={{ fontSize: w.star ? 60 : 50, fontWeight: 900, color: w.c, lineHeight: 1 }}>{w.amt}</div>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 17, fontWeight: 900, color: "#fff", background: w.c, borderRadius: 6, padding: "2px 9px" }}>{w.tag}</span>
+                  <span style={{ fontSize: w.star ? 34 : 30, fontWeight: 900, color: C.ink }}>{w.desc}</span>
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: w.star ? C.red : C.gray, marginTop: 4 }}>{w.note}</div>
+              </div>
+            </div>
+          </Drop>
+        ))}
+      </div>
+      <Drop delay={78} style={{ position: "absolute", top: 1300, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 28, fontWeight: 900, color: C.ink, background: C.orangeBg, borderRadius: 12, padding: "12px 26px" }}>多いけど、大事なのは<span style={{ color: C.red }}>130万</span>だけ</span>
       </Drop>
     </AbsoluteFill>
   );
