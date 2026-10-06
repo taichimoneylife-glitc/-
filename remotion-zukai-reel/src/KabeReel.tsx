@@ -115,14 +115,14 @@ const PageIntro: React.FC = () => {
           { img: "kabe_wall_shaho", t: "社会保険", n: "130万", c: C.red, star: true },
           { img: "kabe_wall_plain", t: "扶養", n: "136万", c: C.ink },
         ].map((w, i) => (
-          <Pop key={i} delay={34 + i * 8} style={{ width: 235, textAlign: "center" }}>
+          <Pop key={i} delay={150 + i * 12} style={{ width: 235, textAlign: "center" }}>
             <Img src={staticFile(`gen/${w.img}.png`)} style={{ width: 200, height: 150, objectFit: "contain" }} />
             <div style={{ fontSize: 26, fontWeight: 900, color: C.ink, marginTop: 2 }}>{w.t}</div>
             <div style={{ display: "inline-block", fontSize: 22, fontWeight: 900, color: "#fff", background: w.c, borderRadius: 999, padding: "3px 14px", marginTop: 4, border: w.star ? "3px solid #B5341F" : "none" }}>{w.n}{w.star ? " ★" : ""}</div>
           </Pop>
         ))}
       </div>
-      <Drop delay={66} style={{ position: "absolute", top: 1030, left: 0, width: 1080, textAlign: "center" }}>
+      <Drop delay={250} style={{ position: "absolute", top: 1030, left: 0, width: 1080, textAlign: "center" }}>
         <div style={{ fontSize: 44, fontWeight: 900, color: C.ink, lineHeight: 1.4 }}>壁は色々あるけど、<br />本当に大事なのは<span style={{ color: C.red }}>130万だけ</span></div>
         <div style={{ fontSize: 26, fontWeight: 800, color: C.gray, marginTop: 14 }}>1つずつ、仕分けていきましょう</div>
       </Drop>
@@ -147,14 +147,14 @@ const PageTax: React.FC = () => {
           <Pop delay={34}><span style={{ fontSize: 30, color: C.orange }}>→</span></Pop>
           <Pop delay={40} style={{ textAlign: "center" }}><div style={{ fontSize: 22, fontWeight: 900, color: C.orange }}>今年2026</div><span style={{ fontSize: 86, fontWeight: 900, color: C.orange, lineHeight: 1 }}>178万</span></Pop>
         </div>
-        <Drop delay={52} style={{ marginTop: 18 }}>
+        <Drop delay={120} style={{ marginTop: 18 }}>
           <div style={{ fontSize: 26, fontWeight: 800, color: C.ink }}>超えても、超えた分に少しかかるだけ</div>
           <div style={{ fontSize: 26, fontWeight: 900, color: C.ink, marginTop: 4 }}>年収<span style={{ color: C.orange }}>170万</span>でも所得税は<span style={{ color: C.orange }}>ほぼ0円</span></div>
         </Drop>
         <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
-          <Myth x="178万まで何もかからない" o="それは所得税だけ。住民税は119万円前後から" delay={64} />
+          <Myth x="178万まで何もかからない" o="それは所得税だけ。住民税は119万円前後から" delay={180} />
         </div>
-        <div style={{ fontSize: 20, fontWeight: 700, color: C.gray, marginTop: 20 }}>※住民税は自治体や家族構成などによって異なります</div>
+        <Drop delay={210} style={{ fontSize: 20, fontWeight: 700, color: C.gray, marginTop: 20 }}>※住民税は自治体や家族構成などによって異なります</Drop>
       </div>
     </AbsoluteFill>
   );
@@ -195,15 +195,15 @@ const PageShaho: React.FC = () => {
     <AbsoluteFill style={{ opacity: pageFade(f, P.shaho.dur) }}>
       <TreeHeader active="shaho" />
       <div style={{ position: "absolute", top: 560, left: 0, width: 1080, textAlign: "center" }}>
-        <Pop delay={6} style={{ display: "inline-block" }}>
+        <Pop delay={10} style={{ display: "inline-block" }}>
           <span style={{ fontSize: 32, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "7px 26px" }}>★ 本当に怖い壁</span>
         </Pop>
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 14, marginTop: 18 }}>
-          <Pop delay={16} style={{ position: "relative" }}><span style={{ fontSize: 40, fontWeight: 900, color: C.gray }}>106万</span><div style={{ position: "absolute", top: "48%", left: -4, right: -4, height: 5, background: C.red, transform: "rotate(-9deg)" }} /></Pop>
-          <Pop delay={22}><span style={{ fontSize: 24, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "5px 14px" }}>2026年10月 撤廃</span></Pop>
+          <Pop delay={70} style={{ position: "relative" }}><span style={{ fontSize: 40, fontWeight: 900, color: C.gray }}>106万</span><div style={{ position: "absolute", top: "48%", left: -4, right: -4, height: 5, background: C.red, transform: "rotate(-9deg)" }} /></Pop>
+          <Pop delay={85}><span style={{ fontSize: 24, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "5px 14px" }}>2026年10月 撤廃</span></Pop>
         </div>
-        <Drop delay={30} style={{ marginTop: 10 }}><div style={{ fontSize: 28, fontWeight: 900, color: C.ink }}>51人以上の会社<span style={{ fontSize: 22, color: C.gray }}>などで</span> <span style={{ color: C.red }}>週20時間以上</span>で加入</div></Drop>
-        <Pop delay={44} style={{ marginTop: 18 }}>
+        <Drop delay={150} style={{ marginTop: 10 }}><div style={{ fontSize: 28, fontWeight: 900, color: C.ink }}>51人以上の会社<span style={{ fontSize: 22, color: C.gray }}>などで</span> <span style={{ color: C.red }}>週20時間以上</span>で加入</div></Drop>
+        <Pop delay={300} style={{ marginTop: 18 }}>
           <div style={{ display: "inline-block", background: C.redBg, border: `5px solid ${C.red}`, borderRadius: 20, padding: "18px 32px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
               <span style={{ fontSize: 68, fontWeight: 900, color: C.red, lineHeight: 1 }}>130万</span>
@@ -212,11 +212,11 @@ const PageShaho: React.FC = () => {
             <div style={{ fontSize: 26, fontWeight: 900, color: C.ink, marginTop: 12, lineHeight: 1.35 }}>入れない場合は、国民年金や<br />国保を<span style={{ color: C.red }}>自分で払う</span>ことに</div>
           </div>
         </Pop>
-        <Drop delay={62} style={{ marginTop: 16 }}>
+        <Drop delay={560} style={{ marginTop: 16 }}>
           <div style={{ fontSize: 30, fontWeight: 900, color: C.ink }}>収入は増えても、保険料で</div>
           <span style={{ fontSize: 34, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 12, padding: "10px 26px", display: "inline-block", marginTop: 6 }}>手取りが思ったほど増えない</span>
         </Drop>
-        <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 14, lineHeight: 1.5 }}>※社会保険の加入にはその他の要件があります。勤務先の社保に入れる人もいます</div>
+        <Drop delay={600} style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 14, lineHeight: 1.5 }}>※社会保険の加入にはその他の要件があります。勤務先の社保に入れる人もいます</Drop>
       </div>
     </AbsoluteFill>
   );
@@ -239,7 +239,7 @@ const PageMerit: React.FC = () => {
       </Drop>
       <div style={{ position: "absolute", top: 440, left: 0, width: 1080 }}>
         {items.map((it, i) => (
-          <Drop key={i} delay={12 + i * 13} dy={-24} style={{ marginBottom: 20, display: "flex", justifyContent: "center" }}>
+          <Drop key={i} delay={60 + i * 78} dy={-24} style={{ marginBottom: 20, display: "flex", justifyContent: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 18, width: 860, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 18, padding: "16px 26px" }}>
               <span style={{ width: 56, height: 56, borderRadius: "50%", background: C.green, color: "#fff", fontSize: 30, fontWeight: 900, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{it.i}</span>
               <div style={{ textAlign: "left" }}>
@@ -250,7 +250,7 @@ const PageMerit: React.FC = () => {
           </Drop>
         ))}
       </div>
-      <Drop delay={78} style={{ position: "absolute", top: 1230, left: 90, width: 900, textAlign: "center" }}>
+      <Drop delay={360} style={{ position: "absolute", top: 1230, left: 90, width: 900, textAlign: "center" }}>
         <span style={{ fontSize: 27, fontWeight: 900, color: C.ink, background: C.orangeBg, borderRadius: 12, padding: "12px 24px" }}>国民健康保険には、原則こうした手当はない</span>
         <div style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginTop: 14 }}>※各手当には支給要件があります</div>
       </Drop>
@@ -275,7 +275,7 @@ const PageMatome: React.FC = () => {
       </Drop>
       <div style={{ position: "absolute", top: 210, left: 70, width: 940 }}>
         {WALLS.map((w, i) => (
-          <Drop key={i} delay={10 + i * 9} dy={-22} style={{ marginBottom: 14 }}>
+          <Drop key={i} delay={10 + i * 42} dy={-22} style={{ marginBottom: 14 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, background: w.star ? C.redBg : "#fff", border: `${w.star ? 5 : 3}px solid ${w.c}`, borderRadius: 16, padding: "13px 20px", boxShadow: "0 5px 14px rgba(31,58,95,0.07)" }}>
               <div style={{ minWidth: 175, textAlign: "center", fontSize: w.star ? 50 : 42, fontWeight: 900, color: w.c, lineHeight: 1 }}>{w.amt}</div>
               <span style={{ fontSize: 16, fontWeight: 900, color: "#fff", background: w.c, borderRadius: 6, padding: "2px 9px" }}>{w.tag}</span>
@@ -284,13 +284,13 @@ const PageMatome: React.FC = () => {
           </Drop>
         ))}
       </div>
-      <Drop delay={70} style={{ position: "absolute", top: 1070, left: 70, width: 940 }}>
+      <Drop delay={250} style={{ position: "absolute", top: 1070, left: 70, width: 940 }}>
         <div style={{ fontSize: 30, fontWeight: 900, color: "#fff", background: C.ink, borderRadius: 12, padding: "10px 0", textAlign: "center", marginBottom: 16 }}>やることは、2つだけ</div>
         {[
           { n: "1", t: "勤め先の社保の条件を確認", s: "週20時間・51人以上に当てはまる？" },
           { n: "2", t: "130万を超えるなら、どう超えるか", s: "少し超えるより、手取りがしっかり増えるまで" },
         ].map((x, i) => (
-          <Drop key={i} delay={80 + i * 12} dy={-18} style={{ marginBottom: 12 }}>
+          <Drop key={i} delay={280 + i * 45} dy={-18} style={{ marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, background: C.orangeBg, border: `3px solid ${C.orange}`, borderRadius: 14, padding: "14px 20px" }}>
               <span style={{ width: 48, height: 48, borderRadius: "50%", background: C.orange, color: "#fff", fontSize: 28, fontWeight: 900, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{x.n}</span>
               <div style={{ textAlign: "left" }}><div style={{ fontSize: 28, fontWeight: 900, color: C.ink }}>{x.t}</div><div style={{ fontSize: 20, fontWeight: 800, color: C.gray }}>{x.s}</div></div>
@@ -307,13 +307,13 @@ const PageEnd: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <AbsoluteFill style={{ opacity: pageFade(f, P.end.dur) }}>
-      <Pop delay={6} style={{ position: "absolute", top: 440, left: 0, width: 1080, textAlign: "center" }}>
+      <Pop delay={10} style={{ position: "absolute", top: 440, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 40, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "16px 30px", display: "inline-block" }}>「壁を超えない」が正解じゃない</span>
       </Pop>
-      <Drop delay={24} style={{ position: "absolute", top: 660, left: 0, width: 1080, textAlign: "center" }}>
+      <Drop delay={70} style={{ position: "absolute", top: 660, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 44, fontWeight: 900, color: C.ink, lineHeight: 1.5 }}>世帯全体の<span style={{ color: C.orange }}>手取りと保障</span>で<br />働き方を決めよう</span>
       </Drop>
-      <Drop delay={44} style={{ position: "absolute", top: 1020, left: 0, width: 1080, textAlign: "center" }}>
+      <Drop delay={150} style={{ position: "absolute", top: 1020, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 30, fontWeight: 900, color: "#fff", background: C.ink, borderRadius: 999, padding: "16px 42px" }}>気になる人は、プロフから相談を</span>
       </Drop>
     </AbsoluteFill>
