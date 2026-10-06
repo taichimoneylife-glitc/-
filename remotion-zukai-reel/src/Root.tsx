@@ -21,6 +21,7 @@ import { NenmatsuReel, NEN_FRAMES } from "./NenmatsuReel";
 import { AeOverlayReel, AE_FRAMES } from "./AeOverlayReel";
 import { IgTreeReel, IG_FRAMES } from "./IgTreeReel";
 import { KabeReel, KABE_FRAMES } from "./KabeReel";
+import { FlowPractice, FLOW_FRAMES } from "./FlowPractice";
 import { CorridorRunner, CORRIDOR_FRAMES } from "./CorridorRunner";
 import { LaunchFilm, LAUNCH_FRAMES } from "./LaunchFilm";
 import { TalkLaunch, TALKLAUNCH_FRAMES } from "./TalkLaunch";
@@ -149,6 +150,7 @@ export const RemotionRoot: React.FC = () => {
 
       {/* ── 年収の壁(2025改正) 叩き台：白1画面×枝ごと展開→クリア ── */}
       <Composition id="KabeReel" component={KabeReel} durationInFrames={KABE_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="FlowPractice" component={FlowPractice} durationInFrames={FLOW_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* ── トークリール自動編集（実写＋オーバーレイ／完コピ試作） ── */}
       <Composition id="TalkReel" component={TalkReel} durationInFrames={TALK_FRAMES} fps={FPS} width={1080} height={1920} />
