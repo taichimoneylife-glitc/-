@@ -333,8 +333,8 @@ const P3a: React.FC = () => {
           <text x={gxNext + 20} y={fyV(1004) + 78} fontSize={24} fontWeight={900} fill={C.blue} textAnchor="start">銀行 +0.4%</text>
         </>}
       </svg>
-      {/* 下：まとめ一文 */}
-      <Pop delay={d(A.s3c) + 30} style={{ position: "absolute", top: 1120, left: 0, width: 1080, textAlign: "center" }}>
+      {/* 下：まとめ一文（今年/来年の軸ラベルと被らないよう下げる） */}
+      <Pop delay={d(A.s3c) + 30} style={{ position: "absolute", top: 1210, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 32, fontWeight: 900, color: C.ink, background: "#fff", border: `2px dashed ${C.red}`, borderRadius: 16, padding: "14px 26px" }}>1,020円のものは、<span style={{ color: C.red }}>1,004円では買えない</span></span>
       </Pop>
       <Note lines={["※金利・物価の数字はイメージの目安です", "※銀行金利は金融機関・時期で異なります"]} top={1620} />
