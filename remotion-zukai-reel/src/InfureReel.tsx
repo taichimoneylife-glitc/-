@@ -20,6 +20,9 @@ const C = {
 
 const FPS = 30;
 const s2f = (s: number) => Math.round(s * FPS);
+// 上部セーフマージン：Instagramの上部UI（時刻/リール・友達バー/戻る・カメラ）で
+// タイトルが隠れないよう、各ページの内容を少し下げてスタートする。★恒久ルール
+const TOP_SAFE = 100;
 // 音声アンカー（whisper語タイム）→frame
 const A = {
   s1a: 0, s1b: s2f(3.36), s1c: s2f(7.84),
@@ -189,7 +192,7 @@ const NodeBox: React.FC<{ cx: number; top: number; w: number; img: string; title
 const P1: React.FC = () => {
   const risePulse = usePulse(0.07, 8);
   return (
-    <AbsoluteFill>
+    <AbsoluteFill style={{ transform: `translateY(${TOP_SAFE}px)` }}>
       <Head kicker="まず前提の話" title={<>日本の物価は、<br /><span style={{ color: C.red }}>日銀が「わざと」</span>上げている</>} />
       {/* 日銀 → 物価↑ */}
       <div style={{ position: "absolute", top: 330, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 30 }}>
@@ -241,7 +244,7 @@ const P1: React.FC = () => {
       <Pop delay={A.s1c - PG.p1.from} style={{ position: "absolute", top: 1216, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 38, fontWeight: 900, color: "#fff", background: C.green, borderRadius: 999, padding: "16px 46px", display: "inline-block", boxShadow: `0 12px 28px ${C.green}44` }}>狙いは「良いインフレ」🌱</span>
       </Pop>
-      <Note lines={["※インフレ＝物価が続けて上がること", "※日銀＝日本銀行（物価の番人）"]} top={1600} />
+      <Note lines={["※インフレ＝物価が続けて上がること", "※日銀＝日本銀行（物価の番人）"]} top={1450} />
     </AbsoluteFill>
   );
 };
@@ -251,7 +254,7 @@ const P2: React.FC = () => {
   const d = (g: number) => g - PG.p2.from;
   const XL = 290, XR = 790;
   return (
-    <AbsoluteFill>
+    <AbsoluteFill style={{ transform: `translateY(${TOP_SAFE}px)` }}>
       <Head kicker="同じ物価↑でも2つに分かれる" title={<><span style={{ color: C.green }}>良い</span>インフレと<span style={{ color: C.red }}>悪い</span>インフレ</>} />
       {/* 連結線（ページ座標・4本の縦線はすべて同じ長さ62px／順にピッと描く） */}
       <svg width={1080} height={1920} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
@@ -286,7 +289,7 @@ const P2: React.FC = () => {
       <Pop delay={d(A.s2b) + 74} style={{ position: "absolute", top: 980, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 44, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 18, padding: "16px 44px", display: "inline-block", boxShadow: `0 12px 28px ${C.red}44` }}>＝ 今は「悪いインフレ」</span>
       </Pop>
-      <Note lines={["※景気や賃金の感じ方には個人差があります"]} top={1640} />
+      <Note lines={["※景気や賃金の感じ方には個人差があります"]} top={1450} />
     </AbsoluteFill>
   );
 };
@@ -305,7 +308,7 @@ const P3a: React.FC = () => {
   const bankY = fyV(1000) + (fyV(1004) - fyV(1000)) * bank;
   const gapO = interpolate(f, [d(A.s3c) + 20, d(A.s3c) + 36], [0, 0.16], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
-    <AbsoluteFill>
+    <AbsoluteFill style={{ transform: `translateY(${TOP_SAFE}px)` }}>
       <Head kicker="じゃあ 物価が+2% 上がると？" title={<>銀行に置いておくと、<br /><span style={{ color: C.red }}>インフレに追いつかない</span></>} />
       <svg width={1080} height={900} style={{ position: "absolute", top: 300, left: 0 }}>
         {/* 軸 */}
@@ -337,7 +340,7 @@ const P3a: React.FC = () => {
       <Pop delay={d(A.s3c) + 30} style={{ position: "absolute", top: 1210, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 32, fontWeight: 900, color: C.ink, background: "#fff", border: `2px dashed ${C.red}`, borderRadius: 16, padding: "14px 26px" }}>1,020円のものは、<span style={{ color: C.red }}>1,004円では買えない</span></span>
       </Pop>
-      <Note lines={["※金利・物価の数字はイメージの目安です", "※銀行金利は金融機関・時期で異なります"]} top={1620} />
+      <Note lines={["※金利・物価の数字はイメージの目安です", "※銀行金利は金融機関・時期で異なります"]} top={1450} />
     </AbsoluteFill>
   );
 };
@@ -350,7 +353,7 @@ const P3b: React.FC = () => {
   // 価値（買えるモノ）がしぼむ：1.0→0.82で反復
   const shrink = 0.9 + Math.sin(f / 9) * 0.08;
   return (
-    <AbsoluteFill>
+    <AbsoluteFill style={{ transform: `translateY(${TOP_SAFE}px)` }}>
       <Pop delay={d(A.s3d)} style={{ position: "absolute", top: 120, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 56, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 20, padding: "16px 50px", display: "inline-block", boxShadow: `0 12px 30px ${C.red}55` }}>これが「インフレ負け」</span>
       </Pop>
@@ -392,7 +395,7 @@ const P3b: React.FC = () => {
           </Pop>
         </div>
       </div>
-      <Note lines={["※お金の額面は変わらなくても、買える量（実質価値）は下がり得ます"]} top={1640} />
+      <Note lines={["※お金の額面は変わらなくても、買える量（実質価値）は下がり得ます"]} top={1450} />
     </AbsoluteFill>
   );
 };
@@ -405,7 +408,7 @@ const P4: React.FC = () => {
   const barBank = interpolate(f, [d(A.s5a) + 6, d(A.s5a) + 26], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const barInv = interpolate(f, [d(A.s5b) + 6, d(A.s5b) + 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
-    <AbsoluteFill>
+    <AbsoluteFill style={{ transform: `translateY(${TOP_SAFE}px)` }}>
       <Pop delay={2} style={{ position: "absolute", top: 100, left: 0, width: 1080, textAlign: "center" }}>
         <div style={{ fontSize: 30, fontWeight: 900, color: C.green }}>物価の上がり方より</div>
         <div style={{ fontSize: 50, fontWeight: 900, color: C.ink, marginTop: 6 }}><span style={{ color: C.green }}>お金が増える場所</span>に置く</div>
@@ -457,7 +460,7 @@ const P5: React.FC = () => {
     { x: 812, y: 858, t: "子ども", img: "infure_family", g: A.s6b, k: 18 },
   ];
   return (
-    <AbsoluteFill>
+    <AbsoluteFill style={{ transform: `translateY(${TOP_SAFE}px)` }}>
       <Head kicker="この数千万円があれば" title={<>将来の<span style={{ color: C.green }}>選択肢</span>が、ぐっと広がる</>} kc={C.green} />
       {/* 中心→各ノードへ線を引く */}
       <svg width={1080} height={1920} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
@@ -503,7 +506,7 @@ const P6: React.FC = () => {
   const qPulse = usePulse(0.07, 7);
   const examples = ["積立保険", "学資保険", "変額保険", "個人年金", "確定拠出年金"];
   return (
-    <AbsoluteFill>
+    <AbsoluteFill style={{ transform: `translateY(${TOP_SAFE}px)` }}>
       <Head kicker="まずは、ここから" title={<>今ある<span style={{ color: C.gold }}>お金の置き場</span>を確認</>} kc={C.gold} />
       {/* ① 銀行のお金 */}
       <Pop delay={d(A.s7b)} style={{ position: "absolute", top: 296, left: 80, width: 920 }}>
@@ -547,7 +550,7 @@ const P6: React.FC = () => {
           <div style={{ fontSize: 80, fontWeight: 900, color: C.red, marginTop: 6 }}>何%で増えてる？</div>
         </Pop>
       </div>
-      <Note lines={["※利率・利回りは商品や時期によって異なります", "※特定商品の勧誘ではありません。制度・数字は目安です"]} top={1640} />
+      <Note lines={["※利率・利回りは商品や時期によって異なります", "※特定商品の勧誘ではありません。制度・数字は目安です"]} top={1450} />
     </AbsoluteFill>
   );
 };
