@@ -95,6 +95,12 @@ const NumCount: React.FC<{ to: number; delay: number; dur?: number; style?: Reac
   const punch = interpolate(f, [delay + dur - 4, delay + dur, delay + dur + 7], [1, 1.14, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return <span style={{ display: "inline-block", transform: `scale(${punch})`, ...style }}>{fmt ? fmt(v) : v.toLocaleString()}</span>;
 };
+// 伸びる棒（物価ミニグラフ用）
+const GrowBar: React.FC<{ h: number; delay: number; w?: number }> = ({ h, delay, w = 56 }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [delay, delay + 14], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return <div style={{ width: w, height: h * p, background: `linear-gradient(180deg, #F0A94B, ${C.orange})`, borderRadius: "8px 8px 0 0" }} />;
+};
 // ポップ絵スロット：実画像(gen/*.png)があれば使用、なければ絵文字。
 const Slot: React.FC<{ emoji: string; size?: number; delay?: number; float?: number; bg?: string; ring?: string; img?: string; style?: React.CSSProperties }> = ({ emoji, size = 120, delay = 0, float = 5, bg = "#fff", ring = C.line, img, style }) => {
   const f = useCurrentFrame(); const { fps } = useVideoConfig();
@@ -122,12 +128,17 @@ const Bg: React.FC = () => {
     </>
   );
 };
-const Head: React.FC<{ kicker: string; title: React.ReactNode; kc?: string }> = ({ kicker, title, kc = C.red }) => (
-  <Pop delay={2} style={{ position: "absolute", top: 90, left: 0, width: 1080, textAlign: "center" }}>
-    <div style={{ fontSize: 30, fontWeight: 900, color: kc, letterSpacing: 1 }}>{kicker}</div>
-    <div style={{ fontSize: 50, fontWeight: 900, color: C.ink, marginTop: 8, lineHeight: 1.22 }}>{title}</div>
-  </Pop>
-);
+const Head: React.FC<{ kicker: string; title: React.ReactNode; kc?: string }> = ({ kicker, title, kc = C.red }) => {
+  const f = useCurrentFrame();
+  const mk = interpolate(f, [8, 22], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <Pop delay={2} style={{ position: "absolute", top: 90, left: 0, width: 1080, textAlign: "center" }}>
+      <div style={{ display: "inline-block", fontSize: 30, fontWeight: 900, color: "#fff", background: kc, borderRadius: 999, padding: "6px 24px", letterSpacing: 1 }}>{kicker}</div>
+      <div style={{ fontSize: 50, fontWeight: 900, color: C.ink, marginTop: 12, lineHeight: 1.22 }}>{title}</div>
+      <div style={{ width: 120 * mk, height: 7, background: kc, borderRadius: 999, margin: "14px auto 0", opacity: 0.85 }} />
+    </Pop>
+  );
+};
 const Note: React.FC<{ lines: string[]; top?: number }> = ({ lines, top = 1660 }) => (
   <Pop delay={30} style={{ position: "absolute", top, left: 90, width: 900, textAlign: "left" }}>
     {lines.map((n, i) => (<div key={i} style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginBottom: 5, lineHeight: 1.35 }}>{n}</div>))}
@@ -174,24 +185,41 @@ const P1: React.FC = () => {
         </div>
       </div>
       {/* 目標 / ここ数年 */}
-      <Pop delay={A.s1b - PG.p1.from} style={{ position: "absolute", top: 760, left: 90, width: 900 }}>
+      <Pop delay={A.s1b - PG.p1.from} style={{ position: "absolute", top: 740, left: 90, width: 900 }}>
         <div style={{ display: "flex", gap: 22, justifyContent: "center" }}>
-          <div style={{ flex: 1, background: "#fff", border: `3px solid ${C.blue}`, borderRadius: 22, padding: "22px 14px", textAlign: "center" }}>
+          <div style={{ flex: 1, background: "#fff", border: `3px solid ${C.blue}`, borderRadius: 22, padding: "22px 14px", textAlign: "center", boxShadow: "0 8px 20px rgba(31,58,95,0.08)" }}>
             <div style={{ fontSize: 27, fontWeight: 900, color: C.sub }}>日銀の目標</div>
             <div style={{ fontSize: 66, fontWeight: 900, color: C.blue }}>年+2<span style={{ fontSize: 42 }}>%</span></div>
           </div>
-          <div style={{ flex: 1, background: "#fff", border: `3px solid ${C.orange}`, borderRadius: 22, padding: "22px 14px", textAlign: "center" }}>
+          <div style={{ flex: 1, background: "#fff", border: `3px solid ${C.orange}`, borderRadius: 22, padding: "22px 14px", textAlign: "center", boxShadow: "0 8px 20px rgba(31,58,95,0.08)" }}>
             <div style={{ fontSize: 27, fontWeight: 900, color: C.sub }}>ここ数年</div>
             <div style={{ fontSize: 66, fontWeight: 900, color: C.orange }}>+2〜3<span style={{ fontSize: 42 }}>%</span></div>
             <div style={{ fontSize: 23, fontWeight: 900, color: C.orange }}>上昇中 ↑</div>
           </div>
         </div>
       </Pop>
+      {/* 物価はじわじわ上昇（ミニ棒グラフ） */}
+      <Pop delay={A.s1b - PG.p1.from + 14} style={{ position: "absolute", top: 972, left: 90, width: 900 }}>
+        <div style={{ background: "#fff", border: `3px solid ${C.gold}`, borderRadius: 22, padding: "16px 22px 20px", boxShadow: "0 8px 20px rgba(31,58,95,0.08)" }}>
+          <div style={{ fontSize: 25, fontWeight: 900, color: C.ink, marginBottom: 10 }}>物価は<span style={{ color: C.orange }}>じわじわ上がり続けて</span>いる</div>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 20, height: 120 }}>
+            {[48, 62, 76, 92, 110].map((h, i) => {
+              const f2 = A.s1b - PG.p1.from + 20 + i * 4;
+              return (
+                <div key={i} style={{ textAlign: "center" }}>
+                  <GrowBar h={h} delay={f2} />
+                </div>
+              );
+            })}
+            <div style={{ fontSize: 44, fontWeight: 900, color: C.orange, marginLeft: 6, alignSelf: "center" }}>↗</div>
+          </div>
+        </div>
+      </Pop>
       {/* 狙いは良いインフレ */}
-      <Pop delay={A.s1c - PG.p1.from} style={{ position: "absolute", top: 1030, left: 0, width: 1080, textAlign: "center" }}>
+      <Pop delay={A.s1c - PG.p1.from} style={{ position: "absolute", top: 1216, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 38, fontWeight: 900, color: "#fff", background: C.green, borderRadius: 999, padding: "16px 46px", display: "inline-block", boxShadow: `0 12px 28px ${C.green}44` }}>狙いは「良いインフレ」🌱</span>
       </Pop>
-      <Note lines={["※インフレ＝物価が続けて上がること", "※日銀＝日本銀行（物価の番人）"]} top={1560} />
+      <Note lines={["※インフレ＝物価が続けて上がること", "※日銀＝日本銀行（物価の番人）"]} top={1600} />
     </AbsoluteFill>
   );
 };
@@ -203,9 +231,9 @@ const P2: React.FC = () => {
     <AbsoluteFill>
       <Head kicker="同じ物価↑でも2つに分かれる" title={<><span style={{ color: C.green }}>良い</span>インフレと<span style={{ color: C.red }}>悪い</span>インフレ</>} />
       {/* 共通の根：物価が上がる */}
-      <TreeNode cx={540} top={236} w={420} delay={d(A.s2a)} img="infure_burger" title="物価が上がる" sub="↑" color={C.orange} bg="#fff" big />
+      <TreeNode cx={540} top={258} w={420} delay={d(A.s2a)} img="infure_burger" title="物価が上がる" sub="↑" color={C.orange} bg="#fff" big />
       {/* 分岐線 */}
-      <svg width={1080} height={900} style={{ position: "absolute", top: 236, left: 0, pointerEvents: "none" }}>
+      <svg width={1080} height={900} style={{ position: "absolute", top: 258, left: 0, pointerEvents: "none" }}>
         <Draw d="M540 128 L540 168" delay={d(A.s2a) + 10} color={C.gray} w={5} />
         <Draw d="M270 168 L810 168" delay={d(A.s2a) + 14} color={C.gray} w={5} />
         <Draw d="M270 168 L270 206" delay={d(A.s2a) + 18} color={C.green} w={6} />
@@ -299,35 +327,45 @@ const P3b: React.FC = () => {
       <Pop delay={d(A.s3d)} style={{ position: "absolute", top: 120, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 56, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 20, padding: "16px 50px", display: "inline-block", boxShadow: `0 12px 30px ${C.red}55` }}>これが「インフレ負け」</span>
       </Pop>
-      <div style={{ position: "absolute", top: 360, left: 70, width: 940, display: "flex", gap: 26 }}>
+      <Pop delay={d(A.s3d) + 10} style={{ position: "absolute", top: 300, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 28, fontWeight: 900, color: C.sub, background: "#fff", border: `2px solid ${C.line}`, borderRadius: 999, padding: "8px 26px" }}>同じ「1,000円」で、くらべると…</span>
+      </Pop>
+      <div style={{ position: "absolute", top: 390, left: 60, width: 960, display: "flex", gap: 26 }}>
         {/* 数は変わらない */}
         <Pop delay={d(A.s3e) - 8} style={{ flex: 1 }}>
-          <div style={{ background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 24, padding: "26px 14px", textAlign: "center", height: 560, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <div style={{ fontSize: 30, fontWeight: 900, color: C.green }}>お金の「数」</div>
-            <div style={{ display: "flex", justifyContent: "center", gap: 12, margin: "20px 0" }}>
-              <Slot emoji="💴" img="infure_bill" size={150} delay={d(A.s3e)} />
-            </div>
-            <div style={{ fontSize: 40, fontWeight: 900, color: C.ink }}>1,000円のまま</div>
-            <div style={{ fontSize: 30, fontWeight: 900, color: C.green, marginTop: 6 }}>✓ 減らない</div>
+          <div style={{ background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 26, padding: "28px 14px", textAlign: "center", height: 680, display: "flex", flexDirection: "column", justifyContent: "center", boxShadow: `0 10px 26px ${C.green}26` }}>
+            <div style={{ fontSize: 34, fontWeight: 900, color: C.green }}>お金の「数」</div>
+            <Slot emoji="💴" img="infure_bill" size={190} delay={d(A.s3e)} style={{ margin: "28px auto" }} />
+            <div style={{ fontSize: 46, fontWeight: 900, color: C.ink }}>1,000円</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: C.sub }}>→ 来年も 1,000円</div>
+            <div style={{ fontSize: 34, fontWeight: 900, color: C.green, marginTop: 14 }}>✓ 減らない</div>
           </div>
         </Pop>
-        {/* 価値は目減り */}
+        {/* 価値は目減り（去年→今年 の買える量） */}
         <div style={{ flex: 1, transform: `scale(${valPulse})`, transformOrigin: "center" }}>
           <Pop delay={d(A.s3e) + 6}>
-            <div style={{ background: C.redBg, border: `4px solid ${C.red}`, borderRadius: 24, padding: "26px 14px", textAlign: "center", height: 560, display: "flex", flexDirection: "column", justifyContent: "center", boxShadow: `0 10px 26px ${C.red}33` }}>
-              <div style={{ fontSize: 30, fontWeight: 900, color: C.red }}>お金の「価値」</div>
-              <div style={{ height: 190, display: "flex", alignItems: "center", justifyContent: "center", margin: "16px 0" }}>
-                <div style={{ transform: `scale(${shrink})`, transformOrigin: "center" }}>
-                  <Slot emoji="🍔" img="infure_burger" size={170} delay={d(A.s3e) + 6} float={0} />
+            <div style={{ background: C.redBg, border: `4px solid ${C.red}`, borderRadius: 26, padding: "28px 14px", textAlign: "center", height: 680, display: "flex", flexDirection: "column", justifyContent: "center", boxShadow: `0 12px 30px ${C.red}33` }}>
+              <div style={{ fontSize: 34, fontWeight: 900, color: C.red }}>お金の「価値」</div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, margin: "20px 0 10px" }}>
+                <div style={{ textAlign: "center" }}>
+                  <Slot emoji="🍔" img="infure_burger" size={132} delay={d(A.s3e) + 6} float={0} />
+                  <div style={{ fontSize: 22, fontWeight: 900, color: C.sub }}>去年</div>
+                </div>
+                <div style={{ fontSize: 40, fontWeight: 900, color: C.red }}>→</div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ transform: `scale(${shrink})`, transformOrigin: "bottom center" }}>
+                    <Slot emoji="🍔" img="infure_burger" size={132} delay={d(A.s3e) + 10} float={0} />
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: C.red }}>今年</div>
                 </div>
               </div>
-              <div style={{ fontSize: 30, fontWeight: 900, color: C.ink, lineHeight: 1.25 }}>同じ1,000円で<br />買える量が減る</div>
-              <div style={{ fontSize: 30, fontWeight: 900, color: C.red, marginTop: 6 }}>↓ 目減りする</div>
+              <div style={{ fontSize: 30, fontWeight: 900, color: C.ink, lineHeight: 1.25 }}>買える量が減る</div>
+              <div style={{ fontSize: 34, fontWeight: 900, color: C.red, marginTop: 10 }}>↓ 価値が目減り</div>
             </div>
           </Pop>
         </div>
       </div>
-      <Note lines={["※お金の額面は変わらなくても、買える量（実質価値）は下がり得ます"]} top={1620} />
+      <Note lines={["※お金の額面は変わらなくても、買える量（実質価値）は下がり得ます"]} top={1640} />
     </AbsoluteFill>
   );
 };
