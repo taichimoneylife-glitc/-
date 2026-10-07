@@ -231,35 +231,35 @@ const P2: React.FC = () => {
     <AbsoluteFill>
       <Head kicker="同じ物価↑でも2つに分かれる" title={<><span style={{ color: C.green }}>良い</span>インフレと<span style={{ color: C.red }}>悪い</span>インフレ</>} />
       {/* 共通の根：物価が上がる */}
-      <TreeNode cx={540} top={258} w={420} delay={d(A.s2a)} img="infure_burger" title="物価が上がる" sub="↑" color={C.orange} bg="#fff" big />
-      {/* 分岐線 */}
-      <svg width={1080} height={900} style={{ position: "absolute", top: 258, left: 0, pointerEvents: "none" }}>
-        <Draw d="M540 128 L540 168" delay={d(A.s2a) + 10} color={C.gray} w={5} />
-        <Draw d="M270 168 L810 168" delay={d(A.s2a) + 14} color={C.gray} w={5} />
-        <Draw d="M270 168 L270 206" delay={d(A.s2a) + 18} color={C.green} w={6} />
-        <Draw d="M810 168 L810 206" delay={d(A.s2b) + 2} color={C.red} w={6} />
-        {/* 良い：node1→node2 を縦につなぐ（svg原点 top=236） */}
-        <Draw d="M270 352 L270 404" delay={d(A.s2a) + 60} color={C.green} w={6} />
-        {/* 悪い：node1→node2 を縦につなぐ */}
-        <Draw d="M810 352 L810 404" delay={d(A.s2b) + 40} color={C.red} w={6} />
+      <TreeNode cx={540} top={320} w={420} delay={d(A.s2a)} img="infure_burger" title="物価が上がる" sub="↑" color={C.orange} bg="#fff" big />
+      {/* 分岐線（svg原点 top=320・線を長めに） */}
+      <svg width={1080} height={980} style={{ position: "absolute", top: 320, left: 0, pointerEvents: "none" }}>
+        <Draw d="M540 132 L540 172" delay={d(A.s2a) + 10} color={C.gray} w={5} />
+        <Draw d="M270 172 L810 172" delay={d(A.s2a) + 14} color={C.gray} w={5} />
+        <Draw d="M270 172 L270 228" delay={d(A.s2a) + 18} color={C.green} w={6} />
+        <Draw d="M810 172 L810 228" delay={d(A.s2b) + 2} color={C.red} w={6} />
+        {/* 良い：node1→node2（線を長く） */}
+        <Draw d="M270 368 L270 470" delay={d(A.s2a) + 60} color={C.green} w={6} />
+        {/* 悪い：node1→node2（線を長く） */}
+        <Draw d="M810 368 L810 470" delay={d(A.s2b) + 40} color={C.red} w={6} />
       </svg>
       {/* 左：良いインフレ（理想） */}
-      <Pop delay={d(A.s2a) + 14} style={{ position: "absolute", top: 408, left: 90, width: 360, textAlign: "center" }}>
+      <Pop delay={d(A.s2a) + 14} style={{ position: "absolute", top: 500, left: 90, width: 360, textAlign: "center" }}>
         <span style={{ fontSize: 24, fontWeight: 900, color: "#fff", background: C.green, borderRadius: 999, padding: "6px 22px" }}>良いインフレ＝理想</span>
       </Pop>
-      <TreeNode cx={270} top={452} w={370} delay={d(A.s2a) + 36} img="infure_bill" title="給料も上がる" sub="↑" color={C.green} bg={C.greenBg} />
-      <TreeNode cx={270} top={636} w={370} delay={d(A.s2a) + 66} img="infure_kid" title="みんな豊か" sub="になるはず" color={C.green} bg={C.greenBg} />
+      <TreeNode cx={270} top={548} w={370} delay={d(A.s2a) + 36} img="infure_bill" title="給料も上がる" sub="↑" color={C.green} bg={C.greenBg} />
+      <TreeNode cx={270} top={790} w={370} delay={d(A.s2a) + 66} img="infure_kid" title="みんな豊か" sub="になるはず" color={C.green} bg={C.greenBg} />
       {/* 右：悪いインフレ（現実） */}
-      <Pop delay={d(A.s2b)} style={{ position: "absolute", top: 408, left: 630, width: 360, textAlign: "center" }}>
+      <Pop delay={d(A.s2b)} style={{ position: "absolute", top: 500, left: 630, width: 360, textAlign: "center" }}>
         <span style={{ fontSize: 24, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "6px 22px" }}>悪いインフレ＝現実</span>
       </Pop>
-      <TreeNode cx={810} top={452} w={370} delay={d(A.s2b) + 22} img="infure_bill" title="給料は上がらない" color={C.red} bg={C.redBg} pulse />
-      <TreeNode cx={810} top={636} w={370} delay={d(A.s2b) + 40} img="infure_worry" title="負担は増える一方" color={C.red} bg={C.redBg} pulse />
+      <TreeNode cx={810} top={548} w={370} delay={d(A.s2b) + 22} img="infure_bill" title="給料は上がらない" color={C.red} bg={C.redBg} pulse />
+      <TreeNode cx={810} top={790} w={370} delay={d(A.s2b) + 40} img="infure_worry" title="負担は増える一方" color={C.red} bg={C.redBg} pulse />
       {/* 結論 */}
-      <Pop delay={d(A.s2b) + 70} style={{ position: "absolute", top: 900, left: 0, width: 1080, textAlign: "center" }}>
+      <Pop delay={d(A.s2b) + 70} style={{ position: "absolute", top: 1070, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 44, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 18, padding: "16px 44px", display: "inline-block", boxShadow: `0 12px 28px ${C.red}44` }}>＝ 今は「悪いインフレ」</span>
       </Pop>
-      <Note lines={["※景気や賃金の感じ方には個人差があります"]} top={1620} />
+      <Note lines={["※景気や賃金の感じ方には個人差があります"]} top={1640} />
     </AbsoluteFill>
   );
 };
@@ -279,16 +279,16 @@ const P3a: React.FC = () => {
   const gapO = interpolate(f, [d(A.s3c) + 20, d(A.s3c) + 36], [0, 0.16], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill>
-      <Head kicker="じゃあ 物価が+2% 上がると？" title={<>銀行のお金は<br /><span style={{ color: C.red }}>増え方が追いつかない</span></>} />
+      <Head kicker="じゃあ 物価が+2% 上がると？" title={<>銀行に置いておくと、<br /><span style={{ color: C.red }}>インフレに追いつかない</span></>} />
       <svg width={1080} height={900} style={{ position: "absolute", top: 300, left: 0 }}>
         {/* 軸 */}
         <line x1={GX0} y1={GY0} x2={GX1} y2={GY0} stroke={C.ink} strokeWidth={4} />
         <line x1={GX0} y1={GY0} x2={GX0} y2={GY1} stroke={C.ink} strokeWidth={4} />
         <text x={gxNow} y={GY0 + 42} fontSize={26} fontWeight={900} fill={C.sub} textAnchor="middle">今年</text>
         <text x={gxNext} y={GY0 + 42} fontSize={26} fontWeight={900} fill={C.sub} textAnchor="middle">来年</text>
-        {/* スタート点 1,000円 */}
+        {/* スタート点 1,000円（軸の左外に出して「今年」と被らないように） */}
         <circle cx={gxNow} cy={fyV(1000)} r={10} fill="#fff" stroke={C.ink} strokeWidth={5} />
-        <text x={gxNow - 18} y={fyV(1000) + 46} fontSize={26} fontWeight={900} fill={C.ink} textAnchor="middle">1,000円</text>
+        <text x={GX0 - 18} y={fyV(1000) + 8} fontSize={26} fontWeight={900} fill={C.ink} textAnchor="end">1,000円</text>
         {/* 差の帯 */}
         <rect x={gxNext - 8} y={priceY} width={70} height={Math.max(0, bankY - priceY)} fill={C.red} opacity={gapO} />
         {/* 物価ライン（オレンジ・急） */}
