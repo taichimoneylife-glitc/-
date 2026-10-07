@@ -379,35 +379,54 @@ const P4: React.FC = () => {
   );
 };
 
-// ───────── P5：選択肢が広がる ─────────
+// ───────── P5：選択肢が広がる（放射ツリー＝中心から線で分岐） ─────────
 const P5: React.FC = () => {
   const d = (g: number) => g - PG.p5.from;
-  const cards = [
-    { t: "教育費", g: A.s6a, img: "infure_grad" },
-    { t: "老後", g: A.s6a, img: "infure_senior" },
-    { t: "旅行", g: A.s6b, img: "infure_travel" },
-    { t: "子ども", g: A.s6b, img: "infure_family" },
+  const cpulse = usePulse(0.06, 8);
+  const CX = 540, CY = 660; // 中心
+  const nodes = [
+    { x: 268, y: 408, t: "教育費", img: "infure_grad", g: A.s6a, k: 10 },
+    { x: 812, y: 408, t: "老後", img: "infure_senior", g: A.s6a, k: 24 },
+    { x: 268, y: 858, t: "旅行", img: "infure_travel", g: A.s6b, k: 6 },
+    { x: 812, y: 858, t: "子ども", img: "infure_family", g: A.s6b, k: 18 },
   ];
-  const widen = usePulse(0.05, 8);
   return (
     <AbsoluteFill>
-      <Head kicker="この数千万円があれば" title={<>将来の<span style={{ color: C.green }}>選択肢</span>が広がる</>} kc={C.green} />
-      <div style={{ position: "absolute", top: 320, left: 80, width: 920, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 30 }}>
-        {cards.map((c, i) => (
-          <Pop key={i} delay={d(c.g) + (i % 2) * 8}>
-            <div style={{ background: "#fff", border: `3px solid ${C.green}`, borderRadius: 26, padding: "30px 10px", textAlign: "center", boxShadow: "0 8px 20px rgba(31,58,95,0.08)" }}>
-              <Slot emoji="⭐" img={c.img} size={170} delay={d(c.g) + (i % 2) * 8 + 4} style={{ margin: "0 auto" }} />
-              <div style={{ fontSize: 38, fontWeight: 900, color: C.ink, marginTop: 12 }}>{c.t}</div>
-            </div>
-          </Pop>
+      <Head kicker="この数千万円があれば" title={<>将来の<span style={{ color: C.green }}>選択肢</span>が、ぐっと広がる</>} kc={C.green} />
+      {/* 中心→各ノードへ線を引く */}
+      <svg width={1080} height={1920} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        {nodes.map((n, i) => (
+          <Draw key={i} d={`M${CX} ${CY} L${n.x} ${n.y}`} delay={d(n.g) + n.k - 4} dur={10} color={C.green} w={6} />
         ))}
+      </svg>
+      {/* 4分岐ノード */}
+      {nodes.map((n, i) => (
+        <div key={i} style={{ position: "absolute", left: n.x - 112, top: n.y - 112, width: 224, textAlign: "center" }}>
+          <Pop delay={d(n.g) + n.k}>
+            <div style={{ width: 200, height: 200, margin: "0 auto", background: "#fff", border: `4px solid ${C.green}`, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 24px rgba(31,58,95,0.12)" }}>
+              <Slot emoji="⭐" img={n.img} size={132} delay={d(n.g) + n.k + 3} float={3} />
+            </div>
+            <div style={{ fontSize: 34, fontWeight: 900, color: C.ink, marginTop: 8 }}>{n.t}</div>
+          </Pop>
+        </div>
+      ))}
+      {/* 中心ノード */}
+      <div style={{ position: "absolute", left: CX - 150, top: CY - 150, width: 300, textAlign: "center", transform: `scale(${cpulse})`, transformOrigin: "center" }}>
+        <Pop delay={d(A.s6a)} damp={10}>
+          <div style={{ width: 300, height: 300, margin: "0 auto", background: `radial-gradient(circle at 50% 35%, #46B07E, ${C.green})`, border: "5px solid #fff", borderRadius: "50%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: `0 16px 40px ${C.green}66` }}>
+            <Slot emoji="💰" img="infure_hand_up" size={120} delay={d(A.s6a) + 3} float={4} />
+            <div style={{ fontSize: 30, fontWeight: 900, color: "#fff", marginTop: 2 }}>増えたお金</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: "#EAF7F0" }}>（数千万円）</div>
+          </div>
+        </Pop>
       </div>
-      <div style={{ position: "absolute", top: 1180, left: 0, width: 1080, textAlign: "center", transform: `scale(${widen})`, transformOrigin: "center" }}>
+      {/* 結論帯 */}
+      <div style={{ position: "absolute", top: 1230, left: 0, width: 1080, textAlign: "center" }}>
         <Pop delay={d(A.s6c)}>
           <span style={{ fontSize: 40, fontWeight: 900, color: "#fff", background: C.green, borderRadius: 18, padding: "18px 40px", display: "inline-block", boxShadow: `0 10px 26px ${C.green}44` }}>置き場を変えるだけで、人生の選択肢が広がる</span>
         </Pop>
       </div>
-      <Note lines={["※効果や必要額は家庭の状況によって異なります"]} top={1380} />
+      <Note lines={["※効果や必要額は家庭の状況によって異なります"]} top={1400} />
     </AbsoluteFill>
   );
 };
@@ -416,32 +435,53 @@ const P5: React.FC = () => {
 const P6: React.FC = () => {
   const d = (g: number) => g - PG.p6.from;
   const qPulse = usePulse(0.07, 7);
-  const checks = [
-    { n: "①", t: "銀行の金利は 何%？", img: "infure_bank2", g: A.s7b, c: C.blue },
-    { n: "②", t: "積立保険の利回りは 何%？", img: "infure_insurance", g: A.s7c, c: C.orange },
-  ];
+  const examples = ["積立保険", "学資保険", "変額保険", "個人年金", "確定拠出年金"];
   return (
     <AbsoluteFill>
       <Head kicker="まずは、ここから" title={<>今ある<span style={{ color: C.gold }}>お金の置き場</span>を確認</>} kc={C.gold} />
-      <div style={{ position: "absolute", top: 320, left: 80, width: 920 }}>
-        {checks.map((c, i) => (
-          <Pop key={i} delay={d(c.g)} style={{ marginBottom: 28 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 22, background: "#fff", border: `3px solid ${c.c}`, borderRadius: 24, padding: "22px 26px", boxShadow: "0 8px 20px rgba(31,58,95,0.08)" }}>
-              <div style={{ fontSize: 50, fontWeight: 900, color: c.c }}>{c.n}</div>
-              <Slot emoji="•" img={c.img} size={120} delay={d(c.g) + 4} float={3} />
-              <div style={{ fontSize: 36, fontWeight: 900, color: C.ink, textAlign: "left" }}>{c.t}</div>
+      {/* ① 銀行のお金 */}
+      <Pop delay={d(A.s7b)} style={{ position: "absolute", top: 296, left: 80, width: 920 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 20, background: "#fff", border: `3px solid ${C.blue}`, borderRadius: 24, padding: "20px 26px", boxShadow: "0 8px 20px rgba(31,58,95,0.08)" }}>
+          <div style={{ fontSize: 48, fontWeight: 900, color: C.blue }}>①</div>
+          <Slot emoji="🏦" img="infure_bank2" size={118} delay={d(A.s7b) + 4} float={3} />
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontSize: 28, fontWeight: 900, color: C.blue }}>銀行のお金</div>
+            <div style={{ fontSize: 38, fontWeight: 900, color: C.ink }}>金利は 何%？</div>
+          </div>
+        </div>
+      </Pop>
+      {/* ② 銀行以外のお金 ＋ 例チップ */}
+      <Pop delay={d(A.s7c)} style={{ position: "absolute", top: 492, left: 80, width: 920 }}>
+        <div style={{ background: "#fff", border: `3px solid ${C.orange}`, borderRadius: 24, padding: "20px 26px", boxShadow: "0 8px 20px rgba(31,58,95,0.08)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <div style={{ fontSize: 48, fontWeight: 900, color: C.orange }}>②</div>
+            <Slot emoji="🐖" img="infure_insurance" size={118} delay={d(A.s7c) + 4} float={3} />
+            <div style={{ textAlign: "left" }}>
+              <div style={{ fontSize: 28, fontWeight: 900, color: C.orange }}>銀行以外に置いてあるお金</div>
+              <div style={{ fontSize: 38, fontWeight: 900, color: C.ink }}>利回りは 何%？</div>
             </div>
-          </Pop>
-        ))}
-      </div>
-      <div style={{ position: "absolute", top: 780, left: 0, width: 1080, textAlign: "center", transform: `scale(${qPulse})`, transformOrigin: "center" }}>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", marginTop: 16 }}>
+            {examples.map((e, i) => (
+              <Pop key={i} delay={d(A.s7c) + 10 + i * 4}>
+                <span style={{ fontSize: 24, fontWeight: 900, color: C.orange, background: C.goldBg, border: `2px solid ${C.gold}`, borderRadius: 999, padding: "8px 18px" }}>{e}</span>
+              </Pop>
+            ))}
+            <Pop delay={d(A.s7c) + 10 + examples.length * 4}>
+              <span style={{ fontSize: 24, fontWeight: 900, color: C.sub, padding: "8px 6px" }}>など</span>
+            </Pop>
+          </div>
+        </div>
+      </Pop>
+      {/* 締め問い */}
+      <div style={{ position: "absolute", top: 900, left: 0, width: 1080, textAlign: "center", transform: `scale(${qPulse})`, transformOrigin: "center" }}>
         <Pop delay={d(A.s7d)} damp={10}>
-          <Slot emoji="📱" img="infure_phone" size={170} delay={d(A.s7d) + 2} style={{ margin: "0 auto 18px" }} />
+          <Slot emoji="📱" img="infure_phone" size={176} delay={d(A.s7d) + 2} style={{ margin: "0 auto 16px" }} />
           <div style={{ fontSize: 42, fontWeight: 900, color: C.ink, lineHeight: 1.3 }}>あなたのお金は、今年</div>
-          <div style={{ fontSize: 78, fontWeight: 900, color: C.red, marginTop: 6 }}>何%で増えてる？</div>
+          <div style={{ fontSize: 80, fontWeight: 900, color: C.red, marginTop: 6 }}>何%で増えてる？</div>
         </Pop>
       </div>
-      <Note lines={["※利率・利回りは商品や時期によって異なります", "※特定商品の勧誘ではありません。制度・数字は目安です"]} top={1620} />
+      <Note lines={["※利率・利回りは商品や時期によって異なります", "※特定商品の勧誘ではありません。制度・数字は目安です"]} top={1640} />
     </AbsoluteFill>
   );
 };
