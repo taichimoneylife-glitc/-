@@ -2,6 +2,8 @@ import React from "react";
 import { AbsoluteFill, Sequence, Audio, Img, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { FONT } from "./components/font";
 import { SfxTrack } from "./components/sfx";
+import { KabeBranch } from "./KabeBranch";
+import { Hatarakizon } from "./Hatarakizon";
 
 // ───────────────────────────────────────────────────────────────
 // 年収の壁(2026)｜ツリー固定＋枝ごと展開（太一さん指定の型）
@@ -44,7 +46,11 @@ const P = {
   merit: { from: s2f(A.merit),  dur: s2f(A.matome) - s2f(A.merit) },  // 1528.. 1895
   matome:{ from: s2f(A.matome), dur: s2f(A.end)    - s2f(A.matome) }, // 1895.. 2524
 };
-export const KABE_FRAMES = s2f(A.end); // 2524 = 84.15s
+// 締め(別録り kabe_close.wav 20.38s)を"まとめ"の後ろに連結
+const CLOSE_FROM = s2f(A.end);   // 2524
+const CLOSE_BRANCH = 358;        // 締めシーン①(分岐ツリー) ≒11.95s
+const CLOSE_ZONE = 253;          // 締めシーン②(注意ゾーン) 残り
+export const KABE_FRAMES = CLOSE_FROM + CLOSE_BRANCH + CLOSE_ZONE; // 3135 = 104.5s
 
 // 各ページ内の出現フレーム（ページ先頭=0起点）＝ 声の位置(秒)*30 - page.from
 const d = (sec: number, page: keyof typeof P) => s2f(sec) - P[page].from;
@@ -607,18 +613,29 @@ const KABE_SFX = [
   // ⑤ まとめ（転換＝u07・各行は中音・★130は高音キメ・結論帯＝u10・ラスト締め＝finish）
   { file: "user/u07", at: 1895, volume: 0.44 }, { file: "user/u05", at: 1900, volume: 0.42 },
   { file: "user/u02s", at: 1919, volume: 0.4 }, { file: "user/u02s", at: 2066, volume: 0.4 }, { file: "user/u04", at: 2167, volume: 0.44 }, { file: "user/u02s", at: 2288, volume: 0.4 }, { file: "user/u02s", at: 2406, volume: 0.4 },
-  { file: "user/u10", at: 2422, volume: 0.46 }, { file: "finish", at: 2470, volume: 0.46 },
+  { file: "user/u10", at: 2422, volume: 0.46 },
+  // ⑥ 締め①：分岐ツリー（CLOSE_FROM=2524）
+  { file: "user/u07", at: 2524, volume: 0.44 }, { file: "user/u05", at: 2632, volume: 0.42 },
+  { file: "user/u02s", at: 2640, volume: 0.38 }, { file: "user/u02s", at: 2653, volume: 0.38 }, { file: "user/u02s", at: 2666, volume: 0.38 },
+  { file: "user/u02s", at: 2719, volume: 0.4 }, { file: "user/u02s", at: 2743, volume: 0.4 }, { file: "user/u04", at: 2811, volume: 0.44 }, { file: "user/u02s", at: 2848, volume: 0.38 },
+  // ⑦ 締め②：注意ゾーン（2882〜）
+  { file: "user/u03", at: 2882, volume: 0.4 }, { file: "user/u05", at: 2886, volume: 0.42 }, { file: "user/u04", at: 2974, volume: 0.44 },
+  { file: "user/u10", at: 3050, volume: 0.46 }, { file: "finish", at: 3100, volume: 0.48 },
 ];
 // audio: "full"=ナレ＋効果音ミックス / "voice"=ナレのみ / "sfx"=効果音のみ（3点書き出し用）
 export const KabeReel: React.FC<{ audio?: "full" | "voice" | "sfx" }> = ({ audio = "full" }) => (
   <AbsoluteFill style={{ background: C.bg, fontFamily: FONT, overflow: "hidden" }}>
     <BackgroundFX />
     {audio !== "sfx" && <Audio src={staticFile("kabe_narration.wav")} />}
+    {audio !== "sfx" && <Sequence from={CLOSE_FROM}><Audio src={staticFile("kabe_close.wav")} /></Sequence>}
     {audio !== "voice" && <SfxTrack cues={KABE_SFX} gain={SFX_GAIN} />}
     <Sequence from={P.tax.from} durationInFrames={P.tax.dur}><PageTax /></Sequence>
     <Sequence from={P.fuyo.from} durationInFrames={P.fuyo.dur}><PageFuyo /></Sequence>
     <Sequence from={P.shaho.from} durationInFrames={P.shaho.dur}><PageShaho /></Sequence>
     <Sequence from={P.merit.from} durationInFrames={P.merit.dur}><PageMerit /></Sequence>
     <Sequence from={P.matome.from} durationInFrames={P.matome.dur}><PageMatome /></Sequence>
+    {/* ── 締め（別録り）：分岐ツリー → 注意ゾーングラフ ── */}
+    <Sequence from={CLOSE_FROM} durationInFrames={CLOSE_BRANCH}><KabeBranch /></Sequence>
+    <Sequence from={CLOSE_FROM + CLOSE_BRANCH} durationInFrames={CLOSE_ZONE}><Hatarakizon /></Sequence>
   </AbsoluteFill>
 );

@@ -10,7 +10,8 @@ import { FONT } from "./components/font";
 // ───────────────────────────────────────────────────────────────
 const C = { bg: "#FCFBF7", ink: "#1F3A5F", orange: "#E8912D", red: "#E0483B", green: "#2E9E6B", gray: "#AEB8C2", line: "#C9D2DD", redBg: "#FCE6E3" };
 
-export const HATARAKIZON_FRAMES = 560;
+// 締め音声シーン②に同期。dur=253(≒8.43s)
+export const HATARAKIZON_FRAMES = 255;
 
 // 概念カーブ：右肩上がり → 130万付近から伸びが鈍る（なだらかな踊り場/浅い谷）→ その先また伸びる
 const DATA: [number, number][] = [
@@ -53,23 +54,23 @@ const WarnMark: React.FC<{ size?: number; delay?: number }> = ({ size = 70, dela
 
 export const Hatarakizon: React.FC = () => {
   const f = useCurrentFrame();
-  const drawP = interpolate(f, [34, 130], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const drawP = interpolate(f, [8, 95], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const zonePulse = usePulse(0.05, 7);
   return (
     <AbsoluteFill style={{ background: C.bg, fontFamily: FONT, overflow: "hidden" }}>
       <AbsoluteFill style={{ background: "radial-gradient(125% 80% at 50% -5%, #FFFDF8 0%, #FAF6EC 55%, #F1EBDD 100%)" }} />
       {/* 見出し */}
-      <Pop delay={4} style={{ position: "absolute", top: 120, left: 0, width: 1080, textAlign: "center" }}>
+      <Pop delay={80} style={{ position: "absolute", top: 120, left: 0, width: 1080, textAlign: "center" }}>
         <div style={{ fontSize: 30, fontWeight: 900, color: C.red }}>⚠ 超えるなら、どこまで？</div>
         <div style={{ fontSize: 50, fontWeight: 900, color: C.ink, marginTop: 6 }}>130〜150万台は<span style={{ color: C.red }}>注意ゾーン</span></div>
       </Pop>
-      <Pop delay={16} style={{ position: "absolute", top: 272, left: 0, width: 1080, textAlign: "center" }}>
+      <Pop delay={3} style={{ position: "absolute", top: 272, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 26, fontWeight: 900, color: C.ink, background: "#fff", border: `2px solid ${C.orange}`, borderRadius: 999, padding: "7px 22px" }}>収入は増えても、手取りがあまり増えないことも</span>
       </Pop>
 
       <svg width={1080} height={820} style={{ position: "absolute", top: 340, left: 0 }}>
         {/* 注意ゾーン帯 */}
-        <path d={zonePath} fill={C.red} opacity={interpolate(f, [120, 140], [0, 0.1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })} />
+        <path d={zonePath} fill={C.red} opacity={interpolate(f, [76, 94], [0, 0.1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })} />
         {/* 軸 */}
         <line x1={PX0} y1={PY0} x2={PX1} y2={PY0} stroke={C.ink} strokeWidth={4} />
         <line x1={PX0} y1={PY0} x2={PX0} y2={PY1} stroke={C.ink} strokeWidth={4} />
@@ -91,9 +92,9 @@ export const Hatarakizon: React.FC = () => {
       </svg>
 
       {/* 注意マーク（⚠）＝ゾーンの上にポン */}
-      <div style={{ position: "absolute", top: 360, left: 470, width: 100, textAlign: "center" }}><WarnMark size={88} delay={100} /></div>
+      <div style={{ position: "absolute", top: 360, left: 470, width: 100, textAlign: "center" }}><WarnMark size={88} delay={88} /></div>
       {/* ゾーンのラベル（必ず損ではなく“伸びにくいことがある”／パルス） */}
-      <Pop delay={110} style={{ position: "absolute", top: 470, left: 290, width: 450, textAlign: "center" }}>
+      <Pop delay={92} style={{ position: "absolute", top: 470, left: 290, width: 450, textAlign: "center" }}>
         <div style={{ transform: `scale(${zonePulse})`, transformOrigin: "center" }}>
           <div style={{ background: C.red, color: "#fff", borderRadius: 12, padding: "9px 14px", fontSize: 22, fontWeight: 900, lineHeight: 1.3, boxShadow: `0 8px 20px ${C.red}33` }}>手取りが伸びにくい<br />ことがある注意ゾーン</div>
           <div style={{ fontSize: 20, fontWeight: 900, color: C.red, marginTop: 6 }}>130〜150万円台の目安</div>
@@ -102,12 +103,12 @@ export const Hatarakizon: React.FC = () => {
 
       {/* 下部まとめ（イラスト＋帯）＋注釈 */}
       <div style={{ position: "absolute", top: 1130, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
-        <GenImg name="kabe_decide_work" w={130} delay={140} float={4} />
-        <Pop delay={140}>
+        <GenImg name="kabe_decide_work" w={130} delay={168} float={4} />
+        <Pop delay={168}>
           <span style={{ fontSize: 38, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "14px 28px", display: "inline-block" }}>超えるなら、どこまで働くかを考える</span>
         </Pop>
       </div>
-      <Pop delay={160} style={{ position: "absolute", top: 1330, left: 80, width: 920, textAlign: "left" }}>
+      <Pop delay={185} style={{ position: "absolute", top: 1330, left: 80, width: 920, textAlign: "left" }}>
         {["※手取り額は目安（概念図です）", "※自治体・年齢・扶養人数・勤務先などで異なります", "※勤務先の社保か、国民年金＋国保かで負担は変わります", "※一律に「○万円で元に戻る」とは言えません"].map((n, i) => (
           <div key={i} style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginBottom: 6, lineHeight: 1.35 }}>{n}</div>
         ))}
