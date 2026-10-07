@@ -22,6 +22,7 @@ import { AeOverlayReel, AE_FRAMES } from "./AeOverlayReel";
 import { IgTreeReel, IG_FRAMES } from "./IgTreeReel";
 import { KabeReel, KABE_FRAMES } from "./KabeReel";
 import { Hatarakizon, HATARAKIZON_FRAMES } from "./Hatarakizon";
+import { KabeBranch, KABEBRANCH_FRAMES } from "./KabeBranch";
 import { FlowPractice, FLOW_FRAMES } from "./FlowPractice";
 import { CorridorRunner, CORRIDOR_FRAMES } from "./CorridorRunner";
 import { LaunchFilm, LAUNCH_FRAMES } from "./LaunchFilm";
@@ -154,6 +155,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="FlowPractice" component={FlowPractice} durationInFrames={FLOW_FRAMES} fps={FPS} width={1080} height={1920} />
       {/* ── 年収の壁の締め：働き損の谷グラフ（本編まとめの後ろに繋げる予定・モック） ── */}
       <Composition id="Hatarakizon" component={Hatarakizon} durationInFrames={HATARAKIZON_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="KabeBranch" component={KabeBranch} durationInFrames={KABEBRANCH_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* ── トークリール自動編集（実写＋オーバーレイ／完コピ試作） ── */}
       <Composition id="TalkReel" component={TalkReel} durationInFrames={TALK_FRAMES} fps={FPS} width={1080} height={1920} />

@@ -3,28 +3,27 @@ import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } fr
 import { FONT } from "./components/font";
 
 // ───────────────────────────────────────────────────────────────
-// 「働き損」の谷グラフ（年収×手取り）＝締めの図解モック
-//   130万で社保加入→手取りが一時的に減る谷→155万あたりで回復。
-//   気にすべきゾーン＝130〜150万台を赤で強調。※数字は目安。
+// 締めシーン②：注意ゾーンの概念グラフ（年収×手取りのイメージ）
+//   断定しない：固定数字・「○万で戻る」は出さない。130〜150万台を
+//   「手取りが伸びにくいことがある 注意ゾーン」として色帯＋⚠で見せる。
+//   ※あくまで概念図・イメージ図。
 // ───────────────────────────────────────────────────────────────
 const C = { bg: "#FCFBF7", ink: "#1F3A5F", orange: "#E8912D", red: "#E0483B", green: "#2E9E6B", gray: "#AEB8C2", line: "#C9D2DD", redBg: "#FCE6E3" };
 
 export const HATARAKIZON_FRAMES = 560;
 
-// 年収(万)→手取り(万) の目安カーブ
+// 概念カーブ：右肩上がり → 130万付近から伸びが鈍る（なだらかな踊り場/浅い谷）→ その先また伸びる
 const DATA: [number, number][] = [
-  [120, 118], [125, 123], [128, 125.5], [130, 127], [133, 118], [136, 114.5],
-  [140, 115], [145, 118], [150, 122], [155, 127], [160, 129], [165, 133], [170, 137],
+  [118, 116], [124, 122], [130, 127], [135, 125], [140, 125.5], [145, 127], [150, 129], [155, 132.5], [162, 138], [170, 146],
 ];
-const XMIN = 118, XMAX = 172, YMIN = 110, YMAX = 132;
-const PX0 = 120, PX1 = 960, PY0 = 760, PY1 = 150; // plot box (px, y inverted)
+const XMIN = 116, XMAX = 172, YMIN = 112, YMAX = 134;
+const PX0 = 130, PX1 = 950, PY0 = 740, PY1 = 150;
 const fx = (v: number) => PX0 + (v - XMIN) / (XMAX - XMIN) * (PX1 - PX0);
 const fy = (t: number) => PY0 + (t - YMIN) / (YMAX - YMIN) * (PY1 - PY0);
 const pts = DATA.map(([x, y]) => [fx(x), fy(y)] as const);
 const pathD = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ");
-// 130〜155の谷ゾーン塗り
-const zoneTop = fy(YMAX);
-const zonePath = `M${fx(130)} ${PY0} L${fx(130)} ${zoneTop} L${fx(155)} ${zoneTop} L${fx(155)} ${PY0} Z`;
+const Z0 = 130, Z1 = 152; // 注意ゾーン
+const zonePath = `M${fx(Z0)} ${PY0} L${fx(Z0)} ${fy(YMAX)} L${fx(Z1)} ${fy(YMAX)} L${fx(Z1)} ${PY0} Z`;
 
 const Pop: React.FC<{ delay: number; style?: React.CSSProperties; children: React.ReactNode }> = ({ delay, style, children }) => {
   const f = useCurrentFrame(); const { fps } = useVideoConfig();
@@ -34,61 +33,56 @@ const Pop: React.FC<{ delay: number; style?: React.CSSProperties; children: Reac
 
 export const Hatarakizon: React.FC = () => {
   const f = useCurrentFrame();
-  const drawP = interpolate(f, [30, 120], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const bottomIdx = 6; // 谷底 (140,115)
+  const drawP = interpolate(f, [34, 130], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill style={{ background: C.bg, fontFamily: FONT, overflow: "hidden" }}>
-      {/* 背景の奥行き */}
       <AbsoluteFill style={{ background: "radial-gradient(125% 80% at 50% -5%, #FFFDF8 0%, #FAF6EC 55%, #F1EBDD 100%)" }} />
       {/* 見出し */}
-      <Pop delay={4} style={{ position: "absolute", top: 110, left: 0, width: 1080, textAlign: "center" }}>
-        <div style={{ fontSize: 30, fontWeight: 900, color: C.red }}>超えるなら、どこまで？</div>
-        <div style={{ fontSize: 52, fontWeight: 900, color: C.ink, marginTop: 6 }}>130万〜150万台は<span style={{ color: C.red }}>働き損</span>ゾーン</div>
+      <Pop delay={4} style={{ position: "absolute", top: 120, left: 0, width: 1080, textAlign: "center" }}>
+        <div style={{ fontSize: 30, fontWeight: 900, color: C.red }}>⚠ 超えるなら、どこまで？</div>
+        <div style={{ fontSize: 50, fontWeight: 900, color: C.ink, marginTop: 6 }}>130〜150万台は<span style={{ color: C.red }}>注意ゾーン</span></div>
       </Pop>
-      <Pop delay={16} style={{ position: "absolute", top: 268, left: 0, width: 1080, textAlign: "center" }}>
-        <span style={{ fontSize: 26, fontWeight: 900, color: C.ink, background: "#fff", border: `2px solid ${C.orange}`, borderRadius: 999, padding: "7px 22px" }}>130万超で社保加入 → 手取りは年収の約15%ダウン</span>
+      <Pop delay={16} style={{ position: "absolute", top: 272, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 26, fontWeight: 900, color: C.ink, background: "#fff", border: `2px solid ${C.orange}`, borderRadius: 999, padding: "7px 22px" }}>収入は増えても、手取りがあまり増えないことも</span>
       </Pop>
 
-      <svg width={1080} height={900} style={{ position: "absolute", top: 330, left: 0 }}>
-        {/* 谷ゾーン */}
+      <svg width={1080} height={820} style={{ position: "absolute", top: 340, left: 0 }}>
+        {/* 注意ゾーン帯 */}
         <path d={zonePath} fill={C.red} opacity={interpolate(f, [120, 140], [0, 0.1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })} />
         {/* 軸 */}
         <line x1={PX0} y1={PY0} x2={PX1} y2={PY0} stroke={C.ink} strokeWidth={4} />
         <line x1={PX0} y1={PY0} x2={PX0} y2={PY1} stroke={C.ink} strokeWidth={4} />
-        <text x={PX0 - 10} y={PY1 - 14} fontSize={24} fontWeight={900} fill={C.gray} textAnchor="start">手取り</text>
-        <text x={PX1} y={PY0 + 44} fontSize={24} fontWeight={900} fill={C.gray} textAnchor="end">年収</text>
-        {/* 130万時の手取りライン（基準・点線） */}
-        <line x1={PX0} y1={fy(127)} x2={PX1} y2={fy(127)} stroke={C.gray} strokeWidth={3} strokeDasharray="8 8" opacity={interpolate(f, [130, 150], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })} />
-        {/* X目盛 */}
-        {[120, 130, 140, 150, 160, 170].map((v) => (
+        <text x={PX0 - 14} y={PY1 - 14} fontSize={24} fontWeight={900} fill={C.gray} textAnchor="start">手取り</text>
+        <text x={PX1 + 6} y={PY0 + 44} fontSize={24} fontWeight={900} fill={C.gray} textAnchor="end">年収</text>
+        {/* 概念図なので数値目盛りは“目安”レベルで薄く（130だけ強調） */}
+        {[120, 130, 140, 150, 160].map((v) => (
           <g key={v}>
             <line x1={fx(v)} y1={PY0} x2={fx(v)} y2={PY0 + 10} stroke={C.ink} strokeWidth={3} />
-            <text x={fx(v)} y={PY0 + 40} fontSize={24} fontWeight={900} fill={v === 130 || v === 155 ? C.red : C.ink} textAnchor="middle">{v}万</text>
+            <text x={fx(v)} y={PY0 + 40} fontSize={23} fontWeight={900} fill={v === 130 ? C.red : C.gray} textAnchor="middle">{v}万</text>
           </g>
         ))}
         {/* カーブ（描き込み） */}
         <path d={pathD} fill="none" stroke={C.red} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - drawP} />
-        {/* ピーク(130) */}
-        {drawP > 0.3 && <circle cx={fx(130)} cy={fy(127)} r={10} fill="#fff" stroke={C.ink} strokeWidth={5} />}
-        {/* 谷底(140) */}
-        {drawP > 0.55 && <circle cx={pts[bottomIdx][0]} cy={pts[bottomIdx][1]} r={11} fill={C.red} stroke="#fff" strokeWidth={4} />}
-        {/* 回復(155) */}
-        {drawP > 0.95 && <circle cx={fx(155)} cy={fy(127)} r={10} fill={C.green} stroke="#fff" strokeWidth={4} />}
+        {/* 130万ポイント（踊り場の入口） */}
+        {drawP > 0.35 && <circle cx={fx(130)} cy={fy(127)} r={10} fill="#fff" stroke={C.red} strokeWidth={5} />}
+        {/* 伸びが鈍る＝横向き矢印イメージ（ゾーン内） */}
+        {drawP > 0.7 && <path d={`M${fx(133)} ${fy(123)} L${fx(149)} ${fy(123)}`} stroke={C.red} strokeWidth={5} strokeDasharray="7 7" opacity={0.7} />}
       </svg>
 
-      {/* 吹き出し：谷底 */}
-      <Pop delay={95} style={{ position: "absolute", top: 330 + pts[bottomIdx][1] + 24, left: pts[bottomIdx][0] - 110, width: 220, textAlign: "center" }}>
-        <div style={{ background: C.red, color: "#fff", borderRadius: 12, padding: "8px 10px", fontSize: 26, fontWeight: 900 }}>140万→約115万</div>
-      </Pop>
-      {/* 吹き出し：回復 */}
-      <Pop delay={120} style={{ position: "absolute", top: 330 + fy(127) - 92, left: fx(155) - 90, width: 200, textAlign: "center" }}>
-        <div style={{ background: C.green, color: "#fff", borderRadius: 12, padding: "8px 10px", fontSize: 24, fontWeight: 900 }}>155万で<br />元に戻る</div>
+      {/* ゾーンのラベル（必ず損ではなく“伸びにくいことがある”） */}
+      <Pop delay={110} style={{ position: "absolute", top: 340 + fy(YMAX) - 70, left: fx(Z0) - 30, width: 420, textAlign: "center" }}>
+        <div style={{ background: C.red, color: "#fff", borderRadius: 12, padding: "8px 12px", fontSize: 22, fontWeight: 900, lineHeight: 1.3 }}>⚠ 手取りが伸びにくい<br />ことがある注意ゾーン</div>
+        <div style={{ fontSize: 20, fontWeight: 900, color: C.red, marginTop: 6 }}>130〜150万円台の目安</div>
       </Pop>
 
-      {/* 下部まとめ */}
-      <Pop delay={140} style={{ position: "absolute", top: 1180, left: 0, width: 1080, textAlign: "center" }}>
-        <span style={{ fontSize: 40, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "14px 32px", display: "inline-block" }}>中途半端に超えるのが、一番もったいない</span>
-        <div style={{ fontSize: 20, fontWeight: 700, color: C.gray, marginTop: 16 }}>※手取りは目安（勤務先の社保・単身40歳未満など前提で試算）。自治体・条件で異なります</div>
+      {/* 下部まとめ＋注釈 */}
+      <Pop delay={140} style={{ position: "absolute", top: 1150, left: 0, width: 1080, textAlign: "center" }}>
+        <span style={{ fontSize: 38, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "14px 30px", display: "inline-block" }}>超えるなら、どこまで働くかを考える</span>
+      </Pop>
+      <Pop delay={160} style={{ position: "absolute", top: 1270, left: 80, width: 920, textAlign: "left" }}>
+        {["※手取り額は目安（概念図です）", "※自治体・年齢・扶養人数・勤務先などで異なります", "※勤務先の社保か、国民年金＋国保かで負担は変わります", "※一律に「○万円で元に戻る」とは言えません"].map((n, i) => (
+          <div key={i} style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginBottom: 6, lineHeight: 1.35 }}>{n}</div>
+        ))}
       </Pop>
     </AbsoluteFill>
   );
