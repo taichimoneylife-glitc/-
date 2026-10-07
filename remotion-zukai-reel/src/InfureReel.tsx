@@ -139,13 +139,13 @@ const P1: React.FC = () => {
       <Head kicker="まず前提の話" title={<>日本の物価は、<br /><span style={{ color: C.red }}>日銀が「わざと」</span>上げている</>} />
       {/* 日銀＋物価↑ */}
       <div style={{ position: "absolute", top: 300, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 44 }}>
-        <Slot emoji="🏦" size={200} delay={4} bg={C.blueBg} ring={C.blue} />
-        <svg width={150} height={200} style={{ overflow: "visible" }}>
-          <Draw d="M30 150 L120 50" delay={20} color={C.red} w={10} />
-          <Draw d="M120 50 L96 54 M120 50 L116 78" delay={30} color={C.red} w={10} />
+        <Slot emoji="🏦" img="infure_bank" size={240} delay={4} bg={C.blueBg} ring={C.blue} />
+        <svg width={120} height={200} style={{ overflow: "visible" }}>
+          <Draw d="M22 150 L104 54" delay={20} color={C.red} w={10} />
+          <Draw d="M104 54 L80 58 M104 54 L100 82" delay={30} color={C.red} w={10} />
         </svg>
         <div style={{ transform: `scale(${risePulse})` }}>
-          <Slot emoji="🛒" size={190} delay={10} bg={C.goldBg} ring={C.gold} />
+          <Slot emoji="🛒" img="infure_growth" size={230} delay={10} bg={C.goldBg} ring={C.gold} />
         </div>
       </div>
       {/* 目標 2% / ここ数年 2〜3% */}
@@ -201,7 +201,7 @@ const P2: React.FC = () => {
           <div style={{ background: C.redBg, border: `4px solid ${C.red}`, borderRadius: 22, padding: "22px 20px", boxShadow: `0 10px 26px ${C.red}33` }}>
             <div style={{ display: "flex", justifyContent: "center", gap: 30, alignItems: "center", marginBottom: 12 }}>
               <div style={{ textAlign: "center" }}><Slot emoji="💴" size={110} delay={A.s2b - PG.p2.from + 8} bg="#fff" ring={C.red} /><div style={{ fontSize: 24, fontWeight: 900, color: C.ink, marginTop: 4 }}>給料は横ばい</div></div>
-              <div style={{ textAlign: "center" }}><Slot emoji="😣" size={110} delay={A.s2b - PG.p2.from + 14} bg="#fff" ring={C.red} /><div style={{ fontSize: 24, fontWeight: 900, color: C.ink, marginTop: 4 }}>負担は増える一方</div></div>
+              <div style={{ textAlign: "center" }}><Slot emoji="😣" img="infure_worry" size={132} delay={A.s2b - PG.p2.from + 14} bg="#fff" ring={C.red} /><div style={{ fontSize: 24, fontWeight: 900, color: C.ink, marginTop: 4 }}>負担は増える一方</div></div>
             </div>
             <div style={{ fontSize: 40, fontWeight: 900, color: C.red }}>＝ 今は「悪いインフレ」</div>
           </div>
@@ -234,7 +234,7 @@ const P3: React.FC = () => {
         {/* 銀行 */}
         <Pop delay={d(A.s3c)} style={{ flex: 1 }}>
           <div style={{ background: "#fff", border: `3px solid ${C.blue}`, borderRadius: 20, padding: "18px 12px", textAlign: "center" }}>
-            <Slot emoji="🏦" size={100} delay={d(A.s3c) + 4} bg={C.blueBg} ring={C.blue} style={{ margin: "0 auto" }} />
+            <Slot emoji="🏦" img="infure_bank" size={118} delay={d(A.s3c) + 4} bg={C.blueBg} ring={C.blue} style={{ margin: "0 auto" }} />
             <div style={{ fontSize: 23, fontWeight: 900, color: C.sub, marginTop: 6 }}>銀行のお金</div>
             <div style={{ fontSize: 40, fontWeight: 900, color: C.ink }}>1,000円</div>
             <div style={{ fontSize: 30, color: C.blue, fontWeight: 900 }}>↓ 1年</div>
@@ -297,7 +297,7 @@ const P4: React.FC = () => {
         <div style={{ textAlign: "center", width: 300 }}>
           <div style={{ fontSize: 44, fontWeight: 900, color: C.blue, marginBottom: 8 }}><NumCount to={1889} delay={d(A.s5a) + 6} fmt={(n) => "約" + n.toLocaleString() + "万"} /></div>
           <div style={{ height: 300 * 0.40, maxHeight: 220, width: 200, margin: "0 auto", background: C.blue, borderRadius: "14px 14px 0 0", transform: `scaleY(${barBank})`, transformOrigin: "bottom", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 10 }}>
-            <Slot emoji="🏦" size={78} delay={d(A.s5a) + 10} bg="#fff" ring={C.blue} float={3} />
+            <Slot emoji="🏦" img="infure_bank" size={104} delay={d(A.s5a) + 10} bg="#fff" ring={C.blue} float={3} />
           </div>
           <div style={{ fontSize: 28, fontWeight: 900, color: C.ink, marginTop: 8 }}>銀行のまま</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: C.sub }}>（元本1,800万）</div>
@@ -306,7 +306,7 @@ const P4: React.FC = () => {
         <div style={{ textAlign: "center", width: 300 }}>
           <div style={{ fontSize: 52, fontWeight: 900, color: C.green, marginBottom: 8 }}><NumCount to={4770} delay={d(A.s5b) + 6} fmt={(n) => "約" + n.toLocaleString() + "万"} /></div>
           <div style={{ height: 460, width: 200, margin: "0 auto", background: `linear-gradient(180deg, ${C.green}, #46B07E)`, borderRadius: "14px 14px 0 0", transform: `scaleY(${barInv})`, transformOrigin: "bottom", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 10, boxShadow: `0 10px 30px ${C.green}44` }}>
-            <Slot emoji="📈" size={78} delay={d(A.s5b) + 12} bg="#fff" ring={C.green} float={3} />
+            <Slot emoji="📈" img="infure_hand_up" size={110} delay={d(A.s5b) + 12} bg="#fff" ring={C.green} float={3} />
           </div>
           <div style={{ fontSize: 28, fontWeight: 900, color: C.ink, marginTop: 8 }}>年5%で運用できたら</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: C.sub }}>（あくまで仮定）</div>
@@ -331,8 +331,10 @@ const P4: React.FC = () => {
 const P5: React.FC = () => {
   const d = (g: number) => g - PG.p5.from;
   const cards = [
-    { e: "🎓", t: "教育費", g: A.s6a }, { e: "👴", t: "老後", g: A.s6a },
-    { e: "✈️", t: "旅行", g: A.s6b }, { e: "👨‍👩‍👧", t: "子ども", g: A.s6b },
+    { e: "🎓", t: "教育費", g: A.s6a, img: undefined as string | undefined },
+    { e: "👴", t: "老後", g: A.s6a, img: undefined as string | undefined },
+    { e: "✈️", t: "旅行", g: A.s6b, img: undefined as string | undefined },
+    { e: "👨‍👩‍👧", t: "子ども", g: A.s6b, img: "infure_family" },
   ];
   const widen = usePulse(0.05, 8);
   return (
@@ -342,7 +344,7 @@ const P5: React.FC = () => {
         {cards.map((c, i) => (
           <Pop key={i} delay={d(c.g) + i % 2 * 8}>
             <div style={{ background: "#fff", border: `3px solid ${C.green}`, borderRadius: 24, padding: "26px 10px", textAlign: "center", boxShadow: "0 8px 20px rgba(31,58,95,0.08)" }}>
-              <Slot emoji={c.e} size={120} delay={d(c.g) + i % 2 * 8 + 4} bg={C.greenBg} ring={C.green} style={{ margin: "0 auto" }} />
+              <Slot emoji={c.e} img={c.img} size={c.img ? 150 : 120} delay={d(c.g) + i % 2 * 8 + 4} bg={C.greenBg} ring={C.green} style={{ margin: "0 auto" }} />
               <div style={{ fontSize: 34, fontWeight: 900, color: C.ink, marginTop: 10 }}>{c.t}</div>
             </div>
           </Pop>
@@ -363,8 +365,8 @@ const P6: React.FC = () => {
   const d = (g: number) => g - PG.p6.from;
   const qPulse = usePulse(0.06, 7);
   const checks = [
-    { n: "①", t: "銀行の金利は 何%？", e: "🏦", g: A.s7b, c: C.blue },
-    { n: "②", t: "積立保険の利回りは 何%？", e: "📄", g: A.s7c, c: C.orange },
+    { n: "①", t: "銀行の金利は 何%？", e: "🏦", img: "infure_bank" as string | undefined, g: A.s7b, c: C.blue },
+    { n: "②", t: "積立保険の利回りは 何%？", e: "📄", img: undefined as string | undefined, g: A.s7c, c: C.orange },
   ];
   return (
     <AbsoluteFill>
@@ -374,7 +376,7 @@ const P6: React.FC = () => {
           <Pop key={i} delay={d(c.g)} style={{ marginBottom: 24 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 20, background: "#fff", border: `3px solid ${c.c}`, borderRadius: 22, padding: "20px 24px", boxShadow: "0 8px 20px rgba(31,58,95,0.08)" }}>
               <div style={{ fontSize: 46, fontWeight: 900, color: c.c }}>{c.n}</div>
-              <Slot emoji={c.e} size={100} delay={d(c.g) + 4} bg="#fff" ring={c.c} float={3} />
+              <Slot emoji={c.e} img={c.img} size={c.img ? 110 : 100} delay={d(c.g) + 4} bg="#fff" ring={c.c} float={3} />
               <div style={{ fontSize: 34, fontWeight: 900, color: C.ink, textAlign: "left" }}>{c.t}</div>
             </div>
           </Pop>
