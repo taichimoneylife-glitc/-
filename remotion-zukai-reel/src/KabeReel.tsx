@@ -625,7 +625,7 @@ const KABE_SFX = [
 // audio: "full"=ナレ＋効果音ミックス / "voice"=ナレのみ / "sfx"=効果音のみ（3点書き出し用）
 // 上部セーフマージン：Instagramの上部UI（時刻/リール・友達バー/戻る・カメラ）で
 // タイトルが隠れないよう、本編の内容を少し下げてスタートする。★恒久ルール
-const TOP_SAFE = 100;
+const TOP_SAFE = 130;
 export const KabeReel: React.FC<{ audio?: "full" | "voice" | "sfx" }> = ({ audio = "full" }) => (
   <AbsoluteFill style={{ background: C.bg, fontFamily: FONT, overflow: "hidden" }}>
     <BackgroundFX />
