@@ -623,19 +623,24 @@ const KABE_SFX = [
   { file: "user/u10", at: 3050, volume: 0.46 }, { file: "finish", at: 3100, volume: 0.48 },
 ];
 // audio: "full"=ナレ＋効果音ミックス / "voice"=ナレのみ / "sfx"=効果音のみ（3点書き出し用）
+// 上部セーフマージン：Instagramの上部UI（時刻/リール・友達バー/戻る・カメラ）で
+// タイトルが隠れないよう、本編の内容を少し下げてスタートする。★恒久ルール
+const TOP_SAFE = 100;
 export const KabeReel: React.FC<{ audio?: "full" | "voice" | "sfx" }> = ({ audio = "full" }) => (
   <AbsoluteFill style={{ background: C.bg, fontFamily: FONT, overflow: "hidden" }}>
     <BackgroundFX />
     {audio !== "sfx" && <Audio src={staticFile("kabe_narration.wav")} />}
     {audio !== "sfx" && <Sequence from={CLOSE_FROM}><Audio src={staticFile("kabe_close.wav")} /></Sequence>}
     {audio !== "voice" && <SfxTrack cues={KABE_SFX} gain={SFX_GAIN} />}
-    <Sequence from={P.tax.from} durationInFrames={P.tax.dur}><PageTax /></Sequence>
-    <Sequence from={P.fuyo.from} durationInFrames={P.fuyo.dur}><PageFuyo /></Sequence>
-    <Sequence from={P.shaho.from} durationInFrames={P.shaho.dur}><PageShaho /></Sequence>
-    <Sequence from={P.merit.from} durationInFrames={P.merit.dur}><PageMerit /></Sequence>
-    <Sequence from={P.matome.from} durationInFrames={P.matome.dur}><PageMatome /></Sequence>
-    {/* ── 締め（別録り）：分岐ツリー → 注意ゾーングラフ ── */}
-    <Sequence from={CLOSE_FROM} durationInFrames={CLOSE_BRANCH}><KabeBranch /></Sequence>
-    <Sequence from={CLOSE_FROM + CLOSE_BRANCH} durationInFrames={CLOSE_ZONE}><Hatarakizon /></Sequence>
+    <AbsoluteFill style={{ transform: `translateY(${TOP_SAFE}px)` }}>
+      <Sequence from={P.tax.from} durationInFrames={P.tax.dur}><PageTax /></Sequence>
+      <Sequence from={P.fuyo.from} durationInFrames={P.fuyo.dur}><PageFuyo /></Sequence>
+      <Sequence from={P.shaho.from} durationInFrames={P.shaho.dur}><PageShaho /></Sequence>
+      <Sequence from={P.merit.from} durationInFrames={P.merit.dur}><PageMerit /></Sequence>
+      <Sequence from={P.matome.from} durationInFrames={P.matome.dur}><PageMatome /></Sequence>
+      {/* ── 締め（別録り）：分岐ツリー → 注意ゾーングラフ ── */}
+      <Sequence from={CLOSE_FROM} durationInFrames={CLOSE_BRANCH}><KabeBranch /></Sequence>
+      <Sequence from={CLOSE_FROM + CLOSE_BRANCH} durationInFrames={CLOSE_ZONE}><Hatarakizon /></Sequence>
+    </AbsoluteFill>
   </AbsoluteFill>
 );
