@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, staticFile, useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
 import { FONT } from "./components/font";
 
 // ───────────────────────────────────────────────────────────────
@@ -30,10 +30,31 @@ const Pop: React.FC<{ delay: number; style?: React.CSSProperties; children: Reac
   const s = spring({ frame: f - delay, fps, config: { damping: 12, stiffness: 150, mass: 0.7 }, durationInFrames: 12 });
   return <div style={{ opacity: Math.min(1, s * 2), transform: `scale(${s})`, transformOrigin: "center", ...style }}>{children}</div>;
 };
+const usePulse = (amp = 0.06, spd = 7) => { const f = useCurrentFrame(); return 1 + (Math.sin(f / spd) * 0.5 + 0.5) * amp; };
+const GenImg: React.FC<{ name: string; w: number; delay?: number; float?: number; style?: React.CSSProperties }> = ({ name, w, delay = 0, float = 5, style }) => {
+  const f = useCurrentFrame(); const { fps } = useVideoConfig();
+  const s = spring({ frame: f - delay, fps, config: { damping: 12, stiffness: 140, mass: 0.8 }, durationInFrames: 14 });
+  const fy = Math.sin((f - delay) / 22) * float;
+  return <Img src={staticFile(`gen/${name}.png`)} style={{ width: w, height: "auto", objectFit: "contain", opacity: Math.min(1, s * 1.7), transform: `translateY(${(1 - s) * 16 + fy}px) scale(${0.9 + s * 0.1})`, ...style }} />;
+};
+// 注意マーク（黄色い三角＋！）
+const WarnMark: React.FC<{ size?: number; delay?: number }> = ({ size = 70, delay = 0 }) => {
+  const f = useCurrentFrame(); const { fps } = useVideoConfig();
+  const s = spring({ frame: f - delay, fps, config: { damping: 10, stiffness: 170, mass: 0.6 }, durationInFrames: 12 });
+  const wob = Math.sin(f / 6) * 4;
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} style={{ overflow: "visible", opacity: Math.min(1, s * 2), transform: `scale(${s}) rotate(${wob}deg)` }}>
+      <path d="M50 8 L94 88 H6 Z" fill="#F7C948" stroke="#1F3A5F" strokeWidth="5" strokeLinejoin="round" />
+      <rect x="45" y="34" width="10" height="30" rx="5" fill="#1F3A5F" />
+      <circle cx="50" cy="76" r="6" fill="#1F3A5F" />
+    </svg>
+  );
+};
 
 export const Hatarakizon: React.FC = () => {
   const f = useCurrentFrame();
   const drawP = interpolate(f, [34, 130], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const zonePulse = usePulse(0.05, 7);
   return (
     <AbsoluteFill style={{ background: C.bg, fontFamily: FONT, overflow: "hidden" }}>
       <AbsoluteFill style={{ background: "radial-gradient(125% 80% at 50% -5%, #FFFDF8 0%, #FAF6EC 55%, #F1EBDD 100%)" }} />
@@ -69,17 +90,24 @@ export const Hatarakizon: React.FC = () => {
         {drawP > 0.7 && <path d={`M${fx(133)} ${fy(123)} L${fx(149)} ${fy(123)}`} stroke={C.red} strokeWidth={5} strokeDasharray="7 7" opacity={0.7} />}
       </svg>
 
-      {/* ゾーンのラベル（必ず損ではなく“伸びにくいことがある”） */}
-      <Pop delay={110} style={{ position: "absolute", top: 340 + fy(YMAX) - 70, left: fx(Z0) - 30, width: 420, textAlign: "center" }}>
-        <div style={{ background: C.red, color: "#fff", borderRadius: 12, padding: "8px 12px", fontSize: 22, fontWeight: 900, lineHeight: 1.3 }}>⚠ 手取りが伸びにくい<br />ことがある注意ゾーン</div>
-        <div style={{ fontSize: 20, fontWeight: 900, color: C.red, marginTop: 6 }}>130〜150万円台の目安</div>
+      {/* 注意マーク（⚠）＝ゾーンの上にポン */}
+      <div style={{ position: "absolute", top: 360, left: 470, width: 100, textAlign: "center" }}><WarnMark size={88} delay={100} /></div>
+      {/* ゾーンのラベル（必ず損ではなく“伸びにくいことがある”／パルス） */}
+      <Pop delay={110} style={{ position: "absolute", top: 470, left: 290, width: 450, textAlign: "center" }}>
+        <div style={{ transform: `scale(${zonePulse})`, transformOrigin: "center" }}>
+          <div style={{ background: C.red, color: "#fff", borderRadius: 12, padding: "9px 14px", fontSize: 22, fontWeight: 900, lineHeight: 1.3, boxShadow: `0 8px 20px ${C.red}33` }}>手取りが伸びにくい<br />ことがある注意ゾーン</div>
+          <div style={{ fontSize: 20, fontWeight: 900, color: C.red, marginTop: 6 }}>130〜150万円台の目安</div>
+        </div>
       </Pop>
 
-      {/* 下部まとめ＋注釈 */}
-      <Pop delay={140} style={{ position: "absolute", top: 1150, left: 0, width: 1080, textAlign: "center" }}>
-        <span style={{ fontSize: 38, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "14px 30px", display: "inline-block" }}>超えるなら、どこまで働くかを考える</span>
-      </Pop>
-      <Pop delay={160} style={{ position: "absolute", top: 1270, left: 80, width: 920, textAlign: "left" }}>
+      {/* 下部まとめ（イラスト＋帯）＋注釈 */}
+      <div style={{ position: "absolute", top: 1130, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
+        <GenImg name="kabe_decide_work" w={130} delay={140} float={4} />
+        <Pop delay={140}>
+          <span style={{ fontSize: 38, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "14px 28px", display: "inline-block" }}>超えるなら、どこまで働くかを考える</span>
+        </Pop>
+      </div>
+      <Pop delay={160} style={{ position: "absolute", top: 1330, left: 80, width: 920, textAlign: "left" }}>
         {["※手取り額は目安（概念図です）", "※自治体・年齢・扶養人数・勤務先などで異なります", "※勤務先の社保か、国民年金＋国保かで負担は変わります", "※一律に「○万円で元に戻る」とは言えません"].map((n, i) => (
           <div key={i} style={{ fontSize: 19, fontWeight: 700, color: C.gray, marginBottom: 6, lineHeight: 1.35 }}>{n}</div>
         ))}
