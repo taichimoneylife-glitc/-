@@ -174,7 +174,7 @@ const P1: React.FC = () => {
 // ───────── P2：良いインフレ vs 悪いインフレ ─────────
 const P2: React.FC = () => {
   const badPulse = usePulse(0.05, 7);
-  const good = [{ e: "🛒", t: "物価↑" }, { e: "💴", t: "給料↑" }, { e: "😊", t: "みんな豊か" }];
+  const good = [{ e: "🛒", t: "物価↑", img: "infure_burger" }, { e: "💴", t: "給料↑", img: "infure_bill" }, { e: "😊", t: "みんな豊か", img: "infure_kid" }];
   return (
     <AbsoluteFill>
       <Head kicker="本当はこうなるはず" title={<><span style={{ color: C.green }}>良いインフレ</span>の理想</>} kc={C.green} />
@@ -182,7 +182,7 @@ const P2: React.FC = () => {
       <div style={{ position: "absolute", top: 300, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
         {good.map((g, i) => (
           <React.Fragment key={i}>
-            <Slot emoji={g.e} size={150} delay={6 + i * 10} bg={C.greenBg} ring={C.green} />
+            <Slot emoji={g.e} img={g.img} size={150} delay={6 + i * 10} bg={C.greenBg} ring={C.green} />
             {i < 2 && <Pop delay={14 + i * 10}><span style={{ fontSize: 40, color: C.green, fontWeight: 900 }}>→</span></Pop>}
           </React.Fragment>
         ))}
@@ -200,7 +200,7 @@ const P2: React.FC = () => {
         <Pop delay={A.s2b - PG.p2.from + 6}>
           <div style={{ background: C.redBg, border: `4px solid ${C.red}`, borderRadius: 22, padding: "22px 20px", boxShadow: `0 10px 26px ${C.red}33` }}>
             <div style={{ display: "flex", justifyContent: "center", gap: 30, alignItems: "center", marginBottom: 12 }}>
-              <div style={{ textAlign: "center" }}><Slot emoji="💴" size={110} delay={A.s2b - PG.p2.from + 8} bg="#fff" ring={C.red} /><div style={{ fontSize: 24, fontWeight: 900, color: C.ink, marginTop: 4 }}>給料は横ばい</div></div>
+              <div style={{ textAlign: "center" }}><Slot emoji="💴" img="infure_bill" size={120} delay={A.s2b - PG.p2.from + 8} bg="#fff" ring={C.red} /><div style={{ fontSize: 24, fontWeight: 900, color: C.ink, marginTop: 4 }}>給料は横ばい</div></div>
               <div style={{ textAlign: "center" }}><Slot emoji="😣" img="infure_worry" size={132} delay={A.s2b - PG.p2.from + 14} bg="#fff" ring={C.red} /><div style={{ fontSize: 24, fontWeight: 900, color: C.ink, marginTop: 4 }}>負担は増える一方</div></div>
             </div>
             <div style={{ fontSize: 40, fontWeight: 900, color: C.red }}>＝ 今は「悪いインフレ」</div>
@@ -224,7 +224,7 @@ const P3: React.FC = () => {
         {/* モノ */}
         <Pop delay={d(A.s3b)} style={{ flex: 1 }}>
           <div style={{ background: "#fff", border: `3px solid ${C.orange}`, borderRadius: 20, padding: "18px 12px", textAlign: "center" }}>
-            <Slot emoji="🛒" size={100} delay={d(A.s3b) + 4} bg={C.goldBg} ring={C.orange} style={{ margin: "0 auto" }} />
+            <Slot emoji="🛒" img="infure_burger" size={118} delay={d(A.s3b) + 4} bg={C.goldBg} ring={C.orange} style={{ margin: "0 auto" }} />
             <div style={{ fontSize: 23, fontWeight: 900, color: C.sub, marginTop: 6 }}>モノの値段</div>
             <div style={{ fontSize: 40, fontWeight: 900, color: C.ink }}>1,000円</div>
             <div style={{ fontSize: 30, color: C.orange, fontWeight: 900 }}>↓ 来年</div>
@@ -234,7 +234,7 @@ const P3: React.FC = () => {
         {/* 銀行 */}
         <Pop delay={d(A.s3c)} style={{ flex: 1 }}>
           <div style={{ background: "#fff", border: `3px solid ${C.blue}`, borderRadius: 20, padding: "18px 12px", textAlign: "center" }}>
-            <Slot emoji="🏦" img="infure_bank" size={118} delay={d(A.s3c) + 4} bg={C.blueBg} ring={C.blue} style={{ margin: "0 auto" }} />
+            <Slot emoji="🏦" img="infure_bank2" size={118} delay={d(A.s3c) + 4} bg={C.blueBg} ring={C.blue} style={{ margin: "0 auto" }} />
             <div style={{ fontSize: 23, fontWeight: 900, color: C.sub, marginTop: 6 }}>銀行のお金</div>
             <div style={{ fontSize: 40, fontWeight: 900, color: C.ink }}>1,000円</div>
             <div style={{ fontSize: 30, color: C.blue, fontWeight: 900 }}>↓ 1年</div>
@@ -297,7 +297,7 @@ const P4: React.FC = () => {
         <div style={{ textAlign: "center", width: 300 }}>
           <div style={{ fontSize: 44, fontWeight: 900, color: C.blue, marginBottom: 8 }}><NumCount to={1889} delay={d(A.s5a) + 6} fmt={(n) => "約" + n.toLocaleString() + "万"} /></div>
           <div style={{ height: 300 * 0.40, maxHeight: 220, width: 200, margin: "0 auto", background: C.blue, borderRadius: "14px 14px 0 0", transform: `scaleY(${barBank})`, transformOrigin: "bottom", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 10 }}>
-            <Slot emoji="🏦" img="infure_bank" size={104} delay={d(A.s5a) + 10} bg="#fff" ring={C.blue} float={3} />
+            <Slot emoji="🏦" img="infure_bank2" size={104} delay={d(A.s5a) + 10} bg="#fff" ring={C.blue} float={3} />
           </div>
           <div style={{ fontSize: 28, fontWeight: 900, color: C.ink, marginTop: 8 }}>銀行のまま</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: C.sub }}>（元本1,800万）</div>
@@ -331,9 +331,9 @@ const P4: React.FC = () => {
 const P5: React.FC = () => {
   const d = (g: number) => g - PG.p5.from;
   const cards = [
-    { e: "🎓", t: "教育費", g: A.s6a, img: undefined as string | undefined },
-    { e: "👴", t: "老後", g: A.s6a, img: undefined as string | undefined },
-    { e: "✈️", t: "旅行", g: A.s6b, img: undefined as string | undefined },
+    { e: "🎓", t: "教育費", g: A.s6a, img: "infure_grad" },
+    { e: "👴", t: "老後", g: A.s6a, img: "infure_senior" },
+    { e: "✈️", t: "旅行", g: A.s6b, img: "infure_travel" },
     { e: "👨‍👩‍👧", t: "子ども", g: A.s6b, img: "infure_family" },
   ];
   const widen = usePulse(0.05, 8);
@@ -365,8 +365,8 @@ const P6: React.FC = () => {
   const d = (g: number) => g - PG.p6.from;
   const qPulse = usePulse(0.06, 7);
   const checks = [
-    { n: "①", t: "銀行の金利は 何%？", e: "🏦", img: "infure_bank" as string | undefined, g: A.s7b, c: C.blue },
-    { n: "②", t: "積立保険の利回りは 何%？", e: "📄", img: undefined as string | undefined, g: A.s7c, c: C.orange },
+    { n: "①", t: "銀行の金利は 何%？", e: "🏦", img: "infure_bank2" as string | undefined, g: A.s7b, c: C.blue },
+    { n: "②", t: "積立保険の利回りは 何%？", e: "📄", img: "infure_insurance" as string | undefined, g: A.s7c, c: C.orange },
   ];
   return (
     <AbsoluteFill>
@@ -385,7 +385,7 @@ const P6: React.FC = () => {
       {/* 締め問い */}
       <div style={{ position: "absolute", top: 760, left: 0, width: 1080, textAlign: "center", transform: `scale(${qPulse})`, transformOrigin: "center" }}>
         <Pop delay={d(A.s7d)} damp={10}>
-          <Slot emoji="🔍" size={130} delay={d(A.s7d) + 2} bg={C.goldBg} ring={C.gold} style={{ margin: "0 auto 16px" }} />
+          <Slot emoji="🔍" img="infure_phone" size={150} delay={d(A.s7d) + 2} bg={C.goldBg} ring={C.gold} style={{ margin: "0 auto 16px" }} />
           <div style={{ fontSize: 40, fontWeight: 900, color: C.ink, lineHeight: 1.3 }}>あなたのお金は、今年</div>
           <div style={{ fontSize: 72, fontWeight: 900, color: C.red, marginTop: 4 }}>何%で増えてる？</div>
         </Pop>
