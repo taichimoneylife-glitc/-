@@ -49,9 +49,12 @@ const SFX = [
   { file: "user/u06", at: A.s1b + 2, volume: 0.34 },
   { file: "user/u02s", at: A.s1c + 2, volume: 0.4 },
   { file: "user/u03", at: A.s2a + 2, volume: 0.4 },     // ツリー出現
-  { file: "user/u02s", at: A.s2a + 36, volume: 0.34 },  // 給料↑
-  { file: "user/u02s", at: A.s2a + 66, volume: 0.34 },  // 豊か
-  { file: "user/u08", at: A.s2b + 4, volume: 0.4 },     // 悪いインフレ分岐（高・1回）
+  { file: "user/u02s", at: A.s2a + 20, volume: 0.34 },  // 良いインフレ（ピッ）
+  { file: "user/u02s", at: A.s2a + 40, volume: 0.34 },  // 給料↑（ピッ）
+  { file: "user/u02s", at: A.s2a + 62, volume: 0.34 },  // 豊か（ピッ）
+  { file: "user/u02s", at: A.s2b + 2, volume: 0.36 },   // 悪いインフレ（ピッ）
+  { file: "user/u02s", at: A.s2b + 24, volume: 0.36 },  // 給料上がらない（ピッ）
+  { file: "user/u04", at: A.s2b + 46, volume: 0.42 },   // 負担は増える一方（キメ・⚠）
   { file: "user/u03", at: A.s3a + 2, volume: 0.4 },     // 問い・グラフ転換
   { file: "user/u02s", at: A.s3b + 2, volume: 0.38 },   // 物価線1,020
   { file: "user/u02s", at: A.s3c + 2, volume: 0.38 },   // 銀行線1,004
@@ -163,6 +166,25 @@ const TreeNode: React.FC<{ cx: number; top: number; w?: number; delay: number; i
   );
 };
 
+// ツリーのノード（左上基準・高さ均一・任意でパルス/注意マーク）
+const NodeBox: React.FC<{ cx: number; top: number; w: number; img: string; title: string; sub?: string; color: string; bg: string; delay: number; pulse?: boolean; pamp?: number; imgSize?: number; ts?: number; warn?: boolean }> = ({ cx, top, w, img, title, sub, color, bg, delay, pulse, pamp = 0.05, imgSize = 80, ts = 28, warn }) => {
+  const pl = usePulse(pamp, 7);
+  return (
+    <div style={{ position: "absolute", left: cx - w / 2, top, width: w, transform: pulse ? `scale(${pl})` : undefined, transformOrigin: "center" }}>
+      <Pop delay={delay}>
+        <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 12, background: bg, border: `3px solid ${color}`, borderRadius: 18, padding: "12px 16px", boxShadow: `0 8px 20px ${color}26` }}>
+          <Slot emoji="•" img={img} size={imgSize} delay={delay + 3} float={3} />
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontSize: ts, fontWeight: 900, color: C.ink, lineHeight: 1.15 }}>{title}</div>
+            {sub && <div style={{ fontSize: 20, fontWeight: 800, color }}>{sub}</div>}
+          </div>
+          {warn && <Slot emoji="⚠" img="kabe_warn" size={88} delay={delay + 8} float={5} style={{ position: "absolute", top: -38, right: -14 }} />}
+        </div>
+      </Pop>
+    </div>
+  );
+};
+
 // ───────── P1：日銀がわざと物価を上げている ─────────
 const P1: React.FC = () => {
   const risePulse = usePulse(0.07, 8);
@@ -224,39 +246,44 @@ const P1: React.FC = () => {
   );
 };
 
-// ───────── P2：良い/悪いインフレ（ツリー分岐） ─────────
+// ───────── P2：良い/悪いインフレ（左右対称3段ツリー・順につなぐ） ─────────
 const P2: React.FC = () => {
   const d = (g: number) => g - PG.p2.from;
+  const XL = 290, XR = 790;
   return (
     <AbsoluteFill>
       <Head kicker="同じ物価↑でも2つに分かれる" title={<><span style={{ color: C.green }}>良い</span>インフレと<span style={{ color: C.red }}>悪い</span>インフレ</>} />
-      {/* 共通の根：物価が上がる */}
-      <TreeNode cx={540} top={320} w={420} delay={d(A.s2a)} img="infure_burger" title="物価が上がる" sub="↑" color={C.orange} bg="#fff" big />
-      {/* 分岐線（svg原点 top=320・線を長めに） */}
-      <svg width={1080} height={980} style={{ position: "absolute", top: 320, left: 0, pointerEvents: "none" }}>
-        <Draw d="M540 132 L540 172" delay={d(A.s2a) + 10} color={C.gray} w={5} />
-        <Draw d="M270 172 L810 172" delay={d(A.s2a) + 14} color={C.gray} w={5} />
-        <Draw d="M270 172 L270 228" delay={d(A.s2a) + 18} color={C.green} w={6} />
-        <Draw d="M810 172 L810 228" delay={d(A.s2b) + 2} color={C.red} w={6} />
-        {/* 良い：node1→node2（線を長く） */}
-        <Draw d="M270 368 L270 470" delay={d(A.s2a) + 60} color={C.green} w={6} />
-        {/* 悪い：node1→node2（線を長く） */}
-        <Draw d="M810 368 L810 470" delay={d(A.s2b) + 40} color={C.red} w={6} />
+      {/* 連結線（ページ座標・4本の縦線はすべて同じ長さ62px／順にピッと描く） */}
+      <svg width={1080} height={1920} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        {/* 根→分岐 */}
+        <Draw d="M540 380 L540 412" delay={d(A.s2a) + 8} color={C.gray} w={5} />
+        <Draw d="M290 412 L790 412" delay={d(A.s2a) + 12} color={C.gray} w={5} />
+        <Draw d="M290 412 L290 442" delay={d(A.s2a) + 16} color={C.green} w={6} />
+        <Draw d="M790 412 L790 442" delay={d(A.s2b) - 2} color={C.red} w={6} />
+        {/* 良い：ラベル→給料→豊か（同じ長さ） */}
+        <Draw d="M290 502 L290 564" delay={d(A.s2a) + 34} color={C.green} w={6} />
+        <Draw d="M290 668 L290 730" delay={d(A.s2a) + 56} color={C.green} w={6} />
+        {/* 悪い：ラベル→給料→負担（同じ長さ） */}
+        <Draw d="M790 502 L790 564" delay={d(A.s2b) + 18} color={C.red} w={6} />
+        <Draw d="M790 668 L790 730" delay={d(A.s2b) + 40} color={C.red} w={6} />
       </svg>
-      {/* 左：良いインフレ（理想） */}
-      <Pop delay={d(A.s2a) + 14} style={{ position: "absolute", top: 500, left: 90, width: 360, textAlign: "center" }}>
-        <span style={{ fontSize: 24, fontWeight: 900, color: "#fff", background: C.green, borderRadius: 999, padding: "6px 22px" }}>良いインフレ＝理想</span>
-      </Pop>
-      <TreeNode cx={270} top={548} w={370} delay={d(A.s2a) + 36} img="infure_bill" title="給料も上がる" sub="↑" color={C.green} bg={C.greenBg} />
-      <TreeNode cx={270} top={790} w={370} delay={d(A.s2a) + 66} img="infure_kid" title="みんな豊か" sub="になるはず" color={C.green} bg={C.greenBg} />
-      {/* 右：悪いインフレ（現実） */}
-      <Pop delay={d(A.s2b)} style={{ position: "absolute", top: 500, left: 630, width: 360, textAlign: "center" }}>
-        <span style={{ fontSize: 24, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 999, padding: "6px 22px" }}>悪いインフレ＝現実</span>
-      </Pop>
-      <TreeNode cx={810} top={548} w={370} delay={d(A.s2b) + 22} img="infure_bill" title="給料は上がらない" color={C.red} bg={C.redBg} pulse />
-      <TreeNode cx={810} top={790} w={370} delay={d(A.s2b) + 40} img="infure_worry" title="負担は増える一方" color={C.red} bg={C.redBg} pulse />
+      {/* 根：物価が上がる */}
+      <NodeBox cx={540} top={256} w={430} delay={d(A.s2a)} img="infure_burger" title="物価が上がる" sub="↑" color={C.orange} bg="#fff" imgSize={98} ts={32} />
+      {/* L1：良い / 悪い のラベルノード */}
+      <div style={{ position: "absolute", top: 442, left: XL - 180, width: 360, textAlign: "center" }}>
+        <Pop delay={d(A.s2a) + 20}><div style={{ fontSize: 28, fontWeight: 900, color: "#fff", background: C.green, borderRadius: 16, padding: "12px 10px", boxShadow: `0 8px 20px ${C.green}33` }}>良いインフレ＝理想</div></Pop>
+      </div>
+      <div style={{ position: "absolute", top: 442, left: XR - 195, width: 390, textAlign: "center", transform: `scale(1.04)` }}>
+        <Pop delay={d(A.s2b) + 2}><div style={{ fontSize: 30, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "13px 10px", boxShadow: `0 8px 22px ${C.red}44` }}>悪いインフレ＝現実</div></Pop>
+      </div>
+      {/* L2：給料 */}
+      <NodeBox cx={XL} top={564} w={360} delay={d(A.s2a) + 40} img="infure_bill" title="給料も上がる" sub="↑" color={C.green} bg={C.greenBg} />
+      <NodeBox cx={XR} top={564} w={390} delay={d(A.s2b) + 24} img="infure_bill" title="給料は上がらない" color={C.red} bg={C.redBg} imgSize={90} ts={30} pulse pamp={0.045} />
+      {/* L3：豊か / 負担（悪い側を大きく・注意マーク＋パルス） */}
+      <NodeBox cx={XL} top={730} w={360} delay={d(A.s2a) + 62} img="infure_kid" title="みんな豊か" sub="になるはず" color={C.green} bg={C.greenBg} />
+      <NodeBox cx={XR} top={726} w={442} delay={d(A.s2b) + 46} img="infure_worry" title="負担は増える一方" color={C.red} bg={C.redBg} imgSize={96} ts={30} pulse pamp={0.08} warn />
       {/* 結論 */}
-      <Pop delay={d(A.s2b) + 70} style={{ position: "absolute", top: 1070, left: 0, width: 1080, textAlign: "center" }}>
+      <Pop delay={d(A.s2b) + 74} style={{ position: "absolute", top: 980, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 44, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 18, padding: "16px 44px", display: "inline-block", boxShadow: `0 12px 28px ${C.red}44` }}>＝ 今は「悪いインフレ」</span>
       </Pop>
       <Note lines={["※景気や賃金の感じ方には個人差があります"]} top={1640} />
@@ -303,7 +330,7 @@ const P3a: React.FC = () => {
         {bank > 0.9 && <>
           <circle cx={gxNext} cy={fyV(1004)} r={11} fill={C.blue} />
           <text x={gxNext + 20} y={fyV(1004) + 44} fontSize={34} fontWeight={900} fill={C.blue} textAnchor="start">1,004円</text>
-          <text x={gxNext + 20} y={fyV(1004) + 78} fontSize={23} fontWeight={900} fill={C.blue} textAnchor="start">銀行 ほぼ横ばい</text>
+          <text x={gxNext + 20} y={fyV(1004) + 78} fontSize={24} fontWeight={900} fill={C.blue} textAnchor="start">銀行 +0.4%</text>
         </>}
       </svg>
       {/* 下：まとめ一文 */}
