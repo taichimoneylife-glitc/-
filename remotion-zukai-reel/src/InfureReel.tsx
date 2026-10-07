@@ -22,7 +22,7 @@ const FPS = 30;
 const s2f = (s: number) => Math.round(s * FPS);
 // 上部セーフマージン：Instagramの上部UI（時刻/リール・友達バー/戻る・カメラ）で
 // タイトルが隠れないよう、各ページの内容を少し下げてスタートする。★恒久ルール
-const TOP_SAFE = 100;
+const TOP_SAFE = 130;
 // 音声アンカー（whisper語タイム）→frame
 const A = {
   s1a: 0, s1b: s2f(3.36), s1c: s2f(7.84),
