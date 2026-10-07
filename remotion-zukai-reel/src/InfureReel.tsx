@@ -281,7 +281,7 @@ const P2: React.FC = () => {
       <NodeBox cx={XR} top={564} w={390} delay={d(A.s2b) + 24} img="infure_bill" title="給料は上がらない" color={C.red} bg={C.redBg} imgSize={90} ts={30} pulse pamp={0.045} />
       {/* L3：豊か / 負担（悪い側を大きく・注意マーク＋パルス） */}
       <NodeBox cx={XL} top={730} w={360} delay={d(A.s2a) + 62} img="infure_kid" title="みんな豊か" sub="になるはず" color={C.green} bg={C.greenBg} />
-      <NodeBox cx={XR} top={726} w={442} delay={d(A.s2b) + 46} img="infure_worry" title="負担は増える一方" color={C.red} bg={C.redBg} imgSize={96} ts={30} pulse pamp={0.08} warn />
+      <NodeBox cx={XR} top={726} w={452} delay={d(A.s2b) + 46} img="infure_worry" title="負担は増える一方" color={C.red} bg={C.redBg} imgSize={120} ts={34} pulse pamp={0.08} warn />
       {/* 結論 */}
       <Pop delay={d(A.s2b) + 74} style={{ position: "absolute", top: 980, left: 0, width: 1080, textAlign: "center" }}>
         <span style={{ fontSize: 44, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 18, padding: "16px 44px", display: "inline-block", boxShadow: `0 12px 28px ${C.red}44` }}>＝ 今は「悪いインフレ」</span>
@@ -420,7 +420,8 @@ const P4: React.FC = () => {
             <Slot emoji="🏦" img="infure_bank2" size={108} delay={d(A.s5a) + 10} bg="#fff" ring={C.blue} float={3} />
           </div>
           <div style={{ fontSize: 30, fontWeight: 900, color: C.ink, marginTop: 8 }}>銀行のまま</div>
-          <div style={{ fontSize: 21, fontWeight: 800, color: C.sub }}>（元本1,800万）</div>
+          <div style={{ fontSize: 21, fontWeight: 800, color: C.sub }}>元本1,800万</div>
+          <div style={{ fontSize: 21, fontWeight: 900, color: C.blue }}>年0.4%で計算した場合</div>
         </div>
         <div style={{ textAlign: "center", width: 300 }}>
           <div style={{ fontSize: 56, fontWeight: 900, color: C.green, marginBottom: 8 }}><NumCount to={4770} delay={d(A.s5b) + 6} fmt={(n) => "約" + n.toLocaleString() + "万"} /></div>
