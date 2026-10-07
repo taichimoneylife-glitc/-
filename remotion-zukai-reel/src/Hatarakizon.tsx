@@ -91,8 +91,8 @@ export const Hatarakizon: React.FC = () => {
         {drawP > 0.7 && <path d={`M${fx(133)} ${fy(123)} L${fx(149)} ${fy(123)}`} stroke={C.red} strokeWidth={5} strokeDasharray="7 7" opacity={0.7} />}
       </svg>
 
-      {/* 注意マーク（⚠）＝ゾーンの上にポン */}
-      <div style={{ position: "absolute", top: 360, left: 470, width: 100, textAlign: "center" }}><WarnMark size={88} delay={88} /></div>
+      {/* 注意マーク（⚠・提供イラスト）＝ゾーンの上にポン */}
+      <GenImg name="kabe_warn" w={100} delay={88} float={5} style={{ position: "absolute", top: 348, left: 465 }} />
       {/* ゾーンのラベル（必ず損ではなく“伸びにくいことがある”／パルス） */}
       <Pop delay={92} style={{ position: "absolute", top: 470, left: 290, width: 450, textAlign: "center" }}>
         <div style={{ transform: `scale(${zonePulse})`, transformOrigin: "center" }}>
@@ -103,7 +103,7 @@ export const Hatarakizon: React.FC = () => {
 
       {/* 下部まとめ（イラスト＋帯）＋注釈 */}
       <div style={{ position: "absolute", top: 1130, left: 0, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
-        <GenImg name="kabe_decide_work" w={130} delay={168} float={4} />
+        <GenImg name="kabe_balance" w={155} delay={168} float={4} />
         <Pop delay={168}>
           <span style={{ fontSize: 38, fontWeight: 900, color: "#fff", background: C.red, borderRadius: 16, padding: "14px 28px", display: "inline-block" }}>超えるなら、どこまで働くかを考える</span>
         </Pop>
