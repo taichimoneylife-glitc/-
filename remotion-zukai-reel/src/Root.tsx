@@ -23,6 +23,7 @@ import { IgTreeReel, IG_FRAMES } from "./IgTreeReel";
 import { KabeReel, KABE_FRAMES } from "./KabeReel";
 import { InfureReel, INFURE_FRAMES } from "./InfureReel";
 import { TalkMotionLand, LAND_FRAMES } from "./TalkMotionLand";
+import { TalkReelTaichi, TALKT_FRAMES } from "./TalkReelTaichi";
 import { Hatarakizon, HATARAKIZON_FRAMES } from "./Hatarakizon";
 import { KabeBranch, KABEBRANCH_FRAMES } from "./KabeBranch";
 import { FlowPractice, FLOW_FRAMES } from "./FlowPractice";
@@ -158,6 +159,8 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="InfureReel" component={InfureReel} durationInFrames={INFURE_FRAMES} fps={FPS} width={1080} height={1920} defaultProps={{ audio: "full" as const }} />
       {/* ── トーク台本のモーショングラフィック（横1920×1080・声に同期） ── */}
       <Composition id="TalkMotionLand" component={TalkMotionLand} durationInFrames={LAND_FRAMES} fps={FPS} width={1920} height={1080} />
+      {/* ── トークリール（資産運用・実写＋オーバーレイ／本線） ── */}
+      <Composition id="TalkReelTaichi" component={TalkReelTaichi} durationInFrames={TALKT_FRAMES} fps={FPS} width={1080} height={1920} defaultProps={{ audio: true }} />
       <Composition id="FlowPractice" component={FlowPractice} durationInFrames={FLOW_FRAMES} fps={FPS} width={1080} height={1920} />
       {/* ── 年収の壁の締め：働き損の谷グラフ（本編まとめの後ろに繋げる予定・モック） ── */}
       <Composition id="Hatarakizon" component={Hatarakizon} durationInFrames={HATARAKIZON_FRAMES} fps={FPS} width={1080} height={1920} />
