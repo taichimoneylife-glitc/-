@@ -99,21 +99,46 @@ const DownArrow: React.FC<{ label?: string }> = ({ label }) => (
     <div style={{ fontSize: 44, fontWeight: 900, color: C.gray, lineHeight: 0.7 }}>↓</div>
   </div>
 );
+// ① NISA口座はそのまま引き継げない（2名義マトリクス図・参考準拠）
+const AcctBox: React.FC<{ title: React.ReactNode; sub?: string; nisa?: boolean }> = ({ title, sub, nisa }) => (
+  <div style={{ width: 360, background: nisa ? C.blueBg : C.goldBg, border: `2px solid ${nisa ? C.blue : C.gold}`, borderRadius: 16, padding: "20px 10px", textAlign: "center" }}>
+    <div style={{ fontWeight: 900, fontSize: 36, color: C.ink, lineHeight: 1.2 }}>{title}</div>
+    {sub && <div style={{ fontWeight: 700, fontSize: 24, color: C.sub, marginTop: 4 }}>{sub}</div>}
+  </div>
+);
 const PagePoint1: React.FC = () => (
   <div style={{ paddingTop: 40 }}>
-    <Head kicker="注意点①" title={<>NISAのままは<span style={{ color: C.red }}>引き継げない</span></>} kc={C.red} />
-    <div style={{ marginTop: 26, display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <Pop at={0}><Box title={<>亡くなった人の<br />NISA口座</>} bg="#fff" bd={C.line} w={360} /></Pop>
-      <Pop at={4}><DownArrow label="相続の時点で非課税は終了" /></Pop>
-      <Pop at={8}><Box title={<>課税口座へ</>} bg={C.redBg} bd={C.red} w={360} /></Pop>
-      <Pop at={12}><DownArrow label="さらに" /></Pop>
-      <Pop at={16}><Box title={<>子ども・配偶者の<br />課税口座</>} bg={C.blueBg} bd={C.blue} w={360} /></Pop>
-    </div>
-    <Pop at={20} style={{ marginTop: 22, display: "flex", justifyContent: "center" }}>
-      <div style={{ width: 900, background: C.goldBg, border: `2px solid ${C.gold}`, borderRadius: 16, padding: "14px 22px", textAlign: "center", fontWeight: 800, fontSize: 28, color: C.ink, lineHeight: 1.4 }}>
-        ✕ 家族のNISA口座には入らない<br /><span style={{ fontSize: 26, color: C.sub }}>非課税で運用したいなら…課税口座で受取→売却→NISAで買い直し</span>
-      </div>
+    <Pop at={0} style={{ display: "flex", justifyContent: "center" }}>
+      <div style={{ background: C.ink, color: "#fff", fontWeight: 900, fontSize: 48, padding: "16px 36px", borderRadius: 16, textAlign: "center" }}>NISA口座はそのまま引き継げない</div>
     </Pop>
+    <div style={{ position: "relative", width: 1000, height: 760, margin: "30px auto 0" }}>
+      {/* 名義コンテナ（破線） */}
+      <div style={{ position: "absolute", left: 0, top: 10, width: 440, height: 680, border: `3px dashed ${C.gray}`, borderRadius: 24 }} />
+      <div style={{ position: "absolute", left: 560, top: 10, width: 440, height: 680, border: `3px dashed ${C.gray}`, borderRadius: 24 }} />
+      {/* 左：亡くなった方 */}
+      <Pop at={2} style={{ position: "absolute", left: 40, top: 48 }}><AcctBox title={<>亡くなった方の<br />NISA口座</>} nisa /></Pop>
+      <Pop at={6} style={{ position: "absolute", left: 158, top: 250, textAlign: "center" }}>
+        <div style={{ fontSize: 30, fontWeight: 900, color: C.blue }}>移管</div>
+        <div style={{ fontSize: 60, fontWeight: 900, color: C.blue, lineHeight: 0.8 }}>↓</div>
+      </Pop>
+      <Pop at={10} style={{ position: "absolute", left: 40, top: 440 }}><AcctBox title={<>課税口座</>} sub="特定口座・一般口座" /></Pop>
+      {/* 右：相続する人 */}
+      <Pop at={4} style={{ position: "absolute", left: 600, top: 48 }}><AcctBox title={<>NISA口座</>} nisa /></Pop>
+      <Pop at={14} style={{ position: "absolute", left: 600, top: 440 }}><AcctBox title={<>課税口座</>} sub="特定口座・一般口座" /></Pop>
+      {/* ✕（NISA→NISAはできない）*/}
+      <Pop at={8} style={{ position: "absolute", left: 430, top: 92, width: 140, textAlign: "center" }}>
+        <div style={{ fontSize: 72, fontWeight: 900, color: C.red }}>✕</div>
+        <div style={{ fontSize: 24, fontWeight: 900, color: C.red }}>継げない</div>
+      </Pop>
+      {/* 移管（課税口座→課税口座）*/}
+      <Pop at={12} style={{ position: "absolute", left: 430, top: 486, width: 140, textAlign: "center" }}>
+        <div style={{ fontSize: 56, fontWeight: 900, color: C.green, lineHeight: 0.9 }}>→</div>
+        <div style={{ fontSize: 26, fontWeight: 900, color: C.green }}>移管</div>
+      </Pop>
+      {/* 名義ラベル */}
+      <div style={{ position: "absolute", left: 40, top: 706, fontWeight: 800, fontSize: 28, color: C.sub }}>亡くなった方の名義</div>
+      <div style={{ position: "absolute", left: 600, top: 706, fontWeight: 800, fontSize: 28, color: C.sub }}>相続する人の名義</div>
+    </div>
   </div>
 );
 
