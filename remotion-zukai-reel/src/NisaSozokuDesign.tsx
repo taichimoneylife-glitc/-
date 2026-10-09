@@ -4,8 +4,10 @@ import { FONT } from "./components/font";
 
 // ═══════════════════════════════════════════════════════════════════
 // NISA 亡くなったら｜図解【設計図】（静止画レビュー用・レイアウト確認）
-//   page プロップで1枚ずつ描画。録音前なので音声同期なし＝レイアウトの確定が目的。
-//   恒久ルール：上部セーフマージン TOP_SAFE、カード型＋やわ影、連結ツリー。
+//   page=1 フック / 2 流れ(6ステップ縦ツリー) / 3 結論(口座✕・商品〇) /
+//   4 カギ(取得価額・損益対比) / 5 やること3つ / 6 CTA
+//   録音前なので音声同期なし＝レイアウト確定が目的。
+//   恒久ルール：TOP_SAFE、カード型＋やわ影、連結ツリー。
 // ═══════════════════════════════════════════════════════════════════
 const C = {
   bg: "#FCFBF7", ink: "#1F3A5F", sub: "#5B6B7F",
@@ -34,53 +36,96 @@ const Pop: React.FC<{ at?: number; children: React.ReactNode; style?: React.CSSP
 const Head: React.FC<{ kicker: string; title: React.ReactNode; kc?: string }> = ({ kicker, title, kc = C.blue }) => (
   <div style={{ textAlign: "center", padding: "0 48px" }}>
     <div style={{ display: "inline-block", background: kc, color: "#fff", fontWeight: 800, fontSize: 34, padding: "8px 26px", borderRadius: 999, boxShadow: "0 8px 18px rgba(0,0,0,0.14)" }}>{kicker}</div>
-    <div style={{ marginTop: 18, fontWeight: 900, fontSize: 58, lineHeight: 1.22, color: C.ink, letterSpacing: 0.5 }}>{title}</div>
+    <div style={{ marginTop: 16, fontWeight: 900, fontSize: 56, lineHeight: 1.22, color: C.ink, letterSpacing: 0.5 }}>{title}</div>
   </div>
 );
 
-// ── 縦ツリーの1ノード（カード）──
-const Node: React.FC<{ no?: number | string; title: React.ReactNode; sub?: React.ReactNode; color?: string; bg?: string; w?: number }> = ({ no, title, sub, color = C.ink, bg = "#fff", w = 760 }) => (
-  <div style={{ width: w, background: bg, borderRadius: 22, boxShadow: "0 10px 24px rgba(31,58,95,0.12)", border: `2px solid ${C.line}`, padding: "18px 24px", display: "flex", alignItems: "center", gap: 18 }}>
-    {no !== undefined && (
-      <div style={{ flexShrink: 0, width: 56, height: 56, borderRadius: "50%", background: color, color: "#fff", fontWeight: 900, fontSize: 30, display: "flex", alignItems: "center", justifyContent: "center" }}>{no}</div>
-    )}
-    <div style={{ textAlign: "left" }}>
-      <div style={{ fontWeight: 900, fontSize: 38, color: C.ink, lineHeight: 1.2 }}>{title}</div>
-      {sub && <div style={{ fontWeight: 700, fontSize: 26, color: C.sub, marginTop: 2 }}>{sub}</div>}
-    </div>
-  </div>
-);
-
-const Connector: React.FC<{ color?: string }> = ({ color = C.gray }) => (
-  <div style={{ width: 6, height: 26, background: color, borderRadius: 3, margin: "6px auto" }} />
-);
-
-// ══════════ P2：全体像＝相続の流れ（縦ツリー）＋「売れない」帯 ══════════
-const PageFlow: React.FC = () => (
-  <div style={{ paddingTop: 40 }}>
-    <Head kicker="全体像" title={<>NISAの相続、<span style={{ color: C.blue }}>流れはこう</span></>} />
-    <div style={{ position: "relative", marginTop: 28, display: "flex", flexDirection: "column", alignItems: "center" }}>
-      {/* 右の「売れない」帯（STEP2〜5をまたぐ） */}
-      <div style={{ position: "absolute", right: 24, top: 150, bottom: 150, width: 92, background: C.redBg, border: `2px solid ${C.red}`, borderRadius: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ writingMode: "vertical-rl", fontWeight: 900, fontSize: 32, color: C.red, letterSpacing: 4 }}>この間ずっと売れない</div>
+// ───────── P1 フック ─────────
+const PageHook: React.FC = () => (
+  <div style={{ paddingTop: 150, textAlign: "center", padding: "150px 56px 0" }}>
+    <Pop at={0}>
+      <div style={{ display: "inline-block", background: C.red, color: "#fff", fontWeight: 900, fontSize: 36, padding: "10px 28px", borderRadius: 999, boxShadow: "0 10px 22px rgba(224,72,59,0.3)" }}>⚠ 知らないと損</div>
+    </Pop>
+    <Pop at={4}>
+      <div style={{ marginTop: 34, fontWeight: 900, fontSize: 92, lineHeight: 1.18, color: C.ink }}>夫が亡くなったら<br />新NISAは<br /><span style={{ color: C.blue }}>どうなる？</span></div>
+    </Pop>
+    <Pop at={10}>
+      <div style={{ marginTop: 44, display: "inline-block", background: "#fff", border: `3px solid ${C.gold}`, borderRadius: 24, padding: "22px 30px", boxShadow: "0 12px 26px rgba(31,58,95,0.12)" }}>
+        <div style={{ fontWeight: 900, fontSize: 44, color: C.ink, lineHeight: 1.3 }}>「NISAだから<br />相続も<span style={{ color: C.red }}>非課税</span>」</div>
+        <div style={{ marginTop: 10, fontWeight: 900, fontSize: 50, color: C.red }}>…は、勘違い</div>
       </div>
+    </Pop>
+    <Pop at={16}>
+      <div style={{ marginTop: 40, fontWeight: 800, fontSize: 34, color: C.sub }}>損したくない人は、最後まで見て</div>
+    </Pop>
+  </div>
+);
 
-      <Pop at={0}><Node no="1" title="名義人が亡くなる" color={C.ink} w={700} /></Pop>
-      <Connector />
-      <Pop at={4}><Node no="2" title="証券会社に連絡" sub="口座ストップ（売却・積立が止まる）" color={C.red} w={700} /></Pop>
-      <Connector />
-      <Pop at={8}><Node no="3" title="死亡届出書を提出" sub="※書類は金融機関で異なる" color={C.blue} w={700} /></Pop>
-      <Connector />
-      <Pop at={12}><Node no="4" title="継ぐ人を決める・書類をそろえる" color={C.blue} w={700} /></Pop>
-      <Connector />
-      <Pop at={16}><Node no="5" title="相続人の「課税口座」へ移管" color={C.blue} w={700} /></Pop>
-      <Connector color={C.green} />
-      <Pop at={20}><Node no="✓" title="やっと売れる" color={C.green} bg={C.greenBg} w={700} /></Pop>
+// ───────── P2 手続きの流れ（6ステップ縦ツリー）＋動かせない帯 ─────────
+const FlowNode: React.FC<{ no: number | string; title: string; sub: string; color: string; bg?: string }> = ({ no, title, sub, color, bg = "#fff" }) => (
+  <div style={{ width: 720, background: bg, borderRadius: 18, boxShadow: "0 8px 18px rgba(31,58,95,0.10)", border: `2px solid ${C.line}`, padding: "12px 20px", display: "flex", alignItems: "center", gap: 16 }}>
+    <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: "50%", background: color, color: "#fff", fontWeight: 900, fontSize: 26, display: "flex", alignItems: "center", justifyContent: "center" }}>{no}</div>
+    <div style={{ textAlign: "left" }}>
+      <div style={{ fontWeight: 900, fontSize: 33, color: C.ink, lineHeight: 1.15 }}>{title}</div>
+      <div style={{ fontWeight: 700, fontSize: 22, color: C.sub, marginTop: 1 }}>{sub}</div>
+    </div>
+  </div>
+);
+const Conn: React.FC<{ color?: string }> = ({ color = C.gray }) => <div style={{ width: 5, height: 16, background: color, borderRadius: 3, margin: "4px auto" }} />;
+
+const PageFlow: React.FC = () => (
+  <div style={{ paddingTop: 36 }}>
+    <Head kicker="全体像" title={<>NISAの相続、<span style={{ color: C.blue }}>手続きの流れ</span></>} />
+    <div style={{ position: "relative", marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div style={{ position: "absolute", right: 20, top: 100, bottom: 96, width: 78, background: C.redBg, border: `2px solid ${C.red}`, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ writingMode: "vertical-rl", fontWeight: 900, fontSize: 28, color: C.red, letterSpacing: 3 }}>この間ずっと動かせない</div>
+      </div>
+      <Pop at={0}><FlowNode no={1} title="金融機関へ連絡" sub="死亡後すみやかに／口座が凍結" color={C.red} /></Pop>
+      <Conn />
+      <Pop at={3}><FlowNode no={2} title="死亡届出書を提出" sub="非課税口座開設者死亡届出書 ※市区町村の届とは別" color={C.blue} /></Pop>
+      <Conn />
+      <Pop at={6}><FlowNode no={3} title="保有資産を確認" sub="株・投信・預り金／残高証明書" color={C.blue} /></Pop>
+      <Conn />
+      <Pop at={9}><FlowNode no={4} title="引き継ぐ人を決定" sub="遺言 または 相続人全員で協議" color={C.blue} /></Pop>
+      <Conn />
+      <Pop at={12}><FlowNode no={5} title="受取口座・必要書類を準備" sub="戸籍・遺産分割協議書 ※金融機関で異なる" color={C.blue} /></Pop>
+      <Conn />
+      <Pop at={15}><FlowNode no={6} title="相続人の課税口座へ移管" sub="特定／一般口座へ（NISA枠は引き継げない）" color={C.green} bg={C.greenBg} /></Pop>
     </div>
   </div>
 );
 
-// ══════════ P6：取得価額が“亡くなった日”に（損／益の対比・山場） ══════════
+// ───────── P3 結論（口座✕ / 商品〇） ─────────
+const PageConc: React.FC = () => (
+  <div style={{ paddingTop: 40 }}>
+    <Head kicker="結論" title={<>非課税は<span style={{ color: C.red }}>「亡くなった日」</span>で終了</>} kc={C.red} />
+    <Pop at={4} style={{ marginTop: 30, display: "flex", justifyContent: "center" }}>
+      <div style={{ width: 300, background: "#fff", border: `2px solid ${C.line}`, borderRadius: 22, padding: "24px 0", textAlign: "center", boxShadow: "0 10px 22px rgba(31,58,95,0.1)" }}>
+        <div style={{ fontSize: 70 }}>📄</div>
+        <div style={{ fontWeight: 900, fontSize: 36, color: C.ink, marginTop: 6 }}>亡くなった人の<br />NISA口座</div>
+      </div>
+    </Pop>
+    <div style={{ display: "flex", justifyContent: "center", gap: 36, marginTop: 24, padding: "0 48px" }}>
+      <Pop at={10}>
+        <div style={{ width: 420, background: C.redBg, border: `3px solid ${C.red}`, borderRadius: 22, padding: "22px 24px", textAlign: "center" }}>
+          <div style={{ fontWeight: 900, fontSize: 44, color: C.red }}>✕ 口座</div>
+          <div style={{ fontWeight: 800, fontSize: 30, color: C.ink, marginTop: 8, lineHeight: 1.3 }}>NISAの“口座”は<br />そのまま継げない</div>
+        </div>
+      </Pop>
+      <Pop at={14}>
+        <div style={{ width: 420, background: C.greenBg, border: `3px solid ${C.green}`, borderRadius: 22, padding: "22px 24px", textAlign: "center" }}>
+          <div style={{ fontWeight: 900, fontSize: 44, color: C.green }}>〇 商品</div>
+          <div style={{ fontWeight: 800, fontSize: 30, color: C.ink, marginTop: 8, lineHeight: 1.3 }}>中の株・投信は<br />相続できる</div>
+        </div>
+      </Pop>
+    </div>
+    <Pop at={18} style={{ marginTop: 26, display: "flex", justifyContent: "center" }}>
+      <div style={{ background: C.ink, color: "#fff", fontWeight: 900, fontSize: 34, padding: "16px 34px", borderRadius: 18, textAlign: "center" }}>ただし移る先は “普通の課税口座”</div>
+    </Pop>
+  </div>
+);
+
+// ───────── P4 カギ（取得価額・損益対比・山場） ─────────
 const Step: React.FC<{ label: string; value: string; color: string }> = ({ label, value, color }) => (
   <div style={{ textAlign: "center" }}>
     <div style={{ fontWeight: 700, fontSize: 24, color: C.sub }}>{label}</div>
@@ -91,8 +136,7 @@ const Arrow: React.FC = () => <div style={{ fontWeight: 900, fontSize: 40, color
 
 const PagePrice: React.FC = () => (
   <div style={{ paddingTop: 40 }}>
-    <Head kicker="ここが落とし穴" title={<>引き継ぐ値段が<br /><span style={{ color: C.red }}>“亡くなった日”</span>に変わる</>} kc={C.red} />
-    {/* 損のケース（主役） */}
+    <Head kicker="一番のカギ" title={<>引き継ぐ値段が<br /><span style={{ color: C.red }}>“亡くなった日”</span>に変わる</>} kc={C.red} />
     <Pop at={6} style={{ marginTop: 30, display: "flex", justifyContent: "center" }}>
       <div style={{ width: 880, background: "#fff", border: `3px solid ${C.red}`, borderRadius: 26, boxShadow: "0 14px 30px rgba(224,72,59,0.18)", padding: "22px 28px 26px" }}>
         <div style={{ display: "inline-block", background: C.red, color: "#fff", fontWeight: 800, fontSize: 28, padding: "6px 20px", borderRadius: 999 }}>損したパターン</div>
@@ -107,11 +151,10 @@ const PagePrice: React.FC = () => (
           <span style={{ fontWeight: 800, fontSize: 30, color: C.ink }}>戻っただけなのに </span>
           <span style={{ fontWeight: 900, fontSize: 56, color: C.red }}>約12万円</span>
           <span style={{ fontWeight: 800, fontSize: 30, color: C.ink }}> 課税</span>
-          <div style={{ fontWeight: 700, fontSize: 24, color: C.sub, marginTop: 4 }}>※損（60万）は「なかったこと」に</div>
+          <div style={{ fontWeight: 700, fontSize: 22, color: C.sub, marginTop: 4 }}>※損（60万）は「なかったこと」に／60万×20.315%の概算</div>
         </div>
       </div>
     </Pop>
-    {/* 益のケース（小さく・安心材料） */}
     <Pop at={12} style={{ marginTop: 20, display: "flex", justifyContent: "center" }}>
       <div style={{ width: 880, background: C.greenBg, border: `2px solid ${C.green}`, borderRadius: 22, padding: "16px 28px", display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
         <span style={{ fontWeight: 800, fontSize: 28, color: C.green }}>逆に増えてたら得 ▶</span>
@@ -122,7 +165,40 @@ const PagePrice: React.FC = () => (
   </div>
 );
 
-const PAGES: Record<number, React.FC> = { 2: PageFlow, 6: PagePrice };
+// ───────── P5 やること3つ ─────────
+const TodoCard: React.FC<{ no: number; emoji: string; title: React.ReactNode }> = ({ no, emoji, title }) => (
+  <div style={{ width: 880, background: "#fff", borderRadius: 24, boxShadow: "0 10px 24px rgba(31,58,95,0.12)", border: `2px solid ${C.line}`, padding: "22px 28px", display: "flex", alignItems: "center", gap: 22 }}>
+    <div style={{ flexShrink: 0, width: 72, height: 72, borderRadius: "50%", background: C.green, color: "#fff", fontWeight: 900, fontSize: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>{no}</div>
+    <div style={{ fontSize: 56 }}>{emoji}</div>
+    <div style={{ fontWeight: 900, fontSize: 38, color: C.ink, textAlign: "left", lineHeight: 1.25 }}>{title}</div>
+  </div>
+);
+const PageTodo: React.FC = () => (
+  <div style={{ paddingTop: 40 }}>
+    <Head kicker="元気なうちに" title={<>やることは、<span style={{ color: C.green }}>3つ</span></>} kc={C.green} />
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 22, marginTop: 34 }}>
+      <Pop at={2}><TodoCard no={1} emoji="🗣️" title={<>どの金融機関に口座があるか<br />家族に伝えておく</>} /></Pop>
+      <Pop at={6}><TodoCard no={2} emoji="🏦" title={<>夫婦で同じ金融機関に<br />口座を作っておく</>} /></Pop>
+      <Pop at={10}><TodoCard no={3} emoji="🧭" title={<>継いだあと「持つ／売る」の<br />方針を話しておく</>} /></Pop>
+    </div>
+  </div>
+);
+
+// ───────── P6 CTA ─────────
+const PageCTA: React.FC = () => (
+  <div style={{ paddingTop: 120, textAlign: "center", padding: "120px 56px 0" }}>
+    <Pop at={0}><div style={{ fontWeight: 900, fontSize: 54, color: C.ink, lineHeight: 1.3 }}>増やす“入口”より<br /><span style={{ color: C.blue }}>“出口”</span>が大事</div></Pop>
+    <Pop at={6}>
+      <div style={{ marginTop: 40, background: "#fff", border: `3px solid ${C.blue}`, borderRadius: 26, padding: "28px 30px", boxShadow: "0 12px 26px rgba(31,58,95,0.12)" }}>
+        <div style={{ fontWeight: 900, fontSize: 40, color: C.ink, lineHeight: 1.3 }}>「亡くなったときに<br />やることリスト」作りました</div>
+        <div style={{ marginTop: 20, display: "inline-block", background: C.green, color: "#fff", fontWeight: 900, fontSize: 46, padding: "16px 40px", borderRadius: 999, boxShadow: "0 10px 24px rgba(46,158,107,0.35)" }}>DMで「守る」</div>
+      </div>
+    </Pop>
+    <Pop at={12}><div style={{ marginTop: 36, fontWeight: 800, fontSize: 36, color: C.sub }}>🔖 見返せるように保存も</div></Pop>
+  </div>
+);
+
+const PAGES: Record<number, React.FC> = { 1: PageHook, 2: PageFlow, 3: PageConc, 4: PagePrice, 5: PageTodo, 6: PageCTA };
 
 export const NisaSozokuDesign: React.FC<{ page?: number }> = ({ page = 2 }) => {
   const P = PAGES[page] ?? PageFlow;
