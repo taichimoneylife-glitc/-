@@ -70,11 +70,11 @@ const PageFlow: React.FC = () => (
   <div style={{ paddingTop: 44 }}>
     <Head kicker="全体像" title={<>相続手続きの<span style={{ color: C.blue }}>流れ</span></>} />
     <div style={{ marginTop: 26, display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <Pop at={0}><FlowNode no={1} title="金融機関へ連絡" color={C.red} img="nisa_phone_bank" /></Pop>
+      <Pop at={20}><FlowNode no={1} title="金融機関へ連絡" color={C.red} img="nisa_phone_bank" /></Pop>
       <Conn />
-      <Pop at={4}><FlowNode no={2} title="誰に何を相続するか決める" color={C.blue} img="nisa_family_talk" /></Pop>
+      <Pop at={74}><FlowNode no={2} title="誰に何を相続するか決める" color={C.blue} img="nisa_family_talk" /></Pop>
       <Conn />
-      <Pop at={8}>
+      <Pop at={120}>
         <FlowNode no={3} title="必要書類を集める" color={C.blue} img="nisa_documents">
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 12, paddingLeft: 70 }}>
             {["戸籍謄本", "印鑑証明書", "遺産分割協議書", "死亡届出 等"].map((t) => (
@@ -84,9 +84,9 @@ const PageFlow: React.FC = () => (
         </FlowNode>
       </Pop>
       <Conn />
-      <Pop at={12}><FlowNode no={4} title="金融機関で手続きを行う" color={C.green} img="nisa_bank_counter" /></Pop>
+      <Pop at={169}><FlowNode no={4} title="金融機関で手続きを行う" color={C.green} img="nisa_bank_counter" /></Pop>
     </div>
-    <Pop at={16} style={{ marginTop: 26, display: "flex", justifyContent: "center" }}>
+    <Pop at={205} style={{ marginTop: 26, display: "flex", justifyContent: "center" }}>
       <div style={{ width: 920, background: C.redBg, border: `2px solid ${C.red}`, borderRadius: 16, padding: "16px 22px", textAlign: "center", fontWeight: 900, fontSize: 32, color: C.red }}>
         ⛔ 手続きが終わるまで、自由に売却・出金できません
       </div>
@@ -113,7 +113,7 @@ const AcctBox: React.FC<{ title: React.ReactNode; sub?: string; nisa?: boolean }
 );
 const PagePoint1: React.FC = () => (
   <div style={{ paddingTop: 40 }}>
-    <Pop at={0} style={{ display: "flex", justifyContent: "center" }}>
+    <Pop at={50} style={{ display: "flex", justifyContent: "center" }}>
       <div style={{ background: C.ink, color: "#fff", fontWeight: 900, fontSize: 48, padding: "16px 36px", borderRadius: 16, textAlign: "center" }}>NISA口座はそのまま引き継げない</div>
     </Pop>
     <div style={{ position: "relative", width: 1000, height: 760, margin: "30px auto 0" }}>
@@ -121,22 +121,22 @@ const PagePoint1: React.FC = () => (
       <div style={{ position: "absolute", left: 0, top: 10, width: 440, height: 680, border: `3px dashed ${C.gray}`, borderRadius: 24 }} />
       <div style={{ position: "absolute", left: 560, top: 10, width: 440, height: 680, border: `3px dashed ${C.gray}`, borderRadius: 24 }} />
       {/* 左：亡くなった方 */}
-      <Pop at={2} style={{ position: "absolute", left: 40, top: 48 }}><AcctBox title={<>亡くなった方の<br />NISA口座</>} nisa /></Pop>
-      <Pop at={6} style={{ position: "absolute", left: 158, top: 250, textAlign: "center" }}>
+      <Pop at={76} style={{ position: "absolute", left: 40, top: 48 }}><AcctBox title={<>亡くなった方の<br />NISA口座</>} nisa /></Pop>
+      <Pop at={178} style={{ position: "absolute", left: 158, top: 250, textAlign: "center" }}>
         <div style={{ fontSize: 30, fontWeight: 900, color: C.blue }}>移管</div>
         <div style={{ fontSize: 60, fontWeight: 900, color: C.blue, lineHeight: 0.8 }}>↓</div>
       </Pop>
-      <Pop at={10} style={{ position: "absolute", left: 40, top: 440 }}><AcctBox title={<>課税口座</>} sub="特定口座・一般口座" /></Pop>
+      <Pop at={185} style={{ position: "absolute", left: 40, top: 440 }}><AcctBox title={<>課税口座</>} sub="特定口座・一般口座" /></Pop>
       {/* 右：相続する人 */}
-      <Pop at={4} style={{ position: "absolute", left: 600, top: 48 }}><AcctBox title={<>NISA口座</>} nisa /></Pop>
-      <Pop at={14} style={{ position: "absolute", left: 600, top: 440 }}><AcctBox title={<>課税口座</>} sub="特定口座・一般口座" /></Pop>
+      <Pop at={95} style={{ position: "absolute", left: 600, top: 48 }}><AcctBox title={<>NISA口座</>} nisa /></Pop>
+      <Pop at={272} style={{ position: "absolute", left: 600, top: 440 }}><AcctBox title={<>課税口座</>} sub="特定口座・一般口座" /></Pop>
       {/* ✕（NISA→NISAはできない）*/}
-      <Pop at={8} style={{ position: "absolute", left: 430, top: 92, width: 140, textAlign: "center" }}>
+      <Pop at={135} style={{ position: "absolute", left: 430, top: 92, width: 140, textAlign: "center" }}>
         <div style={{ fontSize: 72, fontWeight: 900, color: C.red }}>✕</div>
         <div style={{ fontSize: 24, fontWeight: 900, color: C.red }}>継げない</div>
       </Pop>
       {/* 移管（課税口座→課税口座）*/}
-      <Pop at={12} style={{ position: "absolute", left: 430, top: 486, width: 140, textAlign: "center" }}>
+      <Pop at={266} style={{ position: "absolute", left: 430, top: 486, width: 140, textAlign: "center" }}>
         <div style={{ fontSize: 56, fontWeight: 900, color: C.green, lineHeight: 0.9 }}>→</div>
         <div style={{ fontSize: 26, fontWeight: 900, color: C.green }}>移管</div>
       </Pop>
@@ -159,15 +159,15 @@ const PagePoint1: React.FC = () => (
 const PagePoint2: React.FC = () => (
   <div style={{ paddingTop: 44 }}>
     <Head kicker="注意点②" title={<><span style={{ color: C.blue }}>同じ金融機関</span>じゃないと移せない</>} />
-    <Pop at={2} style={{ marginTop: 20, display: "flex", justifyContent: "center" }}>
+    <Pop at={20} style={{ marginTop: 20, display: "flex", justifyContent: "center" }}>
       <Img src={staticFile("gen/nisa_bank_building.png")} style={{ width: 230, objectFit: "contain" }} />
     </Pop>
-    <Pop at={4} style={{ marginTop: 10, display: "flex", justifyContent: "center", alignItems: "center", gap: 20 }}>
+    <Pop at={83} style={{ marginTop: 10, display: "flex", justifyContent: "center", alignItems: "center", gap: 20 }}>
       <Box title={<>亡くなった人の<br />口座</>} bg="#fff" bd={C.line} w={320} />
       <div style={{ fontSize: 50, fontWeight: 900, color: C.gray }}>→</div>
       <Box title={<>相続人の口座<br /><span style={{ fontSize: 26, color: C.sub }}>（同じ金融機関）</span></>} bg={C.greenBg} bd={C.green} w={340} />
     </Pop>
-    <Pop at={10} style={{ marginTop: 28, display: "flex", justifyContent: "center" }}>
+    <Pop at={178} style={{ marginTop: 28, display: "flex", justifyContent: "center" }}>
       <div style={{ width: 900, background: "#fff", border: `3px solid ${C.gold}`, borderRadius: 22, padding: "20px 26px", display: "flex", alignItems: "center", gap: 22, boxShadow: "0 10px 22px rgba(31,58,95,0.1)" }}>
         <Img src={staticFile("gen/nisa_open_account.png")} style={{ width: 150, objectFit: "contain", flexShrink: 0 }} />
         <div style={{ textAlign: "left" }}>
@@ -180,32 +180,41 @@ const PagePoint2: React.FC = () => (
 );
 
 // ───────── ③ 折れ線グラフ（損／益・参考2図準拠）─────────
-const Bubble: React.FC<{ x: number; y: number; children: React.ReactNode; bg?: string; color?: string; w?: number }> = ({ x, y, children, bg = C.goldBg, color = C.ink, w = 180 }) => (
-  <div style={{ position: "absolute", left: x, top: y, width: w, background: bg, color, borderRadius: 16, padding: "8px 10px", textAlign: "center", fontWeight: 900, fontSize: 26, lineHeight: 1.2, boxShadow: "0 6px 14px rgba(0,0,0,0.12)" }}>{children}</div>
-);
-const ZoneLabel: React.FC<{ x: number; text: string; color: string }> = ({ x, text, color }) => (
-  <div style={{ position: "absolute", left: x, top: 548, background: color, color: "#fff", fontWeight: 900, fontSize: 28, padding: "8px 16px", borderRadius: 10, whiteSpace: "nowrap" }}>{text}</div>
-);
+const Bubble: React.FC<{ x: number; y: number; children: React.ReactNode; bg?: string; color?: string; w?: number; at?: number }> = ({ x, y, children, bg = C.goldBg, color = C.ink, w = 180, at = 0 }) => {
+  const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const s = spring({ frame: f - at, fps, config: { damping: 13, stiffness: 160, mass: 0.7 }, durationInFrames: 11 });
+  return <div style={{ position: "absolute", left: x, top: y, width: w, background: bg, color, borderRadius: 16, padding: "8px 10px", textAlign: "center", fontWeight: 900, fontSize: 26, lineHeight: 1.2, boxShadow: "0 6px 14px rgba(0,0,0,0.12)", opacity: Math.min(1, s * 1.6), transform: `translateY(${(1 - Math.min(1, s)) * 10}px) scale(${0.9 + 0.1 * Math.min(1, s)})` }}>{children}</div>;
+};
+const ZoneLabel: React.FC<{ x: number; text: string; color: string; at?: number }> = ({ x, text, color, at = 0 }) => {
+  const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const s = spring({ frame: f - at, fps, config: { damping: 14, stiffness: 150, mass: 0.8 }, durationInFrames: 10 });
+  return <div style={{ position: "absolute", left: x, top: 548, background: color, color: "#fff", fontWeight: 900, fontSize: 28, padding: "8px 16px", borderRadius: 10, whiteSpace: "nowrap", opacity: Math.min(1, s * 1.6) }}>{text}</div>;
+};
 
-// グラフ枠：幅960 高さ540。3ゾーン背景＋折れ線＋マーカー。
-const GraphFrame: React.FC<{ path: string; zones: [number, number, number]; markers: { x: number; y: number }[]; dashed?: { y: number; x1: number; x2: number }[]; gainArrow?: { x: number; y1: number; y2: number; color: string } }> = ({ path, zones, markers, dashed = [], gainArrow }) => {
+// グラフ枠：幅960 高さ540。3ゾーン背景＋折れ線(描画アニメ)＋マーカー。
+// drawAt=線を引き始めるフレーム。arrowAt=課税/非課税の矢印を出すフレーム。
+const GraphFrame: React.FC<{ path: string; zones: [number, number, number]; markers: { x: number; y: number }[]; dashed?: { y: number; x1: number; x2: number }[]; gainArrow?: { x: number; y1: number; y2: number; color: string }; drawAt?: number; arrowAt?: number }> = ({ path, zones, markers, dashed = [], gainArrow, drawAt = 0, arrowAt = 0 }) => {
+  const f = useCurrentFrame();
   const [zA, zB] = [zones[0], zones[1]];
+  const LEN = 1700;
+  const off = interpolate(f, [drawAt, drawAt + 30], [LEN, 0], clamp);
+  const arrowO = interpolate(f, [arrowAt, arrowAt + 10], [0, 1], clamp);
   return (
     <svg width="960" height="540" style={{ display: "block" }}>
       <rect x="0" y="0" width={zA} height="520" fill={C.blueBg} />
       <rect x={zA} y="0" width={zB - zA} height="520" fill="#FBE7D4" />
       <rect x={zB} y="0" width={960 - zB} height="520" fill="#F6DCDA" />
-      {dashed.map((d, i) => <line key={i} x1={d.x1} y1={d.y} x2={d.x2} y2={d.y} stroke={C.sub} strokeWidth="2" strokeDasharray="7 7" />)}
+      {dashed.map((d, i) => <line key={i} x1={d.x1} y1={d.y} x2={d.x2} y2={d.y} stroke={C.sub} strokeWidth="2" strokeDasharray="7 7" opacity={interpolate(f, [arrowAt - 6, arrowAt], [0, 1], clamp)} />)}
       {gainArrow && (
-        <g>
-          <line x1={gainArrow.x} y1={gainArrow.y1} x2={gainArrow.x} y2={gainArrow.y2} stroke={gainArrow.color} strokeWidth="5" markerEnd="url(#ah)" markerStart="url(#ah)" />
-        </g>
+        <line x1={gainArrow.x} y1={gainArrow.y1} x2={gainArrow.x} y2={gainArrow.y2} stroke={gainArrow.color} strokeWidth="5" markerEnd="url(#ah)" markerStart="url(#ah)" opacity={arrowO} />
       )}
       <defs>
         <marker id="ah" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill={C.red} /></marker>
       </defs>
-      <path d={path} fill="none" stroke={C.blue} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-      {markers.map((m, i) => <circle key={i} cx={m.x} cy={m.y} r="11" fill={C.blue} stroke="#fff" strokeWidth="3" />)}
+      <path d={path} fill="none" stroke={C.blue} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" strokeDasharray={LEN} strokeDashoffset={off} />
+      {markers.map((m, i) => <circle key={i} cx={m.x} cy={m.y} r="11" fill={C.blue} stroke="#fff" strokeWidth="3" opacity={interpolate(f, [drawAt + 30, drawAt + 36], [0, 1], clamp)} />)}
     </svg>
   );
 };
@@ -221,17 +230,18 @@ const PageGraphLoss: React.FC = () => (
         markers={[{ x: 60, y: 150 }, { x: 460, y: 360 }, { x: 900, y: 150 }]}
         dashed={[{ y: 150, x1: 60, x2: 900 }, { y: 360, x1: 460, x2: 900 }]}
         gainArrow={{ x: 900, y1: 150, y2: 360, color: C.red }}
+        drawAt={164} arrowAt={555}
       />
-      <Bubble x={10} y={60} bg={C.goldBg} w={200}>積立で<br />1,000万円に</Bubble>
-      <Bubble x={356} y={400} bg={C.goldBg} w={200}>新しい取得価格<br />600万円</Bubble>
-      <Bubble x={720} y={54} bg={C.goldBg} w={200}>回復して<br />売却 1,000万円</Bubble>
-      <Bubble x={768} y={236} bg="#fff" color={C.red} w={180}>400万に<br />約81万円課税</Bubble>
-      <ZoneLabel x={60} text="亡くなった方のNISA" color={C.blue} />
-      <ZoneLabel x={356} text="死亡・相続発生" color={C.orange} />
-      <ZoneLabel x={636} text="相続人の課税口座" color={C.red} />
-      <Img src={staticFile("gen/nisa_mascot_worry.png")} style={{ position: "absolute", left: 60, top: 300, width: 170, objectFit: "contain" }} />
+      <Bubble x={10} y={60} bg={C.goldBg} w={200} at={164}>積立で<br />1,000万円に</Bubble>
+      <Bubble x={356} y={400} bg={C.goldBg} w={200} at={377}>新しい取得価格<br />600万円</Bubble>
+      <Bubble x={720} y={54} bg={C.goldBg} w={200} at={539}>回復して<br />売却 1,000万円</Bubble>
+      <Bubble x={768} y={236} bg="#fff" color={C.red} w={180} at={565}>400万に<br />約81万円課税</Bubble>
+      <ZoneLabel x={60} text="亡くなった方のNISA" color={C.blue} at={170} />
+      <ZoneLabel x={356} text="死亡・相続発生" color={C.orange} at={380} />
+      <ZoneLabel x={636} text="相続人の課税口座" color={C.red} at={540} />
+      <Pop at={200} style={{ position: "absolute", left: 60, top: 300 }}><Img src={staticFile("gen/nisa_mascot_worry.png")} style={{ width: 170, objectFit: "contain", display: "block" }} /></Pop>
     </div>
-    <Pop at={10} style={{ marginTop: 52, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+    <Pop at={560} style={{ marginTop: 52, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
       <div style={{ width: 920, background: C.redBg, border: `2px solid ${C.red}`, borderRadius: 16, padding: "14px 22px", textAlign: "center", fontWeight: 800, fontSize: 28, color: C.ink, lineHeight: 1.4 }}>
         取得価格が600万に下がる → 死亡後に増えた<b style={{ color: C.red }}>400万</b>に<br /><b style={{ color: C.red }}>金融所得課税 20.315%</b>（＝約81万円）
       </div>
@@ -251,16 +261,17 @@ const PageGraphGain: React.FC = () => (
         markers={[{ x: 60, y: 380 }, { x: 460, y: 150 }]}
         dashed={[{ y: 380, x1: 60, x2: 460 }, { y: 150, x1: 60, x2: 460 }]}
         gainArrow={{ x: 60, y1: 380, y2: 150, color: C.green }}
+        drawAt={70} arrowAt={144}
       />
-      <Bubble x={18} y={320} bg={C.goldBg} w={190}>積立元本<br />500万円</Bubble>
-      <Bubble x={356} y={54} bg={C.goldBg} w={210}>新しい取得価格<br />1,000万円</Bubble>
-      <Bubble x={120} y={210} bg={C.greenBg} color={C.green} w={210}>増えた利益<br />500万円は非課税</Bubble>
-      <ZoneLabel x={60} text="亡くなった方のNISA" color={C.blue} />
-      <ZoneLabel x={356} text="死亡・相続発生" color={C.orange} />
-      <ZoneLabel x={636} text="相続人の課税口座" color={C.red} />
-      <Img src={staticFile("gen/nisa_mascot_happy.png")} style={{ position: "absolute", left: 760, top: 300, width: 170, objectFit: "contain" }} />
+      <Bubble x={18} y={320} bg={C.goldBg} w={190} at={70}>積立元本<br />500万円</Bubble>
+      <Bubble x={356} y={54} bg={C.goldBg} w={210} at={100}>新しい取得価格<br />1,000万円</Bubble>
+      <Bubble x={120} y={210} bg={C.greenBg} color={C.green} w={210} at={144}>増えた利益<br />500万円は非課税</Bubble>
+      <ZoneLabel x={60} text="亡くなった方のNISA" color={C.blue} at={76} />
+      <ZoneLabel x={356} text="死亡・相続発生" color={C.orange} at={110} />
+      <ZoneLabel x={636} text="相続人の課税口座" color={C.red} at={160} />
+      <Pop at={130} style={{ position: "absolute", left: 760, top: 300 }}><Img src={staticFile("gen/nisa_mascot_happy.png")} style={{ width: 170, objectFit: "contain", display: "block" }} /></Pop>
     </div>
-    <Pop at={10} style={{ marginTop: 52, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+    <Pop at={150} style={{ marginTop: 52, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
       <div style={{ width: 920, background: C.greenBg, border: `2px solid ${C.green}`, borderRadius: 16, padding: "14px 22px", textAlign: "center", fontWeight: 800, fontSize: 28, color: C.ink, lineHeight: 1.4 }}>
         亡くなった日までの値上がりは<b style={{ color: C.green }}>非課税で確定</b>＝NISAの良さは活きる
       </div>
@@ -285,9 +296,9 @@ const PageTodo: React.FC = () => (
   <div style={{ paddingTop: 44 }}>
     <Head kicker="元気なうちに" title={<>やることは、<span style={{ color: C.green }}>3つ</span></>} kc={C.green} />
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24, marginTop: 40 }}>
-      <Pop at={2}><TodoCard no={1} img="nisa_tell_family" title={<>どこの金融機関に口座があるか<br />家族に伝える</>} /></Pop>
-      <Pop at={6}><TodoCard no={2} img="nisa_couple" title={<>夫婦で同じ金融機関の<br />口座を持つ</>} /></Pop>
-      <Pop at={10}><TodoCard no={3} img="nisa_think" title={<>受け取ったあと、どう使い<br />どう残すかを話しておく</>} /></Pop>
+      <Pop at={59}><TodoCard no={1} img="nisa_tell_family" title={<>どこの金融機関に口座があるか<br />家族に伝える</>} /></Pop>
+      <Pop at={142}><TodoCard no={2} img="nisa_couple" title={<>夫婦で同じ金融機関の<br />口座を持つ</>} /></Pop>
+      <Pop at={200}><TodoCard no={3} img="nisa_think" title={<>受け取ったあと、どう使い<br />どう残すかを話しておく</>} /></Pop>
     </div>
     <Pop at={298} style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
       <div style={{ width: 900, background: C.goldBg, border: `2px solid ${C.gold}`, borderRadius: 16, padding: "16px 22px", textAlign: "center", fontWeight: 800, fontSize: 27, color: C.ink, lineHeight: 1.45 }}>
