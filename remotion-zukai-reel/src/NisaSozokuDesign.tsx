@@ -477,11 +477,26 @@ const PageTodo: React.FC = () => (
         </Drop>
       ))}
     </div>
-    <Pop at={298} style={{ marginTop: 46, display: "flex", justifyContent: "center" }}>
-      <div style={{ width: 920, background: C.goldBg, border: `3px solid ${C.gold}`, borderRadius: 16, padding: "24px 24px", textAlign: "center", fontWeight: 900, fontSize: 30, color: C.ink, lineHeight: 1.45 }}>
-        ちなみに、NISAの資産も<b style={{ color: C.orange }}>相続税</b>の対象<br /><span style={{ fontSize: 25, fontWeight: 800, color: C.sub }}>〔3,000万＋600万×法定相続人〕の基礎控除内ならかからない</span>
+    {/* ちなみに相続税：テロップ羅列をやめ、式を“喋りに合わせてポッポッ”と組み立てる */}
+    <div style={{ marginTop: 38, display: "flex", justifyContent: "center" }}>
+      <div style={{ width: 940, background: C.goldBg, border: `3px solid ${C.gold}`, borderRadius: 20, padding: "22px 20px 24px" }}>
+        <Drop at={298} style={{ textAlign: "center", fontWeight: 900, fontSize: 30, color: C.ink }}>
+          ちなみに、NISAの資産も<b style={{ color: C.orange }}>相続税</b>の対象
+        </Drop>
+        <div style={{ marginTop: 16, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, flexWrap: "nowrap" }}>
+          <Pop at={396}><div style={{ background: "#fff", border: `3px solid ${C.gold}`, borderRadius: 12, padding: "10px 14px", fontWeight: 900, fontSize: 34, color: C.ink }}>3,000万</div></Pop>
+          <Pop at={428}><span style={{ fontWeight: 900, fontSize: 34, color: C.sub }}>＋</span></Pop>
+          <Pop at={432}><div style={{ background: "#fff", border: `3px solid ${C.gold}`, borderRadius: 12, padding: "10px 14px", fontWeight: 900, fontSize: 34, color: C.ink }}>600万</div></Pop>
+          <Pop at={452}><span style={{ fontWeight: 900, fontSize: 34, color: C.sub }}>×</span></Pop>
+          <Pop at={458}><div style={{ background: "#fff", border: `3px solid ${C.gold}`, borderRadius: 12, padding: "10px 12px", fontWeight: 900, fontSize: 30, color: C.ink }}>法定相続人の数</div></Pop>
+          <Pop at={500}><span style={{ fontWeight: 900, fontSize: 34, color: C.sub }}>＝</span></Pop>
+          <Pop at={506}><div style={{ background: C.green, borderRadius: 12, padding: "10px 16px", fontWeight: 900, fontSize: 32, color: "#fff" }}>基礎控除</div></Pop>
+        </div>
+        <Pop at={548} style={{ marginTop: 18, textAlign: "center" }}>
+          <span style={{ fontWeight: 900, fontSize: 32, color: C.ink }}>この範囲内なら、<Hi at={566} color={C.green}>相続税はかからない</Hi></span>
+        </Pop>
       </div>
-    </Pop>
+    </div>
   </div>
 );
 
