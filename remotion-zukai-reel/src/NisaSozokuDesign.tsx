@@ -477,12 +477,12 @@ const PageTodo: React.FC = () => (
         </Drop>
       ))}
     </div>
-    {/* ちなみに相続税：テロップ羅列をやめ、式を“喋りに合わせてポッポッ”と組み立てる */}
-    <div style={{ marginTop: 38, display: "flex", justifyContent: "center" }}>
+    {/* ちなみに相続税：枠ごと③を話し終えてから出す（黄色が最初から残らないように）＋式をポッポッと組み立てる */}
+    <Pop at={298} style={{ marginTop: 38, display: "flex", justifyContent: "center" }}>
       <div style={{ width: 940, background: C.goldBg, border: `3px solid ${C.gold}`, borderRadius: 20, padding: "22px 20px 24px" }}>
-        <Drop at={298} style={{ textAlign: "center", fontWeight: 900, fontSize: 30, color: C.ink }}>
+        <div style={{ textAlign: "center", fontWeight: 900, fontSize: 30, color: C.ink }}>
           ちなみに、NISAの資産も<b style={{ color: C.orange }}>相続税</b>の対象
-        </Drop>
+        </div>
         <div style={{ marginTop: 16, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, flexWrap: "nowrap" }}>
           <Pop at={396}><div style={{ background: "#fff", border: `3px solid ${C.gold}`, borderRadius: 12, padding: "10px 14px", fontWeight: 900, fontSize: 34, color: C.ink }}>3,000万</div></Pop>
           <Pop at={428}><span style={{ fontWeight: 900, fontSize: 34, color: C.sub }}>＋</span></Pop>
@@ -496,7 +496,7 @@ const PageTodo: React.FC = () => (
           <span style={{ fontWeight: 900, fontSize: 32, color: C.ink }}>この範囲内なら、<Hi at={566} color={C.green}>相続税はかからない</Hi></span>
         </Pop>
       </div>
-    </div>
+    </Pop>
   </div>
 );
 
