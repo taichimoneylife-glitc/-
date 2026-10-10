@@ -39,16 +39,73 @@ export const NisaSozokuReel: React.FC<{ audio?: boolean; sfx?: boolean }> = ({ a
 
       {audio ? <Audio src={staticFile("nisa_narration.wav")} /> : null}
       {sfx ? <SfxTrack cues={[
-        { file: "user/u05", at: A.flow + 2, volume: 0.38 },
-        { file: "user/u03", at: A.p1, volume: 0.4 },        // 注意点へ
-        { file: "user/u03", at: A.p2, volume: 0.4 },        // ②へ
-        { file: "user/u03", at: A.g_loss, volume: 0.4 },    // ③へ
-        { file: "user/u04", at: s2f(62.6), volume: 0.44 },  // 81万 課税キメ
-        { file: "user/u06", at: A.g_gain, volume: 0.38 },   // 益へ
-        { file: "user/u04", at: s2f(71.4), volume: 0.4 },   // 500万非課税
-        { file: "user/u10", at: A.matome, volume: 0.42 },   // まとめ帯
-        { file: "user/u02s", at: A.souzokuzei, volume: 0.34 }, // ちなみに相続税
-        { file: "finish", at: A.end - 50, volume: 0.4 },
+        // ── 方針：各セクション頭に大転換u07(中)＋要素ごとに単発ポッu02s(中)。線/矢印=u03(中)。
+        //        山場のキメだけ高音u04(各シーン1回)、帯=u10、締め=finish。中音主役でキンキンを回避。
+        // 【流れ】
+        { file: "user/u05", at: A.flow + 2, volume: 0.40 },    // 開幕
+        { file: "user/u02s", at: A.flow + 20, volume: 0.40 },  // ①連絡
+        { file: "user/u02s", at: A.flow + 74, volume: 0.38 },  // ②決める
+        { file: "user/u02s", at: A.flow + 120, volume: 0.38 }, // ③書類
+        { file: "user/u02s", at: A.flow + 169, volume: 0.38 }, // ④手続き
+        { file: "user/u10", at: A.flow + 205, volume: 0.40 },  // ⛔帯
+        // 【注意点①】
+        { file: "user/u07", at: A.p1, volume: 0.44 },          // 大転換
+        { file: "user/u05", at: A.p1 + 4, volume: 0.38 },
+        { file: "user/u02s", at: A.p1 + 76, volume: 0.40 },    // 左NISA
+        { file: "user/u02s", at: A.p1 + 95, volume: 0.38 },    // 右NISA
+        { file: "user/u04", at: A.p1 + 135, volume: 0.42 },    // ✕継げない（キメ）
+        { file: "user/u03", at: A.p1 + 184, volume: 0.36 },    // ↓描く
+        { file: "user/u03", at: A.p1 + 268, volume: 0.36 },    // →移管描く
+        { file: "user/u02s", at: A.p1 + 272, volume: 0.36 },   // 右課税
+        { file: "user/u05", at: A.p1 + 466, volume: 0.40 },    // 受取→売却→買い直し 導入
+        { file: "user/u02s", at: A.p1 + 520, volume: 0.40 },   // 受け取る
+        { file: "user/u02s", at: A.p1 + 552, volume: 0.38 },   // 売却
+        { file: "user/u02s", at: A.p1 + 584, volume: 0.40 },   // 買い直す
+        // 【注意点②】
+        { file: "user/u07", at: A.p2, volume: 0.44 },          // 大転換
+        { file: "user/u05", at: A.p2 + 4, volume: 0.38 },
+        { file: "user/u02s", at: A.p2 + 70, volume: 0.40 },    // 〇〇証券(亡)
+        { file: "user/u03", at: A.p2 + 86, volume: 0.34 },     // →
+        { file: "user/u02s", at: A.p2 + 96, volume: 0.38 },    // 〇〇証券(相)
+        { file: "user/u02s", at: A.p2 + 116, volume: 0.38 },   // ○移せる
+        { file: "user/u02s", at: A.p2 + 140, volume: 0.36 },   // 〇〇証券(亡)
+        { file: "user/u02s", at: A.p2 + 150, volume: 0.36 },   // △△証券(相)
+        { file: "user/u04", at: A.p2 + 182, volume: 0.42 },    // ✕移せない（キメ）
+        { file: "user/u05", at: A.p2 + 258, volume: 0.40 },    // 開設カード
+        { file: "user/u05", at: A.p2 + 384, volume: 0.42 },    // 今のうちに＋丸
+        // 【③損グラフ】
+        { file: "user/u07", at: A.g_loss, volume: 0.44 },      // 大転換
+        { file: "user/u05", at: A.g_loss + 4, volume: 0.38 },
+        { file: "user/u02s", at: A.g_loss + 200, volume: 0.40 }, // 積立1000万
+        { file: "user/u03", at: A.g_loss + 300, volume: 0.38 },  // 線が下がる
+        { file: "user/u02s", at: A.g_loss + 352, volume: 0.40 }, // 取得価格600万
+        { file: "user/u03", at: A.g_loss + 458, volume: 0.38 },  // 線が回復
+        { file: "user/u02s", at: A.g_loss + 506, volume: 0.40 }, // 回復1000万
+        { file: "user/u06", at: A.g_loss + 524, volume: 0.34 },  // ＋400矢印
+        { file: "user/u04", at: A.g_loss + 544, volume: 0.46 },  // 約81万（山場キメ）
+        { file: "user/u10", at: A.g_loss + 578, volume: 0.40 },  // 説明帯
+        // 【③益グラフ】
+        { file: "user/u07", at: A.g_gain, volume: 0.42 },      // 転換
+        { file: "user/u05", at: A.g_gain + 4, volume: 0.38 },
+        { file: "user/u02s", at: A.g_gain + 90, volume: 0.40 }, // 元本500万
+        { file: "user/u03", at: A.g_gain + 100, volume: 0.36 }, // 線が上がる
+        { file: "user/u02s", at: A.g_gain + 128, volume: 0.40 }, // 新取得1000万
+        { file: "user/u06", at: A.g_gain + 142, volume: 0.34 }, // ＋500矢印
+        { file: "user/u04", at: A.g_gain + 160, volume: 0.44 }, // 500万非課税（キメ）
+        { file: "user/u10", at: A.g_gain + 184, volume: 0.40 }, // 説明帯
+        // 【まとめ】
+        { file: "user/u07", at: A.matome, volume: 0.44 },      // 大転換
+        { file: "user/u05", at: A.matome + 4, volume: 0.38 },
+        { file: "user/u02s", at: A.matome + 59, volume: 0.40 },  // ①
+        { file: "user/u02s", at: A.matome + 142, volume: 0.38 }, // ②
+        { file: "user/u02s", at: A.matome + 200, volume: 0.38 }, // ③
+        { file: "user/u03", at: A.souzokuzei, volume: 0.40 },    // ちなみに相続税（枠出現）
+        { file: "user/u02s", at: A.matome + 396, volume: 0.36 }, // 3,000万
+        { file: "user/u02s", at: A.matome + 432, volume: 0.36 }, // ＋600万
+        { file: "user/u02s", at: A.matome + 458, volume: 0.36 }, // ×法定相続人
+        { file: "user/u06", at: A.matome + 506, volume: 0.38 },  // ＝基礎控除
+        { file: "user/u04", at: A.matome + 548, volume: 0.42 },  // かからない（キメ）
+        { file: "finish", at: A.end - 50, volume: 0.44 },        // 締め
       ]} /> : null}
     </AbsoluteFill>
   );
