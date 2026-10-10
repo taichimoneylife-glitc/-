@@ -26,76 +26,16 @@ const A = {
   end: NISA_FRAMES,
 };
 
-// ── 画像（public/gen/*.png・いらすとや）フロート付き ──
-const GenImg: React.FC<{ name: string; x: number; y: number; w: number; delay?: number; flip?: boolean }> = ({ name, x, y, w, delay = 0, flip }) => {
-  const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const s = spring({ frame: f - delay, fps, config: { damping: 13, stiffness: 140, mass: 0.9 }, durationInFrames: 16 });
-  const bob = Math.sin((f / fps) * 2 * Math.PI * 0.3) * 5;
-  return (
-    <div style={{ position: "absolute", left: x, top: y, width: w, opacity: Math.min(1, s * 1.5), transform: `translateY(${(1 - Math.min(1, s)) * 18 + bob}px) scale(${Math.min(1, s)}) ${flip ? "scaleX(-1)" : ""}` }}>
-      <Img src={staticFile(`gen/${name}.png`)} style={{ width: "100%", display: "block" }} />
-    </div>
-  );
-};
-
-// セクションごとの画像レイヤー（下帯）
-const ImgFlow: React.FC = () => (
-  <>
-    <GenImg name="nisa_phone_bank" x={70} y={1220} w={300} delay={2} />
-    <GenImg name="nisa_documents" x={400} y={1240} w={280} delay={10} />
-    <GenImg name="nisa_bank_counter" x={720} y={1210} w={300} delay={18} />
-  </>
-);
-const ImgPoint1: React.FC = () => (
-  <>
-    <GenImg name="nisa_husband_passed" x={150} y={1240} w={240} delay={4} />
-    <GenImg name="nisa_wife_stand" x={680} y={1230} w={300} delay={10} />
-  </>
-);
-const ImgPoint2: React.FC = () => (
-  <>
-    <GenImg name="nisa_bank_building" x={150} y={1230} w={320} delay={4} />
-    <GenImg name="nisa_open_account" x={640} y={1230} w={320} delay={10} />
-  </>
-);
-const ImgLoss: React.FC = () => (
-  <>
-    <GenImg name="nisa_mascot_worry" x={120} y={1250} w={300} delay={4} />
-    <GenImg name="nisa_coin_down" x={660} y={1250} w={320} delay={10} />
-  </>
-);
-const ImgGain: React.FC = () => (
-  <>
-    <GenImg name="nisa_mascot_happy" x={120} y={1250} w={300} delay={4} />
-    <GenImg name="nisa_coin_up" x={660} y={1250} w={320} delay={10} />
-  </>
-);
-const ImgMatome: React.FC = () => (
-  <>
-    <GenImg name="nisa_tell_family" x={60} y={1500} w={300} delay={2} />
-    <GenImg name="nisa_couple" x={390} y={1500} w={300} delay={8} />
-    <GenImg name="nisa_think" x={720} y={1510} w={300} delay={14} />
-  </>
-);
-
-// 1ページ＝図解(上)＋画像(下)をまとめて時間配置
-const Page: React.FC<{ page: number; Imgs: React.FC }> = ({ page, Imgs }) => (
-  <AbsoluteFill>
-    <NisaSozokuDesign page={page} />
-    <Imgs />
-  </AbsoluteFill>
-);
-
+// 1ページ＝図解のみ（イラストは図解の中に埋め込み済み・下帯なし）を時間配置
 export const NisaSozokuReel: React.FC<{ audio?: boolean; sfx?: boolean }> = ({ audio = true, sfx = true }) => {
   return (
     <AbsoluteFill style={{ fontFamily: FONT, backgroundColor: "#FCFBF7" }}>
-      <Sequence from={A.flow} durationInFrames={A.p1 - A.flow}><Page page={2} Imgs={ImgFlow} /></Sequence>
-      <Sequence from={A.p1} durationInFrames={A.p2 - A.p1}><Page page={3} Imgs={ImgPoint1} /></Sequence>
-      <Sequence from={A.p2} durationInFrames={A.g_loss - A.p2}><Page page={4} Imgs={ImgPoint2} /></Sequence>
-      <Sequence from={A.g_loss} durationInFrames={A.g_gain - A.g_loss}><Page page={5} Imgs={ImgLoss} /></Sequence>
-      <Sequence from={A.g_gain} durationInFrames={A.matome - A.g_gain}><Page page={6} Imgs={ImgGain} /></Sequence>
-      <Sequence from={A.matome} durationInFrames={A.end - A.matome}><Page page={7} Imgs={ImgMatome} /></Sequence>
+      <Sequence from={A.flow} durationInFrames={A.p1 - A.flow}><NisaSozokuDesign page={2} /></Sequence>
+      <Sequence from={A.p1} durationInFrames={A.p2 - A.p1}><NisaSozokuDesign page={3} /></Sequence>
+      <Sequence from={A.p2} durationInFrames={A.g_loss - A.p2}><NisaSozokuDesign page={4} /></Sequence>
+      <Sequence from={A.g_loss} durationInFrames={A.g_gain - A.g_loss}><NisaSozokuDesign page={5} /></Sequence>
+      <Sequence from={A.g_gain} durationInFrames={A.matome - A.g_gain}><NisaSozokuDesign page={6} /></Sequence>
+      <Sequence from={A.matome} durationInFrames={A.end - A.matome}><NisaSozokuDesign page={7} /></Sequence>
 
       {audio ? <Audio src={staticFile("nisa_narration.wav")} /> : null}
       {sfx ? <SfxTrack cues={[

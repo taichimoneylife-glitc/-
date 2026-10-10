@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
+import { AbsoluteFill, Img, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
 import { FONT } from "./components/font";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -50,10 +50,15 @@ const PageHook: React.FC = () => (
 );
 
 // ───────── P2 流れ（4ステップ）＋書類チップ＋下帯 ─────────
-const FlowNode: React.FC<{ no: number; title: string; color: string; children?: React.ReactNode }> = ({ no, title, color, children }) => (
-  <div style={{ width: 860, background: "#fff", borderRadius: 20, boxShadow: "0 8px 18px rgba(31,58,95,0.10)", border: `2px solid ${C.line}`, padding: "16px 24px" }}>
+const FlowNode: React.FC<{ no: number; title: string; color: string; img: string; children?: React.ReactNode }> = ({ no, title, color, img, children }) => (
+  <div style={{ width: 860, background: "#fff", borderRadius: 20, boxShadow: "0 8px 18px rgba(31,58,95,0.10)", border: `2px solid ${C.line}`, padding: "14px 24px" }}>
     <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-      <div style={{ flexShrink: 0, width: 52, height: 52, borderRadius: "50%", background: color, color: "#fff", fontWeight: 900, fontSize: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>{no}</div>
+      <div style={{ position: "relative", flexShrink: 0 }}>
+        <div style={{ width: 100, height: 100, borderRadius: "50%", background: "#fff", border: `3px solid ${color}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+          <Img src={staticFile(`gen/${img}.png`)} style={{ width: 88, height: 88, objectFit: "contain" }} />
+        </div>
+        <div style={{ position: "absolute", left: -6, top: -6, width: 40, height: 40, borderRadius: "50%", background: color, color: "#fff", fontWeight: 900, fontSize: 24, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff" }}>{no}</div>
+      </div>
       <div style={{ fontWeight: 900, fontSize: 38, color: C.ink }}>{title}</div>
     </div>
     {children}
@@ -65,12 +70,12 @@ const PageFlow: React.FC = () => (
   <div style={{ paddingTop: 44 }}>
     <Head kicker="全体像" title={<>相続手続きの<span style={{ color: C.blue }}>流れ</span></>} />
     <div style={{ marginTop: 26, display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <Pop at={0}><FlowNode no={1} title="金融機関へ連絡" color={C.red} /></Pop>
+      <Pop at={0}><FlowNode no={1} title="金融機関へ連絡" color={C.red} img="nisa_phone_bank" /></Pop>
       <Conn />
-      <Pop at={4}><FlowNode no={2} title="誰に何を相続するか決める" color={C.blue} /></Pop>
+      <Pop at={4}><FlowNode no={2} title="誰に何を相続するか決める" color={C.blue} img="nisa_family_talk" /></Pop>
       <Conn />
       <Pop at={8}>
-        <FlowNode no={3} title="必要書類を集める" color={C.blue}>
+        <FlowNode no={3} title="必要書類を集める" color={C.blue} img="nisa_documents">
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 12, paddingLeft: 70 }}>
             {["戸籍謄本", "印鑑証明書", "遺産分割協議書", "死亡届出 等"].map((t) => (
               <span key={t} style={{ background: C.blueBg, color: C.ink, fontWeight: 800, fontSize: 26, padding: "6px 16px", borderRadius: 999 }}>{t}</span>
@@ -79,7 +84,7 @@ const PageFlow: React.FC = () => (
         </FlowNode>
       </Pop>
       <Conn />
-      <Pop at={12}><FlowNode no={4} title="金融機関で手続きを行う" color={C.green} /></Pop>
+      <Pop at={12}><FlowNode no={4} title="金融機関で手続きを行う" color={C.green} img="nisa_bank_counter" /></Pop>
     </div>
     <Pop at={16} style={{ marginTop: 26, display: "flex", justifyContent: "center" }}>
       <div style={{ width: 920, background: C.redBg, border: `2px solid ${C.red}`, borderRadius: 16, padding: "16px 22px", textAlign: "center", fontWeight: 900, fontSize: 32, color: C.red }}>
@@ -135,9 +140,17 @@ const PagePoint1: React.FC = () => (
         <div style={{ fontSize: 56, fontWeight: 900, color: C.green, lineHeight: 0.9 }}>→</div>
         <div style={{ fontSize: 26, fontWeight: 900, color: C.green }}>移管</div>
       </Pop>
-      {/* 名義ラベル */}
-      <div style={{ position: "absolute", left: 40, top: 706, fontWeight: 800, fontSize: 28, color: C.sub }}>亡くなった方の名義</div>
-      <div style={{ position: "absolute", left: 600, top: 706, fontWeight: 800, fontSize: 28, color: C.sub }}>相続する人の名義</div>
+      {/* 名義ラベル（アバター付き） */}
+      <div style={{ position: "absolute", left: 40, top: 690, display: "flex", alignItems: "center", gap: 10 }}>
+        <Img src={staticFile("gen/nisa_husband_passed.png")} style={{ width: 70, height: 70, objectFit: "contain" }} />
+        <span style={{ fontWeight: 800, fontSize: 28, color: C.sub }}>亡くなった方の名義</span>
+      </div>
+      <div style={{ position: "absolute", left: 600, top: 690, display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ width: 70, height: 70, borderRadius: "50%", overflow: "hidden", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+          <Img src={staticFile("gen/nisa_wife_stand.png")} style={{ width: 70, objectFit: "contain" }} />
+        </div>
+        <span style={{ fontWeight: 800, fontSize: 28, color: C.sub }}>相続する人の名義</span>
+      </div>
     </div>
   </div>
 );
@@ -146,15 +159,21 @@ const PagePoint1: React.FC = () => (
 const PagePoint2: React.FC = () => (
   <div style={{ paddingTop: 44 }}>
     <Head kicker="注意点②" title={<><span style={{ color: C.blue }}>同じ金融機関</span>じゃないと移せない</>} />
-    <Pop at={4} style={{ marginTop: 40, display: "flex", justifyContent: "center", alignItems: "center", gap: 20 }}>
+    <Pop at={2} style={{ marginTop: 20, display: "flex", justifyContent: "center" }}>
+      <Img src={staticFile("gen/nisa_bank_building.png")} style={{ width: 230, objectFit: "contain" }} />
+    </Pop>
+    <Pop at={4} style={{ marginTop: 10, display: "flex", justifyContent: "center", alignItems: "center", gap: 20 }}>
       <Box title={<>亡くなった人の<br />口座</>} bg="#fff" bd={C.line} w={320} />
       <div style={{ fontSize: 50, fontWeight: 900, color: C.gray }}>→</div>
       <Box title={<>相続人の口座<br /><span style={{ fontSize: 26, color: C.sub }}>（同じ金融機関）</span></>} bg={C.greenBg} bd={C.green} w={340} />
     </Pop>
-    <Pop at={10} style={{ marginTop: 30, display: "flex", justifyContent: "center" }}>
-      <div style={{ width: 900, background: "#fff", border: `3px solid ${C.gold}`, borderRadius: 22, padding: "22px 26px", textAlign: "center", boxShadow: "0 10px 22px rgba(31,58,95,0.1)" }}>
-        <div style={{ fontWeight: 900, fontSize: 36, color: C.ink }}>口座が無ければ、新しく開設が必要</div>
-        <div style={{ marginTop: 10, fontWeight: 900, fontSize: 40, color: C.orange }}>👉 今のうちに作っておこう</div>
+    <Pop at={10} style={{ marginTop: 28, display: "flex", justifyContent: "center" }}>
+      <div style={{ width: 900, background: "#fff", border: `3px solid ${C.gold}`, borderRadius: 22, padding: "20px 26px", display: "flex", alignItems: "center", gap: 22, boxShadow: "0 10px 22px rgba(31,58,95,0.1)" }}>
+        <Img src={staticFile("gen/nisa_open_account.png")} style={{ width: 150, objectFit: "contain", flexShrink: 0 }} />
+        <div style={{ textAlign: "left" }}>
+          <div style={{ fontWeight: 900, fontSize: 36, color: C.ink }}>口座が無ければ、新しく開設が必要</div>
+          <div style={{ marginTop: 8, fontWeight: 900, fontSize: 40, color: C.orange }}>👉 今のうちに作っておこう</div>
+        </div>
       </div>
     </Pop>
   </div>
@@ -210,6 +229,7 @@ const PageGraphLoss: React.FC = () => (
       <ZoneLabel x={60} text="亡くなった方のNISA" color={C.blue} />
       <ZoneLabel x={356} text="死亡・相続発生" color={C.orange} />
       <ZoneLabel x={636} text="相続人の課税口座" color={C.red} />
+      <Img src={staticFile("gen/nisa_mascot_worry.png")} style={{ position: "absolute", left: 60, top: 300, width: 170, objectFit: "contain" }} />
     </div>
     <Pop at={10} style={{ marginTop: 52, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
       <div style={{ width: 920, background: C.redBg, border: `2px solid ${C.red}`, borderRadius: 16, padding: "14px 22px", textAlign: "center", fontWeight: 800, fontSize: 28, color: C.ink, lineHeight: 1.4 }}>
@@ -238,6 +258,7 @@ const PageGraphGain: React.FC = () => (
       <ZoneLabel x={60} text="亡くなった方のNISA" color={C.blue} />
       <ZoneLabel x={356} text="死亡・相続発生" color={C.orange} />
       <ZoneLabel x={636} text="相続人の課税口座" color={C.red} />
+      <Img src={staticFile("gen/nisa_mascot_happy.png")} style={{ position: "absolute", left: 760, top: 300, width: 170, objectFit: "contain" }} />
     </div>
     <Pop at={10} style={{ marginTop: 52, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
       <div style={{ width: 920, background: C.greenBg, border: `2px solid ${C.green}`, borderRadius: 16, padding: "14px 22px", textAlign: "center", fontWeight: 800, fontSize: 28, color: C.ink, lineHeight: 1.4 }}>
@@ -249,10 +270,14 @@ const PageGraphGain: React.FC = () => (
 );
 
 // ───────── まとめ（やること3つ）─────────
-const TodoCard: React.FC<{ no: number; emoji: string; title: React.ReactNode }> = ({ no, emoji, title }) => (
-  <div style={{ width: 900, background: "#fff", borderRadius: 24, boxShadow: "0 10px 24px rgba(31,58,95,0.12)", border: `2px solid ${C.line}`, padding: "22px 28px", display: "flex", alignItems: "center", gap: 22 }}>
-    <div style={{ flexShrink: 0, width: 70, height: 70, borderRadius: "50%", background: C.green, color: "#fff", fontWeight: 900, fontSize: 38, display: "flex", alignItems: "center", justifyContent: "center" }}>{no}</div>
-    <div style={{ fontSize: 54 }}>{emoji}</div>
+const TodoCard: React.FC<{ no: number; img: string; title: React.ReactNode }> = ({ no, img, title }) => (
+  <div style={{ width: 900, background: "#fff", borderRadius: 24, boxShadow: "0 10px 24px rgba(31,58,95,0.12)", border: `2px solid ${C.line}`, padding: "18px 28px", display: "flex", alignItems: "center", gap: 22 }}>
+    <div style={{ position: "relative", flexShrink: 0 }}>
+      <div style={{ width: 104, height: 104, borderRadius: "50%", background: "#fff", border: `3px solid ${C.green}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+        <Img src={staticFile(`gen/${img}.png`)} style={{ width: 92, height: 92, objectFit: "contain" }} />
+      </div>
+      <div style={{ position: "absolute", left: -6, top: -6, width: 40, height: 40, borderRadius: "50%", background: C.green, color: "#fff", fontWeight: 900, fontSize: 24, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff" }}>{no}</div>
+    </div>
     <div style={{ fontWeight: 900, fontSize: 37, color: C.ink, textAlign: "left", lineHeight: 1.25 }}>{title}</div>
   </div>
 );
@@ -260,9 +285,9 @@ const PageTodo: React.FC = () => (
   <div style={{ paddingTop: 44 }}>
     <Head kicker="元気なうちに" title={<>やることは、<span style={{ color: C.green }}>3つ</span></>} kc={C.green} />
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24, marginTop: 40 }}>
-      <Pop at={2}><TodoCard no={1} emoji="🗣️" title={<>どこの金融機関に口座があるか<br />家族に伝える</>} /></Pop>
-      <Pop at={6}><TodoCard no={2} emoji="🏦" title={<>夫婦で同じ金融機関の<br />口座を持つ</>} /></Pop>
-      <Pop at={10}><TodoCard no={3} emoji="💬" title={<>受け取ったあと、どう使い<br />どう残すかを話しておく</>} /></Pop>
+      <Pop at={2}><TodoCard no={1} img="nisa_tell_family" title={<>どこの金融機関に口座があるか<br />家族に伝える</>} /></Pop>
+      <Pop at={6}><TodoCard no={2} img="nisa_couple" title={<>夫婦で同じ金融機関の<br />口座を持つ</>} /></Pop>
+      <Pop at={10}><TodoCard no={3} img="nisa_think" title={<>受け取ったあと、どう使い<br />どう残すかを話しておく</>} /></Pop>
     </div>
     <Pop at={298} style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
       <div style={{ width: 900, background: C.goldBg, border: `2px solid ${C.gold}`, borderRadius: 16, padding: "16px 22px", textAlign: "center", fontWeight: 800, fontSize: 27, color: C.ink, lineHeight: 1.45 }}>
