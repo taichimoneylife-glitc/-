@@ -147,9 +147,11 @@ const FLOW = [
 const PageFlow: React.FC = () => (
   <div style={{ paddingTop: 36 }}>
     <Head kicker="全体像" title={<>相続手続きの<span style={{ color: C.blue }}>流れ</span></>} />
-    <div style={{ marginTop: 30, display: "flex", flexDirection: "column", alignItems: "center", gap: 32 }}>
-      {FLOW.map((it) => (
-        <Drop key={it.no} at={it.at} dy={-22}>
+    <div style={{ marginTop: 28, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+      {FLOW.map((it, i) => (
+        <React.Fragment key={it.no}>
+          {i > 0 && <ArrowLine at={it.at - 8} dir="down" len={30} color={C.gray} w={5} />}
+          <Drop at={it.at} dy={-22}>
           <div style={{ display: "flex", alignItems: "center", gap: 20, width: 920, background: "#fff", border: `4px solid ${it.c}`, borderRadius: 22, padding: "16px 26px", boxShadow: `0 8px 20px ${it.c}22` }}>
             <div style={{ position: "relative", width: 136, height: 136, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <GenImg name={it.img} w={132} at={it.at} float={5} style={{ maxHeight: 132 }} />
@@ -165,10 +167,11 @@ const PageFlow: React.FC = () => (
               )}
             </div>
           </div>
-        </Drop>
+          </Drop>
+        </React.Fragment>
       ))}
     </div>
-    <Pop at={205} style={{ marginTop: 44, display: "flex", justifyContent: "center" }}>
+    <Pop at={205} style={{ marginTop: 40, display: "flex", justifyContent: "center" }}>
       <div style={{ width: 920, background: C.redBg, border: `3px solid ${C.red}`, borderRadius: 16, padding: "22px 22px", textAlign: "center", fontWeight: 900, fontSize: 34, color: C.red }}>
         ⛔ 手続きが終わるまで、自由に売却・出金できません
       </div>
@@ -193,10 +196,10 @@ const PagePoint1: React.FC = () => (
       <div style={{ position: "absolute", left: 570, top: 10, width: 420, height: 690, border: `3px dashed ${C.gray}`, borderRadius: 24 }} />
       {/* 左：亡くなった方 */}
       <div style={{ position: "absolute", left: 20, top: 46 }}><AcctBox at={76} title={<>亡くなった方の<br />NISA口座</>} nisa /></div>
-      <Pop at={178} style={{ position: "absolute", left: 160, top: 258, textAlign: "center" }}>
+      <Pop at={178} style={{ position: "absolute", left: 150, top: 236, width: 200, textAlign: "center" }}>
         <div style={{ fontSize: 28, fontWeight: 900, color: C.blue }}>非課税は終了</div>
-        <div style={{ fontSize: 58, fontWeight: 900, color: C.blue, lineHeight: 0.8 }}>↓</div>
       </Pop>
+      <ArrowLine at={184} dir="down" len={150} color={C.blue} style={{ position: "absolute", left: 210, top: 278 }} />
       <div style={{ position: "absolute", left: 20, top: 450 }}><AcctBox at={185} title={<>課税口座</>} sub="特定口座・一般口座" /></div>
       {/* 右：相続する人 */}
       <div style={{ position: "absolute", left: 580, top: 46 }}><AcctBox at={95} title={<>NISA口座</>} nisa /></div>
@@ -206,11 +209,11 @@ const PagePoint1: React.FC = () => (
         <div style={{ fontSize: 76, fontWeight: 900, color: C.red }}>✕</div>
         <div style={{ fontSize: 24, fontWeight: 900, color: C.red }}>継げない</div>
       </Pop>
-      {/* 移管→ */}
-      <Pop at={266} style={{ position: "absolute", left: 452, top: 500, width: 96, textAlign: "center" }}>
-        <div style={{ fontSize: 54, fontWeight: 900, color: C.green, lineHeight: 0.9 }}>→</div>
+      {/* 移管→（描く矢印）*/}
+      <Pop at={266} style={{ position: "absolute", left: 450, top: 466, width: 100, textAlign: "center" }}>
         <div style={{ fontSize: 26, fontWeight: 900, color: C.green }}>移管</div>
       </Pop>
+      <ArrowLine at={268} dir="right" len={84} color={C.green} style={{ position: "absolute", left: 448, top: 496 }} />
       {/* 名義ラベル */}
       <div style={{ position: "absolute", left: 30, top: 606, display: "flex", alignItems: "center", gap: 8 }}>
         <GenImg name="nisa_husband_passed" w={76} at={76} float={4} />
@@ -238,7 +241,7 @@ const PagePoint2: React.FC = () => (
     </div>
     <div style={{ marginTop: 40, display: "flex", justifyContent: "center", alignItems: "center", gap: 22 }}>
       <Pop at={83}><div style={{ width: 340, background: "#fff", border: `3px solid ${C.line}`, borderRadius: 18, padding: "26px 10px", textAlign: "center", fontWeight: 900, fontSize: 36, color: C.ink, lineHeight: 1.25 }}>亡くなった人の<br />口座</div></Pop>
-      <Pop at={110}><div style={{ fontSize: 60, fontWeight: 900, color: C.green }}>→</div></Pop>
+      <ArrowLine at={110} dir="right" len={70} color={C.green} w={7} />
       <Pop at={120}><div style={{ width: 380, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 18, padding: "26px 10px", textAlign: "center", fontWeight: 900, fontSize: 36, color: C.ink, lineHeight: 1.25 }}>相続人の口座<br /><span style={{ fontSize: 26, color: C.green }}>（同じ金融機関）</span></div></Pop>
     </div>
     <Pop at={178} style={{ marginTop: 56, display: "flex", justifyContent: "center" }}>
@@ -268,20 +271,62 @@ const ZoneLabel: React.FC<{ x: number; top: number; text: string; color: string;
   const s = useSp(at, 10);
   return <div style={{ position: "absolute", left: x, top, background: color, color: "#fff", fontWeight: 900, fontSize: 27, padding: "7px 16px", borderRadius: 10, whiteSpace: "nowrap", opacity: Math.min(1, s * 1.6) }}>{text}</div>;
 };
-// グラフ枠：幅980 高さ560。3ゾーン背景＋折れ線(描画アニメ)＋マーカー。
-const GraphFrame: React.FC<{ path: string; zones: [number, number]; markers: { x: number; y: number }[]; dashed?: { y: number; x1: number; x2: number }[]; drawAt?: number; arrowAt?: number }> = ({ path, zones, markers, dashed = [], drawAt = 0, arrowAt = 0 }) => {
+// 描く矢印（縦/横）：線が伸びて先端が付く＝ツリー式。単体要素用。
+const ArrowLine: React.FC<{ at: number; dir: "down" | "right"; len?: number; color: string; dur?: number; w?: number; style?: React.CSSProperties }> = ({ at, dir, len = 70, color, dur = 14, w = 6, style }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [at, at + dur], [0, 1], clamp);
+  const hb = interpolate(f, [at + dur * 0.6, at + dur], [0, 1], clamp);
+  if (p <= 0.001) return <svg width={dir === "down" ? 40 : len + 18} height={dir === "down" ? len + 18 : 40} style={style} />;
+  if (dir === "down") {
+    const yE = len * p;
+    return (
+      <svg width={40} height={len + 18} style={style}>
+        <line x1={20} y1={0} x2={20} y2={yE} stroke={color} strokeWidth={w} strokeLinecap="round" />
+        <path d={`M${20 - 11} ${yE - 13} L20 ${yE} L${20 + 11} ${yE - 13}`} fill="none" stroke={color} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" opacity={hb} />
+      </svg>
+    );
+  }
+  const xE = len * p;
+  return (
+    <svg width={len + 18} height={40} style={style}>
+      <line x1={0} y1={20} x2={xE} y2={20} stroke={color} strokeWidth={w} strokeLinecap="round" />
+      <path d={`M${xE - 13} ${20 - 11} L${xE} 20 L${xE - 13} ${20 + 11}`} fill="none" stroke={color} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" opacity={hb} />
+    </svg>
+  );
+};
+
+// グラフ枠：幅980 高さ560。3ゾーン＋折れ線を「区間ごとに」ナレに同期して描画＋マーカー＋縦矢印。
+type Seg = { d: string; from: number; to: number };
+type GArrow = { x: number; y1: number; y2: number; at: number; color: string; dur?: number };
+const GraphFrame: React.FC<{ zones: [number, number]; segs: Seg[]; markers: { x: number; y: number; at: number }[]; arrows?: GArrow[]; dashed?: { y: number; x1: number; x2: number; at: number }[] }> = ({ zones, segs, markers, arrows = [], dashed = [] }) => {
   const f = useCurrentFrame();
   const [zA, zB] = zones;
-  const LEN = 1800;
-  const off = interpolate(f, [drawAt, drawAt + 30], [LEN, 0], clamp);
   return (
     <svg width="980" height="560" style={{ display: "block" }}>
       <rect x="0" y="0" width={zA} height="540" rx="10" fill={C.blueBg} />
       <rect x={zA} y="0" width={zB - zA} height="540" fill="#FBE7D4" />
       <rect x={zB} y="0" width={980 - zB} height="540" rx="10" fill="#F6DCDA" />
-      {dashed.map((d, i) => <line key={i} x1={d.x1} y1={d.y} x2={d.x2} y2={d.y} stroke={C.sub} strokeWidth="2.5" strokeDasharray="8 8" opacity={interpolate(f, [arrowAt - 6, arrowAt], [0, 1], clamp)} />)}
-      <path d={path} fill="none" stroke={C.blue} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" strokeDasharray={LEN} strokeDashoffset={off} />
-      {markers.map((m, i) => <circle key={i} cx={m.x} cy={m.y} r="13" fill={C.blue} stroke="#fff" strokeWidth="4" opacity={interpolate(f, [drawAt + 28, drawAt + 34], [0, 1], clamp)} />)}
+      {dashed.map((d, i) => <line key={i} x1={d.x1} y1={d.y} x2={d.x2} y2={d.y} stroke={C.sub} strokeWidth="2.5" strokeDasharray="8 8" opacity={interpolate(f, [d.at, d.at + 8], [0, 1], clamp)} />)}
+      {segs.map((s, i) => {
+        const p = interpolate(f, [s.from, s.to], [0, 1], clamp);
+        return <path key={i} d={s.d} fill="none" stroke={C.blue} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} opacity={p > 0.001 ? 1 : 0} />;
+      })}
+      {arrows.map((a, i) => {
+        const dur = a.dur ?? 14;
+        const p = interpolate(f, [a.at, a.at + dur], [0, 1], clamp);
+        if (p <= 0.001) return null;
+        const yE = a.y1 + (a.y2 - a.y1) * p;
+        const up = a.y2 < a.y1;
+        const hb = interpolate(f, [a.at + dur * 0.55, a.at + dur], [0, 1], clamp);
+        return (
+          <g key={i}>
+            <line x1={a.x} y1={a.y1} x2={a.x} y2={yE} stroke={a.color} strokeWidth="5" strokeLinecap="round" />
+            <path d={`M${a.x - 9} ${yE + (up ? 12 : -12)} L${a.x} ${yE} L${a.x + 9} ${yE + (up ? 12 : -12)}`} fill="none" stroke={a.color} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" opacity={hb} />
+            <path d={`M${a.x - 9} ${a.y1 + (up ? -12 : 12)} L${a.x} ${a.y1} L${a.x + 9} ${a.y1 + (up ? -12 : 12)}`} fill="none" stroke={a.color} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" opacity={hb} />
+          </g>
+        );
+      })}
+      {markers.map((m, i) => <circle key={i} cx={m.x} cy={m.y} r="13" fill={C.blue} stroke="#fff" strokeWidth="4" opacity={interpolate(f, [m.at, m.at + 5], [0, 1], clamp)} />)}
     </svg>
   );
 };
@@ -291,34 +336,39 @@ const PageGraphLoss: React.FC = () => (
   <div style={{ paddingTop: 36 }}>
     <Head kicker="注意点③（ここがカギ）" title={<>亡くなった日に<span style={{ color: C.red }}>下がっていたら</span>？</>} kc={C.red} />
     <div style={{ position: "relative", width: 980, margin: "22px auto 0" }}>
+      {/* 線は2区間で、喋りの流れに同期して描く：①1,000万→600万に下落 ②600万→回復1,000万 */}
       <GraphFrame
         zones={[340, 580]}
-        path="M60,150 C150,235 220,310 300,310 C365,310 385,370 440,370 L580,370 C665,370 720,235 780,185 L920,150"
-        markers={[{ x: 60, y: 150 }, { x: 470, y: 370 }, { x: 920, y: 150 }]}
-        dashed={[{ y: 150, x1: 60, x2: 920 }, { y: 370, x1: 470, x2: 920 }]}
-        drawAt={164} arrowAt={555}
+        segs={[
+          { d: "M60,150 C150,235 220,310 300,310 C365,310 385,370 440,370 L580,370", from: 300, to: 352 },
+          { d: "M580,370 C665,370 720,235 780,185 L920,150", from: 458, to: 506 },
+        ]}
+        markers={[{ x: 60, y: 150, at: 200 }, { x: 510, y: 370, at: 352 }, { x: 920, y: 150, at: 506 }]}
+        dashed={[{ y: 370, x1: 510, x2: 900, at: 515 }, { y: 150, x1: 520, x2: 900, at: 515 }]}
+        arrows={[{ x: 888, y1: 370, y2: 150, at: 522, color: C.red, dur: 16 }]}
       />
-      <Bubble x={8} y={54} bg={C.goldBg} w={210} at={164}>積立で<br />1,000万円に</Bubble>
-      <Bubble x={360} y={384} bg="#fff" bd={C.orange} w={240} at={377}>新しい取得価格<br />600万円</Bubble>
-      <Bubble x={720} y={46} bg={C.goldBg} w={240} at={539}>回復して売却<br />1,000万円</Bubble>
-      <ZoneLabel x={64} top={492} text="亡くなった方のNISA" color={C.blue} at={170} />
-      <ZoneLabel x={360} top={492} text="死亡・相続発生" color={C.orange} at={380} />
-      <ZoneLabel x={660} top={492} text="相続人の課税口座" color={C.red} at={540} />
-      <Pop at={200} style={{ position: "absolute", left: 70, top: 300 }}><GenImg name="nisa_mascot_worry" w={150} at={200} /></Pop>
+      <Bubble x={8} y={52} bg={C.goldBg} w={210} at={200}>積立で<br />1,000万円に</Bubble>
+      <Bubble x={356} y={384} bg="#fff" bd={C.orange} w={240} at={352}>新しい取得価格<br />600万円</Bubble>
+      <Bubble x={716} y={44} bg={C.goldBg} w={244} at={506}>回復して売却<br />1,000万円</Bubble>
+      <Bubble x={744} y={250} bg="#fff" color={C.red} bd={C.red} w={132} at={528}>＋400万</Bubble>
+      <ZoneLabel x={64} top={492} text="亡くなった方のNISA" color={C.blue} at={200} />
+      <ZoneLabel x={360} top={492} text="死亡・相続発生" color={C.orange} at={352} />
+      <ZoneLabel x={660} top={492} text="相続人の課税口座" color={C.red} at={506} />
+      <GenImg name="nisa_mascot_worry" w={148} at={360} style={{ position: "absolute", left: 66, top: 322 }} />
     </div>
     {/* 山場のキメ：400万に約81万円課税 */}
     <div style={{ position: "relative", marginTop: 30, height: 130, display: "flex", justifyContent: "center", alignItems: "center" }}>
-      <Burst at={560} color={C.red} size={520} style={{ left: "50%", top: "50%" }} />
-      <Pap at={560}>
+      <Burst at={544} color={C.red} size={520} style={{ left: "50%", top: "50%" }} />
+      <Pap at={544}>
         <div style={{ background: C.red, borderRadius: 18, padding: "16px 36px", textAlign: "center", boxShadow: "0 12px 26px rgba(224,72,59,0.3)" }}>
           <div style={{ fontSize: 30, fontWeight: 900, color: "#fff" }}>増えた<b style={{ fontSize: 44 }}>400万</b>に課税</div>
-          <div style={{ fontSize: 56, fontWeight: 900, color: "#fff", lineHeight: 1 }}>約<NumCount to={81} at={562} />万円</div>
+          <div style={{ fontSize: 56, fontWeight: 900, color: "#fff", lineHeight: 1 }}>約<NumCount to={81} at={546} />万円</div>
         </div>
       </Pap>
     </div>
-    <Drop at={600} style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+    <Drop at={578} style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
       <div style={{ width: 920, background: "#fff", border: `3px solid ${C.red}`, borderRadius: 16, padding: "14px 22px", textAlign: "center", fontWeight: 800, fontSize: 28, color: C.ink, lineHeight: 1.4 }}>
-        取得価格が600万に下がる → 死亡後に増えた<b style={{ color: C.red }}>400万</b>に<Hi at={620} color={C.red}>金融所得課税 20.315%</Hi>
+        取得価格が600万に下がる → 死亡後に増えた<b style={{ color: C.red }}>400万</b>に<Hi at={600} color={C.red}>金融所得課税 20.315%</Hi>
       </div>
       <div style={{ fontSize: 23, fontWeight: 700, color: C.sub }}>※戻っただけでも課税／旧つみたて・旧一般NISAも同じ</div>
     </Drop>
@@ -330,32 +380,37 @@ const PageGraphGain: React.FC = () => (
   <div style={{ paddingTop: 36 }}>
     <Head kicker="注意点③（ここがカギ）" title={<>亡くなった日に<span style={{ color: C.green }}>増えていたら</span>？</>} kc={C.green} />
     <div style={{ position: "relative", width: 980, margin: "22px auto 0" }}>
+      {/* 線は喋りに同期：元本500万→死亡日1,000万へ上昇、そのまま引き継ぐ */}
       <GraphFrame
         zones={[340, 580]}
-        path="M60,390 C160,340 240,310 300,300 C385,282 410,175 470,150 L580,150 C700,150 820,150 920,150"
-        markers={[{ x: 60, y: 390 }, { x: 470, y: 150 }]}
-        dashed={[{ y: 390, x1: 60, x2: 470 }, { y: 150, x1: 60, x2: 470 }]}
-        drawAt={70} arrowAt={144}
+        segs={[
+          { d: "M60,390 C160,340 240,310 300,300 C385,282 410,175 470,150", from: 100, to: 128 },
+          { d: "M470,150 L580,150 C700,150 820,150 920,150", from: 130, to: 150 },
+        ]}
+        markers={[{ x: 60, y: 390, at: 90 }, { x: 470, y: 150, at: 128 }]}
+        dashed={[{ y: 390, x1: 60, x2: 520, at: 132 }, { y: 150, x1: 60, x2: 520, at: 132 }]}
+        arrows={[{ x: 510, y1: 390, y2: 150, at: 136, color: C.green, dur: 16 }]}
       />
-      <Bubble x={14} y={320} bg={C.goldBg} w={210} at={70}>積立元本<br />500万円</Bubble>
-      <Bubble x={360} y={46} bg={C.goldBg} w={240} at={100}>新しい取得価格<br />1,000万円</Bubble>
-      <ZoneLabel x={64} top={492} text="亡くなった方のNISA" color={C.blue} at={76} />
-      <ZoneLabel x={360} top={492} text="死亡・相続発生" color={C.orange} at={110} />
-      <ZoneLabel x={660} top={492} text="相続人の課税口座" color={C.red} at={160} />
-      <Pop at={130} style={{ position: "absolute", left: 770, top: 290 }}><GenImg name="nisa_mascot_happy" w={150} at={130} /></Pop>
+      <Bubble x={48} y={404} bg={C.goldBg} w={200} at={90}>積立元本<br />500万円</Bubble>
+      <Bubble x={356} y={44} bg={C.goldBg} w={244} at={128}>新しい取得価格<br />1,000万円</Bubble>
+      <Bubble x={524} y={244} bg="#fff" color={C.green} bd={C.green} w={132} at={142}>＋500万</Bubble>
+      <ZoneLabel x={64} top={492} text="亡くなった方のNISA" color={C.blue} at={90} />
+      <ZoneLabel x={360} top={492} text="死亡・相続発生" color={C.orange} at={128} />
+      <ZoneLabel x={660} top={492} text="相続人の課税口座" color={C.red} at={150} />
+      <GenImg name="nisa_mascot_happy" w={148} at={136} style={{ position: "absolute", left: 772, top: 300 }} />
     </div>
     <div style={{ position: "relative", marginTop: 30, height: 130, display: "flex", justifyContent: "center", alignItems: "center" }}>
-      <Burst at={146} color={C.green} size={520} style={{ left: "50%", top: "50%" }} />
-      <Pap at={146}>
+      <Burst at={160} color={C.green} size={520} style={{ left: "50%", top: "50%" }} />
+      <Pap at={160}>
         <div style={{ background: C.green, borderRadius: 18, padding: "16px 40px", textAlign: "center", boxShadow: "0 12px 26px rgba(46,158,107,0.3)" }}>
           <div style={{ fontSize: 30, fontWeight: 900, color: "#fff" }}>増えた利益</div>
-          <div style={{ fontSize: 56, fontWeight: 900, color: "#fff", lineHeight: 1 }}><NumCount to={500} at={148} />万円は非課税</div>
+          <div style={{ fontSize: 56, fontWeight: 900, color: "#fff", lineHeight: 1 }}><NumCount to={500} at={162} />万円は非課税</div>
         </div>
       </Pap>
     </div>
-    <Drop at={170} style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+    <Drop at={184} style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
       <div style={{ width: 920, background: "#fff", border: `3px solid ${C.green}`, borderRadius: 16, padding: "14px 22px", textAlign: "center", fontWeight: 800, fontSize: 28, color: C.ink, lineHeight: 1.4 }}>
-        亡くなった日までの値上がりは<Hi at={188} color={C.green}>非課税で確定</Hi>＝NISAの良さは活きる
+        亡くなった日までの値上がりは<Hi at={202} color={C.green}>非課税で確定</Hi>＝NISAの良さは活きる
       </div>
       <div style={{ fontSize: 23, fontWeight: 700, color: C.sub }}>※死亡後に増えた分・分配金は、売ったときに課税／別途 死亡日の時価に相続税</div>
     </Drop>
