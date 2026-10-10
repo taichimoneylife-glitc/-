@@ -179,6 +179,21 @@ const PageFlow: React.FC = () => (
   </div>
 );
 
+// 小さな流れ用ボックス（受取→売却→買い直し）
+const FlowBox: React.FC<{ hi?: boolean; children: React.ReactNode }> = ({ hi, children }) => (
+  <div style={{ width: 238, background: hi ? C.green : "#fff", color: hi ? "#fff" : C.ink, border: `3px solid ${C.green}`, borderRadius: 16, padding: "16px 8px", textAlign: "center", fontWeight: 900, fontSize: 30, lineHeight: 1.2, boxShadow: "0 6px 14px rgba(46,158,107,0.18)" }}>{children}</div>
+);
+// 金融機関（証券会社）ボックス：銀行アイコン＋社名＋名義
+const FirmBox: React.FC<{ name: string; role: string; at: number; ng?: boolean }> = ({ name, role, at, ng }) => (
+  <Pop at={at}>
+    <div style={{ width: 252, background: "#fff", border: `3px solid ${ng ? C.gray : C.green}`, borderRadius: 16, padding: "12px 8px 10px", textAlign: "center", boxShadow: "0 6px 14px rgba(31,58,95,0.1)" }}>
+      <Img src={staticFile("gen/nisa_bank_building.png")} style={{ width: 72, height: 72, objectFit: "contain", display: "block", margin: "0 auto" }} />
+      <div style={{ fontWeight: 900, fontSize: 32, color: ng ? C.sub : C.ink, marginTop: 2 }}>{name}</div>
+      <div style={{ fontWeight: 800, fontSize: 22, color: C.sub }}>{role}</div>
+    </div>
+  </Pop>
+);
+
 // ───────── P3 ①NISAのままは引き継げない（移動の図）─────────
 const AcctBox: React.FC<{ title: React.ReactNode; sub?: string; nisa?: boolean; at?: number }> = ({ title, sub, nisa, at = 0 }) => (
   <Pop at={at}>
@@ -224,11 +239,17 @@ const PagePoint1: React.FC = () => (
         <span style={{ fontWeight: 900, fontSize: 26, color: C.sub }}>相続する人の名義</span>
       </div>
     </div>
-    <Pop at={300} style={{ marginTop: 10, display: "flex", justifyContent: "center" }}>
-      <div style={{ width: 920, background: C.greenBg, border: `3px solid ${C.green}`, borderRadius: 16, padding: "14px 22px", textAlign: "center", fontWeight: 800, fontSize: 28, color: C.ink, lineHeight: 1.4 }}>
-        非課税で運用したいなら<br /><b style={{ color: C.green }}>課税口座で受取 → 売却 → NISAで買い直し</b>
-      </div>
-    </Pop>
+    {/* どうしても非課税で運用したいなら…を“喋りながら線で”見せる（テロップ読み上げにしない）*/}
+    <Drop at={466} style={{ marginTop: 12, textAlign: "center", fontSize: 30, fontWeight: 900, color: C.ink }}>
+      どうしても<span style={{ color: C.green }}>非課税</span>で運用したいなら…
+    </Drop>
+    <div style={{ marginTop: 14, display: "flex", justifyContent: "center", alignItems: "center", gap: 4 }}>
+      <Pop at={520}><FlowBox>課税口座で<br />受け取る</FlowBox></Pop>
+      <ArrowLine at={538} dir="right" len={50} color={C.green} w={7} />
+      <Pop at={552}><FlowBox>売却する</FlowBox></Pop>
+      <ArrowLine at={570} dir="right" len={50} color={C.green} w={7} />
+      <Pop at={584}><FlowBox hi>NISAで<br />買い直す</FlowBox></Pop>
+    </div>
   </div>
 );
 
@@ -236,29 +257,43 @@ const PagePoint1: React.FC = () => (
 const PagePoint2: React.FC = () => (
   <div style={{ paddingTop: 36 }}>
     <Head kicker="注意点②" title={<><span style={{ color: C.blue }}>同じ金融機関</span>じゃないと移せない</>} />
-    <div style={{ position: "relative", marginTop: 40, display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
-      <GenImg name="nisa_bank_building" w={360} at={20} dir="up" />
+    {/* 同じ証券ならOK */}
+    <div style={{ marginTop: 28, display: "flex", justifyContent: "center", alignItems: "center", gap: 4 }}>
+      <FirmBox name="〇〇証券" role="亡くなった方" at={70} />
+      <ArrowLine at={86} dir="right" len={46} color={C.green} w={7} />
+      <FirmBox name="〇〇証券" role="相続人" at={96} />
+      <Pop at={116} style={{ width: 148, textAlign: "center" }}>
+        <div style={{ fontSize: 50, fontWeight: 900, color: C.green, lineHeight: 0.9 }}>○</div>
+        <div style={{ fontSize: 26, fontWeight: 900, color: C.green }}>移せる</div>
+      </Pop>
     </div>
-    <div style={{ marginTop: 40, display: "flex", justifyContent: "center", alignItems: "center", gap: 22 }}>
-      <Pop at={83}><div style={{ width: 340, background: "#fff", border: `3px solid ${C.line}`, borderRadius: 18, padding: "26px 10px", textAlign: "center", fontWeight: 900, fontSize: 36, color: C.ink, lineHeight: 1.25 }}>亡くなった人の<br />口座</div></Pop>
-      <ArrowLine at={110} dir="right" len={70} color={C.green} w={7} />
-      <Pop at={120}><div style={{ width: 380, background: C.greenBg, border: `4px solid ${C.green}`, borderRadius: 18, padding: "26px 10px", textAlign: "center", fontWeight: 900, fontSize: 36, color: C.ink, lineHeight: 1.25 }}>相続人の口座<br /><span style={{ fontSize: 26, color: C.green }}>（同じ金融機関）</span></div></Pop>
+    {/* 別の証券はダメ */}
+    <div style={{ marginTop: 18, display: "flex", justifyContent: "center", alignItems: "center", gap: 4 }}>
+      <FirmBox name="〇〇証券" role="亡くなった方" at={140} />
+      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+        <ArrowLine at={156} dir="right" len={46} color={C.gray} w={7} />
+        <Pop at={170} style={{ position: "absolute", left: 20, top: "50%", transform: "translateY(-55%)" }}><span style={{ fontSize: 42, fontWeight: 900, color: C.red }}>✕</span></Pop>
+      </div>
+      <FirmBox name="△△証券" role="相続人" at={150} ng />
+      <Pop at={182} style={{ width: 148, textAlign: "center" }}>
+        <div style={{ fontSize: 50, fontWeight: 900, color: C.red, lineHeight: 0.9 }}>✕</div>
+        <div style={{ fontSize: 26, fontWeight: 900, color: C.red }}>移せない</div>
+      </Pop>
     </div>
-    <Pop at={178} style={{ marginTop: 56, display: "flex", justifyContent: "center" }}>
-      <div style={{ width: 920, background: "#fff", border: `4px solid ${C.gold}`, borderRadius: 24, padding: "32px 34px", display: "flex", alignItems: "center", gap: 28, boxShadow: "0 12px 26px rgba(31,58,95,0.1)" }}>
-        <GenImg name="nisa_open_account" w={210} at={190} dir="left" style={{ flexShrink: 0 }} />
-        <div style={{ textAlign: "left" }}>
-          <div style={{ fontWeight: 900, fontSize: 42, color: C.ink, lineHeight: 1.25 }}>口座が無ければ<br />新しく開設が必要</div>
-          <div style={{ position: "relative", display: "inline-block", marginTop: 16 }}>
-            <span style={{ fontWeight: 900, fontSize: 46, color: C.orange }}>今のうちに作っておこう</span>
-            <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }}><CircleMark at={240} w={540} h={120} color={C.orange} /></div>
-          </div>
-        </div>
+    {/* 口座が無ければ開設（ナレ「口座開設が必要」）*/}
+    <Pop at={258} style={{ marginTop: 30, display: "flex", justifyContent: "center" }}>
+      <div style={{ width: 900, background: "#fff", border: `4px solid ${C.gold}`, borderRadius: 24, padding: "22px 28px", display: "flex", alignItems: "center", gap: 24, boxShadow: "0 12px 26px rgba(31,58,95,0.1)" }}>
+        <GenImg name="nisa_open_account" w={176} at={266} dir="left" style={{ flexShrink: 0 }} />
+        <div style={{ textAlign: "left", fontWeight: 900, fontSize: 38, color: C.ink, lineHeight: 1.25 }}>相続人がその口座を持って<br />いなければ、<span style={{ color: C.orange }}>新しく口座開設が必要</span></div>
       </div>
     </Pop>
-    <Drop at={300} style={{ marginTop: 40, textAlign: "center", fontSize: 26, fontWeight: 800, color: C.sub }}>
-      万一のときイチから作るのはバタバタ。元気なうちに準備を。
-    </Drop>
+    {/* 「今のうちに作っておこう」＋丸を同時に（ナレに同期）*/}
+    <div style={{ marginTop: 34, display: "flex", justifyContent: "center" }}>
+      <Pop at={384} style={{ position: "relative", display: "inline-block" }}>
+        <span style={{ fontWeight: 900, fontSize: 50, color: C.orange }}>今のうちに作っておこう</span>
+        <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }}><CircleMark at={384} w={600} h={124} color={C.orange} /></div>
+      </Pop>
+    </div>
   </div>
 );
 
@@ -366,7 +401,7 @@ const PageGraphLoss: React.FC = () => (
         </div>
       </Pap>
     </div>
-    <Drop at={578} style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+    <Drop at={578} style={{ marginTop: 48, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
       <div style={{ width: 920, background: "#fff", border: `3px solid ${C.red}`, borderRadius: 16, padding: "14px 22px", textAlign: "center", fontWeight: 800, fontSize: 28, color: C.ink, lineHeight: 1.4 }}>
         取得価格が600万に下がる → 死亡後に増えた<b style={{ color: C.red }}>400万</b>に<Hi at={600} color={C.red}>金融所得課税 20.315%</Hi>
       </div>
@@ -419,9 +454,9 @@ const PageGraphGain: React.FC = () => (
 
 // ───────── まとめ（やること3つ）─────────
 const TODO = [
-  { no: 1, img: "nisa_tell_family", t: <>どこの金融機関に口座があるか<br />家族に伝える</>, at: 59 },
-  { no: 2, img: "nisa_couple", t: <>夫婦で同じ金融機関の<br />口座を持つ</>, at: 142 },
-  { no: 3, img: "nisa_think", t: <>受け取ったあと、どう使い<br />どう残すかを話しておく</>, at: 200 },
+  { no: 1, img: "nisa_tell_family", t: <>どこの金融機関に口座があるか<br />家族に伝える</>, sub: "どの証券・銀行かメモを残しておく", at: 59 },
+  { no: 2, img: "nisa_couple", t: <>夫婦で同じ金融機関の<br />口座を持つ</>, sub: "万一のとき、移管がスムーズ", at: 142 },
+  { no: 3, img: "nisa_think", t: <>受け取ったあと、どう使い<br />どう残すかを話しておく</>, sub: "持ち続ける？売る？方針を共有", at: 200 },
 ] as const;
 const PageTodo: React.FC = () => (
   <div style={{ paddingTop: 36 }}>
@@ -434,7 +469,10 @@ const PageTodo: React.FC = () => (
               <GenImg name={it.img} w={132} at={it.at} float={5} style={{ maxHeight: 132 }} />
               <span style={{ position: "absolute", left: -8, top: -8, width: 48, height: 48, borderRadius: "50%", background: C.green, color: "#fff", fontSize: 28, fontWeight: 900, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "3px solid #fff" }}>{it.no}</span>
             </div>
-            <div style={{ fontWeight: 900, fontSize: 40, color: C.ink, textAlign: "left", lineHeight: 1.25 }}>{it.t}</div>
+            <div style={{ textAlign: "left" }}>
+              <div style={{ fontWeight: 900, fontSize: 38, color: C.ink, lineHeight: 1.2 }}>{it.t}</div>
+              <div style={{ fontWeight: 800, fontSize: 24, color: C.green, marginTop: 6 }}>{it.sub}</div>
+            </div>
           </div>
         </Drop>
       ))}
