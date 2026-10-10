@@ -167,6 +167,8 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="NisaSozokuDesign" component={NisaSozokuDesign} durationInFrames={NISA_DESIGN_FRAMES} fps={FPS} width={1080} height={1920} defaultProps={{ page: 2 }} />
       {/* ── NISA相続 図解パート本番（アフレコ99.1sに同期） ── */}
       <Composition id="NisaSozokuReel" component={NisaSozokuReel} durationInFrames={NISA_FRAMES} fps={FPS} width={1080} height={1920} defaultProps={{ audio: true, sfx: true }} />
+      {/* 1.1倍にした動画用：効果音のみ・タイミングを1.1倍速に詰めた版（90.5s） */}
+      <Composition id="NisaSozokuSfx11" component={NisaSozokuReel} durationInFrames={Math.round(NISA_FRAMES / 1.1)} fps={FPS} width={1080} height={1920} defaultProps={{ audio: false, sfx: true, rate: 1.1 }} />
       <Composition id="FlowPractice" component={FlowPractice} durationInFrames={FLOW_FRAMES} fps={FPS} width={1080} height={1920} />
       {/* ── 年収の壁の締め：働き損の谷グラフ（本編まとめの後ろに繋げる予定・モック） ── */}
       <Composition id="Hatarakizon" component={Hatarakizon} durationInFrames={HATARAKIZON_FRAMES} fps={FPS} width={1080} height={1920} />

@@ -27,7 +27,8 @@ const A = {
 };
 
 // 1ページ＝図解のみ（イラストは図解の中に埋め込み済み・下帯なし）を時間配置
-export const NisaSozokuReel: React.FC<{ audio?: boolean; sfx?: boolean }> = ({ audio = true, sfx = true }) => {
+// rate=1.1 で効果音のタイミングだけ1.1倍速に詰める（1.1倍にした動画に効果音を合わせる用）。
+export const NisaSozokuReel: React.FC<{ audio?: boolean; sfx?: boolean; rate?: number }> = ({ audio = true, sfx = true, rate = 1 }) => {
   return (
     <AbsoluteFill style={{ fontFamily: FONT, backgroundColor: "#FCFBF7" }}>
       <Sequence from={A.flow} durationInFrames={A.p1 - A.flow}><NisaSozokuDesign page={2} /></Sequence>
@@ -106,7 +107,7 @@ export const NisaSozokuReel: React.FC<{ audio?: boolean; sfx?: boolean }> = ({ a
         { file: "user/u06", at: A.matome + 506, volume: 0.38 },  // ＝基礎控除
         { file: "user/u04", at: A.matome + 548, volume: 0.42 },  // かからない（キメ）
         { file: "finish", at: A.end - 50, volume: 0.44 },        // 締め
-      ]} /> : null}
+      ].map((c) => ({ ...c, at: Math.round(c.at / rate) }))} /> : null}
     </AbsoluteFill>
   );
 };
