@@ -191,10 +191,10 @@ const GraphFrame: React.FC<{ path: string; zones: [number, number, number]; mark
   );
 };
 
-// 損：100→40→100（戻っただけで課税）
+// 損：1,000万→600万→1,000万（戻っただけで課税・積立投信）
 const PageGraphLoss: React.FC = () => (
   <div style={{ paddingTop: 40 }}>
-    <Head kicker="注意点③（カギ）" title={<>値下がり中に相続したら？</>} kc={C.red} />
+    <Head kicker="注意点③（カギ）" title={<>亡くなった日に<span style={{ color: C.red }}>下がっていたら</span>？</>} kc={C.red} />
     <div style={{ position: "relative", width: 960, margin: "22px auto 0" }}>
       <GraphFrame
         zones={[330, 560, 0]}
@@ -203,42 +203,47 @@ const PageGraphLoss: React.FC = () => (
         dashed={[{ y: 150, x1: 60, x2: 900 }, { y: 360, x1: 460, x2: 900 }]}
         gainArrow={{ x: 900, y1: 150, y2: 360, color: C.red }}
       />
-      <Bubble x={20} y={70} bg={C.goldBg}>購入価格<br />100万円</Bubble>
-      <Bubble x={360} y={400} bg={C.goldBg}>新しい取得価格<br />40万円</Bubble>
-      <Bubble x={720} y={60} bg={C.goldBg}>売却価格<br />100万円</Bubble>
-      <Bubble x={770} y={240} bg="#fff" color={C.red} w={170}>60万に<br />約12万円課税</Bubble>
-      <ZoneLabel x={60} text="Aさんの新NISA口座" color={C.blue} />
-      <ZoneLabel x={360} text="死亡・相続発生" color={C.orange} />
-      <ZoneLabel x={640} text="Bさんの特定口座" color={C.red} />
+      <Bubble x={10} y={60} bg={C.goldBg} w={200}>積立で<br />1,000万円に</Bubble>
+      <Bubble x={356} y={400} bg={C.goldBg} w={200}>新しい取得価格<br />600万円</Bubble>
+      <Bubble x={720} y={54} bg={C.goldBg} w={200}>回復して<br />売却 1,000万円</Bubble>
+      <Bubble x={768} y={236} bg="#fff" color={C.red} w={180}>400万に<br />約81万円課税</Bubble>
+      <ZoneLabel x={60} text="亡くなった方のNISA" color={C.blue} />
+      <ZoneLabel x={356} text="死亡・相続発生" color={C.orange} />
+      <ZoneLabel x={636} text="相続人の課税口座" color={C.red} />
     </div>
-    <Pop at={10} style={{ marginTop: 56, display: "flex", justifyContent: "center" }}>
-      <div style={{ background: C.ink, color: "#fff", fontWeight: 900, fontSize: 34, padding: "14px 30px", borderRadius: 16 }}>戻っただけでも、課税される</div>
+    <Pop at={10} style={{ marginTop: 52, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      <div style={{ width: 920, background: C.redBg, border: `2px solid ${C.red}`, borderRadius: 16, padding: "14px 22px", textAlign: "center", fontWeight: 800, fontSize: 28, color: C.ink, lineHeight: 1.4 }}>
+        取得価格が600万に下がる → 死亡後に増えた<b style={{ color: C.red }}>400万</b>に<br /><b style={{ color: C.red }}>金融所得課税 20.315%</b>（＝約81万円）
+      </div>
+      <div style={{ fontSize: 24, fontWeight: 700, color: C.sub }}>※戻っただけでも課税／旧つみたて・旧一般NISAも同じ</div>
     </Pop>
   </div>
 );
 
-// 益：300→500→600（利益200万は非課税）
+// 益：元本500万→死亡日1,000万（利益500万は非課税）
 const PageGraphGain: React.FC = () => (
   <div style={{ paddingTop: 40 }}>
-    <Head kicker="注意点③（カギ）" title={<>値上がり中なら？<span style={{ color: C.green }}>利益は非課税</span></>} kc={C.green} />
+    <Head kicker="注意点③（カギ）" title={<>亡くなった日に<span style={{ color: C.green }}>増えていたら</span>？</>} kc={C.green} />
     <div style={{ position: "relative", width: 960, margin: "22px auto 0" }}>
       <GraphFrame
         zones={[330, 560, 0]}
-        path="M60,380 C160,320 240,300 300,300 C380,300 400,180 460,180 L560,180 C640,180 700,140 760,120 L900,100"
-        markers={[{ x: 60, y: 380 }, { x: 460, y: 180 }, { x: 900, y: 100 }]}
-        dashed={[{ y: 180, x1: 300, x2: 900 }, { y: 100, x1: 760, x2: 900 }]}
+        path="M60,380 C160,330 240,300 300,290 C380,275 410,170 460,150 L560,150 C680,150 800,150 900,150"
+        markers={[{ x: 60, y: 380 }, { x: 460, y: 150 }]}
+        dashed={[{ y: 380, x1: 60, x2: 460 }, { y: 150, x1: 60, x2: 460 }]}
+        gainArrow={{ x: 60, y1: 380, y2: 150, color: C.green }}
       />
-      <Bubble x={18} y={320} bg={C.goldBg}>購入価格<br />300万円</Bubble>
-      <Bubble x={360} y={70} bg={C.goldBg}>新しい取得価格<br />500万円</Bubble>
-      <Bubble x={740} y={30} bg={C.goldBg}>売却価格<br />600万円</Bubble>
-      <Bubble x={560} y={240} bg={C.greenBg} color={C.green} w={200}>200万円は<br />非課税</Bubble>
-      <Bubble x={770} y={120} bg="#fff" color={C.red} w={160}>100万に課税</Bubble>
-      <ZoneLabel x={60} text="Aさんの新NISA口座" color={C.blue} />
-      <ZoneLabel x={360} text="死亡・相続発生" color={C.orange} />
-      <ZoneLabel x={640} text="Bさんの特定口座" color={C.red} />
+      <Bubble x={18} y={320} bg={C.goldBg} w={190}>積立元本<br />500万円</Bubble>
+      <Bubble x={356} y={54} bg={C.goldBg} w={210}>新しい取得価格<br />1,000万円</Bubble>
+      <Bubble x={120} y={210} bg={C.greenBg} color={C.green} w={210}>増えた利益<br />500万円は非課税</Bubble>
+      <ZoneLabel x={60} text="亡くなった方のNISA" color={C.blue} />
+      <ZoneLabel x={356} text="死亡・相続発生" color={C.orange} />
+      <ZoneLabel x={636} text="相続人の課税口座" color={C.red} />
     </div>
-    <Pop at={10} style={{ marginTop: 56, display: "flex", justifyContent: "center" }}>
-      <div style={{ background: C.green, color: "#fff", fontWeight: 900, fontSize: 32, padding: "14px 28px", borderRadius: 16, textAlign: "center" }}>亡くなるまでの利益は非課税＝NISAの良さは活きる</div>
+    <Pop at={10} style={{ marginTop: 52, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      <div style={{ width: 920, background: C.greenBg, border: `2px solid ${C.green}`, borderRadius: 16, padding: "14px 22px", textAlign: "center", fontWeight: 800, fontSize: 28, color: C.ink, lineHeight: 1.4 }}>
+        亡くなった日までの値上がりは<b style={{ color: C.green }}>非課税で確定</b>＝NISAの良さは活きる
+      </div>
+      <div style={{ fontSize: 24, fontWeight: 700, color: C.sub }}>※死亡後に増えた分・分配金は、売ったときに課税／別途 死亡日の時価に相続税</div>
     </Pop>
   </div>
 );
