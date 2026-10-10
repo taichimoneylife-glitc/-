@@ -262,8 +262,13 @@ const PageTodo: React.FC = () => (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24, marginTop: 40 }}>
       <Pop at={2}><TodoCard no={1} emoji="🗣️" title={<>どこの金融機関に口座があるか<br />家族に伝える</>} /></Pop>
       <Pop at={6}><TodoCard no={2} emoji="🏦" title={<>夫婦で同じ金融機関の<br />口座を持つ</>} /></Pop>
-      <Pop at={10}><TodoCard no={3} emoji="🧭" title={<>相続後、持つのか売るのか<br />話しておく</>} /></Pop>
+      <Pop at={10}><TodoCard no={3} emoji="💬" title={<>受け取ったあと、どう使い<br />どう残すかを話しておく</>} /></Pop>
     </div>
+    <Pop at={298} style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
+      <div style={{ width: 900, background: C.goldBg, border: `2px solid ${C.gold}`, borderRadius: 16, padding: "16px 22px", textAlign: "center", fontWeight: 800, fontSize: 27, color: C.ink, lineHeight: 1.45 }}>
+        ちなみに、NISAの資産も<b style={{ color: C.orange }}>相続税</b>の対象<br /><span style={{ fontSize: 24, color: C.sub }}>〔3,000万＋600万×法定相続人〕の基礎控除内ならかからない</span>
+      </div>
+    </Pop>
   </div>
 );
 

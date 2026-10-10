@@ -25,6 +25,7 @@ import { InfureReel, INFURE_FRAMES } from "./InfureReel";
 import { TalkMotionLand, LAND_FRAMES } from "./TalkMotionLand";
 import { TalkReelTaichi, TALKT_FRAMES } from "./TalkReelTaichi";
 import { NisaSozokuDesign, NISA_DESIGN_FRAMES } from "./NisaSozokuDesign";
+import { NisaSozokuReel, NISA_FRAMES } from "./NisaSozokuReel";
 import { Hatarakizon, HATARAKIZON_FRAMES } from "./Hatarakizon";
 import { KabeBranch, KABEBRANCH_FRAMES } from "./KabeBranch";
 import { FlowPractice, FLOW_FRAMES } from "./FlowPractice";
@@ -164,6 +165,8 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="TalkReelTaichi" component={TalkReelTaichi} durationInFrames={TALKT_FRAMES} fps={FPS} width={1080} height={1920} defaultProps={{ audio: true }} />
       {/* ── NISA相続 図解設計図（静止画レビュー用・pageで1枚ずつ） ── */}
       <Composition id="NisaSozokuDesign" component={NisaSozokuDesign} durationInFrames={NISA_DESIGN_FRAMES} fps={FPS} width={1080} height={1920} defaultProps={{ page: 2 }} />
+      {/* ── NISA相続 図解パート本番（アフレコ99.1sに同期） ── */}
+      <Composition id="NisaSozokuReel" component={NisaSozokuReel} durationInFrames={NISA_FRAMES} fps={FPS} width={1080} height={1920} defaultProps={{ audio: true, sfx: true }} />
       <Composition id="FlowPractice" component={FlowPractice} durationInFrames={FLOW_FRAMES} fps={FPS} width={1080} height={1920} />
       {/* ── 年収の壁の締め：働き損の谷グラフ（本編まとめの後ろに繋げる予定・モック） ── */}
       <Composition id="Hatarakizon" component={Hatarakizon} durationInFrames={HATARAKIZON_FRAMES} fps={FPS} width={1080} height={1920} />
