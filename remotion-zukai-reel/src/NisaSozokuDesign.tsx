@@ -16,7 +16,7 @@ const C = {
   blue: "#3B7DD8", gold: "#E0A72E", gray: "#AEB8C2", line: "#C9D2DD",
   blueBg: "#E7F0FB", greenBg: "#E4F3EC", redBg: "#FCE6E3", goldBg: "#FBF1D9", orangeBg: "#FBEBD4",
 };
-const TOP_SAFE = 130;
+const TOP_SAFE = 230;
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 export const NISA_DESIGN_FRAMES = 120;
 
