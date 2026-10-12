@@ -35,6 +35,7 @@ import { TalkLaunch, TALKLAUNCH_FRAMES } from "./TalkLaunch";
 import { RefClone, REFCLONE_FRAMES } from "./RefClone";
 import { TalkRefStyle, TALKREF_FRAMES } from "./TalkRefStyle";
 import { Proto, PROTO_FRAMES } from "./Proto";
+import { MilePlaneFlyTest, MILEFLY_FRAMES } from "./MilePlaneFlyTest";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -224,6 +225,9 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
       />
+
+      {/* ── マイル：飛行機フライスルー転換 試作（モーション検証） ── */}
+      <Composition id="MilePlaneFlyTest" component={MilePlaneFlyTest} durationInFrames={MILEFLY_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* ── 最終目的：箱を線でつないで1画面に組み上げる連結図解 ── */}
       <Composition
