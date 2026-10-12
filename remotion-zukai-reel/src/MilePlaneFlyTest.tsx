@@ -123,11 +123,11 @@ const Page1: React.FC = () => {
   const hs = spring({ frame: frame - 4, fps, config: { damping: 13 } });
 
   // 飛行機の接近（加速）：遠く小さく → ぐんぐん手前へ
-  const ap = interpolate(frame, [6, 74], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.in(Easing.cubic) });
-  const planeScale = interpolate(ap, [0, 1], [0.16, 2.9]);
-  const planeY = interpolate(ap, [0, 1], [-120, 70]); // 奥（上）から手前（中央やや下）へ
+  const ap = interpolate(frame, [6, 84], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.in(Easing.cubic) });
+  const planeScale = interpolate(ap, [0, 1], [0.16, 6.4]); // ぶつかりそうなくらい巨大化
+  const planeY = interpolate(ap, [0, 1], [-120, 95]); // 奥（上）から手前（衝突寸前の位置）へ
   const bank = Math.sin(frame / 9) * 4; // 軽い揺れ
-  const shake = ap > 0.72 ? Math.sin(frame * 1.9) * (ap - 0.72) * 60 : 0; // 終盤の迫力ブレ
+  const shake = ap > 0.74 ? Math.sin(frame * 2.1) * (ap - 0.74) * 120 : 0; // 直前の迫力ブレ（強め）
   const planeOpacity = interpolate(frame, [4, 10], [0, 1], { extrapolateRight: "clamp" });
 
   // スピードライン（接近で強まる）
@@ -240,8 +240,8 @@ const Page2: React.FC<{ base: number }> = ({ base }) => {
 export const MilePlaneFlyTest: React.FC = () => {
   const frame = useCurrentFrame();
 
-  // 転換：飛行機が画面を覆う瞬間（f≈72）から、シュッと横スライド
-  const slide = interpolate(frame, [72, 86], [0, 1080], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
+  // 転換：飛行機が画面いっぱい（衝突寸前・f≈84）になった瞬間、シュッと横スライド
+  const slide = interpolate(frame, [84, 95], [0, 1080], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
 
   return (
     <AbsoluteFill style={{ backgroundColor: C.cream, fontFamily: FONT }}>
@@ -251,20 +251,24 @@ export const MilePlaneFlyTest: React.FC = () => {
           <Page1 />
         </div>
         <div style={{ position: "absolute", left: 1080, top: 0, width: 1080, height: 1920 }}>
-          <Page2 base={80} />
+          <Page2 base={90} />
         </div>
       </div>
+
+      {/* 衝突寸前のフラッシュ（抜けの演出） */}
+      <AbsoluteFill style={{ backgroundColor: "#FFFFFF", pointerEvents: "none",
+        opacity: interpolate(frame, [82, 86, 93], [0, 0.6, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }} />
 
       {/* 効果音（中音主役・高音はキメ1回） */}
       <SfxTrack
         gain={1}
         cues={[
           { file: "user/u05", at: 4, volume: 0.36 },   // 飛行機 出現
-          { file: "user/u07", at: 66, volume: 0.46 },  // 接近ピーク＝大転換
-          { file: "user/u04", at: 90, volume: 0.42 },  // 到着キメ（高音1回）
-          { file: "user/u02s", at: 100, volume: 0.36 }, // 時計台
-          { file: "user/u02s", at: 112, volume: 0.36 }, // グルメ
-          { file: "user/u02s", at: 124, volume: 0.36 }, // 家族
+          { file: "user/u07", at: 76, volume: 0.48 },  // 接近ピーク＝大転換（衝突寸前）
+          { file: "user/u04", at: 94, volume: 0.42 },  // 到着キメ（高音1回）
+          { file: "user/u02s", at: 104, volume: 0.36 }, // 時計台
+          { file: "user/u02s", at: 116, volume: 0.36 }, // グルメ
+          { file: "user/u02s", at: 128, volume: 0.36 }, // 家族
         ]}
       />
     </AbsoluteFill>
