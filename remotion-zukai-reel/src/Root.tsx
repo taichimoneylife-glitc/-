@@ -36,6 +36,7 @@ import { RefClone, REFCLONE_FRAMES } from "./RefClone";
 import { TalkRefStyle, TALKREF_FRAMES } from "./TalkRefStyle";
 import { Proto, PROTO_FRAMES } from "./Proto";
 import { MilePlaneFlyTest, MILEFLY_FRAMES } from "./MilePlaneFlyTest";
+import { TalkOverlayTest, TALKOV_FRAMES } from "./TalkOverlayTest";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -225,6 +226,9 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
       />
+
+      {/* ── トークリール・オーバーレイ編集テスト（実写＋語同期字幕＋カード） ── */}
+      <Composition id="TalkOverlayTest" component={TalkOverlayTest} durationInFrames={TALKOV_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* ── マイル：飛行機フライスルー転換 試作（モーション検証） ── */}
       <Composition id="MilePlaneFlyTest" component={MilePlaneFlyTest} durationInFrames={MILEFLY_FRAMES} fps={FPS} width={1080} height={1920} />

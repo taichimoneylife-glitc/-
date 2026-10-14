@@ -4,3 +4,6 @@ out/
 *.log
 .DS_Store
 .claude/settings.local.json
+
+# 個人の実写テスト素材（リポジトリに入れない）
+public/talktest.mp4
