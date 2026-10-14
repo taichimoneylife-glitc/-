@@ -1,210 +1,219 @@
 import React from "react";
-import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
-import { FONT } from "./components/font";
+import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring, Easing } from "remotion";
+import { FONT_ROUND } from "./components/font";
 import { SfxTrack } from "./components/sfx";
 
 // ═══════════════════════════════════════════════════════════════════
-// トークリール・オーバーレイ編集（実写 talktest.mp4 の上・NISA相続の冒頭18.6s）
-//   参考リール級の密度：ウィンドウカード／タイプライタ／閃光バッジ／ゲームHUD調／
-//   手描き連結図＋✕スタンプ／ダークチェックリスト＋✓／縁取りキーワード字幕。
-//   語タイムスタンプ(whisper)に同期。実写素材は .gitignore 済み。
+// トークリール・オーバーレイ編集 v3（実写 talktest.mp4・NISA相続の冒頭18.6s）
+//   丸ゴシック太字／本物っぽい証券アプリUI／スライドイン＋スナップ／ケンバーンズ＋
+//   グレーディング／ダークチェックリスト＋✓／NISA口座✕図＋要注意スタンプ／
+//   大きな縁取りキーワード字幕（語同期）。実写素材は .gitignore 済み。
 // ═══════════════════════════════════════════════════════════════════
 
+const F = FONT_ROUND;          // 丸ゴシック太字
 const FPS = 30;
 export const TALKOV_FRAMES = 560;
 const s2f = (s: number) => Math.round(s * FPS);
 
 const C = {
-  green: "#2FA36B", navy: "#20283A", red: "#E23B2E", yellow: "#FFC21E", lime: "#7FD44A",
-  ink: "#20283A", line: "#D8DEE8", dark: "#0E1626", dark2: "#15213A",
+  green: "#18B36B", greenD: "#0E7A47", navy: "#1C2436", red: "#F0452E", yellow: "#FFC21E",
+  lime: "#86E05A", ink: "#1C2436", dark: "#0C1322", dark2: "#141E33", chip: "#1A2435",
 };
 
-const useS = (delay: number, dur = 8, cfg: Parameters<typeof spring>[0]["config"] = { damping: 12, stiffness: 160, mass: 0.7 }) => {
-  const f = useCurrentFrame(); const { fps } = useVideoConfig();
-  return spring({ frame: f - delay, fps, config: cfg, durationInFrames: dur });
-};
-const Float: React.FC<{ delay?: number; amp?: number; style?: React.CSSProperties; until?: number; children: React.ReactNode }> = ({ delay = 0, amp = 6, style, until, children }) => {
-  const f = useCurrentFrame(); const s = useS(delay);
-  if (f < delay - 2 || (until && f > until + 12)) return null;
-  const bob = Math.sin(((f - delay) / FPS) * 2 * Math.PI * 0.3) * amp;
-  const out = until ? interpolate(f, [until, until + 12], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 1;
-  return <div style={{ opacity: Math.min(1, s * 1.8) * out, transform: `translateY(${(1 - s) * 22 + bob}px) scale(${s})`, ...style }}>{children}</div>;
+// スライドイン＋スプリング（dir: 'l'|'r'|'u'|'d'）
+const Slide: React.FC<{ delay: number; until?: number; dir?: "l" | "r" | "u" | "d"; dist?: number; amp?: number; style?: React.CSSProperties; children: React.ReactNode }> =
+  ({ delay, until, dir = "u", dist = 60, amp = 5, style, children }) => {
+    const f = useCurrentFrame(); const { fps } = useVideoConfig();
+    if (f < delay - 2 || (until && f > until + 12)) return null;
+    const s = spring({ frame: f - delay, fps, config: { damping: 14, stiffness: 180, mass: 0.7 }, durationInFrames: 9 });
+    const out = until ? interpolate(f, [until, until + 12], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 1;
+    const off = (1 - s) * dist;
+    const tx = dir === "l" ? -off : dir === "r" ? off : 0;
+    const ty = (dir === "u" ? off : dir === "d" ? -off : 0) + Math.sin(((f - delay) / FPS) * 2 * Math.PI * 0.28) * amp;
+    return <div style={{ position: "absolute", opacity: Math.min(1, s * 1.9) * out, transform: `translate(${tx}px,${ty}px)`, ...style }}>{children}</div>;
 };
 const Pop: React.FC<{ delay: number; until?: number; style?: React.CSSProperties; children: React.ReactNode }> = ({ delay, until, style, children }) => {
-  const f = useCurrentFrame(); const s = useS(delay);
+  const f = useCurrentFrame(); const { fps } = useVideoConfig();
   if (f < delay - 2 || (until && f > until + 12)) return null;
+  const s = spring({ frame: f - delay, fps, config: { damping: 10, stiffness: 200, mass: 0.7 }, durationInFrames: 8 });
   const out = until ? interpolate(f, [until, until + 12], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 1;
-  return <div style={{ opacity: Math.min(1, s * 2) * out, transform: `scale(${s})`, ...style }}>{children}</div>;
+  return <div style={{ position: "absolute", opacity: Math.min(1, s * 2) * out, transform: `scale(${s})`, ...style }}>{children}</div>;
 };
-const Dots = () => <div style={{ display: "flex", gap: 8 }}>{["#FF5F57", "#FEBC2E", "#28C840"].map((c) => <div key={c} style={{ width: 14, height: 14, borderRadius: "50%", background: c }} />)}</div>;
+const Dots = () => <div style={{ display: "flex", gap: 8 }}>{["#FF5F57", "#FEBC2E", "#28C840"].map((c) => <div key={c} style={{ width: 13, height: 13, borderRadius: "50%", background: c }} />)}</div>;
 
-const Win: React.FC<{ delay: number; until?: number; title?: React.ReactNode; dark?: boolean; glow?: string; w?: number; style?: React.CSSProperties; children: React.ReactNode }> = ({ delay, until, title, dark, glow, w = 720, style, children }) => (
-  <Float delay={delay} until={until} style={{ width: w, position: "absolute", ...style }}>
-    <div style={{ borderRadius: 18, overflow: "hidden", background: dark ? "#1C1C20" : "#F6F6F9", boxShadow: glow ? `0 0 0 3px ${glow}, 0 14px 34px rgba(0,0,0,0.33)` : "0 14px 34px rgba(0,0,0,0.3)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 15px", background: dark ? "#2A2A2E" : "#E7E7EC" }}>
-        <Dots />{title && <div style={{ fontSize: 20, fontWeight: 700, color: dark ? "#D6D6DA" : "#55596A" }}>{title}</div>}
+// ── 本物っぽい証券アプリ画面 ───────────────────────────
+const SecApp: React.FC<{ frame: number }> = ({ frame }) => {
+  // 評価額のカウントアップ＋グラフ描画
+  const grow = interpolate(frame, [s2f(3.7), s2f(5.0)], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const val = Math.round(5_000_000 * grow);
+  const pts = [0, 18, 10, 34, 26, 48, 40, 68, 60, 86];
+  const path = pts.map((y, i) => `${i === 0 ? "M" : "L"}${(i / (pts.length - 1)) * 480},${110 - y}`).join(" ");
+  const dashLen = 900;
+  return (
+    <div style={{ width: 520, borderRadius: 30, background: "#0B1020", padding: 18, boxShadow: "0 22px 50px rgba(0,0,0,0.45)", border: "1px solid #223" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 6px 14px" }}>
+        <div style={{ width: 34, height: 34, borderRadius: "50%", background: C.green }} />
+        <span style={{ fontFamily: F, fontWeight: 800, fontSize: 26, color: "#fff" }}>証券口座</span>
+        <div style={{ flex: 1 }} />
+        <span style={{ fontFamily: F, fontSize: 22, color: "#7E8AA0" }}>●●●</span>
       </div>
-      <div style={{ padding: 18 }}>{children}</div>
-    </div>
-  </Float>
-);
-const Type: React.FC<{ text: string; delay: number; cps?: number; color?: string }> = ({ text, delay, cps = 26, color = "#E8E8EC" }) => {
-  const f = useCurrentFrame(); const n = Math.max(0, Math.floor(((f - delay) / FPS) * cps));
-  const caret = f % 20 < 12 && n <= text.length;
-  return <span style={{ fontSize: 30, fontWeight: 700, color, fontFamily: "monospace, " + FONT, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{text.slice(0, n)}{caret && "|"}</span>;
-};
-const CheckPop: React.FC<{ delay: number; size?: number }> = ({ delay, size = 52 }) => (
-  <Pop delay={delay} style={{ width: size, height: size }}>
-    <div style={{ width: size, height: size, borderRadius: "50%", background: C.lime, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 5px 14px rgba(123,212,74,0.5)" }}>
-      <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24"><path d="M4 13l5 5L20 6" fill="none" stroke="#fff" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-    </div>
-  </Pop>
-);
-const Pip: React.FC<{ x: number; y: number; delay: number; until?: number }> = ({ x, y, delay, until }) => (
-  <Float delay={delay} until={until} amp={5} style={{ position: "absolute", left: x, top: y }}>
-    <div style={{ width: 230, height: 300, borderRadius: 20, overflow: "hidden", border: "4px solid #fff", boxShadow: "0 12px 30px rgba(0,0,0,0.35)" }}>
-      <OffthreadVideo src={staticFile("talktest.mp4")} style={{ width: 460, height: 300, objectFit: "cover", transform: "translateX(-28%)" }} muted />
-    </div>
-  </Float>
-);
-// 閃光「？」バッジ
-const QBurst: React.FC<{ delay: number; until?: number; style?: React.CSSProperties }> = ({ delay, until, style }) => {
-  const f = useCurrentFrame(); const pulse = 0.88 + 0.12 * Math.sin((f - delay) * 0.3);
-  return (
-    <Pop delay={delay} until={until} style={{ position: "absolute", ...style }}>
-      <svg width="150" height="150" viewBox="0 0 150 150" style={{ transform: `scale(${pulse})`, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.3))" }}>
-        <g fill={C.yellow}>{Array.from({ length: 12 }).map((_, i) => <rect key={i} x="71" y="4" width="8" height="20" rx="4" transform={`rotate(${i * 30} 75 75)`} />)}</g>
-        <circle cx="75" cy="75" r="52" fill={C.yellow} />
-        <text x="75" y="100" textAnchor="middle" fontSize="70" fontWeight="900" fill={C.navy} fontFamily={FONT}>？</text>
-      </svg>
-    </Pop>
-  );
-};
-
-// 縁取りキーワード字幕（語同期の色スウィープ付き）
-type Seg = { t: string; c?: string };
-const Cap: React.FC<{ segs: Seg[]; from: number; to: number }> = ({ segs, from, to }) => {
-  const f = useCurrentFrame();
-  if (f < from - 7 || f > to + 16) return null;
-  const s = spring({ frame: f - from, fps: FPS, config: { damping: 16 }, durationInFrames: 8 });
-  const out = interpolate(f, [to + 6, to + 16], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const outline = "3px 3px 0 #20283A,-3px 3px 0 #20283A,3px -3px 0 #20283A,-3px -3px 0 #20283A,0 0 3px #20283A,0 6px 16px rgba(0,0,0,0.45)";
-  return (
-    <div style={{ position: "absolute", left: 40, right: 40, top: 1440, textAlign: "center", opacity: Math.min(1, s * 1.7) * out, transform: `translateY(${(1 - s) * 14}px)` }}>
-      {segs.map((sg, i) => <span key={i} style={{ fontFamily: FONT, fontSize: sg.c ? 70 : 54, fontWeight: 900, color: sg.c ?? "#fff", textShadow: outline, letterSpacing: 0.5 }}>{sg.t}</span>)}
+      <div style={{ background: "#121A2E", borderRadius: 20, padding: "18px 20px" }}>
+        <div style={{ fontFamily: F, fontSize: 24, color: "#8C99B2", fontWeight: 700 }}>評価額</div>
+        <div style={{ fontFamily: F, fontSize: 60, fontWeight: 800, color: "#fff", letterSpacing: 0.5 }}>¥{val.toLocaleString()}</div>
+        <div style={{ fontFamily: F, fontSize: 24, fontWeight: 800, color: C.lime }}>▲ +1,240,000 (+33%)</div>
+        <svg width="480" height="120" viewBox="0 0 480 120" style={{ marginTop: 6 }}>
+          <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={C.green} stopOpacity="0.4" /><stop offset="1" stopColor={C.green} stopOpacity="0" /></linearGradient></defs>
+          <path d={`${path} L480,120 L0,120 Z`} fill="url(#sg)" opacity={grow} />
+          <path d={path} fill="none" stroke={C.lime} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" pathLength={dashLen} strokeDasharray={dashLen} strokeDashoffset={dashLen * (1 - grow)} />
+        </svg>
+      </div>
+      <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+        {[["全世界株式", "¥3,200,000"], ["米国株式", "¥1,800,000"]].map(([a, b], i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", background: "#121A2E", borderRadius: 14, padding: "12px 16px" }}>
+            <span style={{ fontFamily: F, fontSize: 24, fontWeight: 700, color: "#D6DEEC" }}>{a}</span>
+            <div style={{ flex: 1 }} />
+            <span style={{ fontFamily: F, fontSize: 24, fontWeight: 800, color: "#fff" }}>{b}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-// NISA口座ボックス
+// ── NISA口座ボックス ──────────────────────────────────
 const AcctBox: React.FC<{ title: string; sub: string; tone: "ink" | "red" }> = ({ title, sub, tone }) => (
-  <div style={{ background: "#fff", borderRadius: 16, border: `3px solid ${tone === "red" ? C.red : C.navy}`, padding: "14px 20px", textAlign: "center", boxShadow: "0 8px 20px rgba(0,0,0,0.12)" }}>
-    <div style={{ fontFamily: FONT, fontSize: 24, fontWeight: 700, color: "#6A7486" }}>{sub}</div>
-    <div style={{ fontFamily: FONT, fontSize: 40, fontWeight: 900, color: tone === "red" ? C.red : C.navy }}>{title}</div>
+  <div style={{ background: "#fff", borderRadius: 18, border: `3px solid ${tone === "red" ? C.red : C.navy}`, padding: "12px 20px", textAlign: "center", boxShadow: "0 8px 20px rgba(0,0,0,0.12)" }}>
+    <div style={{ fontFamily: F, fontSize: 23, fontWeight: 700, color: "#6A7486" }}>{sub}</div>
+    <div style={{ fontFamily: F, fontSize: 40, fontWeight: 800, color: tone === "red" ? C.red : C.navy }}>{title}</div>
   </div>
 );
+const CheckPop: React.FC<{ delay: number; size?: number }> = ({ delay, size = 46 }) => {
+  const f = useCurrentFrame(); const { fps } = useVideoConfig();
+  const s = spring({ frame: f - delay, fps, config: { damping: 9, stiffness: 220 }, durationInFrames: 7 });
+  return (
+    <div style={{ width: size, height: size, transform: `scale(${Math.min(1.15, s * 1.15)})`, opacity: Math.min(1, s * 2) }}>
+      <div style={{ width: size, height: size, borderRadius: "50%", background: C.lime, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 5px 14px rgba(134,224,90,0.5)" }}>
+        <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24"><path d="M4 13l5 5L20 6" fill="none" stroke="#0B1020" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </div>
+    </div>
+  );
+};
+
+// ── 大きな縁取りキーワード字幕（語同期・キメ語パンチ） ──
+type Seg = { t: string; c?: string };
+const Cap: React.FC<{ segs: Seg[]; from: number; to: number }> = ({ segs, from, to }) => {
+  const f = useCurrentFrame(); const { fps } = useVideoConfig();
+  if (f < from - 7 || f > to + 14) return null;
+  const s = spring({ frame: f - from, fps, config: { damping: 14, stiffness: 200 }, durationInFrames: 7 });
+  const out = interpolate(f, [to + 4, to + 14], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const kick = interpolate(f - from, [0, 4, 9], [0.86, 1.08, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const outline = "4px 4px 0 #14203A,-4px 4px 0 #14203A,4px -4px 0 #14203A,-4px -4px 0 #14203A,0 0 4px #14203A,0 8px 20px rgba(0,0,0,0.5)";
+  return (
+    <div style={{ position: "absolute", left: 30, right: 30, top: 1420, textAlign: "center", opacity: Math.min(1, s * 1.8) * out, transform: `translateY(${(1 - s) * 16}px)` }}>
+      {segs.map((sg, i) => (
+        <span key={i} style={{ display: "inline-block", fontFamily: F, fontWeight: 800, fontSize: sg.c ? 86 : 58, color: sg.c ?? "#fff", textShadow: outline, letterSpacing: 0.5, transform: sg.c ? `scale(${kick})` : undefined, transformOrigin: "center bottom", lineHeight: 1.1 }}>{sg.t}</span>
+      ))}
+    </div>
+  );
+};
 
 export const TalkOverlayTest: React.FC = () => {
   const f = useCurrentFrame();
-  const brOp = interpolate(f, [4, 16, 72, 88], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // ケンバーンズ（ゆっくりズーム）
+  const kb = interpolate(f, [0, 560], [1.05, 1.12]);
   const pf = s2f(12.45);
-  const shake = f > pf && f < pf + 12 ? Math.sin(f * 2.3) * 7 : 0;
+  const shake = f > pf && f < pf + 12 ? Math.sin(f * 2.4) * 8 : 0;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#000", fontFamily: FONT }}>
-      <AbsoluteFill style={{ transform: `translateX(${shake}px)` }}>
-        <OffthreadVideo src={staticFile("talktest.mp4")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+    <AbsoluteFill style={{ backgroundColor: "#000", fontFamily: F }}>
+      {/* 実写＋グレーディング＋ケンバーンズ */}
+      <AbsoluteFill style={{ transform: `translateX(${shake}px) scale(${kb})`, transformOrigin: "50% 42%" }}>
+        <OffthreadVideo src={staticFile("talktest.mp4")} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "contrast(1.07) saturate(1.12) brightness(1.02)" }} />
       </AbsoluteFill>
-      {/* わずかな上下グラデ（字幕とトップUIの可読性） */}
-      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.28) 0%,transparent 22%,transparent 62%,rgba(0,0,0,0.30) 100%)", pointerEvents: "none" }} />
+      <AbsoluteFill style={{ background: "radial-gradient(130% 90% at 50% 40%, transparent 55%, rgba(0,0,0,0.34) 100%)", pointerEvents: "none" }} />
+      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.30) 0%,transparent 20%,transparent 60%,rgba(0,0,0,0.34) 100%)", pointerEvents: "none" }} />
 
-      {/* トピックタブ（常時） */}
-      <Pop delay={8} style={{ position: "absolute", top: 120, left: 54 }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "#fff", borderRadius: 999, padding: "12px 22px", boxShadow: "0 8px 20px rgba(0,0,0,0.22)" }}>
-          <span style={{ width: 16, height: 16, borderRadius: 4, background: C.green }} />
-          <span style={{ fontSize: 34, fontWeight: 900, color: C.navy }}>新NISA × 相続</span>
+      {/* トピックタブ（常時・丸ゴシック） */}
+      <Pop delay={8} style={{ top: 118, left: 50 }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "#fff", borderRadius: 999, padding: "13px 24px", boxShadow: "0 10px 24px rgba(0,0,0,0.25)" }}>
+          <span style={{ width: 18, height: 18, borderRadius: 5, background: C.green }} />
+          <span style={{ fontFamily: F, fontSize: 36, fontWeight: 800, color: C.navy }}>新NISA × 相続</span>
         </div>
       </Pop>
 
-      {/* 冒頭 REC フレーム */}
-      <AbsoluteFill style={{ opacity: brOp, pointerEvents: "none" }}>
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} style={{ position: "absolute", width: 66, height: 66,
-            left: i % 2 === 0 ? 46 : undefined, right: i % 2 === 1 ? 46 : undefined, top: i < 2 ? 260 : undefined, bottom: i >= 2 ? 520 : undefined,
-            borderTop: i < 2 ? "6px solid #fff" : undefined, borderBottom: i >= 2 ? "6px solid #fff" : undefined, borderLeft: i % 2 === 0 ? "6px solid #fff" : undefined, borderRight: i % 2 === 1 ? "6px solid #fff" : undefined }} />
-        ))}
-        <div style={{ position: "absolute", top: 195, right: 52, color: "#fff", fontWeight: 900, fontSize: 26, display: "flex", gap: 10, alignItems: "center" }}><span style={{ width: 14, height: 14, borderRadius: "50%", background: C.red }} />REC・FHD</div>
-      </AbsoluteFill>
-
-      {/* A：もしもの時…（dark memoカード・タイプライタ） */}
-      <Win delay={s2f(1.3)} until={s2f(3.2)} dark w={640} title="memo.txt" style={{ top: 300, left: 70 }}>
-        <div style={{ minHeight: 96 }}><Type text={"もし、パートナーに\n万一のことがあったら…"} delay={s2f(1.5)} color="#E8E8EC" /></div>
-      </Win>
-
-      {/* B：資産はどうなる？（？バッジ＋Winカード） */}
-      <QBurst delay={s2f(3.5)} until={s2f(8.9)} style={{ top: 250, right: 70 }} />
-      <Win delay={s2f(3.6)} until={s2f(8.9)} glow={C.green} w={640} style={{ top: 340, left: 70 }} title="NISA口座">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18, padding: "6px 0" }}>
-          <span style={{ fontSize: 40, fontWeight: 900, color: C.navy }}>遺された資産</span>
-          <span style={{ fontSize: 44, color: "#9AA3B3" }}>→</span>
-          <span style={{ fontSize: 72, fontWeight: 900, color: C.green }}>？</span>
+      {/* A：もしもの時（左からスライド・dark memo） */}
+      <Slide delay={s2f(1.3)} until={s2f(3.2)} dir="l" style={{ top: 300, left: 60, width: 620 }}>
+        <div style={{ borderRadius: 20, overflow: "hidden", background: "#15192260", backdropFilter: "blur(6px)", boxShadow: "0 16px 40px rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.12)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", background: "rgba(255,255,255,0.08)" }}><Dots /><span style={{ fontFamily: F, fontSize: 20, color: "#CBD3E2", fontWeight: 700 }}>もしもの話</span></div>
+          <div style={{ padding: "20px 22px", fontFamily: F, fontWeight: 800, fontSize: 38, color: "#fff", lineHeight: 1.4 }}>もし、パートナーに<br />万一のことが…</div>
         </div>
-      </Win>
+      </Slide>
 
-      {/* 間（5.4–9.4）：注意点の予告チェックリスト＋PiP */}
-      <Pip x={760} y={250} delay={s2f(5.6)} until={s2f(9.2)} />
-      <Win delay={s2f(5.7)} until={s2f(9.2)} dark w={600} style={{ top: 620, left: 70 }} title="この後 解説する注意点">
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {["① 非課税のまま引き継げない", "② 同じ金融機関じゃないと", "③ 引き継ぐ“値段”に注意"].map((t, i) => (
-            <Pop key={i} delay={s2f(5.9) + i * 8} until={s2f(9.2)}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#20242B", borderRadius: 12, padding: "12px 16px", border: "1px solid #2E3952" }}>
-                <span style={{ fontSize: 26, fontWeight: 900, color: "#fff", opacity: 0.9 }}>{t}</span>
-                <div style={{ flex: 1 }} /><span style={{ fontSize: 26, color: C.yellow, fontWeight: 900 }}>?</span>
-              </div>
-            </Pop>
-          ))}
+      {/* B：証券アプリUI（右からスライド）＋？ */}
+      <Slide delay={s2f(3.5)} until={s2f(9.0)} dir="r" dist={80} style={{ top: 250, left: 480 }}>
+        <SecApp frame={f} />
+      </Slide>
+      {/* 資産→？（アプリカードの上に被せる＝相続が起きたら） */}
+      <Pop delay={s2f(4.9)} until={s2f(9.0)} style={{ top: 250, left: 480 }}>
+        <div style={{ width: 520, height: 540, borderRadius: 30, background: "rgba(8,10,20,0.64)", backdropFilter: "blur(2px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
+          <span style={{ fontFamily: F, fontSize: 34, fontWeight: 800, color: "#fff" }}>相続が起きたら</span>
+          <span style={{ fontFamily: F, fontSize: 170, fontWeight: 800, color: C.yellow, textShadow: "5px 5px 0 #14203A", lineHeight: 1 }}>？</span>
         </div>
-      </Win>
-
-      {/* C：相続人（9.4–10.8） 丸マーク＋人物 */}
-      <Pop delay={s2f(9.5)} until={s2f(12.2)} style={{ position: "absolute", top: 320, left: 0, width: 1080, textAlign: "center" }}>
-        <span style={{ display: "inline-block", background: "#fff", borderRadius: 999, padding: "12px 30px", fontSize: 54, fontWeight: 900, color: C.navy, boxShadow: "0 10px 24px rgba(0,0,0,0.2)", border: `4px solid ${C.green}` }}>相続人（配偶者・子）</span>
       </Pop>
 
-      {/* D：山場 NISA口座は引き継げない ✕ */}
-      <Float delay={pf} until={s2f(14.6)} amp={5} style={{ position: "absolute", top: 300, left: 0, width: 1080 }}>
-        <div style={{ margin: "0 auto", width: 900, background: "rgba(255,255,255,0.96)", borderRadius: 24, border: `5px solid ${C.red}`, padding: "26px 28px", boxShadow: "0 18px 44px rgba(0,0,0,0.3)", position: "relative" }}>
+      {/* 間：注意点の予告チェックリスト（下からスライド・stagger） */}
+      <Slide delay={s2f(9.2)} until={s2f(12.2)} dir="d" dist={40} style={{ top: 980, left: 60, width: 640 }}>
+        <div style={{ borderRadius: 18, overflow: "hidden", background: "rgba(12,19,34,0.82)", boxShadow: "0 16px 40px rgba(0,0,0,0.4)" }}>
+          <div style={{ padding: "12px 18px", fontFamily: F, fontWeight: 800, fontSize: 24, color: C.yellow }}>この後 解説する注意点</div>
+          <div style={{ padding: "4px 14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+            {["① 非課税のまま引き継げない", "② 同じ金融機関じゃないと", "③ 引き継ぐ“値段”に注意"].map((t, i) => (
+              <Pop key={i} delay={s2f(9.4) + i * 7} until={s2f(12.2)} style={{ position: "relative" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, background: C.chip, borderRadius: 12, padding: "13px 16px" }}>
+                  <span style={{ fontFamily: F, fontSize: 28, fontWeight: 800, color: "#fff" }}>{t}</span>
+                  <div style={{ flex: 1 }} /><span style={{ fontSize: 26, color: C.yellow, fontWeight: 800 }}>?</span>
+                </div>
+              </Pop>
+            ))}
+          </div>
+        </div>
+      </Slide>
+
+      {/* D：山場 NISA口座は引き継げない ✕（Popで強く） */}
+      <Pop delay={pf} until={s2f(14.6)} style={{ top: 290, left: 90, width: 900 }}>
+        <div style={{ width: 900, background: "rgba(255,255,255,0.97)", borderRadius: 26, border: `6px solid ${C.red}`, padding: "26px 28px", boxShadow: "0 20px 50px rgba(0,0,0,0.35)", position: "relative" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
             <AcctBox sub="亡くなった人の" title="NISA口座" tone="ink" />
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <span style={{ fontSize: 56, color: C.red, fontWeight: 900 }}>✕</span>
+              <span style={{ fontSize: 60, color: C.red, fontWeight: 900 }}>✕</span>
               <span style={{ fontSize: 40, color: "#9AA3B3" }}>→</span>
             </div>
             <AcctBox sub="相続人の" title="NISA口座" tone="red" />
           </div>
-          <div style={{ textAlign: "center", marginTop: 14, fontSize: 46, fontWeight: 900, color: C.red }}>そのままでは引き継げない</div>
-          {/* スタンプ */}
-          <Pop delay={pf + 8} style={{ position: "absolute", top: -28, right: 24, transform: "rotate(-10deg)" }}>
-            <div style={{ border: `5px solid ${C.red}`, color: C.red, borderRadius: 12, padding: "6px 18px", fontSize: 34, fontWeight: 900, background: "rgba(255,255,255,0.9)" }}>要注意</div>
+          <div style={{ textAlign: "center", marginTop: 14, fontFamily: F, fontSize: 50, fontWeight: 800, color: C.red }}>そのままでは引き継げない</div>
+          <Pop delay={pf + 7} style={{ top: -34, left: 688, transform: "rotate(-10deg)" }}>
+            <div style={{ border: `5px solid ${C.red}`, color: C.red, borderRadius: 12, padding: "6px 20px", fontFamily: F, fontSize: 38, fontWeight: 800, background: "rgba(255,255,255,0.94)", whiteSpace: "nowrap" }}>要注意</div>
           </Pop>
         </div>
-      </Float>
+      </Pop>
 
-      {/* E：注意点を解説（ダークチェックリスト締め） */}
-      <Win delay={s2f(14.9)} until={s2f(17.2)} dark w={760} style={{ top: 330, left: 60 }} title={<span style={{ color: C.yellow }}>この動画で解説する3つ</span>}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {["① 非課税のまま引き継げない", "② 同じ金融機関じゃないと移せない", "③ 引き継ぐのは“亡くなった日の値段”"].map((t, i) => (
-            <Pop key={i} delay={s2f(15.0) + i * 9} until={s2f(17.2)}>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, background: "#17241A", borderRadius: 14, padding: "16px 18px", border: "1px solid #2C4A2E" }}>
-                <span style={{ fontSize: 30, fontWeight: 900, color: "#fff" }}>{t}</span>
-                <div style={{ flex: 1 }} /><CheckPop delay={s2f(15.0) + i * 9 + 5} size={42} />
-              </div>
-            </Pop>
-          ))}
+      {/* E：解説する3つ（ダークチェックリスト・下からstagger） */}
+      <Slide delay={s2f(14.9)} until={s2f(17.3)} dir="d" dist={44} style={{ top: 320, left: 54, width: 780 }}>
+        <div style={{ borderRadius: 20, overflow: "hidden", background: "rgba(10,16,30,0.9)", boxShadow: "0 18px 44px rgba(0,0,0,0.45)" }}>
+          <div style={{ padding: "14px 20px", fontFamily: F, fontWeight: 800, fontSize: 30, color: C.yellow }}>この動画で解説する3つ</div>
+          <div style={{ padding: "4px 16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
+            {["① 非課税のまま引き継げない", "② 同じ金融機関じゃないと移せない", "③ 引き継ぐのは“亡くなった日の値段”"].map((t, i) => (
+              <Pop key={i} delay={s2f(15.0) + i * 8} until={s2f(17.3)}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14, background: "#102A1C", borderRadius: 14, padding: "16px 18px", border: "1px solid #1E4A33" }}>
+                  <span style={{ fontFamily: F, fontSize: 31, fontWeight: 800, color: "#fff" }}>{t}</span>
+                  <div style={{ flex: 1 }} /><CheckPop delay={s2f(15.0) + i * 8 + 5} />
+                </div>
+              </Pop>
+            ))}
+          </div>
         </div>
-      </Win>
+      </Slide>
 
-      {/* 語同期・縁取りキーワード字幕 */}
+      {/* 語同期・大きな縁取りキーワード字幕 */}
       <Cap segs={[{ t: "もし、配偶者が" }, { t: "亡くなったら", c: C.red }]} from={s2f(1.39)} to={s2f(2.99)} />
       <Cap segs={[{ t: "新NISAの資産は、" }, { t: "どうなる？", c: C.yellow }]} from={s2f(3.41)} to={s2f(5.41)} />
       <Cap segs={[{ t: "実は、" }, { t: "相続人が", c: C.green }]} from={s2f(9.39)} to={s2f(10.79)} />
@@ -214,8 +223,8 @@ export const TalkOverlayTest: React.FC = () => {
       <SfxTrack gain={1} cues={[
         { file: "user/u05", at: s2f(1.3), volume: 0.24 },
         { file: "user/u03", at: s2f(3.5), volume: 0.26 },
-        { file: "user/u02s", at: s2f(5.8), volume: 0.2 },
-        { file: "user/u02s", at: s2f(6.1), volume: 0.2 },
+        { file: "user/u04", at: s2f(4.9), volume: 0.26 },
+        { file: "user/u02s", at: s2f(9.3), volume: 0.2 },
         { file: "user/u07", at: s2f(12.2), volume: 0.34 },
         { file: "user/u04", at: s2f(12.5), volume: 0.34 },
         { file: "user/u10", at: s2f(14.9), volume: 0.26 },
