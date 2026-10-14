@@ -37,6 +37,7 @@ import { TalkRefStyle, TALKREF_FRAMES } from "./TalkRefStyle";
 import { Proto, PROTO_FRAMES } from "./Proto";
 import { MilePlaneFlyTest, MILEFLY_FRAMES } from "./MilePlaneFlyTest";
 import { TalkOverlayTest, TALKOV_FRAMES } from "./TalkOverlayTest";
+import { PaperCraftDemo, PAPER_FRAMES } from "./PaperCraftDemo";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -226,6 +227,9 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
       />
+
+      {/* ── 紙工作スタイル AさんBさんストーリー デモ ── */}
+      <Composition id="PaperCraftDemo" component={PaperCraftDemo} durationInFrames={PAPER_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* ── トークリール・オーバーレイ編集テスト（実写＋語同期字幕＋カード） ── */}
       <Composition id="TalkOverlayTest" component={TalkOverlayTest} durationInFrames={TALKOV_FRAMES} fps={FPS} width={1080} height={1920} />
