@@ -117,6 +117,34 @@ const Cap: React.FC<{ segs: Seg[]; from: number; to: number }> = ({ segs, from, 
   );
 };
 
+// ── 背景のネオン光ライン（ピンク/紫の筋・常時ドリフト） ──
+const NeonStreaks: React.FC = () => {
+  const f = useCurrentFrame();
+  const d = Math.sin(f / 38) * 16; const d2 = Math.cos(f / 44) * 14;
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none", mixBlendMode: "screen", filter: "blur(3px)" }}>
+      <svg width={1080} height={1920} viewBox="0 0 1080 1920">
+        <g fill="none" strokeLinecap="round">
+          <path d={`M-60 ${130 + d} C 320 50, 720 300, 1160 ${120 - d}`} stroke="#FF7AE0" strokeWidth="7" opacity="0.75" />
+          <path d={`M1160 ${300 - d2} C 820 150, 480 370, -60 ${250 + d2}`} stroke="#B074FF" strokeWidth="5" opacity="0.6" />
+          <path d={`M-60 ${1520 + d2} C 320 1400, 840 1680, 1160 ${1470 - d2}`} stroke="#FF7AE0" strokeWidth="7" opacity="0.6" />
+          <path d={`M1160 ${1720 + d} C 700 1560, 380 1780, -60 ${1650 - d}`} stroke="#8AB4FF" strokeWidth="5" opacity="0.5" />
+        </g>
+      </svg>
+    </AbsoluteFill>
+  );
+};
+// ── 下部 常駐バナー ──
+const BottomBanner: React.FC = () => {
+  const f = useCurrentFrame(); const { fps } = useVideoConfig();
+  const s = spring({ frame: f - 12, fps, config: { damping: 15 }, durationInFrames: 9 });
+  return (
+    <div style={{ position: "absolute", bottom: 176, left: 0, width: 1080, textAlign: "center", opacity: Math.min(1, s * 1.8), transform: `translateY(${(1 - s) * 16}px)` }}>
+      <span style={{ display: "inline-block", background: C.red, color: "#fff", fontFamily: F, fontWeight: 800, fontSize: 38, padding: "14px 32px", borderRadius: 16, boxShadow: "0 10px 24px rgba(240,69,46,0.4)" }}>新NISAの“相続”、知らないと損する</span>
+    </div>
+  );
+};
+
 export const TalkOverlayTest: React.FC = () => {
   const f = useCurrentFrame();
   // ケンバーンズ（ゆっくりズーム）
@@ -132,6 +160,9 @@ export const TalkOverlayTest: React.FC = () => {
       </AbsoluteFill>
       <AbsoluteFill style={{ background: "radial-gradient(130% 90% at 50% 40%, transparent 55%, rgba(0,0,0,0.34) 100%)", pointerEvents: "none" }} />
       <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.30) 0%,transparent 20%,transparent 60%,rgba(0,0,0,0.34) 100%)", pointerEvents: "none" }} />
+
+      {/* シグネチャー：ネオン光ライン */}
+      <NeonStreaks />
 
       {/* トピックタブ（常時・丸ゴシック） */}
       <Pop delay={8} style={{ top: 118, left: 50 }}>
@@ -219,6 +250,9 @@ export const TalkOverlayTest: React.FC = () => {
       <Cap segs={[{ t: "実は、" }, { t: "相続人が", c: C.green }]} from={s2f(9.39)} to={s2f(10.79)} />
       <Cap segs={[{ t: "NISA口座を、" }, { t: "引き継げない", c: C.red }]} from={s2f(12.45)} to={s2f(14.43)} />
       <Cap segs={[{ t: "注意点", c: C.yellow }, { t: "もあるから解説します" }]} from={s2f(14.85)} to={s2f(16.55)} />
+
+      {/* 下部 常駐バナー */}
+      <BottomBanner />
 
       <SfxTrack gain={1} cues={[
         { file: "user/u05", at: s2f(1.3), volume: 0.24 },
