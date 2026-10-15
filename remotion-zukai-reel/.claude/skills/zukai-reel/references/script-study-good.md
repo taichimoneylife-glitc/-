@@ -2,7 +2,7 @@
 
 ## ★★台本を書く前に必ず：実物を"開いて読む"（記憶で書かない）
 新しい台本を書く・直す前に、**毎回必ず**次を**Readで開いて読み**、その"声"に寄せる。※「参考にします」と言うだけで実際に読まずに書く＝毎回ダメ出しされた最大の原因。
-- **最優先の手本（2026-10-09〜）**＝`references/script-win-nenshu-kabe.md`（伸びた年収の壁）＋ `public/car-narration.transcript.txt`（車）。社長指示「今後はこの台本と車を参考に」。
+- **最優先の手本（2026-10-15 確定版）**＝`references/script-win-nenshu-kabe.md`（伸びた年収の壁）＋ `references/script-win-car.md`（車＝社長確定のクリーン版／★乱れた `public/car-narration.transcript.txt` は使わない）。社長指示「今後は必ずこの確定版と過去の台本分析・ナレッジを見てから書く」。
 - 補助：`script_toushi3.md`(投資三大原則)。※がん①は基準にしない。
 
 ### ❌ 今までの失敗＝電報みたいなブツ切り断片

@@ -15,6 +15,13 @@ description: >-
 
 このプロジェクト（`remotion-zukai-reel`）で、ユーザーのアフレコ音声から**音声に完全同期した縦型の図解リール**を作る／直すためのスキル。
 
+## ★★★台本を書く/直す前に必ずReadで開く確定版の手本（2026-10-15 社長指示）
+**記憶で書かない。毎回、次の確定版を実際にReadしてから書く**（読まずに書いて何度もやり直しになった）。
+- `references/script-win-car.md`（車＝社長確定のクリーン版）
+- `references/script-win-nenshu-kabe.md`（年収の壁＝伸びた確定版）
+- 分析＝`references/script-length-guide.md`（文字数・メリハリ実測）＋`references/script-study-good.md`（良い台本の"声"）＋`references/script-structure.md`（構成の型）。
+※ `public/car-narration.transcript.txt` は自動文字起こしで表記が乱れている＝手本にしない。
+
 ## ★★台本の最上位ルール：`references/script-rules-master.md`（2026-10-14 確定）
 台本を書く/直す前に**必ず最初に読む**。要点＝**①解説型（キャラのセリフ・掛け合い・演技NG。物語は“演じず解説する”）②短く無駄なく（足すより削る）③売り込まず知識と価値観で信頼④図解と実写で同じ説明を繰り返さない⑨提出前に9項目を自己添削**。他のどの台本ガイドより優先。
 
