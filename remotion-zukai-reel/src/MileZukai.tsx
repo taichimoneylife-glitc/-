@@ -156,22 +156,22 @@ const SceneB: React.FC = () => {
         {f >= F(11.96) ? <div style={{ position: "absolute", left: 460, top: S[2] + 140, ...B, fontSize: 84, color: A2.ink, transform: `scale(${pop(f, F(11.96))})` }}>＋</div> : null}
         <div style={{ position: "absolute", left: 570, top: S[2] + 260 - interpolate(f, [big, big + 10], [0, 190], out), width: 200, height: interpolate(f, [big, big + 10], [0, 190], out), background: A2.marker, borderRadius: "12px 12px 0 0" }} />
         {f >= big ? <div style={{ position: "absolute", left: 520, top: S[2] + 272, width: 300, textAlign: "center", ...B, fontSize: 30, color: A2.ink }}>まとまったポイント</div> : null}
-        {f >= big + 4 ? <div style={{ position: "absolute", left: 810, top: S[2] + 70, transform: `scale(${pop(f, big + 4)})` }}><Free name="mile_coins" size={190} label="ポイント" /></div> : null}
+        {f >= big + 4 ? <div style={{ position: "absolute", left: 800, top: S[2] + 50, transform: `scale(${pop(f, big + 4)})` }}><Free name="mile_coins" size={220} label="ポイント" /></div> : null}
         {/* 下の線（地面） */}
         {f >= F(11.3) ? <div style={{ position: "absolute", left: 220, top: S[2] + 260, width: 580, height: 5, borderRadius: 3, background: A2.ink, opacity: 0.6 }} /> : null}
 
         <StepHead i={3} title={<>ポイントを<span style={{ color: A2.green }}>マイル</span>に交換</>} />
-        {f >= F(13.98) ? <div style={{ position: "absolute", left: 240, top: S[3] + 50, transform: `scale(${pop(f, F(13.98))})` }}><Free name="mile_coins" size={160} /></div> : null}
+        {f >= F(13.98) ? <div style={{ position: "absolute", left: 240, top: S[3] + 50, transform: `scale(${pop(f, F(13.98))})` }}><Free name="mile_coins" size={190} /></div> : null}
         <Arrow x={430} y={S[3] + 130} w={220} at={F(14.9)} label="交換" />
-        {f >= F(14.9) + 6 ? <div style={{ position: "absolute", left: 680, top: S[3] + 50, transform: `scale(${pop(f, F(14.9) + 6)})` }}><Free name="mile_plane" size={160} bob /></div> : null}
+        {f >= F(14.9) + 6 ? <div style={{ position: "absolute", left: 650, top: S[3] + 30, transform: `scale(${pop(f, F(14.9) + 6)})` }}><Free name="mile_plane" size={200} bob /></div> : null}
         {f >= F(14.9) + 8 ? <div style={{ position: "absolute", left: 855, top: S[3] + 100, ...B, fontSize: 52, color: A2.green }}>マイル</div> : null}
 
         <StepHead i={4} title={<><span style={{ color: A2.green }}>航空券</span>を予約</>} />
-        {f >= F(15.76) ? <div style={{ position: "absolute", left: 240, top: S[4] + 45, transform: `scale(${pop(f, F(15.76))})` }}><Free name="mile_ticket" size={170} label="航空券" /></div> : null}
+        {f >= F(15.76) ? <div style={{ position: "absolute", left: 240, top: S[4] + 45, transform: `scale(${pop(f, F(15.76))})` }}><Free name="mile_ticket" size={200} label="航空券" /></div> : null}
         {f >= F(16.18) ? <div style={{ position: "absolute", left: 460, top: S[4] + 100, ...B, fontSize: 52, color: A2.ink, opacity: interpolate(f - F(16.18), [0, 6], [0, 1], clamp) }}><span style={{ color: A2.green }}>マイル</span>で予約</div> : null}
 
         <StepHead i={5} title={<>家族旅行の<span style={{ color: A2.green }}>飛行機代</span>を大きく抑える</>} />
-        {f >= F(17.2) ? <div style={{ position: "absolute", left: 210, top: S[5] + 50, transform: `scale(${pop(f, F(17.2))})` }}><Free name="mile_family_happy" size={300} label="家族" /></div> : null}
+        {f >= F(17.2) ? <div style={{ position: "absolute", left: 200, top: S[5] + 40, transform: `scale(${pop(f, F(17.2))})` }}><Free name="mile_family_happy" size={330} label="家族" /></div> : null}
         {f >= F(17.7) ? <div style={{ position: "absolute", left: 560, top: S[5] + 80, ...B, fontSize: 36, color: A2.sub }}>飛行機代</div> : null}
         <div style={{ position: "absolute", left: 560, top: S[5] + 135, height: 76, borderRadius: 16, background: price > 0.5 ? A2.green : A2.coral, width: interpolate(f, [F(17.7), F(17.7) + 10], [0, 420], out) * (1 - price * 0.66) }} />
         {f >= F(18.4) ? <div style={{ position: "absolute", left: 560 + 420 * 0.34 + 10, top: S[5] + 135, width: 420 * 0.66 - 10, height: 76, borderRadius: 16, border: `4px dashed ${A2.coral}`, boxSizing: "border-box", opacity: price * 0.8 }} /> : null}

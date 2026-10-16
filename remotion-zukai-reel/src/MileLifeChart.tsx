@@ -52,11 +52,11 @@ const Memory: React.FC<{ i: number; name: string }> = ({ i, name }) => {
   const at = L(41.5) + i * 4;
   if (f < at) return null;
   const s = spring({ frame: f - at, fps, config: { damping: 14, stiffness: 170, mass: 0.6 } });
-  const gx = 300 + (i % 3) * 165, gy = 570 + Math.floor(i / 3) * 165; // 大きいグリッド（150px）
+  const gx = 290 + (i % 3) * 190, gy = 560 + Math.floor(i / 3) * 180; // 大きいグリッド（175px）
   const mx = NOW_X0 + 8 + (i % 3) * 49, my = 640 + Math.floor(i / 3) * 49; // 今ゾーン内のミニ（44px）
   const zc = { x: (NOW_X0 + NOW_X1) / 2 - 75, y: 900 };
   const back = interpolate(f, [L(44.12), L(44.12) + 14], [0, 1], io);
-  const big = 150 / 150, mini = 44 / 150;
+  const big = 175 / 150, mini = 44 / 150;
   const x0 = zc.x + (gx - zc.x) * s, y0 = zc.y + (gy - zc.y) * s;
   const x = x0 + (mx - x0) * back, y = y0 + (my - y0) * back;
   let sc = (0.2 + 0.8 * s) * (big + (mini - big) * back);
@@ -122,15 +122,15 @@ const Chart: React.FC = () => {
       ) : null}
       {/* 教育資金 */}
       {f >= eduAt ? (
-        <div style={{ position: "absolute", left: ax(50) - 150, top: 610, width: 300, textAlign: "center", transform: `scale(${pop(f, eduAt)})` }}>
-          <div style={{ display: "flex", justifyContent: "center" }}><GenSlot name="mile_lp_edu_fund" size={120} /></div>
+        <div style={{ position: "absolute", left: ax(50) - 150, top: 575, width: 300, textAlign: "center", transform: `scale(${pop(f, eduAt)})` }}>
+          <div style={{ display: "flex", justifyContent: "center" }}><GenSlot name="mile_lp_edu_fund" size={160} /></div>
           <div style={{ marginTop: 6 }}><Pill bg={A2.green} size={34}>教育資金</Pill></div>
         </div>
       ) : null}
       {/* 老後資金 */}
       {f >= retAt ? (
         <div style={{ position: "absolute", left: ax(70) - 150, top: 530, width: 300, textAlign: "center", transform: `scale(${pop(f, retAt)})` }}>
-          <div style={{ display: "flex", justifyContent: "center" }}><GenSlot name="mile_lp_retire_fund" size={120} /></div>
+          <div style={{ display: "flex", justifyContent: "center" }}><GenSlot name="mile_lp_retire_fund" size={140} /></div>
           <div style={{ marginTop: 6 }}><Pill bg={A2.coral} size={34}>老後資金</Pill></div>
         </div>
       ) : null}

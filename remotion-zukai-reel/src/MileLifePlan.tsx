@@ -71,7 +71,7 @@ export const Intro: React.FC = () => {
   return (
     <AbsoluteFill style={{ transform: `translateY(${-leave * 260}px)`, opacity: 1 - leave }}>
       <Head text="マイルをすすめる理由" from={L(36.02)} />
-      <In at={L(37.08)} style={{ left: 340, top: 470 }}><Card style={{ padding: 20 }}><GenSlot name="mile_plane" size={360} label="飛行機" /></Card></In>
+      <In at={L(37.08)} style={{ left: 300, top: 450 }}><GenSlot name="mile_plane" size={480} label="飛行機" /></In>
       <In at={L(37.54)} style={{ left: 0, top: 930, width: 1080, textAlign: "center" }}>
         <span style={{ position: "relative", display: "inline-block", ...B, fontSize: 76, color: f >= sAt ? A2.sub : A2.ink }}>
           飛行機代がお得
