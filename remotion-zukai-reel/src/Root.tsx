@@ -38,6 +38,7 @@ import { Proto, PROTO_FRAMES } from "./Proto";
 import { MilePlaneFlyTest, MILEFLY_FRAMES } from "./MilePlaneFlyTest";
 import { TalkOverlayTest, TALKOV_FRAMES } from "./TalkOverlayTest";
 import { PaperCraftDemo, PAPER_FRAMES } from "./PaperCraftDemo";
+import { MileReel, MILE_FRAMES } from "./MileReel";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -45,6 +46,16 @@ import { FPS, TOTAL_FRAMES } from "./config";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      {/* マイル図解リール（大枠・新録音） */}
+      <Composition
+        id="MileReel"
+        component={MileReel}
+        durationInFrames={MILE_FRAMES}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+
       {/* 縦型 9:16（リール / Shorts / TikTok）＝メイン */}
       <Composition
         id="MoneyReel"
