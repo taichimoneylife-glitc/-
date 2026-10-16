@@ -18,10 +18,10 @@ const L = (abs: number) => Math.round((abs - START) * 30);
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const io = { ...clamp, easing: Easing.inOut(Easing.cubic) };
 const out = { ...clamp, easing: Easing.out(Easing.cubic) };
-const B = { fontFamily: FONT, fontWeight: 800 as const };
+export const B = { fontFamily: FONT, fontWeight: 800 as const };
 
 // ── 画像スロット：あれば画像、無ければファイル名入りの点線枠 ──
-const GenSlot: React.FC<{ name: string; size: number; label?: string }> = ({ name, size, label }) =>
+export const GenSlot: React.FC<{ name: string; size: number; label?: string }> = ({ name, size, label }) =>
   GEN_AVAILABLE.has(name) ? (
     <Img src={staticFile(`gen/${name}.png`)} style={{ width: size, height: size, objectFit: "contain" }} />
   ) : (
@@ -32,23 +32,23 @@ const GenSlot: React.FC<{ name: string; size: number; label?: string }> = ({ nam
   );
 
 // C3：やわらかく下から入る
-const useIn = (at: number, dy = 36) => {
+export const useIn = (at: number, dy = 36) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   const s = spring({ frame: f - at, fps, config: { damping: 15, stiffness: 190, mass: 0.6 } });
   return { on: f >= at, style: { opacity: interpolate(f - at, [0, 5], [0, 1], clamp), transform: `translateY(${(1 - s) * dy}px) scale(${0.92 + 0.08 * s})` } as React.CSSProperties };
 };
-const In: React.FC<{ at: number; style?: React.CSSProperties; children: React.ReactNode }> = ({ at, style, children }) => {
+export const In: React.FC<{ at: number; style?: React.CSSProperties; children: React.ReactNode }> = ({ at, style, children }) => {
   const p = useIn(at);
   if (!p.on) return null;
   return <div style={{ position: "absolute", ...style, ...p.style }}>{children}</div>;
 };
-const Card: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+export const Card: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
   <div style={{ background: "#fff", borderRadius: 28, boxShadow: "0 14px 32px rgba(80,60,20,0.12)", ...style }}>{children}</div>
 );
 
 // 見出し（三大原則のHeadPlain：インク太字＋緑の短い下線）
-const Head: React.FC<{ text: React.ReactNode; from: number; to?: number }> = ({ text, from, to = 99999 }) => {
+export const Head: React.FC<{ text: React.ReactNode; from: number; to?: number }> = ({ text, from, to = 99999 }) => {
   const f = useCurrentFrame();
   if (f < from || f >= to) return null;
   const p = interpolate(f, [from, from + 8], [0, 1], out);
@@ -231,24 +231,26 @@ const SUBS: [number, string][] = [
   [39.52, "子供が小さい"], [40.38, "今だからこそできる"], [41.3, "家族との思い出や経験"], [42.64, "これを増やしてほしいからです"],
   [44.12, "教育資金や老後資金など"], [45.88, "将来への備えも大切ですが"], [47.66, "今しかできない経験も"], [49.02, "同じくらい大切です"],
 ];
-const Subtitle: React.FC = () => {
+export const MarkerSub: React.FC<{ subs: [number, string][]; start: number; end: number }> = ({ subs, start, end }) => {
   const f = useCurrentFrame();
-  const t = START + f / 30;
+  const t = start + f / 30;
   let i = -1;
-  SUBS.forEach(([s], k) => { if (t >= s) i = k; });
-  if (i < 0 || t > 50.04) return null;
-  const [s, txt] = SUBS[i];
-  const e = i + 1 < SUBS.length ? SUBS[i + 1][0] : 50.04;
+  subs.forEach(([s], k) => { if (t >= s) i = k; });
+  if (i < 0 || t > end) return null;
+  const [s, txt] = subs[i];
+  const e = i + 1 < subs.length ? subs[i + 1][0] : end;
   const prog = interpolate(t, [s, s + (e - s) * 0.85], [0, 100], clamp);
   return (
     <div style={{ position: "absolute", left: 0, top: 1372, width: 1080, display: "flex", justifyContent: "center" }}>
       <span style={{ position: "relative", display: "inline-block", ...B, fontSize: 54, color: A2.ink, whiteSpace: "nowrap" }}>
         <span style={{ position: "absolute", left: -10, right: `${100 - prog}%`, top: "50%", bottom: "2%", background: A2.marker, borderRadius: 8, zIndex: 0 }} />
-        <span style={{ position: "relative", WebkitTextStroke: "0px", textShadow: "0 0 10px #FBF6D8, 0 0 4px #FBF6D8" }}>{txt}</span>
+        <span style={{ position: "relative", textShadow: "0 0 10px #FBF6D8, 0 0 4px #FBF6D8" }}>{txt}</span>
       </span>
     </div>
   );
 };
+// 字幕の下地：キャンバスが字幕に重ならないよう下側をフェード
+export const SubFade: React.FC = () => <div style={{ position: "absolute", left: 0, right: 0, top: 1230, bottom: 0, background: `linear-gradient(${A2.bg}00, ${A2.bg} 110px)` }} />;
 
 const CUES: { file: string; at: number; volume: number }[] = [
   { file: "user/u03s", at: L(36.02), volume: 0.3 },
@@ -270,10 +272,9 @@ export const MileLifePlan: React.FC = () => (
     <Audio src={staticFile("mile-narration.wav")} trimBefore={Math.round(START * 30)} />
     <SfxTrack cues={CUES} />
     <LifePlan />
-    {/* 字幕の下地：キャンバスが字幕に重ならないよう下側をフェード */}
-    <div style={{ position: "absolute", left: 0, right: 0, top: 1230, bottom: 0, background: `linear-gradient(${A2.bg}00, ${A2.bg} 110px)` }} />
+    <SubFade />
     <Intro />
     <Summary />
-    <Subtitle />
+    <MarkerSub subs={SUBS} start={START} end={50.04} />
   </AbsoluteFill>
 );
