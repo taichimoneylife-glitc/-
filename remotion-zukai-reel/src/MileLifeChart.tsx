@@ -138,7 +138,7 @@ const Chart: React.FC = () => {
 };
 
 // まとめ：今の経験 ＝ 将来の備え（上段のピル）＋ 同じくらい大切
-const Equal: React.FC = () => {
+export const Equal: React.FC = () => {
   const f = useCurrentFrame();
   const a = L(47.66);
   if (f < a) return null;
@@ -159,7 +159,7 @@ const Equal: React.FC = () => {
   );
 };
 
-const LifeChart: React.FC = () => {
+export const LifeChart: React.FC = () => {
   const f = useCurrentFrame();
   const a = L(39.52);
   if (f < a - 2) return null;
