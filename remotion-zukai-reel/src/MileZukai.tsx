@@ -67,6 +67,10 @@ const SceneA: React.FC = () => {
   return (
     <AbsoluteFill style={lv.style}>
       <Head text={<><span style={{ color: A2.green }}>マイル</span>の活用</>} from={pAt} />
+      {/* 冒頭の空白をなくす：「その方法が」で“？”が出て、「マイル」で飛行機に入れ替わる */}
+      {f < pAt + 6 ? (
+        <div style={{ position: "absolute", left: 390, top: 470, width: 300, height: 300, borderRadius: "50%", background: "#fff", border: `8px dashed ${A2.green}`, boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center", ...B, fontSize: 190, color: A2.green, transform: `scale(${interpolate(f, [0, 4, 8], [0.3, 1.15, 1], clamp) * interpolate(f, [pAt - 2, pAt + 5], [1, 0], clamp)}) rotate(${Math.sin(f / 4) * 4}deg)` }}>?</div>
+      ) : null}
       {f >= pAt ? (
         <div style={{ position: "absolute", left: 360 + mv * 290, top: 450 + mv * 40, transform: `scale(${pop(f, pAt) * (1 - mv * 0.18)})`, transformOrigin: "0 0" }}>
           <Free name="mile_plane" size={360} label="飛行機" bob />
@@ -329,6 +333,7 @@ const SUBS: [number, string][] = [
 ];
 
 const CUES: { file: string; at: number; volume: number }[] = [
+  { file: "user/u02s", at: 1, volume: 0.24 },
   { file: "user/u02s", at: F(0.86), volume: 0.32 },
   { file: "user/u02s", at: F(1.9), volume: 0.26 },
   { file: "user/u03s", at: F(3.16), volume: 0.26 },
