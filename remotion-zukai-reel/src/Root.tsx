@@ -44,6 +44,7 @@ import { MileReel3, MILE3_FRAMES } from "./MileReel3";
 import { MileReel4, MILE4_FRAMES } from "./MileReel4";
 import { MileLifePlan, MILE_LP_FRAMES } from "./MileLifePlan";
 import { MileZukai, MILE_Z_FRAMES } from "./MileZukai";
+import { MileLifeChart, MILE_LC_FRAMES } from "./MileLifeChart";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -53,6 +54,7 @@ export const RemotionRoot: React.FC = () => {
     <>
       {/* マイル④ ライフプラン練習（画像差し込み前提） */}
       <Composition id="MileLifePlan" component={MileLifePlan} durationInFrames={MILE_LP_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="MileLifeChart" component={MileLifeChart} durationInFrames={MILE_LC_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MileZukai" component={MileZukai} durationInFrames={MILE_Z_FRAMES} fps={FPS} width={1080} height={1920} />
 
       {/* マイル図解リール v4（分析4 緑×金 設計図） */}

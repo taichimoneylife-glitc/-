@@ -3,12 +3,13 @@ import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, interpolate
 import { A2, Mark2 } from "./components/kit2";
 import { FONT } from "./components/font";
 import { SfxTrack } from "./components/sfx";
-import { B, GenSlot, In, Card, Head, MarkerSub, SubFade, MileLifePlan, MILE_LP_FRAMES } from "./MileLifePlan";
+import { B, GenSlot, In, Card, Head, MarkerSub, SubFade } from "./MileLifePlan";
+import { MileLifeChart, MILE_LC_FRAMES } from "./MileLifeChart";
 
 // ════════════════════════════════════════════════════════════════════
 //  マイル図解パート 通し（①〜④）。見た目＝三大原則（薄黄×白カード×生成イラスト）
 //  ① マイルとは（0–5.12）  ② 貯まる仕組み＝縦のフロー＋カメラ（5.12–19.72）
-//  ③ 半年100万のハードル→チャンス→他にも方法（19.72–35.32）  ④ ライフプラン＝MileLifePlan（35.32–）
+//  ③ 半年100万のハードル→チャンス→他にも方法（19.72–35.32）  ④ ライフプラン＝MileLifeChart 横軸版（35.32–）※縦版は MileLifePlan
 //  画像は GenSlot（public/gen に置いて `node scripts/gen-manifest.mjs`）
 // ════════════════════════════════════════════════════════════════════
 
@@ -347,10 +348,10 @@ export const Mile123: React.FC = () => (
   </AbsoluteFill>
 );
 
-export const MILE_Z_FRAMES = PART4 + MILE_LP_FRAMES;
+export const MILE_Z_FRAMES = PART4 + MILE_LC_FRAMES;
 export const MileZukai: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg }}>
     <Sequence durationInFrames={PART4}><Mile123 /></Sequence>
-    <Sequence from={PART4}><MileLifePlan /></Sequence>
+    <Sequence from={PART4}><MileLifeChart /></Sequence>
   </AbsoluteFill>
 );

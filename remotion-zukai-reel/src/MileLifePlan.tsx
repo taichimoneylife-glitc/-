@@ -61,7 +61,7 @@ export const Head: React.FC<{ text: React.ReactNode; from: number; to?: number }
 };
 
 // ── 導入：取消線リビール（35.32–39.52）──
-const Intro: React.FC = () => {
+export const Intro: React.FC = () => {
   const f = useCurrentFrame();
   const end = L(39.52);
   if (f >= end + 10) return null;
@@ -86,7 +86,7 @@ const Intro: React.FC = () => {
 };
 
 // ── ライフプラン（縦長キャンバス＋カメラ）39.52–47.66 ──
-const EXP: [string, string][] = [
+export const EXP: [string, string][] = [
   ["mile_now_window", "はじめての飛行機"], ["mile_now_beach", "家族で海"], ["mile_now_shoulder", "旅先で肩車"],
   ["mile_now_snow", "雪あそび"], ["mile_now_photo", "家族写真"], ["mile_now_hotel", "ホテルではしゃぐ"],
   ["mile_now_grandma", "じいじ・ばあばに会う"], ["mile_now_dinner", "旅先ごはん"], ["mile_now_hug", "一緒がいい"],
@@ -226,7 +226,7 @@ const Summary: React.FC = () => {
 };
 
 // ── 下テロップ：話す速さでマーカーが走る（A4）──
-const SUBS: [number, string][] = [
+export const SUBS: [number, string][] = [
   [35.32, "そして僕が"], [36.02, "マイルをお勧めするのは"], [37.08, "単に飛行機代が"], [38.22, "お得になるから"], [38.86, "ではありません"],
   [39.52, "子供が小さい"], [40.38, "今だからこそできる"], [41.3, "家族との思い出や経験"], [42.64, "これを増やしてほしいからです"],
   [44.12, "教育資金や老後資金など"], [45.88, "将来への備えも大切ですが"], [47.66, "今しかできない経験も"], [49.02, "同じくらい大切です"],
