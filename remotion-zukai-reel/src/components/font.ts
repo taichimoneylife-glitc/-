@@ -5,6 +5,8 @@ import { staticFile, delayRender, continueRender } from "remotion";
 // メインは Noto Sans JP（ユーザー指定「丸ゴシックではなく前のやつ」）。丸ゴシックは同梱だけ残す。
 export const FONT = "Noto Sans JP, sans-serif";
 export const FONT_ROUND = "M PLUS Rounded 1c";
+// 極太（900）＝ステッカー図解スタイル専用の別名ファミリー（他リールの見た目に影響させない）
+export const FONT_BLACK = "Noto Sans JP Black";
 
 const face = (family: string, weight: number, file: string) =>
   new FontFace(family, `url(${staticFile(`fonts/${file}`)}) format('woff2')`, { weight: String(weight), style: "normal", display: "swap" });
@@ -20,6 +22,9 @@ const faces = [
   face("Noto Sans JP", 700, "noto-sans-jp-japanese-700-normal.woff2"),
   face("Noto Sans JP", 400, "noto-sans-jp-latin-400-normal.woff2"),
   face("Noto Sans JP", 700, "noto-sans-jp-latin-700-normal.woff2"),
+  // 極太（ステッカー図解用・別名）
+  face("Noto Sans JP Black", 900, "noto-sans-jp-japanese-900-normal.woff2"),
+  face("Noto Sans JP Black", 900, "noto-sans-jp-latin-900-normal.woff2"),
 ];
 
 if (typeof document !== "undefined") {

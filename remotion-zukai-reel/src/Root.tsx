@@ -39,6 +39,7 @@ import { MilePlaneFlyTest, MILEFLY_FRAMES } from "./MilePlaneFlyTest";
 import { TalkOverlayTest, TALKOV_FRAMES } from "./TalkOverlayTest";
 import { PaperCraftDemo, PAPER_FRAMES } from "./PaperCraftDemo";
 import { MileReel, MILE_FRAMES } from "./MileReel";
+import { MileStickerReel, MILE_STICKER_FRAMES } from "./MileStickerReel";
 import { FPS, TOTAL_FRAMES } from "./config";
 
 // Remotion Studio / render はここに登録された Composition を読む。
@@ -46,6 +47,9 @@ import { FPS, TOTAL_FRAMES } from "./config";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      {/* マイル図解リール v2（方眼紙×ステッカー） */}
+      <Composition id="MileStickerReel" component={MileStickerReel} durationInFrames={MILE_STICKER_FRAMES} fps={FPS} width={1080} height={1920} />
+
       {/* マイル図解リール（大枠・新録音） */}
       <Composition
         id="MileReel"
