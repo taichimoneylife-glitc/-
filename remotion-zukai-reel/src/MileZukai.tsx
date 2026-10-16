@@ -257,28 +257,33 @@ const SceneC2: React.FC = () => {
   );
 };
 
+// v2から移植：方法①〜⑤の行が1行ずつ入ってくる（中身はぼかして“謎”に）→ DMへ
+const METHOD_AT = [32.16, 32.34, 32.52, 33.34, 33.5];
 const SceneC3: React.FC = () => {
   const f = useCurrentFrame();
   const a = F(30.02);
   if (f < a) return null;
-  const many = F(33.34);
+  const dm = F(34.16);
+  const gone = interpolate(f, [dm - 2, dm + 6], [0, 1], clamp);
   return (
     <AbsoluteFill>
       <Head text={<>効率よく<span style={{ color: A2.green }}>達成</span>する方法</>} from={a + 7} />
-      {[0, 1, 2].map((i) => {
-        const at = F(31.48) + i * 5;
-        const wob = f >= many ? Math.sin((f - many - i * 3) / 2.2) * interpolate(f - many - i * 3, [0, 4, 14], [0, 8, 0], clamp) : 0;
-        return (
-          <In key={i} at={at} style={{ left: 80 + i * 315, top: 470, width: 290, textAlign: "center" }}>
-            <div style={{ width: 210, height: 210, margin: "0 auto", borderRadius: "50%", background: "#fff", border: `6px dashed ${A2.green}`, boxSizing: "border-box", ...B, fontSize: 130, lineHeight: "198px", color: A2.green, transform: `rotate(${wob}deg)` }}>?</div>
-            <div style={{ ...B, fontSize: 40, color: A2.ink, marginTop: 18 }}>方法{["①", "②", "③"][i]}</div>
-          </In>
-        );
-      })}
-      {f >= many ? <div style={{ position: "absolute", left: 0, top: 790, width: 1080, textAlign: "center", ...B, fontSize: 44, color: A2.sub, opacity: interpolate(f - many, [0, 6], [0, 1], clamp) }}>…いくつもある</div> : null}
-      {f >= F(34.16) ? (
-        <div style={{ position: "absolute", left: 0, top: 880, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 30, transform: `scale(${pop(f, F(34.16))})` }}>
-          <Free name="mile_phone_dm" size={230} label="DM" />
+      <div style={{ position: "absolute", inset: 0, opacity: 1 - gone, filter: `blur(${gone * 12}px)` }}>
+        {METHOD_AT.map((t, i) => {
+          const A = F(t);
+          if (f < A) return null;
+          return (
+            <div key={i} style={{ position: "absolute", left: 110, top: 470 + i * 118, width: 860, height: 96, borderRadius: 26, background: "#fff", boxShadow: "0 8px 20px rgba(80,60,20,0.08)", display: "flex", alignItems: "center", gap: 24, padding: "0 30px", boxSizing: "border-box", opacity: interpolate(f - A, [0, 5], [0, 1], clamp), transform: `translateY(${interpolate(f - A, [0, 8], [30, 0], out)}px)` }}>
+              <div style={{ width: 54, height: 54, borderRadius: "50%", background: A2.track, ...B, fontSize: 36, color: A2.green, textAlign: "center", lineHeight: "54px" }}>?</div>
+              <div style={{ ...B, fontSize: 36, color: A2.ink }}>方法{["①", "②", "③", "④", "⑤"][i]}</div>
+              <div style={{ flex: 1, height: 22, borderRadius: 11, background: A2.track, filter: "blur(2px)" }} />
+            </div>
+          );
+        })}
+      </div>
+      {f >= dm ? (
+        <div style={{ position: "absolute", left: 0, top: 560, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 30, transform: `scale(${pop(f, dm)})` }}>
+          <Free name="mile_phone_dm" size={300} label="DM" />
           <span style={{ display: "inline-block", background: A2.coral, color: "#fff", ...B, fontSize: 64, padding: "12px 44px", borderRadius: 999 }}>DMで</span>
         </div>
       ) : null}
@@ -333,7 +338,7 @@ const CUES: { file: string; at: number; volume: number }[] = [
   { file: "user/u02s", at: F(27.64), volume: 0.26 },
   { file: "user/u05", at: F(29.46), volume: 0.34 },
   { file: "user/u03", at: F(30.02), volume: 0.3 },
-  ...[0, 1, 2].map((i) => ({ file: "user/u02s", at: F(31.48) + i * 5, volume: 0.22 })),
+  ...METHOD_AT.map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })),
   { file: "user/u05s", at: F(34.16), volume: 0.3 },
 ];
 
