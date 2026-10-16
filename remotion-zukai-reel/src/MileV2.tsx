@@ -407,7 +407,7 @@ const S11: React.FC = () => {
     </Scene>
   );
 };
-const S12: React.FC = () => {
+export const S12: React.FC = () => {
   const f = useCurrentFrame();
   const rows = [32.2, 32.4, 32.6, 33.36, 33.5];
   return (
@@ -427,7 +427,7 @@ const S12: React.FC = () => {
     </Scene>
   );
 };
-const S13: React.FC = () => {
+export const S13: React.FC = () => {
   const f = useCurrentFrame();
   const A = S(34.16);
   return (

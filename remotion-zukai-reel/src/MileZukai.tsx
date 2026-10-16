@@ -6,6 +6,7 @@ import { SfxTrack } from "./components/sfx";
 import { R } from "./mileTime";
 import { B, GenSlot, In, Head, MarkerSub, SubFade } from "./MileLifePlan";
 import { MileLifeChart, MILE_LC_FRAMES } from "./MileLifeChart";
+import { S12, S13 } from "./MileV2";
 
 // ════════════════════════════════════════════════════════════════════
 //  マイル図解パート 通し（①〜④）。見た目＝三大原則（薄黄×白カード×生成イラスト）
@@ -257,39 +258,13 @@ const SceneC2: React.FC = () => {
   );
 };
 
-// v2から移植：方法①〜⑤の行が1行ずつ入ってくる（中身はぼかして“謎”に）→ DMへ
-const METHOD_AT = [32.16, 32.34, 32.52, 33.34, 33.5];
-const SceneC3: React.FC = () => {
-  const f = useCurrentFrame();
-  const a = F(30.02);
-  if (f < a) return null;
-  const dm = F(34.16);
-  const gone = interpolate(f, [dm - 2, dm + 6], [0, 1], clamp);
-  return (
-    <AbsoluteFill>
-      <Head text={<>効率よく<span style={{ color: A2.green }}>達成</span>する方法</>} from={a + 7} />
-      <div style={{ position: "absolute", inset: 0, opacity: 1 - gone, filter: `blur(${gone * 12}px)` }}>
-        {METHOD_AT.map((t, i) => {
-          const A = F(t);
-          if (f < A) return null;
-          return (
-            <div key={i} style={{ position: "absolute", left: 110, top: 470 + i * 118, width: 860, height: 96, borderRadius: 26, background: "#fff", boxShadow: "0 8px 20px rgba(80,60,20,0.08)", display: "flex", alignItems: "center", gap: 24, padding: "0 30px", boxSizing: "border-box", opacity: interpolate(f - A, [0, 5], [0, 1], clamp), transform: `translateY(${interpolate(f - A, [0, 8], [30, 0], out)}px)` }}>
-              <div style={{ width: 54, height: 54, borderRadius: "50%", background: A2.track, ...B, fontSize: 36, color: A2.green, textAlign: "center", lineHeight: "54px" }}>?</div>
-              <div style={{ ...B, fontSize: 36, color: A2.ink }}>方法{["①", "②", "③", "④", "⑤"][i]}</div>
-              <div style={{ flex: 1, height: 22, borderRadius: 11, background: A2.track, filter: "blur(2px)" }} />
-            </div>
-          );
-        })}
-      </div>
-      {f >= dm ? (
-        <div style={{ position: "absolute", left: 0, top: 560, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 30, transform: `scale(${pop(f, dm)})` }}>
-          <Free name="mile_phone_dm" size={300} label="DM" />
-          <span style={{ display: "inline-block", background: A2.coral, color: "#fff", ...B, fontSize: 64, padding: "12px 44px", borderRadius: 999 }}>DMで</span>
-        </div>
-      ) : null}
-    </AbsoluteFill>
-  );
-};
+// 方法①〜⑤ → DM は v2（MileV2 の S12・S13）をそのまま使う。時刻は新ナレの秒なのでそのまま
+const SceneC3: React.FC = () => (
+  <>
+    <S12 />
+    <S13 />
+  </>
+);
 
 const SceneC: React.FC = () => {
   const f = useCurrentFrame();
@@ -338,7 +313,7 @@ const CUES: { file: string; at: number; volume: number }[] = [
   { file: "user/u02s", at: F(27.64), volume: 0.26 },
   { file: "user/u05", at: F(29.46), volume: 0.34 },
   { file: "user/u03", at: F(30.02), volume: 0.3 },
-  ...METHOD_AT.map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })),
+  ...[32.2, 32.4, 32.6, 33.36, 33.5].map((t) => ({ file: "user/u02s", at: Math.round(t * 30), volume: 0.18 })),
   { file: "user/u05s", at: F(34.16), volume: 0.3 },
 ];
 

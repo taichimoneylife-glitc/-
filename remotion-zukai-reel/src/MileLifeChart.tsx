@@ -61,15 +61,10 @@ const Memory: React.FC<{ i: number; name: string }> = ({ i, name }) => {
   const x0 = zc.x + (gx - zc.x) * s, y0 = zc.y + (gy - zc.y) * s;
   const x = x0 + (mx - x0) * back, y = y0 + (my - y0) * back;
   let sc = (0.2 + 0.8 * s) * (big + (mini - big) * back);
-  const again = L(47.66) + i * 3;
-  let hop = 0, pulse = 1;
-  if (f >= again) {
-    pulse = interpolate(f - again, [0, 3, 7, 10], [1, 1.7, 0.92, 1], clamp);
-    hop = interpolate(f - again, [0, 3, 8], [0, -26, 0], clamp);
-  }
-  const grow = (150 * sc * (pulse - 1)) / 2; // ポンは中心から膨らむ
+  const again = L(47.66) + i * 2;
+  if (f >= again) sc *= interpolate(f - again, [0, 3, 7], [1, 1.45, 1], clamp);
   return (
-    <div style={{ position: "absolute", left: x - grow, top: y - grow + hop, width: 150, height: 150, transform: `scale(${sc * pulse})`, transformOrigin: "0 0", zIndex: pulse > 1.05 ? 2 : 1 }}>
+    <div style={{ position: "absolute", left: x, top: y, width: 150, height: 150, transform: `scale(${sc})`, transformOrigin: "0 0" }}>
       <GenSlot name={name} size={150} />
     </div>
   );
@@ -190,7 +185,6 @@ const CUES: { file: string; at: number; volume: number }[] = [
   { file: "user/u02s", at: L(45.0), volume: 0.28 },
   { file: "user/u03s", at: L(45.88), volume: 0.26 },
   { file: "user/u03", at: L(47.66), volume: 0.3 },
-  ...EXP.map((_, i) => ({ file: "user/u02s", at: L(47.66) + i * 3, volume: 0.16 })),
   { file: "user/u05s", at: L(48.5), volume: 0.3 },
   { file: "user/u10", at: L(49.02), volume: 0.3 },
 ];
