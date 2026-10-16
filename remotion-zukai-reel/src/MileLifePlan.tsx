@@ -3,6 +3,7 @@ import { AbsoluteFill, Audio, Img, staticFile, useCurrentFrame, interpolate, spr
 import { A2, Mark2 } from "./components/kit2";
 import { FONT } from "./components/font";
 import { SfxTrack } from "./components/sfx";
+import { R } from "./mileTime";
 import { GEN_AVAILABLE } from "./genManifest";
 
 // ════════════════════════════════════════════════════════════════════
@@ -14,7 +15,7 @@ import { GEN_AVAILABLE } from "./genManifest";
 // ════════════════════════════════════════════════════════════════════
 
 const START = 35.32;
-const L = (abs: number) => Math.round((abs - START) * 30);
+const L = (abs: number) => Math.round((R(abs) - R(START)) * 30); // abs＝旧ナレの秒
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const io = { ...clamp, easing: Easing.inOut(Easing.cubic) };
 const out = { ...clamp, easing: Easing.out(Easing.cubic) };
@@ -269,12 +270,12 @@ export const MILE_LP_FRAMES = L(50.07) + 20;
 
 export const MileLifePlan: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
-    <Audio src={staticFile("mile-narration.wav")} trimBefore={Math.round(START * 30)} />
+    <Audio src={staticFile("mile-narration.wav")} trimBefore={Math.round(R(START) * 30)} />
     <SfxTrack cues={CUES} />
     <LifePlan />
     <SubFade />
     <Intro />
     <Summary />
-    <MarkerSub subs={SUBS} start={START} end={50.04} />
+    <MarkerSub subs={SUBS.map(([t, s]) => [R(t), s] as [number, string])} start={R(START)} end={R(50.04)} />
   </AbsoluteFill>
 );

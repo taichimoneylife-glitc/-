@@ -3,6 +3,7 @@ import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, interpolate
 import { A2, Mark2 } from "./components/kit2";
 import { FONT } from "./components/font";
 import { SfxTrack } from "./components/sfx";
+import { R } from "./mileTime";
 import { B, GenSlot, In, Head, MarkerSub, SubFade } from "./MileLifePlan";
 import { MileLifeChart, MILE_LC_FRAMES } from "./MileLifeChart";
 
@@ -13,7 +14,7 @@ import { MileLifeChart, MILE_LC_FRAMES } from "./MileLifeChart";
 //  画像は GenSlot（public/gen に置いて `node scripts/gen-manifest.mjs`）
 // ════════════════════════════════════════════════════════════════════
 
-const F = (t: number) => Math.round(t * 30);
+const F = (t: number) => Math.round(R(t) * 30); // t＝旧ナレの秒 → 新ナレのフレーム
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const io = { ...clamp, easing: Easing.inOut(Easing.cubic) };
 const out = { ...clamp, easing: Easing.out(Easing.cubic) };
@@ -344,7 +345,7 @@ export const Mile123: React.FC = () => (
     <SceneB />
     <SubFade />
     <SceneC />
-    <MarkerSub subs={SUBS} start={0} end={35.32} />
+    <MarkerSub subs={SUBS.map(([t, s]) => [R(t), s] as [number, string])} start={0} end={R(35.32)} />
   </AbsoluteFill>
 );
 

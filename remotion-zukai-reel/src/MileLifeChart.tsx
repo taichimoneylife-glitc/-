@@ -3,6 +3,7 @@ import { AbsoluteFill, Audio, staticFile, useCurrentFrame, useVideoConfig, inter
 import { A2 } from "./components/kit2";
 import { FONT } from "./components/font";
 import { SfxTrack } from "./components/sfx";
+import { R } from "./mileTime";
 import { B, GenSlot, Head, Intro, EXP, SUBS, MarkerSub, SubFade } from "./MileLifePlan";
 
 // ════════════════════════════════════════════════════════════════════
@@ -13,7 +14,7 @@ import { B, GenSlot, Head, Intro, EXP, SUBS, MarkerSub, SubFade } from "./MileLi
 // ════════════════════════════════════════════════════════════════════
 
 const START = 35.32;
-const L = (abs: number) => Math.round((abs - START) * 30);
+const L = (abs: number) => Math.round((R(abs) - R(START)) * 30); // abs＝旧ナレの秒
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const io = { ...clamp, easing: Easing.inOut(Easing.cubic) };
 const out = { ...clamp, easing: Easing.out(Easing.cubic) };
@@ -196,12 +197,12 @@ export const MILE_LC_FRAMES = L(50.07) + 20;
 
 export const MileLifeChart: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
-    <Audio src={staticFile("mile-narration.wav")} trimBefore={Math.round(START * 30)} />
+    <Audio src={staticFile("mile-narration.wav")} trimBefore={Math.round(R(START) * 30)} />
     <SfxTrack cues={CUES} />
     <LifeChart />
     <SubFade />
     <Intro />
     <Equal />
-    <MarkerSub subs={SUBS} start={START} end={50.04} />
+    <MarkerSub subs={SUBS.map(([t, s]) => [R(t), s] as [number, string])} start={R(START)} end={R(50.04)} />
   </AbsoluteFill>
 );
