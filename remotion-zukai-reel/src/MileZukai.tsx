@@ -128,7 +128,12 @@ const SceneB: React.FC = () => {
         {/* 太い線（道）＋進んだぶんが緑に */}
         <div style={{ position: "absolute", left: SPINE - 11, top: S[0], width: 22, height: interpolate(f, [ST_AT[0], ST_AT[0] + 20], [0, S[5] - S[0]], out), background: A2.track, borderRadius: 11 }} />
         <div style={{ position: "absolute", left: SPINE - 11, top: S[0], width: 22, height: trav - S[0], background: A2.green, borderRadius: 11 }} />
-        {f >= ST_AT[0] ? <div style={{ position: "absolute", left: SPINE - 24, top: trav - 24, width: 48, height: 48, borderRadius: "50%", background: A2.marker, border: "6px solid #E6C63E", boxSizing: "border-box", zIndex: 2, boxShadow: "0 6px 14px rgba(80,60,20,0.2)" }} /> : null}
+        {/* 道を進むコマ＝下向きの飛行機（機首を下に。駅の番号は隠さないよう、駅の少し上に止まる） */}
+        {f >= ST_AT[0] ? (
+          <div style={{ position: "absolute", left: SPINE - 72, top: trav - 185, width: 150, height: 150, zIndex: 4, transform: `translateX(${Math.sin(f / 7) * 4}px) rotate(${50 + Math.sin(f / 9) * 4}deg)`, opacity: interpolate(f, [ST_AT[0], ST_AT[0] + 6], [0, 1], clamp) }}>
+            <GenSlot name="mile_plane" size={150} />
+          </div>
+        ) : null}
 
         <StepHead i={0} title={<>生活費を<span style={{ color: A2.green }}>クレカ</span>でまとめる</>} />
         {PILLS.map((p, i) => {
