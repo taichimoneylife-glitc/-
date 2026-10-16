@@ -9,7 +9,7 @@ import { B, GenSlot, Head, Intro, EXP, SUBS, MarkerSub, SubFade } from "./MileLi
 // ════════════════════════════════════════════════════════════════════
 //  マイル④ 横軸ライフプラン版（35.32–50.07）
 //  横軸＝人生（親の年齢・例）、資産の線が上下しながら右肩上がり（相続リールの株グラフの発想）。
-//  「今」ゾーン（子ども0〜10歳）は人生の中でほんの短い帯 → そこから思い出の画像が飛び出す。
+//  「今」ゾーン（子ども0〜18歳）は人生の中の限られた帯 → そこから思い出の画像が飛び出す。
 //  カードで囲まない：画像は背景に直置き、線・帯・ピルで見せる。
 // ════════════════════════════════════════════════════════════════════
 
@@ -37,10 +37,10 @@ const pathOf = (a0: number, a1: number) => {
   for (let a = a0; a <= a1 + 1e-6; a += 0.5) d += `${d ? "L" : "M"}${ax(a).toFixed(1)} ${ay(a).toFixed(1)} `;
   return d;
 };
-const PATH_NOW = pathOf(30, 40);
-const PATH_LIFE = pathOf(40, 85);
-const FILL_LIFE = `${PATH_LIFE}L${ax(85)} ${BASE} L${ax(40)} ${BASE} Z`;
-const NOW_X0 = ax(30), NOW_X1 = ax(40);
+const PATH_NOW = pathOf(30, 48);
+const PATH_LIFE = pathOf(48, 85);
+const FILL_LIFE = `${PATH_LIFE}L${ax(85)} ${BASE} L${ax(48)} ${BASE} Z`;
+const NOW_X0 = ax(30), NOW_X1 = ax(48); // 今＝子ども0〜18歳（親30〜48歳の例）
 
 const Pill: React.FC<{ bg: string; color?: string; size?: number; children: React.ReactNode }> = ({ bg, color = "#fff", size = 40, children }) => (
   <span style={{ display: "inline-block", background: bg, color, ...B, fontSize: size, padding: `${size * 0.22}px ${size * 0.7}px`, borderRadius: 999, whiteSpace: "nowrap" }}>{children}</span>
@@ -53,11 +53,11 @@ const Memory: React.FC<{ i: number; name: string }> = ({ i, name }) => {
   const at = L(41.5) + i * 4;
   if (f < at) return null;
   const s = spring({ frame: f - at, fps, config: { damping: 14, stiffness: 170, mass: 0.6 } });
-  const gx = 290 + (i % 3) * 190, gy = 560 + Math.floor(i / 3) * 180; // 大きいグリッド（175px）
-  const mx = NOW_X0 + 8 + (i % 3) * 49, my = 640 + Math.floor(i / 3) * 49; // 今ゾーン内のミニ（44px）
+  const gx = 410 + (i % 3) * 190, gy = 560 + Math.floor(i / 3) * 180; // 大きいグリッド（175px）
+  const mx = NOW_X0 + 30 + (i % 3) * 76, my = 640 + Math.floor(i / 3) * 76; // 今ゾーン内のミニ（70px）
   const zc = { x: (NOW_X0 + NOW_X1) / 2 - 75, y: 900 };
   const back = interpolate(f, [L(44.12), L(44.12) + 14], [0, 1], io);
-  const big = 175 / 150, mini = 44 / 150;
+  const big = 175 / 150, mini = 70 / 150;
   const x0 = zc.x + (gx - zc.x) * s, y0 = zc.y + (gy - zc.y) * s;
   const x = x0 + (mx - x0) * back, y = y0 + (my - y0) * back;
   let sc = (0.2 + 0.8 * s) * (big + (mini - big) * back);
@@ -110,7 +110,7 @@ const Chart: React.FC = () => {
       </svg>
       {/* 軸ラベル */}
       <div style={{ position: "absolute", left: X0 - 10, top: 515, ...B, fontSize: 28, color: A2.sub, opacity: axisP }}>お金</div>
-      {[30, 40, 50, 65, 85].map((g) => (
+      {[30, 48, 65, 85].map((g) => (
         <div key={g} style={{ position: "absolute", left: ax(g) - 50, top: BASE + 14, width: 100, textAlign: "center", ...B, fontSize: 28, color: A2.sub, opacity: axisP }}>{g}歳</div>
       ))}
       <div style={{ position: "absolute", right: 70, top: BASE + 56, ...B, fontSize: 24, color: A2.sub, opacity: axisP }}>親の年齢（例）</div>
@@ -118,12 +118,12 @@ const Chart: React.FC = () => {
       {f >= a + 6 ? (
         <div style={{ position: "absolute", left: NOW_X0, top: 575, width: NOW_X1 - NOW_X0, textAlign: "center", transform: `scale(${pop(f, a + 6)})` }}>
           <div style={{ ...B, fontSize: 60, color: A2.ink, lineHeight: 1 }}>今</div>
-          <div style={{ ...B, fontSize: 22, color: A2.ink, marginTop: 6, opacity: f >= L(44.12) ? 0 : 1 }}>子ども0〜10歳</div>
+          <div style={{ ...B, fontSize: 22, color: A2.ink, marginTop: 6, opacity: f >= L(44.12) ? 0 : 1 }}>子ども0〜18歳</div>
         </div>
       ) : null}
       {/* 教育資金 */}
       {f >= eduAt ? (
-        <div style={{ position: "absolute", left: ax(50) - 150, top: 575, width: 300, textAlign: "center", transform: `scale(${pop(f, eduAt)})` }}>
+        <div style={{ position: "absolute", left: ax(53) - 150, top: 575, width: 300, textAlign: "center", transform: `scale(${pop(f, eduAt)})` }}>
           <div style={{ display: "flex", justifyContent: "center" }}><GenSlot name="mile_lp_edu_fund" size={160} /></div>
           <div style={{ marginTop: 6 }}><Pill bg={A2.green} size={34}>教育資金</Pill></div>
         </div>

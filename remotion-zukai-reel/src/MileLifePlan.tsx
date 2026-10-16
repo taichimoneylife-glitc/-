@@ -147,7 +147,7 @@ const LifePlan: React.FC = () => {
           <Card style={{ display: "flex", alignItems: "center", gap: 24, padding: "20px 28px", background: "#FFFBEA", border: `4px solid ${A2.marker}` }}>
             <GenSlot name="mile_parent_kids" size={220} label="親子" />
             <div>
-              <div style={{ ...B, fontSize: 32, color: A2.sub }}>0〜10歳ごろ</div>
+              <div style={{ ...B, fontSize: 32, color: A2.sub }}>0〜18歳ごろ</div>
               <div style={{ ...B, fontSize: 54, color: A2.ink, lineHeight: 1.2 }}>子どもが<br /><Mark2 delay={L(40.38)}>小さい今</Mark2></div>
             </div>
           </Card>
