@@ -3,12 +3,12 @@ import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, interpolate
 import { A2, Mark2 } from "./components/kit2";
 import { FONT } from "./components/font";
 import { SfxTrack } from "./components/sfx";
-import { B, GenSlot, In, Card, Head, MarkerSub, SubFade } from "./MileLifePlan";
+import { B, GenSlot, In, Head, MarkerSub, SubFade } from "./MileLifePlan";
 import { MileLifeChart, MILE_LC_FRAMES } from "./MileLifeChart";
 
 // ════════════════════════════════════════════════════════════════════
 //  マイル図解パート 通し（①〜④）。見た目＝三大原則（薄黄×白カード×生成イラスト）
-//  ① マイルとは（0–5.12）  ② 貯まる仕組み＝縦のフロー＋カメラ（5.12–19.72）
+//  ① マイルとは（0–5.12）  ② 貯まる仕組み＝1本の太い線をコマが進む＋カメラ（5.12–19.72）
 //  ③ 半年100万のハードル→チャンス→他にも方法（19.72–35.32）  ④ ライフプラン＝MileLifeChart 横軸版（35.32–）※縦版は MileLifePlan
 //  画像は GenSlot（public/gen に置いて `node scripts/gen-manifest.mjs`）
 // ════════════════════════════════════════════════════════════════════
@@ -43,6 +43,18 @@ const Arrow: React.FC<{ x: number; y: number; w: number; at: number; label?: str
   );
 };
 
+// 画像は背景に直置き（カードで囲まない）。足元にやわらかい影だけ付けて存在感を出す
+const Free: React.FC<{ name: string; size: number; label?: string; bob?: boolean }> = ({ name, size, label, bob }) => {
+  const f = useCurrentFrame();
+  const y = bob ? Math.sin(f / 9) * 8 : 0; // C4：ゆっくり上下
+  return (
+    <div style={{ position: "relative", width: size, height: size }}>
+      <div style={{ position: "absolute", left: size * 0.18, right: size * 0.18, bottom: -size * 0.03, height: size * 0.09, borderRadius: "50%", background: "rgba(80,60,20,0.13)", filter: "blur(6px)", transform: `scaleX(${1 - y / 80})` }} />
+      <div style={{ position: "relative", transform: `translateY(${y}px)` }}><GenSlot name={name} size={size} label={label} /></div>
+    </div>
+  );
+};
+
 // ── ① マイルの活用：飛行機に乗らなくても生活費から（0–5.12）──
 const SceneA: React.FC = () => {
   const f = useCurrentFrame();
@@ -54,19 +66,17 @@ const SceneA: React.FC = () => {
     <AbsoluteFill style={lv.style}>
       <Head text={<><span style={{ color: A2.green }}>マイル</span>の活用</>} from={pAt} />
       {f >= pAt ? (
-        <div style={{ position: "absolute", left: 370 + mv * 270, top: 470, transform: `scale(${pop(f, pAt) * (1.15 - mv * 0.15)})` }}>
-          <Card style={{ padding: 20 }}><GenSlot name="mile_plane" size={300} label="飛行機" /></Card>
+        <div style={{ position: "absolute", left: 360 + mv * 290, top: 450 + mv * 40, transform: `scale(${pop(f, pAt) * (1 - mv * 0.18)})`, transformOrigin: "0 0" }}>
+          <Free name="mile_plane" size={360} label="飛行機" bob />
         </div>
       ) : null}
       {f >= F(1.9) ? (
-        <div style={{ position: "absolute", left: 0, top: 920, width: 1080, textAlign: "center", opacity: 1 - mv, transform: `scale(${pop(f, F(1.9))})` }}>
+        <div style={{ position: "absolute", left: 0, top: 900, width: 1080, textAlign: "center", opacity: 1 - mv, transform: `scale(${pop(f, F(1.9))})` }}>
           <span style={{ display: "inline-block", background: A2.coral, color: "#fff", ...B, fontSize: 52, padding: "12px 40px", borderRadius: 999 }}>飛行機に乗らなくても</span>
         </div>
       ) : null}
-      <In at={F(3.16)} style={{ left: 80, top: 470 }}>
-        <Card style={{ padding: 20 }}><GenSlot name="mile_receipt" size={300} label="生活費" /></Card>
-      </In>
-      <Arrow x={440} y={640} w={180} at={F(4.08)} label="貯まる" />
+      <In at={F(3.16)} style={{ left: 90, top: 480 }}><Free name="mile_receipt" size={300} label="生活費" /></In>
+      <Arrow x={415} y={640} w={210} at={F(4.08)} label="貯まる" />
       <In at={F(4.08)} style={{ left: 0, top: 930, width: 1080, textAlign: "center" }}>
         <div style={{ ...B, fontSize: 66, color: A2.ink }}>普段の<Mark2 delay={F(4.08) + 4}>生活費</Mark2>から貯まる</div>
       </In>
@@ -74,23 +84,21 @@ const SceneA: React.FC = () => {
   );
 };
 
-// ── ② 貯まる仕組み：縦のフロー（1枚キャンバス＋カメラ）5.12–19.72 ──
-const Step: React.FC<{ top: number; h: number; n: number; at: number; title: React.ReactNode; children: React.ReactNode }> = ({ top, h, n, at, title, children }) => (
-  <In at={at} style={{ left: 70, top, width: 940 }}>
-    <Card style={{ position: "relative", height: h, overflow: "hidden" }}>
-      <div style={{ position: "absolute", left: 32, top: 26, display: "flex", alignItems: "center", gap: 18 }}>
-        {/* G16：2トーンの番号 */}
-        <div style={{ width: 60, height: 60, borderRadius: "50%", background: A2.green, color: "#fff", ...B, fontSize: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>{n}</div>
-        <div style={{ ...B, fontSize: 42, color: A2.ink }}>{title}</div>
-      </div>
-      {children}
-    </Card>
-  </In>
-);
-const Chevron: React.FC<{ y: number; at: number }> = ({ y, at }) => {
+// ── ② 貯まる仕組み：1本の太い線（すごろく）を順に進む＋カメラ 5.12–19.72 ──
+const SPINE = 130;
+const ST = [480, 880, 1290, 1740, 2070, 2400]; // 各ステップ（見出し中心）のキャンバスy
+const ST_AT = [F(6.58), F(8.78), F(11.02), F(13.7), F(15.44), F(16.96)];
+const StepHead: React.FC<{ i: number; title: React.ReactNode }> = ({ i, title }) => {
   const f = useCurrentFrame();
+  const at = ST_AT[i];
   if (f < at) return null;
-  return <div style={{ position: "absolute", left: 510, top: y - 18, width: 0, height: 0, borderLeft: "30px solid transparent", borderRight: "30px solid transparent", borderTop: `30px solid ${A2.green}`, opacity: interpolate(f - at, [0, 5], [0, 1], clamp) }} />;
+  const y = ST[i];
+  return (
+    <>
+      <div style={{ position: "absolute", left: SPINE - 36, top: y - 36, width: 72, height: 72, borderRadius: "50%", background: A2.green, border: "6px solid #fff", boxSizing: "border-box", color: "#fff", ...B, fontSize: 38, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${pop(f, at)})`, boxShadow: "0 4px 10px rgba(80,60,20,0.15)", zIndex: 3 }}>{i + 1}</div>
+      <div style={{ position: "absolute", left: 220, top: y - 32, ...B, fontSize: 48, color: A2.ink, whiteSpace: "nowrap", opacity: interpolate(f - at, [0, 6], [0, 1], clamp), transform: `translateX(${interpolate(f - at, [0, 8], [-30, 0], out)}px)` }}>{title}</div>
+    </>
+  );
 };
 
 const PILLS = ["食費", "光熱費", "通信費", "日用品"];
@@ -101,82 +109,79 @@ const SceneB: React.FC = () => {
   if (f < a || lv.gone) return null;
   const cam =
     f < F(11.02) ? 0 :
-    f < F(13.98) ? interpolate(f, [F(11.02), F(11.02) + 14], [0, 260], io) :
-    f < F(15.44) ? interpolate(f, [F(13.98), F(13.98) + 14], [260, 680], io) :
-    f < F(16.96) ? interpolate(f, [F(15.44), F(15.44) + 14], [680, 1000], io) :
-    interpolate(f, [F(16.96), F(16.96) + 14], [1000, 1440], io);
+    f < F(13.7) ? interpolate(f, [F(11.02), F(11.02) + 14], [0, 730], io) :
+    f < F(16.96) ? interpolate(f, [F(13.7), F(13.7) + 14], [730, 1180], io) :
+    interpolate(f, [F(16.96), F(16.96) + 14], [1180, 1880], io);
+  // 進んだ位置（線の上を進むコマ）
+  let trav = ST[0];
+  ST_AT.forEach((t, i) => { if (i > 0) trav += interpolate(f, [t - 2, t + 12], [0, ST[i] - ST[i - 1]], io); });
+  const S = ST;
   const merge = F(7.88) + 8;
   const mg = interpolate(f, [merge, merge + 10], [0, 1], io);
   const big = F(12.52);
   const price = interpolate(f, [F(18.4), F(18.4) + 10], [0, 1], io);
   return (
     <AbsoluteFill style={{ ...lv.style, overflow: "hidden" }}>
-      <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 2700, transform: `translateY(${-cam}px)` }}>
-        {/* 1 生活費をクレカでまとめる */}
-        <Step top={430} h={330} n={1} at={F(6.58)} title="生活費をクレカでまとめる">
-          {PILLS.map((p, i) => {
-            const at = F(6.84) + i * 3;
-            if (f < at) return null;
-            const x = 40 + (i % 2) * 196, y = 120 + Math.floor(i / 2) * 80;
-            const dx = (700 - (x + 90)) * mg, dy = (200 - (y + 32)) * mg;
-            return (
-              <div key={p} style={{ position: "absolute", left: x, top: y, width: 180, height: 64, borderRadius: 999, background: A2.track, ...B, fontSize: 32, color: A2.ink, display: "flex", alignItems: "center", justifyContent: "center", transform: `translate(${dx}px, ${dy}px) scale(${pop(f, at) * (1 - mg * 0.7)})`, opacity: 1 - mg }}>{p}</div>
-            );
-          })}
-          {f >= merge + 6 ? <div style={{ position: "absolute", left: 50, top: 160, ...B, fontSize: 50, color: A2.ink, opacity: interpolate(f, [merge + 6, merge + 12], [0, 1], clamp) }}><Mark2 delay={merge + 8}>1枚</Mark2>にまとめる</div> : null}
-          <Arrow x={420} y={200} w={150} at={F(7.88)} />
-          {f >= F(7.88) ? <div style={{ position: "absolute", left: 600, top: 100, transform: `scale(${pop(f, F(7.88)) * (1 + 0.08 * Math.sin(Math.min(1, mg) * Math.PI))})` }}><GenSlot name="mile_card" size={210} label="クレカ" /></div> : null}
-        </Step>
-        <Chevron y={790} at={F(8.78)} />
-        {/* 2 入会キャンペーンの条件を達成 */}
-        <Step top={820} h={300} n={2} at={F(8.78)} title="入会キャンペーンの条件を達成">
-          {f >= F(9.08) ? <div style={{ position: "absolute", left: 40, top: 100, transform: `scale(${pop(f, F(9.08))})` }}><GenSlot name="mile_gift" size={180} label="特典" /></div> : null}
-          <div style={{ position: "absolute", left: 270, top: 150, display: "flex", alignItems: "center", gap: 18 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 12, border: `5px solid ${A2.green}`, background: "#fff", ...B, fontSize: 46, color: A2.green, lineHeight: "50px", textAlign: "center" }}>{f >= F(10.32) ? "✓" : ""}</div>
-            <div style={{ ...B, fontSize: 44, color: f >= F(10.32) ? A2.ink : A2.sub }}>利用条件</div>
+      <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 2900, transform: `translateY(${-cam}px)` }}>
+        {/* 太い線（道）＋進んだぶんが緑に */}
+        <div style={{ position: "absolute", left: SPINE - 11, top: S[0], width: 22, height: interpolate(f, [ST_AT[0], ST_AT[0] + 20], [0, S[5] - S[0]], out), background: A2.track, borderRadius: 11 }} />
+        <div style={{ position: "absolute", left: SPINE - 11, top: S[0], width: 22, height: trav - S[0], background: A2.green, borderRadius: 11 }} />
+        {f >= ST_AT[0] ? <div style={{ position: "absolute", left: SPINE - 24, top: trav - 24, width: 48, height: 48, borderRadius: "50%", background: A2.marker, border: "6px solid #E6C63E", boxSizing: "border-box", zIndex: 2, boxShadow: "0 6px 14px rgba(80,60,20,0.2)" }} /> : null}
+
+        <StepHead i={0} title={<>生活費を<span style={{ color: A2.green }}>クレカ</span>でまとめる</>} />
+        {PILLS.map((p, i) => {
+          const at = F(6.84) + i * 3;
+          if (f < at) return null;
+          const x = 230 + (i % 2) * 196, y = S[0] + 70 + Math.floor(i / 2) * 80;
+          const dx = (895 - (x + 90)) * mg, dy = (S[0] + 145 - (y + 32)) * mg;
+          return <div key={p} style={{ position: "absolute", left: x, top: y, width: 180, height: 64, borderRadius: 999, background: "#fff", border: `3px solid ${A2.bar}`, ...B, fontSize: 32, color: A2.ink, display: "flex", alignItems: "center", justifyContent: "center", transform: `translate(${dx}px, ${dy}px) scale(${pop(f, at) * (1 - mg * 0.7)})`, opacity: 1 - mg }}>{p}</div>;
+        })}
+        {f >= merge + 6 ? <div style={{ position: "absolute", left: 240, top: S[0] + 105, ...B, fontSize: 56, color: A2.ink, opacity: interpolate(f, [merge + 6, merge + 12], [0, 1], clamp) }}><Mark2 delay={merge + 8}>1枚</Mark2>にまとめる</div> : null}
+        <Arrow x={640} y={S[0] + 150} w={130} at={F(7.88)} />
+        {f >= F(7.88) ? <div style={{ position: "absolute", left: 790, top: S[0] + 40, transform: `scale(${pop(f, F(7.88)) * (1 + 0.1 * Math.sin(mg * Math.PI))})` }}><Free name="mile_card" size={210} label="クレカ" /></div> : null}
+
+        <StepHead i={1} title={<>入会キャンペーンの<span style={{ color: A2.green }}>条件</span>を達成</>} />
+        {f >= F(9.08) ? <div style={{ position: "absolute", left: 230, top: S[1] + 50, transform: `scale(${pop(f, F(9.08))})` }}><Free name="mile_gift" size={200} label="特典" /></div> : null}
+        {f >= F(9.08) ? (
+          <div style={{ position: "absolute", left: 480, top: S[1] + 120, display: "flex", alignItems: "center", gap: 18 }}>
+            <div style={{ width: 60, height: 60, borderRadius: 12, border: `5px solid ${A2.green}`, background: "#fff", ...B, fontSize: 48, color: A2.green, lineHeight: "52px", textAlign: "center" }}>{f >= F(10.32) ? "✓" : ""}</div>
+            <div style={{ ...B, fontSize: 46, color: f >= F(10.32) ? A2.ink : A2.sub }}>利用条件</div>
           </div>
-          {f >= F(10.48) ? (
-            <div style={{ position: "absolute", left: 620, top: 110, transform: `rotate(-8deg) scale(${interpolate(f - F(10.48), [0, 4, 7], [1.8, 0.92, 1], clamp)})`, opacity: interpolate(f - F(10.48), [0, 3], [0, 1], clamp), border: `7px solid ${A2.coral}`, borderRadius: 20, padding: "10px 26px", ...B, fontSize: 64, color: A2.coral }}>達成！</div>
-          ) : null}
-        </Step>
-        <Chevron y={1150} at={F(11.02)} />
-        {/* 3 まとまったポイントがもらえる */}
-        <Step top={1180} h={360} n={3} at={F(11.02)} title="まとまったポイントがもらえる">
-          <div style={{ position: "absolute", left: 90, top: 290 - interpolate(f, [F(11.3), F(11.3) + 8], [0, 60], out), width: 160, height: interpolate(f, [F(11.3), F(11.3) + 8], [0, 60], out), background: A2.bar, borderRadius: "12px 12px 0 0" }} />
-          <div style={{ position: "absolute", left: 40, top: 300, width: 260, textAlign: "center", ...B, fontSize: 28, color: A2.sub }}>通常の利用分</div>
-          {f >= F(11.96) ? <div style={{ position: "absolute", left: 320, top: 180, ...B, fontSize: 80, color: A2.ink, transform: `scale(${pop(f, F(11.96))})` }}>＋</div> : null}
-          <div style={{ position: "absolute", left: 450, top: 290 - interpolate(f, [big, big + 10], [0, 170], out), width: 200, height: interpolate(f, [big, big + 10], [0, 170], out), background: A2.marker, borderRadius: "12px 12px 0 0" }} />
-          {f >= big ? <div style={{ position: "absolute", left: 400, top: 300, width: 300, textAlign: "center", ...B, fontSize: 28, color: A2.ink }}>まとまったポイント</div> : null}
-          {f >= big + 4 ? <div style={{ position: "absolute", left: 710, top: 110, transform: `scale(${pop(f, big + 4)})` }}><GenSlot name="mile_coins" size={190} label="ポイント" /></div> : null}
-        </Step>
-        <Chevron y={1570} at={F(13.98)} />
-        {/* 4 ポイントをマイルに交換 */}
-        <Step top={1600} h={270} n={4} at={F(13.7)} title="ポイントをマイルに交換">
-          <div style={{ position: "absolute", left: 140, top: 100 }}><GenSlot name="mile_coins" size={150} /></div>
-          <Arrow x={330} y={175} w={230} at={F(14.9)} label="交換" />
-          {f >= F(14.9) + 6 ? <div style={{ position: "absolute", left: 590, top: 100, transform: `scale(${pop(f, F(14.9) + 6)})` }}><GenSlot name="mile_plane" size={150} /></div> : null}
-          {f >= F(14.9) + 8 ? <div style={{ position: "absolute", left: 760, top: 145, ...B, fontSize: 50, color: A2.green }}>マイル</div> : null}
-        </Step>
-        <Chevron y={1895} at={F(15.44)} />
-        {/* 5 航空券を予約 */}
-        <Step top={1920} h={270} n={5} at={F(15.44)} title="航空券を予約">
-          {f >= F(15.76) ? <div style={{ position: "absolute", left: 140, top: 100, transform: `scale(${pop(f, F(15.76))})` }}><GenSlot name="mile_ticket" size={160} label="航空券" /></div> : null}
-          {f >= F(16.18) ? <div style={{ position: "absolute", left: 360, top: 145, ...B, fontSize: 50, color: A2.ink, opacity: interpolate(f - F(16.18), [0, 6], [0, 1], clamp) }}><span style={{ color: A2.green }}>マイル</span>で予約</div> : null}
-        </Step>
-        <Chevron y={2195} at={F(16.96)} />
-        {/* 6 家族旅行の飛行機代を大きく抑える */}
-        <Step top={2220} h={420} n={6} at={F(16.96)} title="家族旅行の飛行機代を大きく抑える">
-          {f >= F(17.2) ? <div style={{ position: "absolute", left: 30, top: 110, transform: `scale(${pop(f, F(17.2))})` }}><GenSlot name="mile_family_happy" size={280} label="家族" /></div> : null}
-          <div style={{ position: "absolute", left: 350, top: 135, ...B, fontSize: 34, color: A2.sub }}>飛行機代</div>
-          <div style={{ position: "absolute", left: 350, top: 190, height: 70, borderRadius: 14, background: price > 0.5 ? A2.green : A2.coral, width: interpolate(f, [F(17.7), F(17.7) + 10], [0, 540], out) * (1 - price * 0.68) }} />
-          {f >= F(18.4) + 4 ? (
-            <div style={{ position: "absolute", left: 350, top: 295, transform: `scale(${pop(f, F(18.4) + 4)})`, transformOrigin: "left center" }}>
-              <span style={{ display: "inline-block", background: A2.coral, color: "#fff", ...B, fontSize: 46, padding: "10px 32px", borderRadius: 999 }}>大きく抑えられる</span>
-            </div>
-          ) : null}
-        </Step>
+        ) : null}
+        {f >= F(10.48) ? <div style={{ position: "absolute", left: 790, top: S[1] + 60, transform: `rotate(-8deg) scale(${interpolate(f - F(10.48), [0, 4, 7], [1.8, 0.92, 1], clamp)})`, opacity: interpolate(f - F(10.48), [0, 3], [0, 1], clamp), border: `7px solid ${A2.coral}`, borderRadius: 20, padding: "8px 22px", ...B, fontSize: 60, color: A2.coral, background: A2.bg }}>達成！</div> : null}
+
+        <StepHead i={2} title={<><span style={{ color: A2.green }}>まとまった</span>ポイントがもらえる</>} />
+        <div style={{ position: "absolute", left: 250, top: S[2] + 260 - interpolate(f, [F(11.3), F(11.3) + 8], [0, 60], out), width: 160, height: interpolate(f, [F(11.3), F(11.3) + 8], [0, 60], out), background: A2.bar, borderRadius: "12px 12px 0 0" }} />
+        {f >= F(11.3) ? <div style={{ position: "absolute", left: 200, top: S[2] + 272, width: 260, textAlign: "center", ...B, fontSize: 30, color: A2.sub }}>通常の利用分</div> : null}
+        {f >= F(11.96) ? <div style={{ position: "absolute", left: 460, top: S[2] + 140, ...B, fontSize: 84, color: A2.ink, transform: `scale(${pop(f, F(11.96))})` }}>＋</div> : null}
+        <div style={{ position: "absolute", left: 570, top: S[2] + 260 - interpolate(f, [big, big + 10], [0, 190], out), width: 200, height: interpolate(f, [big, big + 10], [0, 190], out), background: A2.marker, borderRadius: "12px 12px 0 0" }} />
+        {f >= big ? <div style={{ position: "absolute", left: 520, top: S[2] + 272, width: 300, textAlign: "center", ...B, fontSize: 30, color: A2.ink }}>まとまったポイント</div> : null}
+        {f >= big + 4 ? <div style={{ position: "absolute", left: 810, top: S[2] + 70, transform: `scale(${pop(f, big + 4)})` }}><Free name="mile_coins" size={190} label="ポイント" /></div> : null}
+        {/* 下の線（地面） */}
+        {f >= F(11.3) ? <div style={{ position: "absolute", left: 220, top: S[2] + 260, width: 580, height: 5, borderRadius: 3, background: A2.ink, opacity: 0.6 }} /> : null}
+
+        <StepHead i={3} title={<>ポイントを<span style={{ color: A2.green }}>マイル</span>に交換</>} />
+        {f >= F(13.98) ? <div style={{ position: "absolute", left: 240, top: S[3] + 50, transform: `scale(${pop(f, F(13.98))})` }}><Free name="mile_coins" size={160} /></div> : null}
+        <Arrow x={430} y={S[3] + 130} w={220} at={F(14.9)} label="交換" />
+        {f >= F(14.9) + 6 ? <div style={{ position: "absolute", left: 680, top: S[3] + 50, transform: `scale(${pop(f, F(14.9) + 6)})` }}><Free name="mile_plane" size={160} bob /></div> : null}
+        {f >= F(14.9) + 8 ? <div style={{ position: "absolute", left: 855, top: S[3] + 100, ...B, fontSize: 52, color: A2.green }}>マイル</div> : null}
+
+        <StepHead i={4} title={<><span style={{ color: A2.green }}>航空券</span>を予約</>} />
+        {f >= F(15.76) ? <div style={{ position: "absolute", left: 240, top: S[4] + 45, transform: `scale(${pop(f, F(15.76))})` }}><Free name="mile_ticket" size={170} label="航空券" /></div> : null}
+        {f >= F(16.18) ? <div style={{ position: "absolute", left: 460, top: S[4] + 100, ...B, fontSize: 52, color: A2.ink, opacity: interpolate(f - F(16.18), [0, 6], [0, 1], clamp) }}><span style={{ color: A2.green }}>マイル</span>で予約</div> : null}
+
+        <StepHead i={5} title={<>家族旅行の<span style={{ color: A2.green }}>飛行機代</span>を大きく抑える</>} />
+        {f >= F(17.2) ? <div style={{ position: "absolute", left: 210, top: S[5] + 50, transform: `scale(${pop(f, F(17.2))})` }}><Free name="mile_family_happy" size={300} label="家族" /></div> : null}
+        {f >= F(17.7) ? <div style={{ position: "absolute", left: 560, top: S[5] + 80, ...B, fontSize: 36, color: A2.sub }}>飛行機代</div> : null}
+        <div style={{ position: "absolute", left: 560, top: S[5] + 135, height: 76, borderRadius: 16, background: price > 0.5 ? A2.green : A2.coral, width: interpolate(f, [F(17.7), F(17.7) + 10], [0, 420], out) * (1 - price * 0.66) }} />
+        {f >= F(18.4) ? <div style={{ position: "absolute", left: 560 + 420 * 0.34 + 10, top: S[5] + 135, width: 420 * 0.66 - 10, height: 76, borderRadius: 16, border: `4px dashed ${A2.coral}`, boxSizing: "border-box", opacity: price * 0.8 }} /> : null}
+        {f >= F(18.4) + 4 ? (
+          <div style={{ position: "absolute", left: 560, top: S[5] + 240, transform: `scale(${pop(f, F(18.4) + 4)})`, transformOrigin: "left center" }}>
+            <span style={{ display: "inline-block", background: A2.coral, color: "#fff", ...B, fontSize: 46, padding: "10px 32px", borderRadius: 999 }}>大きく抑えられる</span>
+          </div>
+        ) : null}
       </div>
-      <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 420, background: `linear-gradient(${A2.bg} 78%, rgba(251,246,216,0))` }} />
+      <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 440, background: `linear-gradient(${A2.bg} 86%, rgba(251,246,216,0))` }} />
       <Head text={<>どうやって<span style={{ color: A2.green }}>貯める</span>？</>} from={a} />
     </AbsoluteFill>
   );
@@ -189,10 +194,11 @@ const SceneC1: React.FC = () => {
   const lv = useLeave(F(25.74));
   if (lv.gone) return null;
   const n = Math.round(interpolate(f, [F(23.2), F(23.2) + 10], [0, 100], out));
-  const per = F(24.6);
+  const barAt = F(23.2) + 4, cut = F(23.76), per = F(24.6);
+  const bw = interpolate(f, [barAt, barAt + 10], [0, 900], io);
   return (
     <AbsoluteFill style={lv.style}>
-      <In at={F(20.72)} style={{ left: 80, top: 450 }}><Card style={{ padding: 20 }}><GenSlot name="mile_calendar" size={260} label="半年" /></Card></In>
+      <In at={F(20.72)} style={{ left: 60, top: 430 }}><Free name="mile_calendar" size={300} label="半年" /></In>
       <In at={F(22.24)} style={{ left: 430, top: 460 }}><div style={{ ...B, fontSize: 36, color: A2.sub }}>例えば</div></In>
       <In at={F(22.6)} style={{ left: 430, top: 515 }}><div style={{ ...B, fontSize: 58, color: A2.ink }}>半年で</div></In>
       {f >= F(23.2) ? (
@@ -200,19 +206,19 @@ const SceneC1: React.FC = () => {
           <span style={{ fontSize: 150, letterSpacing: -4 }}>{n}</span><span style={{ fontSize: 70, color: A2.ink }}>万円</span>
         </div>
       ) : null}
-      {Array.from({ length: MONTHS }).map((_, i) => {
-        const at = F(23.76) + i * 3;
-        return (
-          <In key={i} at={at} style={{ left: 88 + i * 153, top: 830, width: 140 }}>
-            <Card style={{ height: 150, borderRadius: 20, textAlign: "center", paddingTop: 18, boxSizing: "border-box" }}>
-              <div style={{ ...B, fontSize: 26, color: A2.sub }}>{i + 1}ヶ月目</div>
-              {f >= per + i * 2 ? <div style={{ ...B, fontSize: 34, color: A2.ink, marginTop: 14, transform: `scale(${pop(f, per + i * 2)})` }}>約17万</div> : null}
-            </Card>
-          </In>
-        );
-      })}
+      {/* 100万円の1本バー → 6つに割れる */}
+      {f >= cut ? <div style={{ position: "absolute", left: 90, top: 800, ...B, fontSize: 32, color: A2.sub, opacity: interpolate(f - cut, [0, 6], [0, 1], clamp) }}>月にすると…</div> : null}
+      <div style={{ position: "absolute", left: 90, top: 860, width: bw, height: 110, borderRadius: 22, background: A2.green, overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", ...B, fontSize: 56, color: "#fff", opacity: interpolate(f, [barAt + 4, barAt + 8, cut + 2, cut + 8], [0, 1, 1, 0], clamp) }}>100万円</div>
+        {Array.from({ length: MONTHS - 1 }).map((_, k) => (
+          <div key={k} style={{ position: "absolute", left: 150 * (k + 1) - 4, top: 0, width: 8, height: 110, background: A2.bg, transform: `scaleY(${interpolate(f, [cut + k * 3, cut + k * 3 + 6], [0, 1], out)})` }} />
+        ))}
+        {Array.from({ length: MONTHS }).map((_, i) => f >= per + i * 2 ? (
+          <div key={i} style={{ position: "absolute", left: 150 * i, top: 0, width: 150, height: 110, display: "flex", alignItems: "center", justifyContent: "center", ...B, fontSize: 32, color: "#fff", transform: `scale(${pop(f, per + i * 2)})` }}>約17万</div>
+        ) : null)}
+      </div>
       {f >= per + 12 ? (
-        <div style={{ position: "absolute", left: 0, top: 1020, width: 1080, textAlign: "center", ...B, color: A2.ink, transform: `scale(${pop(f, per + 12)})` }}>
+        <div style={{ position: "absolute", left: 0, top: 1010, width: 1080, textAlign: "center", ...B, color: A2.ink, transform: `scale(${pop(f, per + 12)})` }}>
           <span style={{ fontSize: 58 }}>月 約</span><span style={{ fontSize: 120, color: A2.coral }}>17</span><span style={{ fontSize: 58 }}>万円</span>
         </div>
       ) : null}
@@ -231,23 +237,19 @@ const SceneC2: React.FC = () => {
       <In at={a} style={{ left: 0, top: 425, width: 1080, textAlign: "center" }}>
         <span style={{ display: "inline-block", background: A2.track, ...B, fontSize: 38, color: A2.ink, padding: "8px 30px", borderRadius: 999 }}>月 約17万円</span>
       </In>
-      <In at={F(25.94)} style={{ left: 80, top: 530, width: 440 }}>
-        <Card style={{ padding: "24px 0", textAlign: "center" }}>
-          <div style={{ display: "flex", justifyContent: "center" }}><GenSlot name="mile_house" size={240} label="固定費" /></div>
-          <div style={{ ...B, fontSize: 42, color: A2.ink, marginTop: 12 }}>毎月の<Mark2 delay={F(26.6)}>固定費</Mark2></div>
-          <div style={{ ...B, fontSize: 30, color: A2.sub, marginTop: 4 }}>をまとめる</div>
-        </Card>
+      <In at={F(25.94)} style={{ left: 60, top: 530, width: 460, textAlign: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center" }}><Free name="mile_house" size={280} label="固定費" /></div>
+        <div style={{ ...B, fontSize: 46, color: A2.ink, marginTop: 18 }}>毎月の<Mark2 delay={F(26.6)}>固定費</Mark2></div>
+        <div style={{ ...B, fontSize: 32, color: A2.sub, marginTop: 2 }}>をまとめる</div>
       </In>
-      <In at={F(27.64)} style={{ left: 560, top: 530, width: 440 }}>
-        <Card style={{ padding: "24px 0", textAlign: "center" }}>
-          <div style={{ display: "flex", justifyContent: "center" }}><GenSlot name="mile_cart" size={240} label="大きな買い物" /></div>
-          <div style={{ ...B, fontSize: 42, color: A2.ink, marginTop: 12 }}><Mark2 delay={F(28.08)}>大きな出費</Mark2></div>
-          <div style={{ ...B, fontSize: 30, color: A2.sub, marginTop: 4 }}>があれば</div>
-        </Card>
+      <In at={F(27.64)} style={{ left: 560, top: 530, width: 460, textAlign: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center" }}><Free name="mile_cart" size={280} label="大きな買い物" /></div>
+        <div style={{ ...B, fontSize: 46, color: A2.ink, marginTop: 18 }}><Mark2 delay={F(28.08)}>大きな出費</Mark2></div>
+        <div style={{ ...B, fontSize: 32, color: A2.sub, marginTop: 2 }}>があれば</div>
       </In>
       {f >= st ? (
-        <div style={{ position: "absolute", left: 0, top: 990, width: 1080, display: "flex", justifyContent: "center" }}>
-          <div style={{ transform: `rotate(-4deg) scale(${interpolate(f - st, [0, 4, 7], [1.8, 0.92, 1], clamp)})`, opacity: interpolate(f - st, [0, 3], [0, 1], clamp), background: "#fff", border: `8px solid ${A2.coral}`, borderRadius: 26, padding: "14px 44px", ...B, fontSize: 84, color: A2.coral }}>むしろチャンス</div>
+        <div style={{ position: "absolute", left: 0, top: 1010, width: 1080, display: "flex", justifyContent: "center" }}>
+          <div style={{ transform: `rotate(-4deg) scale(${interpolate(f - st, [0, 4, 7], [1.8, 0.92, 1], clamp)})`, opacity: interpolate(f - st, [0, 3], [0, 1], clamp), background: A2.bg, border: `8px solid ${A2.coral}`, borderRadius: 26, padding: "12px 44px", ...B, fontSize: 84, color: A2.coral }}>むしろチャンス</div>
         </div>
       ) : null}
     </AbsoluteFill>
@@ -264,20 +266,18 @@ const SceneC3: React.FC = () => {
       <Head text={<>効率よく<span style={{ color: A2.green }}>達成</span>する方法</>} from={a + 7} />
       {[0, 1, 2].map((i) => {
         const at = F(31.48) + i * 5;
-        const wob = f >= many ? Math.sin((f - many - i * 3) / 2.2) * interpolate(f - many - i * 3, [0, 4, 14], [0, 6, 0], clamp) : 0;
+        const wob = f >= many ? Math.sin((f - many - i * 3) / 2.2) * interpolate(f - many - i * 3, [0, 4, 14], [0, 8, 0], clamp) : 0;
         return (
-          <In key={i} at={at} style={{ left: 80 + i * 315, top: 470, width: 290 }}>
-            <Card style={{ height: 320, textAlign: "center", paddingTop: 34, boxSizing: "border-box", transform: `rotate(${wob}deg)` }}>
-              <div style={{ width: 170, height: 170, margin: "0 auto", borderRadius: "50%", background: A2.track, ...B, fontSize: 120, lineHeight: "170px", color: A2.green }}>?</div>
-              <div style={{ ...B, fontSize: 38, color: A2.ink, marginTop: 20 }}>方法{["①", "②", "③"][i]}</div>
-            </Card>
+          <In key={i} at={at} style={{ left: 80 + i * 315, top: 470, width: 290, textAlign: "center" }}>
+            <div style={{ width: 210, height: 210, margin: "0 auto", borderRadius: "50%", background: "#fff", border: `6px dashed ${A2.green}`, boxSizing: "border-box", ...B, fontSize: 130, lineHeight: "198px", color: A2.green, transform: `rotate(${wob}deg)` }}>?</div>
+            <div style={{ ...B, fontSize: 40, color: A2.ink, marginTop: 18 }}>方法{["①", "②", "③"][i]}</div>
           </In>
         );
       })}
-      {f >= many ? <div style={{ position: "absolute", left: 0, top: 815, width: 1080, textAlign: "center", ...B, fontSize: 44, color: A2.sub, opacity: interpolate(f - many, [0, 6], [0, 1], clamp) }}>…いくつもある</div> : null}
+      {f >= many ? <div style={{ position: "absolute", left: 0, top: 790, width: 1080, textAlign: "center", ...B, fontSize: 44, color: A2.sub, opacity: interpolate(f - many, [0, 6], [0, 1], clamp) }}>…いくつもある</div> : null}
       {f >= F(34.16) ? (
-        <div style={{ position: "absolute", left: 0, top: 900, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 30, transform: `scale(${pop(f, F(34.16))})` }}>
-          <Card style={{ padding: 14 }}><GenSlot name="mile_phone_dm" size={200} label="DM" /></Card>
+        <div style={{ position: "absolute", left: 0, top: 880, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 30, transform: `scale(${pop(f, F(34.16))})` }}>
+          <Free name="mile_phone_dm" size={230} label="DM" />
           <span style={{ display: "inline-block", background: A2.coral, color: "#fff", ...B, fontSize: 64, padding: "12px 44px", borderRadius: 999 }}>DMで</span>
         </div>
       ) : null}
