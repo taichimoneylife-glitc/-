@@ -9,7 +9,7 @@ import { B, GenSlot, Head, Intro, EXP, SUBS, MarkerSub, SubFade } from "./MileLi
 // ════════════════════════════════════════════════════════════════════
 //  マイル④ 横軸ライフプラン版（35.32–50.07）
 //  横軸＝人生（親の年齢・例）、資産の線が上下しながら右肩上がり（相続リールの株グラフの発想）。
-//  「今」ゾーン（子ども0〜18歳）は人生の中の限られた帯 → そこから思い出の画像が飛び出す。
+//  「今」ゾーン（子どもと過ごせる時期）は人生の中の限られた帯。年齢は出さない → そこから思い出の画像が飛び出す。
 //  カードで囲まない：画像は背景に直置き、線・帯・ピルで見せる。
 // ════════════════════════════════════════════════════════════════════
 
@@ -40,7 +40,7 @@ const pathOf = (a0: number, a1: number) => {
 const PATH_NOW = pathOf(30, 48);
 const PATH_LIFE = pathOf(48, 85);
 const FILL_LIFE = `${PATH_LIFE}L${ax(85)} ${BASE} L${ax(48)} ${BASE} Z`;
-const NOW_X0 = ax(30), NOW_X1 = ax(48); // 今＝子ども0〜18歳（親30〜48歳の例）
+const NOW_X0 = ax(30), NOW_X1 = ax(48); // 今＝子どもと過ごせる時期（内部の目安。画面に年齢は出さない）
 
 const Pill: React.FC<{ bg: string; color?: string; size?: number; children: React.ReactNode }> = ({ bg, color = "#fff", size = 40, children }) => (
   <span style={{ display: "inline-block", background: bg, color, ...B, fontSize: size, padding: `${size * 0.22}px ${size * 0.7}px`, borderRadius: 999, whiteSpace: "nowrap" }}>{children}</span>
@@ -110,15 +110,11 @@ const Chart: React.FC = () => {
       </svg>
       {/* 軸ラベル */}
       <div style={{ position: "absolute", left: X0 - 10, top: 515, ...B, fontSize: 28, color: A2.sub, opacity: axisP }}>お金</div>
-      {[30, 48, 65, 85].map((g) => (
-        <div key={g} style={{ position: "absolute", left: ax(g) - 50, top: BASE + 14, width: 100, textAlign: "center", ...B, fontSize: 28, color: A2.sub, opacity: axisP }}>{g}歳</div>
-      ))}
-      <div style={{ position: "absolute", right: 70, top: BASE + 56, ...B, fontSize: 24, color: A2.sub, opacity: axisP }}>親の年齢（例）</div>
+      <div style={{ position: "absolute", right: 70, top: BASE + 16, ...B, fontSize: 30, color: A2.sub, opacity: axisP }}>人生の時間 →</div>
       {/* 今ラベル */}
       {f >= a + 6 ? (
         <div style={{ position: "absolute", left: NOW_X0, top: 575, width: NOW_X1 - NOW_X0, textAlign: "center", transform: `scale(${pop(f, a + 6)})` }}>
           <div style={{ ...B, fontSize: 60, color: A2.ink, lineHeight: 1 }}>今</div>
-          <div style={{ ...B, fontSize: 22, color: A2.ink, marginTop: 6, opacity: f >= L(44.12) ? 0 : 1 }}>子ども0〜18歳</div>
         </div>
       ) : null}
       {/* 教育資金 */}
