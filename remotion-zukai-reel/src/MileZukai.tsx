@@ -103,11 +103,42 @@ const StepHead: React.FC<{ i: number; title: React.ReactNode }> = ({ i, title })
   );
 };
 
+// ⑥のあと：飛行機がビューンと急降下 → ページごと次へ（最前面に描く）
+const DIVE_A = F(19.2), DIVE_B = F(19.72);
+const divePos = (f: number) => {
+  const t3 = DIVE_B + 10, t4 = t3 + 8;
+  const y0 = 2400 - 185 - 1880 + 75; // ⑥で止まっている飛行機の中心（画面座標）
+  const cx = interpolate(f, [DIVE_A, DIVE_B], [SPINE, 540], io);
+  const cy =
+    f < DIVE_B ? interpolate(f, [DIVE_A, DIVE_B], [y0, 900], { ...clamp, easing: Easing.in(Easing.cubic) }) :
+    f < t3 ? interpolate(f, [DIVE_B, t3], [900, 1000], clamp) :
+    interpolate(f, [t3, t4], [1000, 2200], { ...clamp, easing: Easing.in(Easing.quad) });
+  return { cx, cy, sc: 1 + interpolate(f, [DIVE_A, DIVE_B], [0, 0.7], clamp), t4 };
+};
+const PlaneDive: React.FC = () => {
+  const f = useCurrentFrame();
+  const { t4 } = divePos(f);
+  if (f < DIVE_A || f > t4) return null;
+  // 残像（少し前の位置に薄い飛行機）でスピード感
+  return (
+    <>
+      {[6, 4, 2, 0].map((d) => {
+        const { cx, cy, sc } = divePos(Math.max(DIVE_A, f - d));
+        return (
+          <div key={d} style={{ position: "absolute", left: cx - 75, top: cy - 75, width: 150, height: 150, opacity: d === 0 ? 1 : 0.12 + (6 - d) * 0.05, transform: `rotate(50deg) scale(${sc})` }}>
+            <GenSlot name="mile_plane" size={150} />
+          </div>
+        );
+      })}
+    </>
+  );
+};
+
 const PILLS = ["食費", "光熱費", "通信費", "日用品"];
 const SceneB: React.FC = () => {
   const f = useCurrentFrame();
   const a = F(5.12);
-  const lv = useLeave(F(19.72));
+  const lv = { gone: f >= F(19.72) + 10 };
   if (f < a || lv.gone) return null;
   const cam =
     f < F(11.02) ? 0 :
@@ -122,15 +153,16 @@ const SceneB: React.FC = () => {
   const mg = interpolate(f, [merge, merge + 10], [0, 1], io);
   const big = F(12.52);
   const price = interpolate(f, [F(18.4), F(18.4) + 10], [0, 1], io);
+  const pageK = interpolate(f, [F(19.72), F(19.72) + 10], [0, 1], io); // ページごと上へ＝カメラが飛行機を追って下へ
   return (
-    <AbsoluteFill style={{ ...lv.style, overflow: "hidden" }}>
+    <AbsoluteFill style={{ transform: `translateY(${-pageK * 1920}px)`, overflow: "hidden" }}>
       <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 2900, transform: `translateY(${-cam}px)` }}>
         {/* 太い線（道）＋進んだぶんが緑に */}
         <div style={{ position: "absolute", left: SPINE - 11, top: S[0], width: 22, height: interpolate(f, [ST_AT[0], ST_AT[0] + 20], [0, S[5] - S[0]], out), background: A2.track, borderRadius: 11 }} />
         <div style={{ position: "absolute", left: SPINE - 11, top: S[0], width: 22, height: trav - S[0], background: A2.green, borderRadius: 11 }} />
         {/* 道を進むコマ＝下向きの飛行機（機首を下に。駅の番号は隠さないよう、駅の少し上に止まる） */}
         {f >= ST_AT[0] ? (
-          <div style={{ position: "absolute", left: SPINE - 72, top: trav - 185, width: 150, height: 150, zIndex: 4, transform: `translateX(${Math.sin(f / 7) * 4}px) rotate(${50 + Math.sin(f / 9) * 4}deg)`, opacity: interpolate(f, [ST_AT[0], ST_AT[0] + 6], [0, 1], clamp) }}>
+          <div style={{ position: "absolute", left: SPINE - 72, top: trav - 185, width: 150, height: 150, zIndex: 4, transform: `translateX(${Math.sin(f / 7) * 4}px) rotate(${50 + Math.sin(f / 9) * 4}deg)`, opacity: interpolate(f, [ST_AT[0], ST_AT[0] + 6], [0, 1], clamp) * (f >= DIVE_A ? 0 : 1) }}>
             <GenSlot name="mile_plane" size={150} />
           </div>
         ) : null}
@@ -275,8 +307,9 @@ const SceneC: React.FC = () => {
   const f = useCurrentFrame();
   if (f < F(19.72)) return null;
   const lv = interpolate(f, [F(30.02), F(30.02) + 6], [1, 0], clamp);
+  const enter = interpolate(f, [F(19.72), F(19.72) + 10], [1, 0], io); // 下からページが上がってくる
   return (
-    <AbsoluteFill>
+    <AbsoluteFill style={{ transform: `translateY(${enter * 1920}px)` }}>
       {f < F(30.02) + 8 ? <div style={{ opacity: lv }}><Head text={<>キャンペーンの<span style={{ color: A2.green }}>利用条件</span></>} from={F(19.72)} /></div> : null}
       <SceneC1 />
       <SceneC2 />
@@ -311,6 +344,7 @@ const CUES: { file: string; at: number; volume: number }[] = [
   { file: "user/u02s", at: F(15.44), volume: 0.26 },
   { file: "user/u02s", at: F(16.96), volume: 0.26 },
   { file: "user/u05", at: F(18.4), volume: 0.3 },
+  { file: "whoosh2", at: F(19.3), volume: 0.4 },
   { file: "user/u03", at: F(19.72), volume: 0.3 },
   { file: "user/u02s", at: F(23.2), volume: 0.3 },
   { file: "user/u05s", at: F(24.6) + 12, volume: 0.3 },
@@ -329,6 +363,7 @@ export const Mile123: React.FC = () => (
     <SceneA />
     <SceneB />
     <SubFade />
+    <PlaneDive />
     <SceneC />
     <MarkerSub subs={SUBS.map(([t, s]) => [R(t), s] as [number, string])} start={0} end={R(35.32)} />
   </AbsoluteFill>
