@@ -3,6 +3,7 @@ import { AbsoluteFill, Audio, staticFile, useCurrentFrame, useVideoConfig, inter
 import { A2 } from "./components/kit2";
 import { FONT } from "./components/font";
 import { SfxTrack } from "./components/sfx";
+import { Burst } from "./components/fx";
 import { R } from "./mileTime";
 import { B, GenSlot, Head, Intro, EXP, SUBS, MarkerSub, SubFade } from "./MileLifePlan";
 
@@ -138,26 +139,42 @@ const Chart: React.FC = () => {
 };
 
 // まとめ：今の経験 ＝ 将来の備え（上段のピル）＋ 同じくらい大切
+// まとめ：天秤。「将来の備え」側に傾いている → 「今の経験」が乗る → 「同じくらい」で水平に
 export const Equal: React.FC = () => {
   const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const a = L(47.66);
   if (f < a) return null;
-  const eq = L(48.5), band = L(49.02);
+  const band = L(49.02);
+  const show = interpolate(f - a, [0, 6], [0, 1], clamp);
+  const level = spring({ frame: f - band, fps, config: { damping: 7, stiffness: 120, mass: 0.7 } });
+  const deg = f < band ? interpolate(f, [a, a + 8, L(48.5)], [6, 6, 3.5], clamp) : 3.5 * (1 - level);
+  const rad = (deg * Math.PI) / 180;
+  const cx = 540, cy = 425, arm = 320;
+  const end = (side: number) => ({ x: cx + side * arm * Math.cos(rad), y: cy + side * arm * Math.sin(rad) });
+  const L1 = end(-1), R1 = end(1);
   return (
     <>
-      <div style={{ position: "absolute", left: 60, top: 410, width: 960, display: "flex", justifyContent: "center", alignItems: "center", gap: 26 }}>
-        <div style={{ transform: `scale(${pop(f, a + 2)})` }}><Pill bg={A2.marker} color={A2.ink} size={44}>今の経験</Pill></div>
-        <div style={{ ...B, fontSize: 70, color: A2.ink, opacity: f >= eq ? 1 : 0, transform: `scale(${f >= eq ? pop(f, eq) : 0})` }}>＝</div>
-        <div style={{ opacity: f >= eq ? 1 : 0, transform: `scale(${f >= eq ? pop(f, eq + 2) : 0})` }}><Pill bg={A2.green} size={44}>将来の備え</Pill></div>
+      <div style={{ position: "absolute", inset: 0, opacity: show }}>
+        {/* 支点 */}
+        <div style={{ position: "absolute", left: cx - 26, top: cy, width: 0, height: 0, borderLeft: "26px solid transparent", borderRight: "26px solid transparent", borderBottom: `40px solid ${A2.ink}` }} />
+        {/* 竿 */}
+        <div style={{ position: "absolute", left: cx - arm, top: cy - 5, width: arm * 2, height: 10, borderRadius: 5, background: A2.ink, transform: `rotate(${deg}deg)`, transformOrigin: "50% 50%" }} />
+        {/* 右：将来の備え（はじめから乗っている） */}
+        <div style={{ position: "absolute", left: R1.x - 130, top: R1.y + 8, width: 260, textAlign: "center" }}><Pill bg={A2.green} size={40}>将来の備え</Pill></div>
+        {/* 左：今の経験（ポンと乗る） */}
+        {f >= a + 4 ? <div style={{ position: "absolute", left: L1.x - 130, top: L1.y + 8, width: 260, textAlign: "center", transform: `scale(${pop(f, a + 4)})` }}><Pill bg={A2.marker} color={A2.ink} size={40}>今の経験</Pill></div> : null}
       </div>
       {f >= band ? (
         <div style={{ position: "absolute", left: 110, top: 1205, width: 860, transform: `scale(${pop(f, band)})` }}>
           <div style={{ background: A2.marker, borderRadius: 24, padding: "20px 0", textAlign: "center", ...B, fontSize: 60, color: A2.ink }}>同じくらい大切</div>
         </div>
       ) : null}
+      <Burst x={540} y={1255} at={band} r={300} n={16} />
     </>
   );
 };
+
 
 export const LifeChart: React.FC = () => {
   const f = useCurrentFrame();

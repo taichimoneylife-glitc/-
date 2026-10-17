@@ -7,6 +7,7 @@ import { R } from "./mileTime";
 import { B, GenSlot, In, Head, MarkerSub, SubFade } from "./MileLifePlan";
 import { MileLifeChart, MILE_LC_FRAMES } from "./MileLifeChart";
 import { S12, S13 } from "./MileV2";
+import { Burst, Plate } from "./components/fx";
 
 // ════════════════════════════════════════════════════════════════════
 //  マイル図解パート 通し（①〜④）。見た目＝三大原則（薄黄×白カード×生成イラスト）
@@ -76,9 +77,14 @@ const SceneA: React.FC = () => {
           <Free name="mile_plane" size={360} label="飛行機" bob />
         </div>
       ) : null}
+      {/* 「乗らなくても」で “飛行機に乗って貯める” に取り消し線 */}
       {f >= F(1.9) ? (
         <div style={{ position: "absolute", left: 0, top: 900, width: 1080, textAlign: "center", opacity: 1 - mv, transform: `scale(${pop(f, F(1.9))})` }}>
-          <span style={{ display: "inline-block", background: A2.coral, color: "#fff", ...B, fontSize: 52, padding: "12px 40px", borderRadius: 999 }}>飛行機に乗らなくても</span>
+          <span style={{ position: "relative", display: "inline-block", ...B, fontSize: 60, color: f >= F(2.42) ? A2.sub : A2.ink }}>
+            飛行機に乗って貯める
+            <span style={{ position: "absolute", left: -12, top: "52%", height: 12, borderRadius: 6, background: A2.coral, width: `calc(${interpolate(f, [F(2.42), F(2.42) + 8], [0, 100], out)}% + 24px)` }} />
+          </span>
+          {f >= F(2.42) + 6 ? <span style={{ display: "inline-block", marginLeft: 20, ...B, fontSize: 60, color: A2.coral, transform: `scale(${pop(f, F(2.42) + 6)})` }}>✕</span> : null}
         </div>
       ) : null}
       <In at={F(3.16)} style={{ left: 90, top: 480 }}><Free name="mile_receipt" size={300} label="生活費" /></In>
@@ -191,6 +197,7 @@ const SceneB: React.FC = () => {
             <div style={{ ...B, fontSize: 46, color: f >= F(10.32) ? A2.ink : A2.sub }}>利用条件</div>
           </div>
         ) : null}
+        <Burst x={905} y={S[1] + 105} at={F(10.48)} color={A2.coral} />
         {f >= F(10.48) ? <div style={{ position: "absolute", left: 790, top: S[1] + 60, transform: `rotate(-8deg) scale(${interpolate(f - F(10.48), [0, 4, 7], [1.8, 0.92, 1], clamp)})`, opacity: interpolate(f - F(10.48), [0, 3], [0, 1], clamp), border: `7px solid ${A2.coral}`, borderRadius: 20, padding: "8px 22px", ...B, fontSize: 60, color: A2.coral, background: A2.bg }}>達成！</div> : null}
 
         <StepHead i={2} title={<><span style={{ color: A2.green }}>まとまった</span>ポイントがもらえる</>} />
@@ -223,6 +230,7 @@ const SceneB: React.FC = () => {
             <span style={{ display: "inline-block", background: A2.coral, color: "#fff", ...B, fontSize: 46, padding: "10px 32px", borderRadius: 999 }}>大きく抑えられる</span>
           </div>
         ) : null}
+        <Burst x={760} y={S[5] + 275} at={F(18.4) + 4} r={170} />
       </div>
       <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 440, background: `linear-gradient(${A2.bg} 86%, rgba(251,246,216,0))` }} />
       <Head text={<>どうやって<span style={{ color: A2.green }}>貯める</span>？</>} from={a} />
@@ -241,7 +249,7 @@ const SceneC1: React.FC = () => {
   const bw = interpolate(f, [barAt, barAt + 10], [0, 900], io);
   return (
     <AbsoluteFill style={lv.style}>
-      <In at={F(20.72)} style={{ left: 60, top: 430 }}><Free name="mile_calendar" size={300} label="半年" /></In>
+      <In at={F(22.1)} style={{ left: 60, top: 430 }}><Free name="mile_calendar" size={300} label="半年" /></In>
       <In at={F(22.24)} style={{ left: 430, top: 460 }}><div style={{ ...B, fontSize: 36, color: A2.sub }}>例えば</div></In>
       <In at={F(22.6)} style={{ left: 430, top: 515 }}><div style={{ ...B, fontSize: 58, color: A2.ink }}>半年で</div></In>
       {f >= F(23.2) ? (
@@ -265,6 +273,8 @@ const SceneC1: React.FC = () => {
           <span style={{ fontSize: 58 }}>月 約</span><span style={{ fontSize: 120, color: A2.coral }}>17</span><span style={{ fontSize: 58 }}>万円</span>
         </div>
       ) : null}
+      <Burst x={600} y={680} at={F(23.2) + 6} r={150} />
+      <Burst x={540} y={1085} at={per + 12} r={170} color={A2.coral} />
     </AbsoluteFill>
   );
 };
@@ -295,6 +305,7 @@ const SceneC2: React.FC = () => {
           <div style={{ transform: `rotate(-4deg) scale(${interpolate(f - st, [0, 4, 7], [1.8, 0.92, 1], clamp)})`, opacity: interpolate(f - st, [0, 3], [0, 1], clamp), background: A2.bg, border: `8px solid ${A2.coral}`, borderRadius: 26, padding: "12px 44px", ...B, fontSize: 84, color: A2.coral }}>むしろチャンス</div>
         </div>
       ) : null}
+      <Burst x={540} y={1065} at={st} r={260} color={A2.coral} n={16} />
     </AbsoluteFill>
   );
 };
@@ -333,6 +344,8 @@ const SUBS: [number, string][] = [
 ];
 
 const CUES: { file: string; at: number; volume: number }[] = [
+  ...[5.12, 19.72].map((t) => ({ file: "swipe", at: F(t), volume: 0.35 })),
+  { file: "user/u05s", at: F(2.42), volume: 0.26 },
   { file: "user/u02s", at: 1, volume: 0.24 },
   { file: "user/u02s", at: F(0.86), volume: 0.32 },
   { file: "user/u02s", at: F(1.9), volume: 0.26 },
@@ -361,6 +374,15 @@ const CUES: { file: string; at: number; volume: number }[] = [
   { file: "user/u05s", at: F(34.16), volume: 0.3 },
 ];
 
+// 章プレート（②③④の頭）：黄色い丸が広がって、大きな文字が1字ずつ浮かぶ
+const Plates: React.FC = () => (
+  <>
+    <Plate a={F(5.12)} b={F(6.55)} num="02 / 04" lines={[{ t: F(5.4), text: "どうやって" }, { t: F(5.92), text: "貯める？", underline: true }]} />
+    <Plate a={F(19.72)} b={F(22.15)} num="03 / 04" oy={900} lines={[{ t: F(19.72) + 4, text: "ただ、" }, { t: F(20.02), text: "キャンペーンには", size: 84 }, { t: F(21.2), text: "利用条件", underline: true }]} />
+    <Plate a={F(35.32)} b={F(37.35)} num="04 / 04" lines={[{ t: F(35.62), text: "そして", size: 84 }, { t: F(36.02), text: "マイルを" }, { t: F(36.38), text: "すすめる理由", underline: true }]} />
+  </>
+);
+
 export const Mile123: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
     <Audio src={staticFile("mile-narration.wav")} />
@@ -368,7 +390,6 @@ export const Mile123: React.FC = () => (
     <SceneA />
     <SceneB />
     <SubFade />
-    <PlaneDive />
     <SceneC />
     <MarkerSub subs={SUBS.map(([t, s]) => [R(t), s] as [number, string])} start={0} end={R(35.32)} />
   </AbsoluteFill>
@@ -379,5 +400,8 @@ export const MileZukai: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg }}>
     <Sequence durationInFrames={PART4}><Mile123 /></Sequence>
     <Sequence from={PART4}><MileLifeChart /></Sequence>
+    <Plates />
+    <PlaneDive />
+    <SfxTrack cues={[{ file: "swipe", at: F(35.32), volume: 0.35 }]} />
   </AbsoluteFill>
 );
