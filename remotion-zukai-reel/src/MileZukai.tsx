@@ -28,7 +28,7 @@ const pop = (f: number, at: number) => interpolate(f - at, [0, 3, 6], [0.3, 1.25
 const useLeave = (end: number) => {
   const f = useCurrentFrame();
   const k = interpolate(f, [end, end + 10], [0, 1], io);
-  return { gone: f >= end + 10, style: { transform: `translateY(${-k * 240}px)`, opacity: 1 - k } as React.CSSProperties };
+  return { gone: f >= end + 10, style: { transform: `scale(${1 - k * 0.05})`, opacity: 1 - k, filter: k > 0 ? `blur(${k * 16}px)` : undefined } as React.CSSProperties };
 };
 
 // D1：線が伸びる矢印
@@ -361,6 +361,26 @@ const CUES: { file: string; at: number; volume: number }[] = [
   { file: "user/u05s", at: F(34.16), volume: 0.3 },
 ];
 
+// 場面転換のアクセント：光の筋が画面を横切る
+const Streak: React.FC<{ at: number; y?: number }> = ({ at, y = 960 }) => {
+  const f = useCurrentFrame();
+  if (f < at - 2 || f > at + 12) return null;
+  const p = interpolate(f, [at - 2, at + 10], [0, 1], { ...clamp, easing: Easing.inOut(Easing.quad) });
+  const fade = interpolate(f, [at + 6, at + 12], [1, 0], clamp);
+  return (
+    <div style={{ position: "absolute", left: 0, top: y - 3, width: 1080, height: 6, opacity: fade }}>
+      <div style={{ position: "absolute", left: 0, top: 2, width: p * 1080, height: 2, background: "rgba(46,158,107,0.35)" }} />
+      <div style={{ position: "absolute", left: -420 + p * 1500, top: 0, width: 420, height: 6, borderRadius: 3, background: `linear-gradient(90deg, rgba(46,158,107,0), ${A2.green} 70%, #fff)`, boxShadow: "0 0 18px rgba(46,158,107,0.7)" }} />
+    </div>
+  );
+};
+const Streaks: React.FC = () => (
+  <>
+    {[5.12, 25.74, 30.02].map((t) => <Streak key={t} at={F(t)} />)}
+    <Streak at={F(39.52)} y={1000} />
+  </>
+);
+
 export const Mile123: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
     <Audio src={staticFile("mile-narration.wav")} />
@@ -379,5 +399,7 @@ export const MileZukai: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg }}>
     <Sequence durationInFrames={PART4}><Mile123 /></Sequence>
     <Sequence from={PART4}><MileLifeChart /></Sequence>
+    <Streaks />
+    <SfxTrack cues={[5.12, 25.74, 30.02, 39.52].map((t) => ({ file: "swipe", at: F(t), volume: 0.2 }))} />
   </AbsoluteFill>
 );

@@ -165,7 +165,7 @@ export const LifeChart: React.FC = () => {
   if (f < a - 2) return null;
   const enter = interpolate(f, [a - 2, a + 10], [1, 0], out);
   return (
-    <AbsoluteFill style={{ opacity: 1 - enter, transform: `translateY(${enter * 80}px)` }}>
+    <AbsoluteFill style={{ opacity: 1 - enter, filter: enter > 0.01 ? `blur(${enter * 16}px)` : undefined, transform: `scale(${1 + enter * 0.05})` }}>
       <Chart />
       <Head text={<>子どもが小さい<span style={{ color: A2.green }}>今</span>だからこそ</>} from={a} to={L(44.12)} />
       <Head text={<>将来への<span style={{ color: A2.green }}>備え</span>も大切</>} from={L(44.12)} to={L(47.66)} />

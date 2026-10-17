@@ -37,7 +37,8 @@ export const useIn = (at: number, dy = 36) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   const s = spring({ frame: f - at, fps, config: { damping: 15, stiffness: 190, mass: 0.6 } });
-  return { on: f >= at, style: { opacity: interpolate(f - at, [0, 5], [0, 1], clamp), transform: `translateY(${(1 - s) * dy}px) scale(${0.92 + 0.08 * s})` } as React.CSSProperties };
+  const b = interpolate(f - at, [0, 7], [10, 0], clamp); // ぼかしからピントが合うように出る
+  return { on: f >= at, style: { opacity: interpolate(f - at, [0, 5], [0, 1], clamp), filter: b > 0.1 ? `blur(${b}px)` : undefined, transform: `translateY(${(1 - s) * dy}px) scale(${0.92 + 0.08 * s})` } as React.CSSProperties };
 };
 export const In: React.FC<{ at: number; style?: React.CSSProperties; children: React.ReactNode }> = ({ at, style, children }) => {
   const p = useIn(at);
@@ -70,7 +71,7 @@ export const Intro: React.FC = () => {
   const sAt = L(38.86);
   const g = interpolate(f, [sAt, sAt + 9], [0, 1], out);
   return (
-    <AbsoluteFill style={{ transform: `translateY(${-leave * 260}px)`, opacity: 1 - leave }}>
+    <AbsoluteFill style={{ transform: `scale(${1 - leave * 0.05})`, opacity: 1 - leave, filter: `blur(${leave * 16}px)` }}>
       <Head text="マイルをすすめる理由" from={L(36.02)} />
       <In at={L(37.08)} style={{ left: 300, top: 450 }}><GenSlot name="mile_plane" size={480} label="飛行機" /></In>
       <In at={L(37.54)} style={{ left: 0, top: 930, width: 1080, textAlign: "center" }}>
@@ -245,7 +246,14 @@ export const MarkerSub: React.FC<{ subs: [number, string][]; start: number; end:
     <div style={{ position: "absolute", left: 0, top: 1372, width: 1080, display: "flex", justifyContent: "center" }}>
       <span style={{ position: "relative", display: "inline-block", ...B, fontSize: 54, color: A2.ink, whiteSpace: "nowrap" }}>
         <span style={{ position: "absolute", left: -10, right: `${100 - prog}%`, top: "50%", bottom: "2%", background: A2.marker, borderRadius: 8, zIndex: 0 }} />
-        <span style={{ position: "relative", textShadow: "0 0 10px #FBF6D8, 0 0 4px #FBF6D8" }}>{txt}</span>
+        <span style={{ position: "relative", textShadow: "0 0 10px #FBF6D8, 0 0 4px #FBF6D8" }}>
+          {Array.from(txt).map((ch, k, arr) => {
+            // 声に合わせて1文字ずつ、ぼかしからくっきり
+            const at = s + (e - s) * 0.8 * (k / arr.length) - 0.06;
+            const p = interpolate(t, [at, at + 0.14], [0, 1], clamp);
+            return <span key={k} style={{ display: "inline-block", opacity: 0.15 + 0.85 * p, filter: p < 1 ? `blur(${(1 - p) * 8}px)` : undefined, transform: `translateY(${(1 - p) * 10}px)` }}>{ch}</span>;
+          })}
+        </span>
       </span>
     </div>
   );
