@@ -238,8 +238,11 @@ const S3: React.FC = () => {
             {i === 0 ? <div style={{ position: "absolute", left: -30, top: -20, width: 320, height: 340, borderRadius: "50%", background: `radial-gradient(circle, rgba(239,125,87,${0.45 * fill}) 0%, rgba(239,125,87,0) 70%)` }} /> : null}
             <div style={{ position: "relative", width: 260, height: 300, transform: `scale(${big}) rotate(${shake}deg)`, transformOrigin: "50% 100%" }}>
               {/* 中身（コインの量） */}
-              <div style={{ position: "absolute", left: 40, right: 40, bottom: 28, height: (i === 0 ? fill * 200 : 22), borderRadius: 18, background: `linear-gradient(${CASH}, #C9930F)`, opacity: 0.9 }} />
               <div style={{ position: "absolute", left: 0, top: 0 }}><GenSlot name={n} size={260} /></div>
+              {/* 中身（コインの量）＝ビンのガラスの内側に重ねる */}
+              <div style={{ position: "absolute", left: 52, right: 52, bottom: 24, height: (i === 0 ? fill * 165 : 14), borderRadius: "10px 10px 26px 26px", background: `linear-gradient(#F7D45A, #D9A21A)`, opacity: 0.92, boxShadow: "inset 0 6px 0 rgba(255,255,255,0.35)" }}>
+                {i === 0 && fill > 0.1 ? Array.from({ length: Math.ceil(fill * 9) }).map((_, k) => <div key={k} style={{ position: "absolute", left: 10 + (k % 3) * 40, top: 6 + Math.floor(k / 3) * 34, width: 34, height: 10, borderRadius: 5, background: "rgba(255,255,255,0.45)" }} />) : null}
+              </div>
               <div style={{ position: "absolute", left: 0, right: 0, top: 300, textAlign: "center" }}><Pill bg={col} size={38}>{label}</Pill></div>
             </div>
           </PopAt>
@@ -259,7 +262,7 @@ const S3: React.FC = () => {
       {f >= F(19.56) ? (
         <div style={{ position: "absolute", left: 140, top: 990, width: 800, height: 160, opacity: interpolate(f - F(19.56), [0, 6], [0, 1], clamp) }}>
           <div style={{ position: "absolute", left: 370, top: 90, width: 0, height: 0, borderLeft: "30px solid transparent", borderRight: "30px solid transparent", borderBottom: `60px solid ${A2.ink}` }} />
-          <div style={{ position: "absolute", left: 0, top: 80, width: 800, height: 14, borderRadius: 7, background: A2.ink, transform: `rotate(${-tilt}deg)` }}>
+          <div style={{ position: "absolute", left: 0, top: 80, width: 800, height: 14, borderRadius: 7, background: A2.ink, transform: `rotate(${tilt}deg)` }}>
             <div style={{ position: "absolute", left: 20, top: -96, transform: `scale(${1 + fill * 0.2})`, transformOrigin: "50% 100%" }}><Pill bg={STOCK} size={44}>株</Pill></div>
             <div style={{ position: "absolute", right: 30, top: -70 }}><span style={{ display: "inline-flex", gap: 10 }}><Pill bg={BOND} size={28}>債券</Pill><Pill bg={CASH} color={A2.ink} size={28}>現金</Pill></span></div>
           </div>
@@ -344,6 +347,21 @@ const S5: React.FC = () => {
   );
 };
 
+// 金利メーター（棒が上がる）
+const RateMeter: React.FC<{ at: number }> = ({ at }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [at, at + 16], [0.2, 0.85], { ...clamp, easing: Easing.out(Easing.back(1.6)) });
+  return (
+    <div style={{ position: "relative", width: 200, height: 270 }}>
+      <div style={{ position: "absolute", left: 70, top: 0, width: 60, height: 230, borderRadius: 30, background: "#fff", boxShadow: "0 8px 20px rgba(80,60,20,0.12)", overflow: "hidden" }}>
+        <div style={{ position: "absolute", left: 10, right: 10, bottom: 10, height: 210 * p, borderRadius: 20, background: `linear-gradient(${A2.coral}, ${BOND})` }} />
+      </div>
+      <div style={{ position: "absolute", left: 55, top: 200, width: 90, height: 90, borderRadius: "50%", background: BOND, border: "8px solid #fff", boxSizing: "border-box" }} />
+      {[0.25, 0.5, 0.75].map((y) => <div key={y} style={{ position: "absolute", left: 140, top: 230 * (1 - y), width: 26, height: 5, borderRadius: 3, background: A2.bar }} />)}
+    </div>
+  );
+};
+
 // ════════ ⑥ 金利が高い・利回りを固定（44.8–56.8） ════════
 const S6: React.FC = () => {
   const f = useCurrentFrame();
@@ -353,7 +371,7 @@ const S6: React.FC = () => {
     <Scene a={44.8} b={56.8}>
       <Head text={<>今は<span style={{ color: BOND }}>債券の金利</span>が高い</>} from={F(44.8)} />
       {/* 金利の温度計が上がる */}
-      <In at={F(45.6)} style={{ left: 90, top: 430 }}><Pic name="bouraku_rate_up" size={260} /></In>
+      <In at={F(45.6)} style={{ left: 110, top: 420 }}><RateMeter at={F(45.9)} /></In>
       <PopAt at={46.14} x={110} y={710}><Pill bg={BOND} size={40}>金利 ↑</Pill></PopAt>
       {/* 20年・30年先まで固定：タイムラインに鍵 */}
       <div style={{ position: "absolute", left: 420, top: 520, width: 560, height: 12, borderRadius: 6, background: A2.track }} />
