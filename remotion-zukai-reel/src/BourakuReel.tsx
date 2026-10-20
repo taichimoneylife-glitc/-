@@ -320,28 +320,40 @@ const S4: React.FC = () => {
 };
 
 // ════════ ⑤ 債券を組み合わせる（33.88–44.8） ════════
+const GROW: [string, number][] = [["今", 500], ["10年後", 810], ["20年後", 1330], ["30年後", 2160]]; // 500万円×1.05^n（814・1,327・2,161を丸め）
 const S5: React.FC = () => {
   const f = useCurrentFrame();
-  const goal = interpolate(f, [F(42.0), F(43.6)], [0, 1], out);
   return (
     <Scene a={33.88} b={44.8}>
       <Head text={<>だから<span style={{ color: BOND }}>債券</span>も組み合わせる</>} from={F(33.88)} />
       {/* 株だけ → 株＋債券 */}
-      <In at={F(34.6)} style={{ left: 150, top: 440 }}><div style={{ textAlign: "center" }}><GenSlot name="bouraku_stock_box" size={250} /><div style={{ marginTop: 8 }}><Pill bg={STOCK} size={38}>株</Pill></div></div></In>
-      <PopAt at={35.66} x={500} y={520}><span style={{ ...B, fontSize: 96, color: A2.ink }}>＋</span></PopAt>
-      <In at={F(35.66)} style={{ left: 640, top: 440 }}><div style={{ textAlign: "center" }}><GenSlot name="bouraku_bond" size={250} /><div style={{ marginTop: 8 }}><Pill bg={BOND} size={38}>債券</Pill></div></div></In>
-      {/* 何年後にいくら＝見える */}
-      {f >= F(38.0) ? (
-        <div style={{ position: "absolute", left: 90, top: 840, width: 900, height: 300, opacity: interpolate(f - F(38.0), [0, 6], [0, 1], clamp) }}>
-          <div style={{ position: "absolute", left: 0, top: 0, transform: `scale(${pop(f, F(39.9))})` }}><Pic name="bouraku_binoculars" size={200} /></div>
-          {/* 道とゴール */}
-          <div style={{ position: "absolute", left: 230, top: 150, width: 560 * Math.max(goal, interpolate(f, [F(38.0), F(39.4)], [0, 0.6], out)), height: 14, borderRadius: 7, background: BOND }} />
-          {[0.2, 0.45, 0.7].map((p, i) => (f >= F(38.4) + i * 6 ? <div key={i} style={{ position: "absolute", left: 230 + 560 * p - 14, top: 143, width: 28, height: 28, borderRadius: "50%", background: "#fff", border: `6px solid ${BOND}`, boxSizing: "border-box", transform: `scale(${pop(f, F(38.4) + i * 6)})` }} /> : null))}
-          <PopAt at={38.4} x={240} y={60}><Pill bg="#fff" color={A2.ink} size={32}>何年後に・いくら</Pill></PopAt>
-          {goal > 0.95 ? <div style={{ position: "absolute", left: 720, top: 30, transform: `scale(${pop(f, F(43.6))})` }}><Pic name="bouraku_road_goal" size={170} /></div> : null}
-        </div>
-      ) : null}
-      <PopAt at={43.44} x={0} y={1180} w={1080} center><span style={{ ...B, fontSize: 52, color: A2.ink }}>将来のお金を<Mark2 delay={F(43.6)}>計画的に用意</Mark2></span></PopAt>
+      <In at={F(34.6)} style={{ left: 190, top: 420 }}><div style={{ textAlign: "center" }}><GenSlot name="bouraku_stock_box" size={200} /><div style={{ marginTop: 8 }}><Pill bg={STOCK} size={38}>株</Pill></div></div></In>
+      <PopAt at={35.66} x={490} y={470}><span style={{ ...B, fontSize: 96, color: A2.ink }}>＋</span></PopAt>
+      <In at={F(35.66)} style={{ left: 660, top: 420 }}><div style={{ textAlign: "center" }}><GenSlot name="bouraku_bond" size={200} /><div style={{ marginTop: 8 }}><Pill bg={BOND} size={38}>債券</Pill></div></div></In>
+      {/* 何年後にいくら＝見える：500万円を年5%で30年（複利の単純計算） */}
+      {f >= F(37.9) ? <PopAt at={37.9} x={0} y={712} w={1080} center><span style={{ display: "inline-flex", alignItems: "baseline", gap: 10, background: "#fff", borderRadius: 999, padding: "8px 30px", boxShadow: "0 6px 16px rgba(80,60,20,0.1)" }}><span style={{ ...B, fontSize: 40, color: A2.ink }}>500万円を</span><span style={{ ...B, fontSize: 40, color: BOND }}>年5%</span><span style={{ ...B, fontSize: 40, color: A2.ink }}>で運用すると</span></span></PopAt> : null}
+      {GROW.map(([label, man], i) => {
+        const at = F(38.4) + i * 14;
+        if (f < at) return null;
+        const h = interpolate(f, [at, at + 12], [0, (man / 2160) * 220], { ...clamp, easing: Easing.out(Easing.back(1.4)) });
+        const last = i === GROW.length - 1;
+        const x = 150 + i * 210;
+        return (
+          <div key={label}>
+            <div style={{ position: "absolute", left: x, top: 1120 - h, width: 150, height: h, borderRadius: "16px 16px 0 0", background: last ? BOND : "rgba(74,143,214,0.45)" }} />
+            <div style={{ position: "absolute", left: x - 40, top: 1120 - h - (last ? 78 : 50), width: 230, textAlign: "center", whiteSpace: "nowrap", opacity: interpolate(f - at, [4, 10], [0, 1], clamp) }}>
+              <span style={{ ...B, fontSize: last ? 34 : 26, color: A2.ink }}>{man === 500 ? "" : "約"}</span>
+              <Count at={(at + 2) / 30} to={man} dur={12} comma style={{ ...B, fontSize: last ? 64 : 38, color: last ? BOND : A2.ink }} />
+              <span style={{ ...B, fontSize: last ? 34 : 26, color: A2.ink }}>万円</span>
+            </div>
+            <div style={{ position: "absolute", left: x - 20, top: 1130, width: 190, textAlign: "center", ...B, fontSize: 28, color: last ? A2.ink : A2.sub }}>{label}</div>
+          </div>
+        );
+      })}
+      <div style={{ position: "absolute", left: 120, top: 1120, width: 840, height: 5, borderRadius: 3, background: A2.bar }} />
+      {f >= F(39.9) ? <div style={{ position: "absolute", left: 30, top: 790, transform: `scale(${pop(f, F(39.9))})` }}><Pic name="bouraku_binoculars" size={120} /></div> : null}
+      <Note at={38.4}>※年5%の複利で増えた場合の単純計算（税金・手数料は考慮せず）</Note>
+      <Stamp at={43.44} x={170} y={810} text="計画的に用意できる" color={BOND} size={46} rot={-5} />
       <Taichi name="taichi_point_right" at={33.88} until={37.2} />
     </Scene>
   );
@@ -389,7 +401,7 @@ const S6: React.FC = () => {
             <div style={{ position: "absolute", left: 0, top: 0, height: 70, width: `${interpolate(f, [F(53.26), F(53.26) + 12], [0, 45], out)}%`, background: BOND }} />
             {f >= F(53.6) ? <div style={{ position: "absolute", left: 20, top: 12, ...B, fontSize: 34, color: "#fff" }}>一部を債券に</div> : null}
           </div>
-          <PopAt at={54.12} x={0} y={130}><Pill bg="#fff" color={A2.ink} size={34}>何年後に・いくら</Pill></PopAt>
+          <PopAt at={54.12} x={0} y={130}><Pill bg="#fff" color={A2.ink} size={34}>例：500万円 → 30年後 約2,160万円</Pill></PopAt>
           <Stamp at={55.94} x={300} y={120} text="決めている" color={A2.green} size={44} rot={-4} />
         </div>
       ) : null}
