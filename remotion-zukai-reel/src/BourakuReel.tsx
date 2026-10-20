@@ -320,18 +320,38 @@ const S4: React.FC = () => {
 };
 
 // ════════ ⑤ 債券を組み合わせる（33.88–44.8） ════════
+// ミニチャート（株：ギザギザ／債券：なめらか）
+const MiniChart: React.FC<{ at: number; x: number; kind: "stock" | "bond"; dim?: number }> = ({ at, x, kind, dim = 0 }) => {
+  const f = useCurrentFrame();
+  const A = F(at);
+  if (f < A) return null;
+  const W = 400, H = 190;
+  const stock = [0.85, 0.7, 0.78, 0.55, 0.62, 0.4, 0.58, 0.3, 0.45, 0.22, 0.3, 0.12];
+  const ys = kind === "stock" ? stock : stock.map((_, i) => 0.85 - (0.68 * i) / (stock.length - 1));
+  const d = ys.map((y, i) => `${i ? "L" : "M"}${(i / (ys.length - 1)) * W} ${y * H}`).join(" ");
+  const p = interpolate(f, [A, A + 22], [0, 1], out);
+  const col = kind === "stock" ? STOCK : BOND;
+  return (
+    <div style={{ position: "absolute", left: x, top: 410, width: W + 20, opacity: (1 - dim * 0.55) * interpolate(f - A, [0, 5], [0, 1], clamp), transform: `scale(${1 - dim * 0.06})`, transformOrigin: "50% 0" }}>
+      <div style={{ ...B, fontSize: 34, color: col, marginBottom: 6 }}>{kind === "stock" ? "株" : "債券"}<span style={{ fontSize: 24, color: A2.sub, marginLeft: 12 }}>{kind === "stock" ? "上下しながら増える" : "下がりにくく安定"}</span></div>
+      <svg width={W + 20} height={H + 20}>
+        <line x1={0} y1={H + 8} x2={W} y2={H + 8} stroke={A2.bar} strokeWidth={4} />
+        <path d={d} fill="none" stroke={col} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} />
+      </svg>
+    </div>
+  );
+};
 const GROW: [string, number][] = [["今", 500], ["10年後", 810], ["20年後", 1330], ["30年後", 2160]]; // 500万円×1.05^n（814・1,327・2,161を丸め）
 const S5: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <Scene a={33.88} b={44.8}>
       <Head text={<>だから<span style={{ color: BOND }}>債券</span>も組み合わせる</>} from={F(33.88)} />
-      {/* 株だけ → 株＋債券 */}
-      <In at={F(34.6)} style={{ left: 190, top: 420 }}><div style={{ textAlign: "center" }}><GenSlot name="bouraku_stock_box" size={200} /><div style={{ marginTop: 8 }}><Pill bg={STOCK} size={38}>株</Pill></div></div></In>
-      <PopAt at={35.66} x={490} y={470}><span style={{ ...B, fontSize: 96, color: A2.ink }}>＋</span></PopAt>
-      <In at={F(35.66)} style={{ left: 660, top: 420 }}><div style={{ textAlign: "center" }}><GenSlot name="bouraku_bond" size={200} /><div style={{ marginTop: 8 }}><Pill bg={BOND} size={38}>債券</Pill></div></div></In>
+      {/* 株＝上下しながら右肩上がり／債券＝下がらずに安定して右肩上がり */}
+      <MiniChart at={34.6} x={70} kind="stock" dim={interpolate(f, [F(37.9), F(37.9) + 10], [0, 1], clamp)} />
+      <MiniChart at={35.66} x={590} kind="bond" />
       {/* 何年後にいくら＝見える：500万円を年5%で30年（複利の単純計算） */}
-      {f >= F(37.9) ? <PopAt at={37.9} x={0} y={712} w={1080} center><span style={{ display: "inline-flex", alignItems: "baseline", gap: 10, background: "#fff", borderRadius: 999, padding: "8px 30px", boxShadow: "0 6px 16px rgba(80,60,20,0.1)" }}><span style={{ ...B, fontSize: 40, color: A2.ink }}>500万円を</span><span style={{ ...B, fontSize: 40, color: BOND }}>年5%</span><span style={{ ...B, fontSize: 40, color: A2.ink }}>で運用すると</span></span></PopAt> : null}
+      {f >= F(37.9) ? <PopAt at={37.9} x={0} y={716} w={1080} center><span style={{ display: "inline-flex", alignItems: "baseline", gap: 10, background: "#fff", borderRadius: 999, padding: "8px 30px", boxShadow: "0 6px 16px rgba(80,60,20,0.1)" }}><span style={{ ...B, fontSize: 40, color: A2.ink }}>500万円を</span><span style={{ ...B, fontSize: 40, color: BOND }}>年5%</span><span style={{ ...B, fontSize: 40, color: A2.ink }}>で運用すると</span></span></PopAt> : null}
       {GROW.map(([label, man], i) => {
         const at = F(38.4) + i * 14;
         if (f < at) return null;
@@ -350,7 +370,7 @@ const S5: React.FC = () => {
           </div>
         );
       })}
-      <div style={{ position: "absolute", left: 120, top: 1120, width: 840, height: 5, borderRadius: 3, background: A2.bar }} />
+      {f >= F(38.4) ? <div style={{ position: "absolute", left: 120, top: 1120, width: 840 * interpolate(f, [F(38.4), F(38.4) + 10], [0, 1], out), height: 5, borderRadius: 3, background: A2.bar }} /> : null}
       {f >= F(39.9) ? <div style={{ position: "absolute", left: 30, top: 790, transform: `scale(${pop(f, F(39.9))})` }}><Pic name="bouraku_binoculars" size={120} /></div> : null}
       <Note at={38.4}>※年5%の複利で増えた場合の単純計算（税金・手数料は考慮せず）</Note>
       <Stamp at={43.44} x={170} y={810} text="計画的に用意できる" color={BOND} size={46} rot={-5} />
