@@ -320,28 +320,107 @@ const S4: React.FC = () => {
 };
 
 // ════════ ⑤ 債券を組み合わせる（33.88–44.8） ════════
-// ミニチャート（株：ギザギザ／債券：なめらか）
+// ミニチャート（株：ギザギザ／債券：なめらか）白いカード＋線の下にうすい面
 const MiniChart: React.FC<{ at: number; x: number; kind: "stock" | "bond"; dim?: number }> = ({ at, x, kind, dim = 0 }) => {
   const f = useCurrentFrame();
   const A = F(at);
   if (f < A) return null;
-  const W = 400, H = 190;
-  const stock = [0.85, 0.7, 0.78, 0.55, 0.62, 0.4, 0.58, 0.3, 0.45, 0.22, 0.3, 0.12];
-  const ys = kind === "stock" ? stock : stock.map((_, i) => 0.85 - (0.68 * i) / (stock.length - 1));
-  const d = ys.map((y, i) => `${i ? "L" : "M"}${(i / (ys.length - 1)) * W} ${y * H}`).join(" ");
+  const W = 380, H = 150;
+  const stock = [0.85, 0.66, 0.76, 0.5, 0.6, 0.36, 0.56, 0.28, 0.44, 0.2, 0.3, 0.1];
+  const ys = kind === "stock" ? stock : stock.map((_, i) => 0.85 - (0.7 * i) / (stock.length - 1) - 0.04 * Math.sin((i / (stock.length - 1)) * Math.PI));
+  const pts = ys.map((y, i) => [(i / (ys.length - 1)) * W, y * H] as const);
+  const d = pts.map(([px, py], i) => `${i ? "L" : "M"}${px.toFixed(1)} ${py.toFixed(1)}`).join(" ");
   const p = interpolate(f, [A, A + 22], [0, 1], out);
   const col = kind === "stock" ? STOCK : BOND;
+  const id = `g_${kind}`;
+  const enter = interpolate(f - A, [0, 8], [0, 1], out);
   return (
-    <div style={{ position: "absolute", left: x, top: 410, width: W + 20, opacity: (1 - dim * 0.55) * interpolate(f - A, [0, 5], [0, 1], clamp), transform: `scale(${1 - dim * 0.06})`, transformOrigin: "50% 0" }}>
-      <div style={{ ...B, fontSize: 34, color: col, marginBottom: 6 }}>{kind === "stock" ? "株" : "債券"}<span style={{ fontSize: 24, color: A2.sub, marginLeft: 12 }}>{kind === "stock" ? "上下しながら増える" : "下がりにくく安定"}</span></div>
-      <svg width={W + 20} height={H + 20}>
-        <line x1={0} y1={H + 8} x2={W} y2={H + 8} stroke={A2.bar} strokeWidth={4} />
-        <path d={d} fill="none" stroke={col} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} />
+    <div style={{ position: "absolute", left: x, top: 400, width: 440, padding: "20px 24px 18px", boxSizing: "border-box", background: "#fff", borderRadius: 28, boxShadow: "0 14px 30px rgba(80,60,20,0.10)", opacity: (1 - dim * 0.5) * enter, transform: `translateY(${(1 - enter) * 30}px) scale(${1 - dim * 0.05})`, transformOrigin: "50% 0" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={{ width: 14, height: 14, borderRadius: 4, background: col }} />
+        <span style={{ ...B, fontSize: 34, color: A2.ink }}>{kind === "stock" ? "株" : "債券"}</span>
+        <span style={{ ...B, fontSize: 22, color: A2.sub, marginLeft: "auto" }}>{kind === "stock" ? "上下しながら増える" : "下がりにくく安定"}</span>
+      </div>
+      <svg width={W + 12} height={H + 16} style={{ marginTop: 10, overflow: "visible" }}>
+        <defs>
+          <linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={col} stopOpacity={0.28} /><stop offset="100%" stopColor={col} stopOpacity={0} /></linearGradient>
+          <clipPath id={`c_${kind}`}><rect x={0} y={-10} width={W * p + 6} height={H + 30} /></clipPath>
+        </defs>
+        {[0.33, 0.66].map((g) => <line key={g} x1={0} y1={H * g} x2={W} y2={H * g} stroke={A2.track} strokeWidth={2} />)}
+        <g clipPath={`url(#c_${kind})`}>
+          <path d={`${d} L${W} ${H} L0 ${H} Z`} fill={`url(#${id})`} />
+          <path d={d} fill="none" stroke={col} strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+        {p > 0.98 ? <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r={10} fill="#fff" stroke={col} strokeWidth={6} /> : null}
       </svg>
     </div>
   );
 };
 const GROW: [string, number][] = [["今", 500], ["10年後", 810], ["20年後", 1330], ["30年後", 2160]]; // 500万円×1.05^n（814・1,327・2,161を丸め）
+// 500万円×年5%の成長カード
+const GrowthCard: React.FC<{ at: number }> = ({ at }) => {
+  const f = useCurrentFrame();
+  const A = F(at);
+  if (f < A) return null;
+  const enter = interpolate(f - A, [0, 9], [0, 1], out);
+  const CX = 70, CY = 700, CW = 940, CH = 500;
+  const base = 450, maxH = 250, bw = 128;
+  const xs = GROW.map((_, i) => 110 + i * 215);
+  const tops = GROW.map(([, man]) => base - (man / 2160) * maxH);
+  const bar = (i: number) => interpolate(f, [F(38.4) + i * 14, F(38.4) + i * 14 + 12], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
+  const okAt = F(43.44);
+  return (
+    <div style={{ position: "absolute", left: CX, top: CY, width: CW, height: CH, background: "#fff", borderRadius: 34, boxShadow: "0 18px 40px rgba(80,60,20,0.12)", opacity: enter, transform: `translateY(${(1 - enter) * 40}px)` }}>
+      {/* 見出し：500万円 × 年5% × 30年 */}
+      <div style={{ position: "absolute", left: 36, top: 26, display: "flex", alignItems: "center", gap: 12 }}>
+        {[["500万円", A2.ink], ["年5%", BOND], ["30年", A2.ink]].map(([t, c], i) => (
+          <React.Fragment key={t}>
+            {i ? <span style={{ ...B, fontSize: 30, color: A2.sub }}>×</span> : null}
+            <span style={{ ...B, fontSize: 36, color: c, background: i === 1 ? "rgba(74,143,214,0.12)" : A2.track, borderRadius: 14, padding: "4px 16px" }}>{t}</span>
+          </React.Fragment>
+        ))}
+      </div>
+      {f >= okAt ? <div style={{ position: "absolute", left: 36, top: 96, transform: `scale(${pop(f, okAt)})`, transformOrigin: "0 50%" }}><span style={{ display: "inline-flex", alignItems: "center", gap: 8, background: BOND, color: "#fff", ...B, fontSize: 28, padding: "8px 20px", borderRadius: 999 }}>✓ 計画的に用意できる</span></div> : null}
+      {/* うすい目盛り線 */}
+      {[0.25, 0.5, 0.75].map((g) => <div key={g} style={{ position: "absolute", left: 40, right: 40, top: base - maxH * g, height: 2, background: A2.track }} />)}
+      <div style={{ position: "absolute", left: 40, right: 40, top: base, height: 4, borderRadius: 2, background: A2.bar }} />
+      {GROW.map(([label, man], i) => {
+        const k = bar(i);
+        if (k <= 0) return null;
+        const last = i === GROW.length - 1;
+        const h = (base - tops[i]) * k;
+        return (
+          <React.Fragment key={label}>
+            <div style={{ position: "absolute", left: xs[i], top: base - h, width: bw, height: h, borderRadius: "20px 20px 6px 6px", background: last ? `linear-gradient(${BOND}, #2F6FB5)` : `linear-gradient(rgba(74,143,214,${0.35 + i * 0.12}), rgba(74,143,214,${0.2 + i * 0.1}))`, boxShadow: last ? "0 10px 24px rgba(47,111,181,0.35)" : undefined, overflow: "hidden" }}>
+              <div style={{ position: "absolute", left: 14, top: 10, width: 16, height: Math.max(0, h - 30), borderRadius: 8, background: "rgba(255,255,255,0.25)" }} />
+            </div>
+            <div style={{ position: "absolute", left: xs[i] - 50, top: base + 14, width: bw + 100, textAlign: "center", ...B, fontSize: 26, color: last ? A2.ink : A2.sub }}>{label}</div>
+            {!last ? (
+              <div style={{ position: "absolute", left: xs[i] - 50, top: tops[i] - 50 - 22, width: bw + 100, textAlign: "center", whiteSpace: "nowrap", opacity: interpolate(k, [0.6, 1], [0, 1], clamp) }}>
+                <span style={{ ...B, fontSize: 22, color: A2.sub }}>{man === 500 ? "" : "約"}</span>
+                <span style={{ ...B, fontSize: 34, color: A2.ink }}>{man.toLocaleString("en-US")}</span>
+                <span style={{ ...B, fontSize: 22, color: A2.sub }}>万円</span>
+              </div>
+            ) : null}
+          </React.Fragment>
+        );
+      })}
+      {/* 30年後：吹き出し */}
+      {bar(3) > 0.7 ? (
+        <div style={{ position: "absolute", left: xs[3] + bw / 2 - 150, top: tops[3] - 118, width: 300, textAlign: "center", transform: `scale(${pop(f, F(38.4) + 3 * 14 + 8)})`, transformOrigin: "50% 100%" }}>
+          <div style={{ display: "inline-block", background: A2.ink, color: "#fff", borderRadius: 20, padding: "8px 22px", whiteSpace: "nowrap" }}>
+            <span style={{ ...B, fontSize: 26 }}>約</span>
+            <Count at={(F(38.4) + 3 * 14 + 8) / 30} to={2160} dur={14} comma style={{ ...B, fontSize: 56, color: "#FFE07A" }} />
+            <span style={{ ...B, fontSize: 26 }}>万円</span>
+          </div>
+          <div style={{ width: 0, height: 0, margin: "0 auto", borderLeft: "14px solid transparent", borderRight: "14px solid transparent", borderTop: `16px solid ${A2.ink}` }} />
+        </div>
+      ) : null}
+      {/* 約4.3倍 */}
+      {f >= F(40.2) ? <div style={{ position: "absolute", left: xs[1] + 70, top: 160, transform: `scale(${pop(f, F(40.2))}) rotate(-6deg)` }}><span style={{ ...B, fontSize: 34, color: BOND, background: "rgba(74,143,214,0.12)", borderRadius: 999, padding: "6px 22px" }}>約4.3倍に</span></div> : null}
+    </div>
+  );
+};
 const S5: React.FC = () => {
   const f = useCurrentFrame();
   return (
@@ -351,29 +430,8 @@ const S5: React.FC = () => {
       <MiniChart at={34.6} x={70} kind="stock" dim={interpolate(f, [F(37.9), F(37.9) + 10], [0, 1], clamp)} />
       <MiniChart at={35.66} x={590} kind="bond" />
       {/* 何年後にいくら＝見える：500万円を年5%で30年（複利の単純計算） */}
-      {f >= F(37.9) ? <PopAt at={37.9} x={0} y={716} w={1080} center><span style={{ display: "inline-flex", alignItems: "baseline", gap: 10, background: "#fff", borderRadius: 999, padding: "8px 30px", boxShadow: "0 6px 16px rgba(80,60,20,0.1)" }}><span style={{ ...B, fontSize: 40, color: A2.ink }}>500万円を</span><span style={{ ...B, fontSize: 40, color: BOND }}>年5%</span><span style={{ ...B, fontSize: 40, color: A2.ink }}>で運用すると</span></span></PopAt> : null}
-      {GROW.map(([label, man], i) => {
-        const at = F(38.4) + i * 14;
-        if (f < at) return null;
-        const h = interpolate(f, [at, at + 12], [0, (man / 2160) * 220], { ...clamp, easing: Easing.out(Easing.back(1.4)) });
-        const last = i === GROW.length - 1;
-        const x = 150 + i * 210;
-        return (
-          <div key={label}>
-            <div style={{ position: "absolute", left: x, top: 1120 - h, width: 150, height: h, borderRadius: "16px 16px 0 0", background: last ? BOND : "rgba(74,143,214,0.45)" }} />
-            <div style={{ position: "absolute", left: x - 40, top: 1120 - h - (last ? 78 : 50), width: 230, textAlign: "center", whiteSpace: "nowrap", opacity: interpolate(f - at, [4, 10], [0, 1], clamp) }}>
-              <span style={{ ...B, fontSize: last ? 34 : 26, color: A2.ink }}>{man === 500 ? "" : "約"}</span>
-              <Count at={(at + 2) / 30} to={man} dur={12} comma style={{ ...B, fontSize: last ? 64 : 38, color: last ? BOND : A2.ink }} />
-              <span style={{ ...B, fontSize: last ? 34 : 26, color: A2.ink }}>万円</span>
-            </div>
-            <div style={{ position: "absolute", left: x - 20, top: 1130, width: 190, textAlign: "center", ...B, fontSize: 28, color: last ? A2.ink : A2.sub }}>{label}</div>
-          </div>
-        );
-      })}
-      {f >= F(38.4) ? <div style={{ position: "absolute", left: 120, top: 1120, width: 840 * interpolate(f, [F(38.4), F(38.4) + 10], [0, 1], out), height: 5, borderRadius: 3, background: A2.bar }} /> : null}
-      {f >= F(39.9) ? <div style={{ position: "absolute", left: 30, top: 790, transform: `scale(${pop(f, F(39.9))})` }}><Pic name="bouraku_binoculars" size={120} /></div> : null}
+      <GrowthCard at={37.9} />
       <Note at={38.4}>※年5%の複利で増えた場合の単純計算（税金・手数料は考慮せず）</Note>
-      <Stamp at={43.44} x={170} y={810} text="計画的に用意できる" color={BOND} size={46} rot={-5} />
       <Taichi name="taichi_point_right" at={33.88} until={37.2} />
     </Scene>
   );
