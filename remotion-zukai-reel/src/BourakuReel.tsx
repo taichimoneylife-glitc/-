@@ -495,40 +495,81 @@ const RateMeter: React.FC<{ at: number }> = ({ at }) => {
 };
 
 // ════════ ⑥ 金利が高い・利回りを固定（44.8–56.8） ════════
+const CARD: React.CSSProperties = { position: "absolute", background: "#fff", borderRadius: 34, boxShadow: "0 18px 40px rgba(80,60,20,0.12)" };
+const useCardIn = (at: number) => {
+  const f = useCurrentFrame();
+  const k = interpolate(f, [F(at), F(at) + 9], [0, 1], out);
+  return { on: f >= F(at), style: { opacity: k, transform: `translateY(${(1 - k) * 40}px)` } as React.CSSProperties };
+};
 const S6: React.FC = () => {
   const f = useCurrentFrame();
   const lockAt = F(49.28);
-  const lk = interpolate(f, [lockAt, lockAt + 6], [-40, 0], { ...clamp, easing: Easing.out(Easing.back(3)) });
+  const lk = interpolate(f, [lockAt, lockAt + 7], [-50, 0], { ...clamp, easing: Easing.out(Easing.back(3)) });
+  const top = useCardIn(45.4), bot = useCardIn(50.3);
+  const T0 = 300, TW = 560, TY = 250; // タイムライン（カード内座標）
+  const tl = interpolate(f, [F(46.94), F(48.3)], [0, 1], out);
+  const debt = interpolate(f, [F(53.26), F(53.26) + 14], [0, 0.42], { ...clamp, easing: Easing.out(Easing.back(1.2)) });
+  const ex = F(54.12), ok = F(55.72);
   return (
     <Scene a={44.8} b={56.8}>
       <Head text={<>今は<span style={{ color: BOND }}>債券の金利</span>が高い</>} from={F(44.8)} />
-      {/* 金利の温度計が上がる */}
-      <In at={F(45.6)} style={{ left: 110, top: 420 }}><RateMeter at={F(45.9)} /></In>
-      <PopAt at={46.14} x={110} y={710}><Pill bg={BOND} size={40}>金利 ↑</Pill></PopAt>
-      {/* 20年・30年先まで固定：タイムラインに鍵 */}
-      <div style={{ position: "absolute", left: 420, top: 520, width: 560, height: 12, borderRadius: 6, background: A2.track }} />
-      <div style={{ position: "absolute", left: 420, top: 520, width: 560 * interpolate(f, [F(46.94), F(48.3)], [0, 1], out), height: 12, borderRadius: 6, background: BOND }} />
-      <PopAt at={46.94} x={600} y={560}><Pill bg="#fff" color={A2.ink} size={34}>20年</Pill></PopAt>
-      {f >= F(46.94) ? <div style={{ position: "absolute", left: 880, top: 360, transform: `scale(${pop(f, F(46.94))}) rotate(${interpolate(f, [F(46.94), F(46.94) + 18], [-180, 0], out)}deg)` }}><GenSlot name="bouraku_hourglass" size={130} /></div> : null}
-      <PopAt at={47.5} x={840} y={560}><Pill bg="#fff" color={A2.ink} size={34}>30年</Pill></PopAt>
-      {f >= lockAt ? <div style={{ position: "absolute", left: 640, top: 340 + lk, transform: `scale(${pop(f, lockAt)})` }}><Pic name="bouraku_lock" size={170} /></div> : null}
-      <Stamp at={49.8} x={470} y={680} text="利回りを固定" color={BOND} size={54} rot={-4} />
-      {/* 僕自身も：30年先の一部を債券に */}
-      {f >= F(50.3) ? (
-        <div style={{ position: "absolute", left: 360, top: 860, width: 640, opacity: interpolate(f - F(50.3), [0, 6], [0, 1], clamp) }}>
-          <div style={{ ...B, fontSize: 36, color: A2.sub }}>30年先に必要なお金</div>
-          <div style={{ marginTop: 14, height: 70, borderRadius: 18, background: "#fff", overflow: "hidden", position: "relative", boxShadow: "0 8px 20px rgba(80,60,20,0.08)" }}>
-            <div style={{ position: "absolute", left: 0, top: 0, height: 70, width: `${interpolate(f, [F(53.26), F(53.26) + 12], [0, 45], out)}%`, background: BOND }} />
-            {f >= F(53.6) ? <div style={{ position: "absolute", left: 20, top: 12, ...B, fontSize: 34, color: "#fff" }}>一部を債券に</div> : null}
-          </div>
-          <PopAt at={54.12} x={0} y={130}><Pill bg="#fff" color={A2.ink} size={34}>例：500万円 → 30年後 約2,160万円</Pill></PopAt>
-          <Stamp at={55.94} x={300} y={120} text="決めている" color={A2.green} size={44} rot={-4} />
+      {/* 上のカード：金利↑ ＋ 20年・30年先まで固定 */}
+      {top.on ? (
+        <div style={{ ...CARD, left: 70, top: 400, width: 940, height: 390, ...top.style }}>
+          <div style={{ position: "absolute", left: 40, top: 40, transform: "scale(0.85)", transformOrigin: "0 0" }}><RateMeter at={F(45.9)} /></div>
+          <div style={{ position: "absolute", left: 30, top: 300, width: 220, textAlign: "center" }}><span style={{ ...B, fontSize: 32, color: BOND }}>金利が高い</span></div>
+          <div style={{ position: "absolute", left: T0, top: 40, ...B, fontSize: 30, color: A2.sub }}>利回りを長く固定できる</div>
+          {/* 線 */}
+          <div style={{ position: "absolute", left: T0, top: TY, width: TW, height: 14, borderRadius: 7, background: A2.track }} />
+          <div style={{ position: "absolute", left: T0, top: TY, width: TW * tl, height: 14, borderRadius: 7, background: `linear-gradient(90deg, #8DB8E8, ${BOND})` }} />
+          {[["今", 0], ["20年", 0.62], ["30年", 1]].map(([t, p]) => {
+            const on = tl >= (p as number) - 0.01;
+            return (
+              <React.Fragment key={t as string}>
+                <div style={{ position: "absolute", left: T0 + TW * (p as number) - 15, top: TY - 8, width: 30, height: 30, borderRadius: "50%", background: on ? BOND : "#fff", border: `5px solid ${on ? "#fff" : A2.bar}`, boxSizing: "border-box", boxShadow: on ? "0 0 0 4px rgba(74,143,214,0.25)" : undefined }} />
+                <div style={{ position: "absolute", left: T0 + TW * (p as number) - 60, top: TY + 34, width: 120, textAlign: "center", ...B, fontSize: (p as number) === 0 ? 26 : 34, color: on ? A2.ink : A2.sub }}>{t as string}</div>
+              </React.Fragment>
+            );
+          })}
+          {f >= F(46.94) ? <div style={{ position: "absolute", left: T0 + TW - 40, top: 80, transform: `scale(${pop(f, F(46.94))}) rotate(${interpolate(f, [F(46.94), F(46.94) + 18], [-180, 0], out)}deg)` }}><GenSlot name="bouraku_hourglass" size={110} /></div> : null}
+          {f >= lockAt ? <div style={{ position: "absolute", left: T0 + TW * 0.3 - 60, top: TY - 135 + lk, transform: `scale(${pop(f, lockAt)})` }}><GenSlot name="bouraku_lock" size={120} /></div> : null}
+          {f >= F(49.8) ? <div style={{ position: "absolute", left: T0 + TW * 0.3 + 70, top: TY - 100, transform: `scale(${pop(f, F(49.8))})`, transformOrigin: "0 50%" }}><span style={{ display: "inline-flex", alignItems: "center", gap: 8, background: BOND, color: "#fff", ...B, fontSize: 30, padding: "8px 22px", borderRadius: 999 }}>利回りを固定</span></div> : null}
         </div>
       ) : null}
-      <Taichi name="taichi_explain_both" at={50.3} until={56.8} />
+      {/* 下のカード：僕自身も、30年先に必要なお金の一部を債券に */}
+      {bot.on ? (
+        <div style={{ ...CARD, left: 70, top: 820, width: 940, height: 400, ...bot.style }}>
+          <div style={{ position: "absolute", left: 24, top: -30, transform: `scale(${pop(f, F(50.3))})` }}><GenSlot name="taichi_explain_both" size={150} /></div>
+          <div style={{ position: "absolute", left: 180, top: 30 }}>
+            <div style={{ ...B, fontSize: 40, color: A2.ink }}>僕自身も</div>
+            <div style={{ ...B, fontSize: 26, color: A2.sub, marginTop: 2 }}>30年先に必要なお金</div>
+          </div>
+          {f >= ok ? <div style={{ position: "absolute", right: 30, top: 34, transform: `scale(${pop(f, ok)})`, transformOrigin: "100% 50%" }}><span style={{ display: "inline-flex", alignItems: "center", gap: 8, background: A2.green, color: "#fff", ...B, fontSize: 28, padding: "8px 22px", borderRadius: 999 }}>✓ ある程度決めている</span></div> : null}
+          {/* 積み上げバー：債券（一部）＋そのほか */}
+          <div style={{ position: "absolute", left: 40, top: 160, width: 860, height: 86, borderRadius: 22, background: A2.track, overflow: "hidden" }}>
+            <div style={{ position: "absolute", left: 0, top: 0, height: 86, width: 860 * debt, background: `linear-gradient(90deg, #6FA6E0, ${BOND})` }} />
+            {f >= F(53.6) ? <div style={{ position: "absolute", left: 24, top: 20, ...B, fontSize: 36, color: "#fff", whiteSpace: "nowrap" }}>債券（一部）</div> : null}
+            <div style={{ position: "absolute", right: 24, top: 24, ...B, fontSize: 30, color: A2.sub }}>株・現金など</div>
+          </div>
+          {debt > 0.4 ? <div style={{ position: "absolute", left: 40 + 860 * 0.42 - 34, top: 140, transform: `scale(${pop(f, F(53.26) + 12)})` }}><GenSlot name="bouraku_lock" size={70} /></div> : null}
+          {/* 例：500万円 → 30年後 約2,160万円 */}
+          {f >= ex ? (
+            <div style={{ position: "absolute", left: 40, top: 280, transform: `scale(${pop(f, ex)})`, transformOrigin: "0 50%" }}>
+              <span style={{ display: "inline-flex", alignItems: "baseline", gap: 12, background: A2.ink, color: "#fff", borderRadius: 22, padding: "12px 28px" }}>
+                <span style={{ ...B, fontSize: 26, color: "rgba(255,255,255,0.7)" }}>例</span>
+                <span style={{ ...B, fontSize: 36 }}>500万円</span>
+                <span style={{ ...B, fontSize: 30, color: "rgba(255,255,255,0.7)" }}>→ 30年後</span>
+                <span style={{ ...B, fontSize: 30 }}>約</span><Count at={ex / 30 + 0.1} to={2160} dur={14} comma style={{ ...B, fontSize: 52, color: "#FFE07A" }} /><span style={{ ...B, fontSize: 30 }}>万円</span>
+              </span>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      <Note at={54.12} y={1240}>※例は年5%の複利で増えた場合の単純計算（税金・手数料は考慮せず）</Note>
     </Scene>
   );
 };
+
 
 // ════════ ⑦ 今のお金も使いやすくなる（56.8–70.4） ════════
 const NOW = ["mile_now_beach", "mile_now_photo", "mile_now_dinner", "mile_now_shoulder", "mile_now_snow", "mile_now_hug"];
