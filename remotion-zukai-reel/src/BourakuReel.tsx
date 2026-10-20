@@ -357,14 +357,57 @@ const MiniChart: React.FC<{ at: number; x: number; kind: "stock" | "bond"; dim?:
   );
 };
 const GROW: [string, number][] = [["今", 500], ["10年後", 810], ["20年後", 1330], ["30年後", 2160]]; // 500万円×1.05^n（814・1,327・2,161を丸め）
+// 株と債券を1枚に重ねたチャート（「債券は」のあと、成長カードと入れ替わる）
+const DuoChart: React.FC = () => {
+  const f = useCurrentFrame();
+  const A = F(34.6), Bd = F(35.66), X = F(37.5);
+  if (f < A || f >= X + 10) return null;
+  const W = 860, H = 380;
+  const n = 12;
+  const st = [0.85, 0.62, 0.74, 0.46, 0.58, 0.3, 0.52, 0.22, 0.42, 0.16, 0.3, 0.1];
+  const bd = st.map((_, i) => 0.85 - (0.62 * i) / (n - 1) - 0.05 * Math.sin((i / (n - 1)) * Math.PI));
+  const path = (ys: number[]) => ys.map((y, i) => `${i ? "L" : "M"}${((i / (n - 1)) * W).toFixed(1)} ${(y * H).toFixed(1)}`).join(" ");
+  const ps = interpolate(f, [A, A + 24], [0, 1], out), pb = interpolate(f, [Bd, Bd + 24], [0, 1], out);
+  const enter = interpolate(f - A, [0, 8], [0, 1], out);
+  const leave = interpolate(f, [X, X + 10], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+  const line = (ys: number[], col: string, p: number, id: string, w: number) => (
+    <g>
+      <defs>
+        <linearGradient id={`d_${id}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={col} stopOpacity={0.22} /><stop offset="100%" stopColor={col} stopOpacity={0} /></linearGradient>
+        <clipPath id={`k_${id}`}><rect x={-10} y={-20} width={W * p + 10} height={H + 40} /></clipPath>
+      </defs>
+      <g clipPath={`url(#k_${id})`}>
+        <path d={`${path(ys)} L${W} ${H} L0 ${H} Z`} fill={`url(#d_${id})`} />
+        <path d={path(ys)} fill="none" stroke={col} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+      {p > 0.98 ? <circle cx={W} cy={ys[n - 1] * H} r={11} fill="#fff" stroke={col} strokeWidth={6} /> : null}
+    </g>
+  );
+  return (
+    <div style={{ position: "absolute", left: 70, top: 420, width: 940, height: 560, background: "#fff", borderRadius: 34, boxShadow: "0 18px 40px rgba(80,60,20,0.12)", opacity: enter * (1 - leave), filter: leave > 0.01 ? `blur(${leave * 12}px)` : undefined, transform: `translateY(${(1 - enter) * 40 - leave * 60}px) scale(${1 - leave * 0.06})` }}>
+      {/* 凡例 */}
+      <div style={{ position: "absolute", left: 40, top: 30, display: "flex", gap: 30 }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 10, ...B, fontSize: 34, color: A2.ink }}><span style={{ width: 34, height: 8, borderRadius: 4, background: STOCK }} />株<span style={{ fontSize: 22, color: A2.sub }}>上下しながら増える</span></span>
+        {f >= Bd ? <span style={{ display: "inline-flex", alignItems: "center", gap: 10, ...B, fontSize: 34, color: A2.ink, transform: `scale(${pop(f, Bd)})` }}><span style={{ width: 34, height: 8, borderRadius: 4, background: BOND }} />債券<span style={{ fontSize: 22, color: A2.sub }}>下がりにくく安定</span></span> : null}
+      </div>
+      <svg width={W + 20} height={H + 20} style={{ position: "absolute", left: 40, top: 120, overflow: "visible" }}>
+        {[0.25, 0.5, 0.75].map((g) => <line key={g} x1={0} y1={H * g} x2={W} y2={H * g} stroke={A2.track} strokeWidth={2} />)}
+        <line x1={0} y1={H + 6} x2={W} y2={H + 6} stroke={A2.bar} strokeWidth={4} />
+        {line(st, STOCK, ps, "s", 7)}
+        {f >= Bd ? line(bd, BOND, pb, "b", 9) : null}
+      </svg>
+    </div>
+  );
+};
+
 // 500万円×年5%の成長カード
 const GrowthCard: React.FC<{ at: number }> = ({ at }) => {
   const f = useCurrentFrame();
   const A = F(at);
   if (f < A) return null;
   const enter = interpolate(f - A, [0, 9], [0, 1], out);
-  const CX = 70, CY = 700, CW = 940, CH = 500;
-  const base = 450, maxH = 250, bw = 128;
+  const CX = 70, CY = 560, CW = 940, CH = 560;
+  const base = 490, maxH = 280, bw = 128;
   const xs = GROW.map((_, i) => 110 + i * 215);
   const tops = GROW.map(([, man]) => base - (man / 2160) * maxH);
   const bar = (i: number) => interpolate(f, [F(38.4) + i * 14, F(38.4) + i * 14 + 12], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
@@ -427,8 +470,7 @@ const S5: React.FC = () => {
     <Scene a={33.88} b={44.8}>
       <Head text={<>だから<span style={{ color: BOND }}>債券</span>も組み合わせる</>} from={F(33.88)} />
       {/* 株＝上下しながら右肩上がり／債券＝下がらずに安定して右肩上がり */}
-      <MiniChart at={34.6} x={70} kind="stock" dim={interpolate(f, [F(37.9), F(37.9) + 10], [0, 1], clamp)} />
-      <MiniChart at={35.66} x={590} kind="bond" />
+      <DuoChart />
       {/* 何年後にいくら＝見える：500万円を年5%で30年（複利の単純計算） */}
       <GrowthCard at={37.9} />
       <Note at={38.4}>※年5%の複利で増えた場合の単純計算（税金・手数料は考慮せず）</Note>
