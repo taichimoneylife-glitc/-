@@ -22,13 +22,19 @@ const STOCK = A2.green, BOND = "#4A8FD6", CASH = "#E9B82E";
 // 場面：ぼかしイン → ぼかしアウト
 const Scene: React.FC<{ a: number; b: number; children: React.ReactNode }> = ({ a, b, children }) => {
   const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const A = F(a), Bf = F(b);
-  if (f < A - 1 || f >= Bf + 10) return null;
-  const i = interpolate(f, [A - 1, A + 8], [1, 0], out);
-  const o = interpolate(f, [Bf, Bf + 10], [0, 1], io);
-  const k = Math.max(i, o);
-  return <AbsoluteFill style={{ opacity: 1 - k, filter: k > 0.01 ? `blur(${k * 16}px)` : undefined, transform: `scale(${1 + i * 0.04 - o * 0.05})` }}>{children}</AbsoluteFill>;
+  if (f < A - 1 || f >= Bf + 8) return null;
+  // イン：右からシュッと入って、少し行き過ぎて止まる（バネ）
+  const s = spring({ frame: f - A, fps, config: { damping: 13, stiffness: 210, mass: 0.7 } });
+  const inX = (1 - s) * 520;
+  const inB = interpolate(f - A, [0, 6], [12, 0], clamp);
+  // アウト：最初ゆっくり→一気に左へ抜ける（加速）
+  const o = interpolate(f, [Bf, Bf + 8], [0, 1], { ...clamp, easing: Easing.in(Easing.exp) });
+  const blur = Math.max(inB, o * 22);
+  return <AbsoluteFill style={{ opacity: Math.min(1, (f - A + 1) / 3) * (1 - o * 0.6), filter: blur > 0.3 ? `blur(${blur}px)` : undefined, transform: `translateX(${inX - o * 900}px) scale(${0.96 + 0.04 * Math.min(s, 1)})` }}>{children}</AbsoluteFill>;
 };
+
 // 画像（直置き＋足元の影、任意でふわふわ）
 const Pic: React.FC<{ name: string; size: number; bob?: boolean }> = ({ name, size, bob }) => {
   const f = useCurrentFrame();
@@ -80,13 +86,23 @@ const Flag: React.FC<{ c: string; w?: number }> = ({ c, w = 96 }) => {
   );
 };
 const FLAGS = ["us", "jp", "fr", "de", "ca", "in", "it", "br"];
+const Count: React.FC<{ at: number; to: number; dur?: number; comma?: boolean; style?: React.CSSProperties }> = ({ at, to, dur = 16, comma, style }) => {
+  const f = useCurrentFrame();
+  const n = Math.round(interpolate(f, [F(at), F(at) + dur], [0, to], out));
+  return <span style={style}>{comma ? n.toLocaleString("en-US") : n}</span>;
+};
+const Note: React.FC<{ at: number; y?: number; children: React.ReactNode }> = ({ at, y = 1262, children }) => {
+  const f = useCurrentFrame();
+  if (f < F(at)) return null;
+  return <div style={{ position: "absolute", left: 60, right: 60, top: y, textAlign: "center", ...B, fontSize: 24, color: A2.sub, opacity: interpolate(f - F(at), [0, 8], [0, 1], clamp) }}>{children}</div>;
+};
 
 // ════════ ① オルカンとは（0–7.44） ════════
 const S1: React.FC = () => {
   const f = useCurrentFrame();
   const sh = interpolate(f, [F(2.42), F(2.42) + 12], [0, 1], io);
-  const gx = 540 - 210 + sh * (-150), gy = 480;
-  const gs = 420 - sh * 110;
+  const gx = 540 - 210 + sh * (-170), gy = 440;
+  const gs = 420 - sh * 130;
   return (
     <Scene a={0} b={7.44}>
       <Head text={<>そもそも<span style={{ color: A2.green }}>オルカン</span>って？</>} from={0} />
@@ -102,18 +118,33 @@ const S1: React.FC = () => {
         return <div key={c} style={{ position: "absolute", left: cx + Math.cos(ang) * r - 40, top: cy + Math.sin(ang) * r - 26, transform: `scale(${pop(f, at) * (1 - sh * 0.15)})` }}><Flag c={c} w={80} /></div>;
       })}
       {/* たくさんの企業 */}
-      {f >= F(2.42) ? <div style={{ position: "absolute", left: 560, top: 470, transform: `scale(${pop(f, F(2.42))})` }}><Pic name="bouraku_buildings" size={400} /></div> : null}
-      <PopAt at={1.0} x={0} y={1010} w={1080} center><span style={{ display: "inline-flex", gap: 20 }}><Pill bg={A2.green} size={40}>世界中に分散</Pill>{f >= F(2.42) ? <Pill bg={A2.green} size={40}>たくさんの企業</Pill> : null}</span></PopAt>
+      {f >= F(2.42) ? <div style={{ position: "absolute", left: 580, top: 430, transform: `scale(${pop(f, F(2.42))})` }}><Pic name="bouraku_buildings" size={330} /></div> : null}
+      {/* 具体的な数字（MSCI ACWI） */}
+      <PopAt at={1.28} x={60} y={910} w={440} center>
+        <div style={{ ...B, fontSize: 30, color: A2.sub }}>世界</div>
+        <div style={{ whiteSpace: "nowrap" }}><Count at={1.28} to={47} style={{ ...B, fontSize: 120, color: A2.green, lineHeight: 1 }} /><span style={{ ...B, fontSize: 50, color: A2.ink }}>カ国</span></div>
+        <div style={{ ...B, fontSize: 24, color: A2.sub }}>先進国23・新興国24</div>
+      </PopAt>
+      <PopAt at={2.66} x={560} y={910} w={460} center>
+        <div style={{ ...B, fontSize: 30, color: A2.sub }}>企業</div>
+        <div style={{ whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 50, color: A2.ink }}>約</span><Count at={2.66} to={2500} comma style={{ ...B, fontSize: 120, color: A2.green, lineHeight: 1 }} /><span style={{ ...B, fontSize: 50, color: A2.ink }}>社</span></div>
+      </PopAt>
       {/* まとめて投資 */}
-      <PopAt at={3.42} x={0} y={1110} w={1080} center><span style={{ ...B, fontSize: 56, color: A2.ink }}><Mark2 delay={F(3.42) + 4}>まとめて投資</Mark2>できる商品</span></PopAt>
-      {/* 定期的に見直し：くるっと回る */}
+      <PopAt at={3.42} x={0} y={1130} w={1080} center><span style={{ ...B, fontSize: 56, color: A2.ink }}><Mark2 delay={F(3.42) + 4}>まとめて投資</Mark2>できる商品</span></PopAt>
+      {/* 定期的に見直し：くるっと回るマーク＋年4回 */}
       {f >= F(4.68) ? (
-        <div style={{ position: "absolute", left: 610, top: 760, transform: `scale(${pop(f, F(4.68))}) rotate(${interpolate(f, [F(4.68), F(4.68) + 20], [-180, 0], out)}deg)` }}><Pic name="bouraku_refresh" size={220} /></div>
+        <div style={{ position: "absolute", left: 0, top: 790, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 14, transform: `scale(${pop(f, F(4.68))})` }}>
+          <div style={{ transform: `rotate(${interpolate(f, [F(4.68), F(4.68) + 20], [-180, 0], out)}deg)` }}><GenSlot name="bouraku_refresh" size={96} /></div>
+          <span style={{ display: "inline-flex", alignItems: "baseline", gap: 8, background: "#fff", borderRadius: 999, padding: "6px 26px", boxShadow: "0 6px 16px rgba(80,60,20,0.1)" }}>
+            <span style={{ ...B, fontSize: 34, color: A2.ink }}>中身の見直し 年</span><span style={{ ...B, fontSize: 56, color: A2.green }}>4</span><span style={{ ...B, fontSize: 34, color: A2.ink }}>回</span>
+            <span style={{ ...B, fontSize: 24, color: A2.sub, marginLeft: 8 }}>2・5・8・11月</span>
+          </span>
+        </div>
       ) : null}
-      <PopAt at={5.04} x={600} y={700}><Pill bg="#fff" color={A2.ink} size={34}>定期的に見直し</Pill></PopAt>
+      <Note at={1.28}>※オルカンが連動する指数「MSCI ACWI」の構成（2026年8月末時点・社数は変動）</Note>
       {/* かなり優秀 */}
-      {f >= F(6.66) ? <div style={{ position: "absolute", left: 120, top: 770, transform: `scale(${pop(f, F(6.66))}) rotate(${Math.sin((f - F(6.66)) / 3) * interpolate(f - F(6.66), [0, 12], [10, 0], clamp)}deg)` }}><Pic name="bouraku_medal" size={230} /></div> : null}
-      <Stamp at={7.0} x={330} y={830} text="かなり優秀" color={A2.green} size={64} />
+      {f >= F(6.66) ? <div style={{ position: "absolute", left: 140, top: 520, zIndex: 5, transform: `scale(${pop(f, F(6.66))}) rotate(${Math.sin((f - F(6.66)) / 3) * interpolate(f - F(6.66), [0, 12], [10, 0], clamp)}deg)` }}><Pic name="bouraku_medal" size={230} /></div> : null}
+      <div style={{ position: "absolute", inset: 0, zIndex: 5 }}><Stamp at={7.0} x={390} y={600} text="かなり優秀" color={A2.green} size={70} /></div>
     </Scene>
   );
 };
@@ -162,8 +193,12 @@ const S2: React.FC = () => {
       {/* 嵐＋下がるグラフ */}
       {f >= fall ? <div style={{ position: "absolute", left: 650, top: 360, transform: `scale(${pop(f, fall)}) translateX(${Math.sin(f / 2) * 3}px)` }}><GenSlot name="bouraku_storm" size={300} /></div> : null}
       <DropLine at={fall} x={90} y={420} w={420} h={260} />
+      {/* 過去の大きな下落（世界株） */}
+      <PopAt at={12.5} x={40} y={640}><span style={{ display: "inline-flex", alignItems: "baseline", gap: 10, background: "#fff", borderRadius: 18, padding: "6px 18px", boxShadow: "0 6px 16px rgba(80,60,20,0.12)" }}><span style={{ ...B, fontSize: 28, color: A2.sub }}>2008年</span><span style={{ ...B, fontSize: 50, color: A2.coral }}>−56%</span></span></PopAt>
+      <PopAt at={12.9} x={40} y={720}><span style={{ display: "inline-flex", alignItems: "baseline", gap: 10, background: "#fff", borderRadius: 18, padding: "6px 18px", boxShadow: "0 6px 16px rgba(80,60,20,0.12)" }}><span style={{ ...B, fontSize: 28, color: A2.sub }}>2020年</span><span style={{ ...B, fontSize: 50, color: A2.coral }}>−34%</span></span></PopAt>
+      <Note at={12.5}>※世界株指数（MSCI ACWI・価格）の高値からの最大下落率。2008年＝リーマン・ショック、2020年＝コロナ・ショック</Note>
       {f >= shock ? <div style={{ position: "absolute", left: PIT_X + 70, top: PIT_Y + 200, transform: `scale(${pop(f, shock)})` }}><GenSlot name="bouraku_dust" size={360} /></div> : null}
-      <PopAt at={13.46} x={0} y={1180} w={1080} center><Pill size={46}>オルカンも下がる</Pill></PopAt>
+      <PopAt at={13.46} x={0} y={1160} w={1080} center><Pill size={46}>オルカンも下がる</Pill></PopAt>
     </Scene>
   );
 };
@@ -197,9 +232,11 @@ const S3: React.FC = () => {
       {JARS.map(([n, label, col], i) => {
         const x = 90 + i * 320;
         const big = i === 0 ? 1 + fill * 0.12 : 1;
+        const shake = i === 0 ? Math.sin(f / 1.7) * fill * fill * 5 : 0; // いっぱいになるほどグラグラ
         return (
           <PopAt key={n} at={14.9 + i * 0.15} x={x} y={430}>
-            <div style={{ position: "relative", width: 260, height: 300, transform: `scale(${big})`, transformOrigin: "50% 100%" }}>
+            {i === 0 ? <div style={{ position: "absolute", left: -30, top: -20, width: 320, height: 340, borderRadius: "50%", background: `radial-gradient(circle, rgba(239,125,87,${0.45 * fill}) 0%, rgba(239,125,87,0) 70%)` }} /> : null}
+            <div style={{ position: "relative", width: 260, height: 300, transform: `scale(${big}) rotate(${shake}deg)`, transformOrigin: "50% 100%" }}>
               {/* 中身（コインの量） */}
               <div style={{ position: "absolute", left: 40, right: 40, bottom: 28, height: (i === 0 ? fill * 200 : 22), borderRadius: 18, background: `linear-gradient(${CASH}, #C9930F)`, opacity: 0.9 }} />
               <div style={{ position: "absolute", left: 0, top: 0 }}><GenSlot name={n} size={260} /></div>
@@ -214,6 +251,8 @@ const S3: React.FC = () => {
         const p = interpolate(f, [t, t + 10], [0, 1], { ...clamp, easing: Easing.in(Easing.quad) });
         return <div key={i} style={{ position: "absolute", left: 175 + (i % 3) * 12, top: 290 + p * 230, transform: `rotate(${p * 200}deg)` }}><GenSlot name="bouraku_coin" size={90} /></div>;
       })}
+      {/* リスク大（株のビンがいっぱいになると点滅） */}
+      {fill > 0.55 ? <div style={{ position: "absolute", left: 95, top: 360, transform: `scale(${pop(f, coins[7] + 10)})`, opacity: 0.75 + 0.25 * Math.sin(f / 2.5) }}><Pill bg={A2.red} size={38}>⚠ リスク大</Pill></div> : null}
       <PopAt at={17.02} x={60} y={830}><Pill bg={A2.green} size={36}>増やそう増やそう</Pill></PopAt>
       <PopAt at={18.38} x={560} y={830}><Pill bg={A2.green} size={36}>とりあえず積立</Pill></PopAt>
       {/* シーソー：株側にガクッ */}
@@ -257,6 +296,7 @@ const S4: React.FC = () => {
       <PopAt at={26.28} x={X + useX - 60} y={Y - 140}><Pill bg={A2.ink} size={30}>お金を使う時</Pill></PopAt>
       <Stamp at={28.3} x={240} y={870} text="重なると…" size={56} rot={-4} />
       {/* 必要なお金が減る＋売るストレス */}
+      <div style={{ opacity: interpolate(f, [F(31.9), F(32.2)], [1, 0], clamp) }}>
       <In at={F(28.94)} style={{ left: 90, top: 990 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <Pic name="mile_lp_school" size={190} />
@@ -269,6 +309,8 @@ const S4: React.FC = () => {
         </div>
       </In>
       <PopAt at={31.24} x={590} y={1200}><Pill size={36}>売るストレス</Pill></PopAt>
+      </div>
+      <PopAt at={32.3} x={360} y={1060}><span style={{ ...B, fontSize: 54, color: A2.coral }}>一番怖いところ</span></PopAt>
       <Taichi name="taichi_head_hold" at={32.06} until={33.88} />
     </Scene>
   );
@@ -379,14 +421,21 @@ const Taichi: React.FC<{ name: string; at: number; until: number }> = ({ name, a
   const { fps } = useVideoConfig();
   const A = F(at), U = F(until);
   if (f < A || f >= U) return null;
-  const s = spring({ frame: f - A, fps, config: { damping: 12, stiffness: 160, mass: 0.6 } });
-  const o = interpolate(f, [U - 6, U], [0, 1], clamp);
+  const s = spring({ frame: f - A, fps, config: { damping: 9, stiffness: 230, mass: 0.6 } }); // 行き過ぎて戻る
+  const o = interpolate(f, [U - 7, U], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+  const x = -360 + s * 380 - o * 420;
+  const lean = (1 - s) * -14 + o * -12; // 入る勢いで前のめり
+  const streak = interpolate(f - A, [0, 2, 8], [0, 1, 0], clamp) + o;
   return (
-    <div style={{ position: "absolute", left: 20, top: 1000 + (1 - s) * 260 + o * 260, transform: `rotate(${Math.sin(f / 8) * 1.5}deg)` }}>
-      <GenSlot name={name} size={300} />
-    </div>
+    <>
+      {streak > 0.02 ? [0, 1, 2].map((k) => <div key={k} style={{ position: "absolute", left: x - 120 + k * 30, top: 1080 + k * 50, width: 160, height: 6, borderRadius: 3, background: A2.green, opacity: streak * 0.5 }} />) : null}
+      <div style={{ position: "absolute", left: x, top: 1000, transform: `rotate(${lean + Math.sin(f / 8) * 1.5}deg) translateY(${Math.sin(f / 10) * 4}px)`, transformOrigin: "50% 100%" }}>
+        <GenSlot name={name} size={300} />
+      </div>
+    </>
   );
 };
+
 
 const SUBS: [number, string][] = [
   [0, "そもそもオルカンって"], [1.0, "世界中に分散できて"], [2.42, "たくさんの企業に"], [3.42, "まとめて投資できる商品"], [4.68, "中身も定期的に見直されるので"], [6.66, "かなり優秀"],
@@ -418,6 +467,8 @@ const CUES: { file: string; at: number; volume: number }[] = [
   { file: "whoosh2", at: F(27.52), volume: 0.28 },
   { file: "user/u05", at: F(28.3), volume: 0.3 },
   { file: "user/u03", at: F(33.88), volume: 0.28 },
+  ...[7.44, 14.44, 23.62, 44.8, 56.8].map((t) => ({ file: "swipe", at: F(t) - 2, volume: 0.25 })),
+  ...[32.06, 33.88, 50.3, 68.2].map((t) => ({ file: "swipe", at: F(t), volume: 0.22 })),
   { file: "user/u02s", at: F(35.66), volume: 0.24 },
   { file: "user/u02s", at: F(39.9), volume: 0.22 },
   { file: "user/u05s", at: F(43.6), volume: 0.26 },
