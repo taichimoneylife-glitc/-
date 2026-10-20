@@ -377,6 +377,7 @@ const S6: React.FC = () => {
       <div style={{ position: "absolute", left: 420, top: 520, width: 560, height: 12, borderRadius: 6, background: A2.track }} />
       <div style={{ position: "absolute", left: 420, top: 520, width: 560 * interpolate(f, [F(46.94), F(48.3)], [0, 1], out), height: 12, borderRadius: 6, background: BOND }} />
       <PopAt at={46.94} x={600} y={560}><Pill bg="#fff" color={A2.ink} size={34}>20年</Pill></PopAt>
+      {f >= F(46.94) ? <div style={{ position: "absolute", left: 880, top: 360, transform: `scale(${pop(f, F(46.94))}) rotate(${interpolate(f, [F(46.94), F(46.94) + 18], [-180, 0], out)}deg)` }}><GenSlot name="bouraku_hourglass" size={130} /></div> : null}
       <PopAt at={47.5} x={840} y={560}><Pill bg="#fff" color={A2.ink} size={34}>30年</Pill></PopAt>
       {f >= lockAt ? <div style={{ position: "absolute", left: 640, top: 340 + lk, transform: `scale(${pop(f, lockAt)})` }}><Pic name="bouraku_lock" size={170} /></div> : null}
       <Stamp at={49.8} x={470} y={680} text="利回りを固定" color={BOND} size={54} rot={-4} />
