@@ -235,59 +235,83 @@ const S2: React.FC = () => {
   );
 };
 
-// ════════ ③ 資産が株に寄っていく（14.44–23.62） ════════
-const JARS: [string, string, string][] = [["bouraku_jar_green", "株", STOCK], ["bouraku_jar_blue", "債券", BOND], ["bouraku_jar_yellow", "現金", CASH]];
+// ════════ ③ 株だけで分けている（14.44–23.62）：全米・全世界・日経…中身は全部株 → 一緒に落ちる ════════
+const FUNDS: [string, string][] = [["全米株式", "#2E9E6B"], ["全世界株式", "#3FB57F"], ["日経平均", "#1F7A52"]];
 const S3: React.FC = () => {
   const f = useCurrentFrame();
-  const c0 = F(16.6), c1 = F(21.0);
-  const coins = Array.from({ length: 12 }).map((_, i) => c0 + Math.round(((c1 - c0) * i) / 12));
-  const landed = coins.filter((t) => f >= t + 10).length;
-  const fill = landed / 12;
+  const A = F(14.44);
+  const allStock = F(19.56);          // 「資産が株に寄っている」
+  const crash = F(20.5);              // 3本が一緒に落ちる
+  const crashP = interpolate(f, [crash, crash + 12], [0, 1], { ...clamp, easing: Easing.in(Easing.quad) });
+  const shake = useShake(crash + 10, 20, 16);
   const tilt = interpolate(f, [F(21.24), F(21.24) + 14], [0, -13], { ...clamp, easing: Easing.out(Easing.back(2)) });
+  // ミニ折れ線（3本とも同じ形＝同じ動き）
+  const W = 780, H = 260;
+  const base: [number, number][] = [[0, 0.75], [0.15, 0.62], [0.3, 0.66], [0.45, 0.48], [0.6, 0.42], [0.72, 0.3]];
+  const drop: [number, number][] = [[0.72, 0.3], [0.86, 0.78], [1, 0.9]];
+  const path = (ps: [number, number][], dy: number) => ps.map(([x, y], i) => `${i ? "L" : "M"}${x * W} ${y * H + dy}`).join(" ");
+  const lineP = interpolate(f, [allStock, allStock + 18], [0, 1], out);
   return (
     <Scene a={14.44} b={23.62} inT="drop">
-      <Head text={<>多くの人が<span style={{ color: A2.coral }}>ハマる</span>落とし穴</>} from={F(14.44)} />
-      {/* 3つのビン */}
-      {JARS.map(([n, label, col], i) => {
-        const x = 90 + i * 320;
-        const big = i === 0 ? 1 + fill * 0.12 : 1;
-        const shake = i === 0 ? Math.sin(f / 1.7) * fill * fill * 5 : 0; // いっぱいになるほどグラグラ
-        return (
-          <PopAt key={n} at={14.9 + i * 0.15} x={x} y={430}>
-            {i === 0 ? <div style={{ position: "absolute", left: -30, top: -20, width: 320, height: 340, borderRadius: "50%", background: `radial-gradient(circle, rgba(239,125,87,${0.45 * fill}) 0%, rgba(239,125,87,0) 70%)` }} /> : null}
-            <div style={{ position: "relative", width: 260, height: 300, transform: `scale(${big}) rotate(${shake}deg)`, transformOrigin: "50% 100%" }}>
-              {/* 中身（コインの量） */}
-              <div style={{ position: "absolute", left: 0, top: 0 }}><GenSlot name={n} size={260} /></div>
-              {/* 中身（コインの量）＝ビンのガラスの内側に重ねる */}
-              <div style={{ position: "absolute", left: 52, right: 52, bottom: 24, height: (i === 0 ? fill * 165 : 14), borderRadius: "10px 10px 26px 26px", background: `linear-gradient(#F7D45A, #D9A21A)`, opacity: 0.92, boxShadow: "inset 0 6px 0 rgba(255,255,255,0.35)" }}>
-                {i === 0 && fill > 0.1 ? Array.from({ length: Math.ceil(fill * 9) }).map((_, k) => <div key={k} style={{ position: "absolute", left: 10 + (k % 3) * 40, top: 6 + Math.floor(k / 3) * 34, width: 34, height: 10, borderRadius: 5, background: "rgba(255,255,255,0.45)" }} />) : null}
+      <div style={{ position: "absolute", inset: 0, transform: shake }}>
+        <Head text={<>多くの人が<span style={{ color: A2.coral }}>ハマる</span>落とし穴</>} from={A} />
+        {/* P1：分散してるつもり（全米・全世界・日経） */}
+        <Page a={14.44} b={19.56}>
+          <PopAt at={14.86} x={0} y={400} w={1080} center><span style={{ ...B, fontSize: 52, color: A2.ink }}>「分散してるつもり」</span></PopAt>
+          {FUNDS.map(([name, col], i) => {
+            const at = F(15.3) + i * 8;
+            if (f < at) return null;
+            const flip = F(18.38) + i * 4; // 「とりあえず積み立て」で中身＝株のタグ
+            return (
+              <div key={name} style={{ ...CARD, left: 90, top: 520 + i * 200, width: 900, height: 170, transform: `translateX(${interpolate(f - at, [0, 10], [-200, 0], out)}px)`, opacity: interpolate(f - at, [0, 6], [0, 1], clamp) }}>
+                <div style={{ position: "absolute", left: 36, top: 44, ...B, fontSize: 58, color: A2.ink }}>{name}</div>
+                <svg width={220} height={90} style={{ position: "absolute", left: 420, top: 40 }}>
+                  <path d="M0 80 L40 60 L80 68 L120 40 L160 46 L210 12" fill="none" stroke={col} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {f >= flip ? (
+                  <div style={{ position: "absolute", right: 30, top: 50, transform: `scale(${pop(f, flip)})` }}><Pill bg={STOCK} size={40}>中身＝株</Pill></div>
+                ) : (
+                  <div style={{ position: "absolute", right: 30, top: 54, ...B, fontSize: 36, color: A2.sub }}>✓ 分散？</div>
+                )}
               </div>
-              <div style={{ position: "absolute", left: 0, right: 0, top: 300, textAlign: "center" }}><Pill bg={col} size={38}>{label}</Pill></div>
+            );
+          })}
+          <PopAt at={16.6} x={0} y={1140} w={1080} center><Pill bg={A2.green} size={40}>増やそう増やそう</Pill></PopAt>
+        </Page>
+        {/* P2：3本を重ねると…同じ動き → 一緒に落ちる */}
+        <Page a={19.56} b={21.24}>
+          <div style={{ ...CARD, left: 70, top: 400, width: 940, height: 560 }}>
+            <div style={{ position: "absolute", left: 36, top: 26, display: "flex", gap: 22 }}>
+              {FUNDS.map(([n, c]) => <span key={n} style={{ display: "inline-flex", alignItems: "center", gap: 8, ...B, fontSize: 28, color: A2.ink }}><span style={{ width: 28, height: 8, borderRadius: 4, background: c }} />{n}</span>)}
             </div>
-          </PopAt>
-        );
-      })}
-      {/* コインが毎月チャリン（株のビンにだけ） */}
-      {coins.map((t, i) => {
-        if (f < t || f > t + 10) return null;
-        const p = interpolate(f, [t, t + 10], [0, 1], { ...clamp, easing: Easing.in(Easing.quad) });
-        return <div key={i} style={{ position: "absolute", left: 175 + (i % 3) * 12, top: 290 + p * 230, transform: `rotate(${p * 200}deg)` }}><GenSlot name="bouraku_coin" size={90} /></div>;
-      })}
-      {/* リスク大（株のビンがいっぱいになると点滅） */}
-      {fill > 0.55 ? <div style={{ position: "absolute", left: 95, top: 360, transform: `scale(${pop(f, coins[7] + 10)})`, opacity: 0.75 + 0.25 * Math.sin(f / 2.5) }}><Pill bg={A2.red} size={38}>⚠ リスク大</Pill></div> : null}
-      <PopAt at={17.02} x={60} y={830}><Pill bg={A2.green} size={36}>増やそう増やそう</Pill></PopAt>
-      <PopAt at={18.38} x={560} y={830}><Pill bg={A2.green} size={36}>とりあえず積立</Pill></PopAt>
-      {/* シーソー：株側にガクッ */}
-      {f >= F(19.56) ? (
-        <div style={{ position: "absolute", left: 140, top: 990, width: 800, height: 160, opacity: interpolate(f - F(19.56), [0, 6], [0, 1], clamp) }}>
-          <div style={{ position: "absolute", left: 370, top: 90, width: 0, height: 0, borderLeft: "30px solid transparent", borderRight: "30px solid transparent", borderBottom: `60px solid ${A2.ink}` }} />
-          <div style={{ position: "absolute", left: 0, top: 80, width: 800, height: 14, borderRadius: 7, background: A2.ink, transform: `rotate(${tilt}deg)` }}>
-            <div style={{ position: "absolute", left: 20, top: -96, transform: `scale(${1 + fill * 0.2})`, transformOrigin: "50% 100%" }}><Pill bg={STOCK} size={44}>株</Pill></div>
-            <div style={{ position: "absolute", right: 30, top: -70 }}><span style={{ display: "inline-flex", gap: 10 }}><Pill bg={BOND} size={28}>債券</Pill><Pill bg={CASH} color={A2.ink} size={28}>現金</Pill></span></div>
+            <svg width={W + 20} height={H + 40} style={{ position: "absolute", left: 80, top: 130, overflow: "visible" }}>
+              {[0.33, 0.66].map((g) => <line key={g} x1={0} y1={H * g} x2={W} y2={H * g} stroke={A2.track} strokeWidth={2} />)}
+              {FUNDS.map(([n, c], i) => (
+                <g key={n}>
+                  <path d={path(base, i * 12 - 12)} fill="none" stroke={c} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - lineP} />
+                  {crashP > 0 ? <path d={path(drop, i * 12 - 12)} fill="none" stroke={A2.red} strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - crashP} /> : null}
+                </g>
+              ))}
+            </svg>
+            {f >= crash + 10 ? <div style={{ position: "absolute", left: 0, top: 440, width: 940, textAlign: "center", transform: `scale(${pop(f, crash + 10)})` }}><span style={{ ...B, fontSize: 58, color: A2.red }}>全部いっしょに下がる</span></div> : null}
+            <div style={{ position: "absolute", right: 30, top: 28, ...B, fontSize: 22, color: A2.sub }}>イメージ</div>
           </div>
-        </div>
-      ) : null}
-      <Stamp at={22.06} x={170} y={1190} text="資産分散できていない" size={56} rot={-3} />
+          <PopAt at={19.9} x={0} y={1010} w={1080} center><span style={{ ...B, fontSize: 54, color: A2.ink }}>中身は<span style={{ color: A2.coral }}>どれも「株」</span></span></PopAt>
+        </Page>
+        {/* P3：資産分散ができていない（シーソー） */}
+        <Page a={21.24} b={23.8}>
+          <div style={{ position: "absolute", left: 140, top: 660, width: 800, height: 240 }}>
+            <div style={{ position: "absolute", left: 370, top: 140, width: 0, height: 0, borderLeft: "34px solid transparent", borderRight: "34px solid transparent", borderBottom: `70px solid ${A2.ink}` }} />
+            <div style={{ position: "absolute", left: 0, top: 128, width: 800, height: 16, borderRadius: 8, background: A2.ink, transform: `rotate(${tilt}deg)` }}>
+              <div style={{ position: "absolute", left: 10, top: -150, display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
+                {FUNDS.map(([n, c]) => <span key={n} style={{ display: "inline-block", background: c, color: "#fff", ...B, fontSize: 30, padding: "4px 18px", borderRadius: 999 }}>{n}</span>)}
+              </div>
+              <div style={{ position: "absolute", right: 20, top: -64, display: "flex", gap: 10 }}><Pill bg={BOND} size={30}>債券</Pill><Pill bg={CASH} color={A2.ink} size={30}>現金</Pill></div>
+            </div>
+          </div>
+          <Stamp at={22.06} x={150} y={940} text="資産分散できていない" size={64} rot={-3} />
+        </Page>
+      </div>
     </Scene>
   );
 };
@@ -773,7 +797,9 @@ const CUES: { file: string; at: number; volume: number }[] = [
   { file: "user/u05", at: F(13.6), volume: 0.26 },
   { file: "whoosh2", at: F(14.44) - 4, volume: 0.25 },
   // ③ コインは4回だけ／傾き／スタンプ
-  ...[0, 3, 6, 9].map((i) => ({ file: "coin", at: F(16.6) + Math.round(((F(21.0) - F(16.6)) * i) / 12) + 10, volume: 0.14 })),
+  ...[0, 1, 2].map((i) => ({ file: "user/u02s", at: F(15.3) + i * 8, volume: 0.2 })),
+  { file: "user/u05s", at: F(18.38), volume: 0.22 },
+  { file: "dadan", at: F(20.5) + 10, volume: 0.36 },
   { file: "thunk", at: F(21.24), volume: 0.32 },
   { file: "user/u05", at: F(22.06), volume: 0.3 },
   // ④ 山場
