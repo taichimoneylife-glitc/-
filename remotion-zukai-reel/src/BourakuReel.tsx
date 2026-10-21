@@ -379,7 +379,6 @@ const S4: React.FC = () => {
         </div>
       ) : null}
       {flash > 0 ? <AbsoluteFill style={{ background: A2.red, opacity: flash }} /> : null}
-      <Taichi name="taichi_head_hold" at={32.06} until={33.88} side="bottom" />
     </Scene>
   );
 };
@@ -603,8 +602,7 @@ const S6: React.FC = () => {
       {/* 下のカード：僕自身も、30年先に必要なお金の一部を債券に */}
       {bot.on ? (
         <div style={{ ...CARD, left: 70, top: 820, width: 940, height: 400, ...bot.style }}>
-          <div style={{ position: "absolute", left: 24, top: -30, transform: `scale(${pop(f, F(50.3))})` }}><GenSlot name="taichi_explain_both" size={150} /></div>
-          <div style={{ position: "absolute", left: 180, top: 30 }}>
+          <div style={{ position: "absolute", left: 40, top: 30 }}>
             <div style={{ ...B, fontSize: 40, color: A2.ink }}>僕自身も</div>
             <div style={{ ...B, fontSize: 26, color: A2.sub, marginTop: 2 }}>30年先に必要なお金</div>
           </div>
