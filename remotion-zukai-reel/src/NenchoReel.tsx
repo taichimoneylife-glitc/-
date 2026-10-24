@@ -124,56 +124,109 @@ const ChipPop: React.FC<{ at: number; children: React.ReactNode }> = ({ at, chil
   return <span style={{ display: "inline-block", transform: `scale(${pop(f, at)})`, filter: "drop-shadow(0 8px 14px rgba(80,60,20,0.15))" }}>{children}</span>;
 };
 
-// ═══════════════ ツリー（年収の壁と同じ型）：9.04〜115.52 上に固定、解説中の枝が光る ═══════════════
-const BRANCH: { key: string; t: string; ch: string; c: string; from: number; to: number }[] = [
-  { key: "kiso", t: "基礎控除", ch: "95→104万", c: A2.green, from: 10.72, to: 29.5 },
-  { key: "fuyo", t: "扶養", ch: "123→136万", c: BLUE, from: 29.5, to: 75.66 },
-  { key: "seiho", t: "生命保険料控除", ch: "4→6万", c: ORANGE, from: 75.66, to: 96.92 },
+// ═══════════════ ツリー：全体像とまとめは大きなツリー、解説中は上のタブで「今どこ」 ═══════════════
+const BRANCH: { key: string; t: string; from: string; to: string; c: string; a: number; z: number }[] = [
+  { key: "kiso", t: "基礎控除", from: "最大95万円", to: "104万円", c: A2.green, a: 10.72, z: 29.5 },
+  { key: "fuyo", t: "扶養", from: "年収123万円", to: "136万円", c: BLUE, a: 29.5, z: 75.66 },
+  { key: "seiho", t: "生命保険料控除", from: "一般 4万円", to: "6万円", c: ORANGE, a: 75.66, z: 96.92 },
 ];
-const TREE_A = 9.04, TREE_Z = 115.52, MATOME = 96.92;
-const Tree: React.FC = () => {
+const BigTree: React.FC<{ a: number; b: number; checks?: number[]; title: React.ReactNode }> = ({ a, b, checks, title }) => {
   const f = useCurrentFrame();
-  const A = F(TREE_A), Z = F(TREE_Z);
-  if (f < A || f >= Z + 12) return null;
-  const t = f / 30;
-  const big = interpolate(f, [F(10.5), F(10.72) + 8], [1, 0], io); // 全体像の間は大きく → 解説に入ると上に縮む
-  const leave = interpolate(f, [Z, Z + 12], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
-  const line = interpolate(f, [A + 6, A + 20], [0, 1], out);
-  const pulse = 1 + (Math.sin(f / 7) * 0.5 + 0.5) * 0.07;
-  const BXs = [200, 540, 880];
-  const all = t >= MATOME;
+  const A = F(a);
+  const line = interpolate(f, [A + 4, A + 18], [0, 1], out);
+  const X = [190, 540, 890];
   return (
-    <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 600, transform: `translateY(${big * 300 - leave * 600}px)`, transformOrigin: "540px 250px", opacity: 1 - leave }}>
-      <div style={{ position: "absolute", left: 0, top: 250, width: 1080, textAlign: "center", transform: `scale(${pop(f, A)})` }}>
-        <span style={{ ...B, fontSize: 46, color: A2.ink, borderBottom: `6px solid ${A2.green}`, paddingBottom: 4 }}>年末調整 2026</span>
-        <div style={{ ...B, fontSize: 24, color: A2.green, marginTop: 8 }}>今年 変わったのは3つ</div>
+    <Scene a={a} b={b} inT="zoom" outT="zoom">
+      <div style={{ position: "absolute", left: 0, top: 290, width: 1080, textAlign: "center", transform: `scale(${pop(f, A)})` }}>
+        <div style={{ display: "inline-block", background: A2.ink, color: "#fff", borderRadius: 26, padding: "16px 44px", ...B, fontSize: 52 }}>年末調整 <span style={{ color: "#FFE07A" }}>2026</span></div>
+        <div style={{ ...B, fontSize: 34, color: A2.ink, marginTop: 14 }}>{title}</div>
       </div>
-      <svg width={1080} height={600} style={{ position: "absolute", inset: 0 }}>
-        <path d="M540 360 L540 390 M200 390 L880 390 M200 390 L200 420 M540 390 L540 420 M880 390 L880 420" fill="none" stroke={A2.green} strokeWidth={6} strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - line} />
+      <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
+        <path d="M540 500 L540 560 M190 560 L890 560 M190 560 L190 620 M540 560 L540 620 M890 560 L890 620" fill="none" stroke={A2.ink} strokeOpacity={0.35} strokeWidth={6} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - line} />
       </svg>
-      {BRANCH.map((b, i) => {
-        const at = A + 14 + i * 7;
+      {BRANCH.map((br, i) => {
+        const at = A + 14 + i * 6;
         if (f < at) return null;
-        const on = all || (t >= b.from && t < b.to);
-        const dim = !all && t >= b.from - 99 && t >= 10.72 && !on;
-        const done = all && f >= F(MATOME) + i * 105 + 8; // まとめの読み上げに合わせてチェック
+        const ck = checks ? F(checks[i]) : -1;
+        const done = checks && f >= ck;
         return (
-          <div key={b.key} style={{ position: "absolute", left: BXs[i] - 150, top: 425, width: 300, textAlign: "center", opacity: dim ? 0.4 : 1, transform: `scale(${pop(f, at) * (on && !all ? pulse : 1)})` }}>
-            <div style={{ position: "relative", background: on ? b.c + "18" : "#fff", border: `${on ? 5 : 3}px solid ${dim ? A2.bar : b.c}`, borderRadius: 20, padding: "12px 6px 10px", boxShadow: on ? `0 8px 22px ${b.c}55` : "0 6px 16px rgba(80,60,20,0.10)" }}>
-              <div style={{ ...B, fontSize: b.t.length > 4 ? 30 : 36, color: dim ? A2.sub : A2.ink }}>{b.t}</div>
-              <div style={{ ...B, fontSize: 26, color: dim ? A2.sub : b.c, marginTop: 2 }}>{b.ch}</div>
-              {done ? <div style={{ position: "absolute", right: -16, top: -16, width: 48, height: 48, borderRadius: "50%", background: b.c, color: "#fff", ...B, fontSize: 30, lineHeight: "48px", transform: `scale(${pop(f, F(MATOME) + i * 105 + 8)})` }}>✓</div> : null}
+          <div key={br.key} style={{ position: "absolute", left: X[i] - 160, top: 630, width: 320, transform: `scale(${pop(f, at)})`, transformOrigin: "50% 0" }}>
+            <div style={{ position: "relative", background: "#fff", borderRadius: 30, boxShadow: done ? `0 14px 30px ${br.c}55` : "0 14px 30px rgba(80,60,20,0.12)", border: done ? `5px solid ${br.c}` : "5px solid transparent", overflow: "hidden" }}>
+              <div style={{ background: br.c, color: "#fff", ...B, fontSize: br.t.length > 4 ? 32 : 40, textAlign: "center", padding: "16px 0" }}>{["①", "②", "③"][i]} {br.t}</div>
+              <div style={{ padding: "22px 0 26px", textAlign: "center" }}>
+                <div style={{ ...B, fontSize: 28, color: A2.sub, textDecoration: "line-through" }}>{br.from}</div>
+                <div style={{ ...B, fontSize: 30, color: A2.sub, margin: "4px 0" }}>↓</div>
+                <div style={{ ...B, fontSize: 74, color: br.c, lineHeight: 1 }}>{br.to}</div>
+              </div>
+              {done ? <div style={{ position: "absolute", right: 14, top: 76, width: 64, height: 64, borderRadius: "50%", background: br.c, border: "5px solid #fff", color: "#fff", ...B, fontSize: 38, textAlign: "center", lineHeight: "54px", transform: `scale(${pop(f, ck)})` }}>✓</div> : null}
             </div>
           </div>
         );
       })}
+    </Scene>
+  );
+};
+// 解説中：上のタブ（3つのうち今どこ）。光る下地がスッと移動する
+const TabBar: React.FC = () => {
+  const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const A = F(10.72), Z = F(96.92);
+  if (f < A - 2 || f >= Z + 8) return null;
+  const t = f / 30;
+  let idx = 0;
+  BRANCH.forEach((b, i) => { if (t >= b.a) idx = i; });
+  const sw = BRANCH.map((b, i) => spring({ frame: f - F(b.a), fps, config: { damping: 16, stiffness: 170 } }) * (i > 0 ? 1 : 0));
+  const pos = sw[1] + sw[2]; // 0→1→2
+  const enter = interpolate(f, [A - 2, A + 8], [0, 1], out);
+  const leave = interpolate(f, [Z, Z + 8], [0, 1], clamp);
+  const W = 940, SW = W / 3;
+  const col = BRANCH[idx].c;
+  return (
+    <div style={{ position: "absolute", left: 70, top: 252, width: W, height: 100, borderRadius: 30, background: "#fff", boxShadow: "0 10px 26px rgba(80,60,20,0.10)", opacity: enter * (1 - leave), transform: `translateY(${(1 - enter) * -40}px)` }}>
+      <div style={{ position: "absolute", left: 8 + pos * SW, top: 8, width: SW - 16, height: 84, borderRadius: 24, background: col, boxShadow: `0 8px 18px ${col}66` }} />
+      {BRANCH.map((b, i) => (
+        <div key={b.key} style={{ position: "absolute", left: i * SW, top: 0, width: SW, height: 100, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, ...B, fontSize: b.t.length > 4 ? 30 : 38, color: i === idx ? "#fff" : A2.sub }}>
+          <span style={{ fontSize: 30 }}>{["①", "②", "③"][i]}</span>{b.t}
+        </div>
+      ))}
     </div>
   );
 };
-// 解説パートの中身はツリーの下に収まるよう、少し縮めて下げる
-const UnderTree: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AbsoluteFill style={{ transform: "translateY(225px) scale(0.79)", transformOrigin: "540px 0px" }}>{children}</AbsoluteFill>
-);
+// 実際の用紙（国税庁 令和8年分）を出して、該当欄にズーム＋枠＋吹き出し
+type Reg = [number, number, number, number];
+const FormZoom: React.FC<{ at: number; src: string; title: string; reg: Reg; mark?: Reg; zoomAt?: number; note: React.ReactNode; color?: string; top?: number; kz?: number; fxr?: number }> = ({ at, src, title, reg, mark, zoomAt, note, color = ORANGE, top = 400, kz, fxr }) => {
+  const f = useCurrentFrame();
+  const A = F(at), Zt = F(zoomAt ?? at + 0.9);
+  if (f < A) return null;
+  const VW = 980, VH = 700, IW = 980, IH = IW * 1654 / 2339;
+  const [x0, y0, x1, y1] = reg;
+  const rw = (x1 - x0) * IW, rh = (y1 - y0) * IH;
+  const kT = kz ?? Math.min((VW * 0.92) / rw, (VH * 0.78) / rh, 4.2);
+  const z = interpolate(f, [Zt, Zt + 16], [0, 1], io);
+  const k = 1 + (kT - 1) * z;
+  const cx = (fxr ?? (x0 + x1) / 2) * IW, cy = ((y0 + y1) / 2) * IH;
+  const fx = IW / 2 + (cx - IW / 2) * z, fy = IH / 2 + (cy - IH / 2) * z; // 見る中心
+  const tx = Math.min(0, Math.max(VW - IW * k, VW / 2 - fx * k));
+  const ty = Math.min((VH - IH) / 2, Math.max(VH - IH * k, VH / 2 - fy * k)); // 用紙の外（白）が見えないように
+  const enter = interpolate(f - A, [0, 9], [0, 1], out);
+  const m = mark ?? reg;
+  const box = interpolate(f, [Zt + 14, Zt + 22], [0, 1], out);
+  const pulse = 1 + 0.03 * Math.sin((f - Zt) / 4);
+  return (
+    <div style={{ position: "absolute", left: 50, top, width: VW, opacity: enter, transform: `translateY(${(1 - enter) * 50}px)` }}>
+      <div style={{ ...B, fontSize: 28, color: A2.sub, marginBottom: 10, textAlign: "center" }}>実際の用紙：<span style={{ color: A2.ink }}>{title}</span></div>
+      <div style={{ position: "relative", width: VW, height: VH, borderRadius: 26, overflow: "hidden", background: "#fff", boxShadow: "0 18px 40px rgba(80,60,20,0.16)", border: "6px solid #fff" }}>
+        <div style={{ position: "absolute", left: 0, top: 0, width: IW, height: IH, transform: `translate(${tx}px, ${ty}px) scale(${k})`, transformOrigin: "0 0" }}>
+          <Img src={staticFile(`nencho_forms/${src}.png`)} style={{ width: IW, height: IH }} />
+          {/* 該当欄以外を少し暗く */}
+          <div style={{ position: "absolute", inset: 0, background: `rgba(30,30,30,${0.28 * box})`, clipPath: `polygon(0 0,100% 0,100% 100%,0 100%,0 0,${m[0] * 100}% ${m[1] * 100}%,${m[0] * 100}% ${m[3] * 100}%,${m[2] * 100}% ${m[3] * 100}%,${m[2] * 100}% ${m[1] * 100}%,${m[0] * 100}% ${m[1] * 100}%)` }} />
+          {box > 0 ? <div style={{ position: "absolute", left: `${m[0] * 100}%`, top: `${m[1] * 100}%`, width: `${(m[2] - m[0]) * 100}%`, height: `${(m[3] - m[1]) * 100}%`, border: `${9 / k}px solid ${color}`, borderRadius: 8 / k, background: `${color}26`, boxShadow: `0 0 ${18 / k}px ${color}`, opacity: box, transform: `scale(${pulse})`, boxSizing: "border-box" }} /> : null}
+        </div>
+      </div>
+      {box > 0.5 ? <div style={{ marginTop: 22, textAlign: "center", transform: `scale(${pop(f, Zt + 18)})` }}><span style={{ display: "inline-block", background: color, color: "#fff", ...B, fontSize: 38, padding: "12px 30px", borderRadius: 22, whiteSpace: "nowrap" }}>{note}</span></div> : null}
+    </div>
+  );
+};
 
 // ═══════════════ ① 基礎控除（10.72–29.5） ═══════════════
 const Kiso: React.FC = () => {
@@ -199,25 +252,10 @@ const Kiso: React.FC = () => {
         ) : null}
         <Note at={22.8} y={1080}>※給与だけの場合の目安。所得税の話（住民税の基礎控除は43万円のまま）</Note>
       </Page>
-      {/* ただし所得で変わる */}
+      {/* ただし所得で変わる → 実際の用紙の「控除額の計算」 */}
       <Page a={24.9} b={29.6}>
-        {f >= F(25.0) ? (
-          <div style={{ ...CARD, left: 70, top: 420, width: 940, height: 560 }}>
-            <div style={{ position: "absolute", left: 40, top: 30, ...B, fontSize: 40, color: A2.ink }}>基礎控除は<span style={{ color: ORANGE }}>所得で変わる</span></div>
-            {[["合計所得 489万円以下", "104万円"], ["489万円超〜655万円", "67万円"], ["655万円超〜2,350万円", "62万円"]].map(([a, b], i) => {
-              const at = F(25.6) + i * 8;
-              if (f < at) return null;
-              return (
-                <div key={a} style={{ position: "absolute", left: 40, right: 40, top: 130 + i * 120, height: 100, borderRadius: 20, background: i === 0 ? "rgba(46,158,107,0.10)" : A2.track, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 30px", boxSizing: "border-box", opacity: interpolate(f - at, [0, 6], [0, 1], clamp), transform: `translateY(${interpolate(f - at, [0, 8], [24, 0], out)}px)` }}>
-                  <span style={{ ...B, fontSize: 32, color: A2.ink }}>{a}</span>
-                  <span style={{ ...B, fontSize: 52, color: i === 0 ? A2.green : A2.ink }}>{b}</span>
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
-        <div style={{ position: "absolute", inset: 0 }}><Stamp at={27.76} x={220} y={1030} text="自分の金額は必ず確認" size={56} rot={-3} /></div>
-        <Note at={25.6}>※令和8年分・9年分の特例。2,350万円超は段階的に減ります</Note>
+        <FormZoom at={24.9} zoomAt={25.6} src="kiso" title="基礎控除申告書（令和8年分）" reg={[0.055, 0.355, 0.38, 0.595]} mark={[0.062, 0.383, 0.282, 0.406]} color={A2.green} note={<>合計所得489万円以下なら <span style={{ color: "#FFE07A" }}>104万円</span></>} />
+        <div style={{ position: "absolute", inset: 0 }}><Stamp at={27.76} x={250} y={1210} text="自分の金額は必ず確認" size={50} rot={-3} /></div>
       </Page>
     </Scene>
   );
@@ -232,8 +270,8 @@ const Fuyo: React.FC = () => {
       <Page a={29.5} b={34.62}><BeforeAfter at={29.7} label="扶養控除の年収ライン" sub="給与のみの場合" from={123} to={136} color={BLUE} /><Note at={30.5} y={1080}>※税金の扶養と、社会保険の扶養（130万円）は別の制度</Note></Page>
       {/* 書くのは年収ではなく所得：130 − 74 = 56 */}
       <Page a={34.62} b={42.1}>
-        <Punch at={34.7} y={420} size={56}>紙に書くのは<span style={{ color: A2.sub, textDecoration: "line-through" }}>「年収」</span>ではなく<span style={{ color: ORANGE }}>「所得」</span></Punch>
-        <PopAt at={36.4} x={0} y={510} w={1080} center><Pill bg="#fff" color={A2.ink} size={36}>所得 ＝ 年収 − 74万円</Pill></PopAt>
+        {f < F(37.48) ? <FormZoom at={34.62} zoomAt={35.3} src="fuyo" title="扶養控除等申告書（令和8年分）" reg={[0.03, 0.2, 0.92, 0.56]} mark={[0.49, 0.2, 0.556, 0.56]} kz={2.0} fxr={0.45} color={ORANGE} note={<>ここは<span style={{ color: "#FFE07A" }}>「所得」</span>を書く（年収ではない）</>} /> : null}
+        {f >= F(37.48) ? <Punch at={37.48} y={430} size={52}>所得 ＝ 年収 − <span style={{ color: BLUE }}>74万円</span></Punch> : null}
         {f >= F(37.48) ? (
           <div style={{ ...CARD, left: 70, top: 580, width: 940, height: 420 }}>
             <div style={{ position: "absolute", left: 0, top: 40, width: 940, textAlign: "center", ...B, fontSize: 34, color: A2.sub }}>例えば</div>
@@ -249,7 +287,7 @@ const Fuyo: React.FC = () => {
       <Page a={42.1} b={48.42}><BeforeAfter at={42.2} label="配偶者特別控除" sub="満額38万円の年収上限" from={160} to={169} color={BLUE} /></Page>
       <Page a={48.42} b={55.68}><BeforeAfter at={48.5} label="19〜22歳の子" sub="63万円控除の年収上限" from={150} to={159} color={BLUE} /></Page>
       {/* 159万〜197万：段階的に残る */}
-      <Page a={55.68} b={61.92}>
+      <Page a={55.68} b={58.9}>
         <Punch at={55.8} y={420} size={50}><span style={{ color: BLUE }}>159万円</span>を超えても</Punch>
         <div style={{ ...CARD, left: 70, top: 540, width: 940, height: 470 }}>
           <div style={{ position: "absolute", left: 40, top: 30, ...B, fontSize: 36, color: A2.ink }}>特定親族特別控除</div>
@@ -266,24 +304,20 @@ const Fuyo: React.FC = () => {
         </div>
         <Note at={57.74} y={1040}>159万円超〜197万円は「特定親族特別控除」で段階的に残る</Note>
       </Page>
+      <Page a={58.9} b={61.92}>
+        <FormZoom at={58.9} zoomAt={59.4} src="kiso" title="特定親族特別控除申告書（令和8年分）" reg={[0.055, 0.7, 0.955, 0.86]} mark={[0.06, 0.775, 0.955, 0.825]} kz={2.3} fxr={0.3} color={BLUE} note={<>197万円まで<span style={{ color: "#FFE07A" }}>段階的に控除</span></>} />
+      </Page>
       {/* 16歳未満の子：扶養控除なし／「住民税に関する事項」欄に記入 */}
       <Page a={61.92} b={65.94}>
-        <Punch at={62.0} y={420} size={56}><span style={{ color: BLUE }}>16歳未満の子</span>は</Punch>
-        <div style={{ ...CARD, left: 120, top: 540, width: 840, height: 440 }}>
-          <div style={{ position: "absolute", left: 30, top: 24, ...B, fontSize: 26, color: A2.sub }}>扶養控除等申告書（令和8年分）</div>
-          {[["主たる給与から控除を受ける", 0], ["住民税に関する事項", 1]].map(([t, i]) => (
-            <div key={t as string} style={{ position: "absolute", left: 30, right: 30, top: 80 + (i as number) * 160, height: 140, borderRadius: 16, border: `4px solid ${i ? BLUE : A2.bar}`, background: i ? "rgba(74,143,214,0.08)" : "#fff", boxSizing: "border-box", padding: "14px 22px" }}>
-              <div style={{ ...B, fontSize: 30, color: i ? BLUE : A2.sub }}>{t as string}</div>
-              {i ? <div style={{ ...B, fontSize: 36, color: A2.ink, marginTop: 10 }}>16歳未満の扶養親族を記入</div> : <div style={{ ...B, fontSize: 32, color: A2.sub, marginTop: 10 }}>扶養控除なし</div>}
-            </div>
-          ))}
-        </div>
-        <div style={{ position: "absolute", inset: 0 }}><Stamp at={64.26} x={300} y={1000} text="忘れずに記入" color={BLUE} size={56} rot={-3} /></div>
+        <FormZoom at={61.92} zoomAt={62.5} src="fuyo" title="扶養控除等申告書（令和8年分）" reg={[0.03, 0.76, 0.92, 0.94]} mark={[0.03, 0.795, 0.92, 0.93]} kz={2.1} fxr={0.3} color={BLUE} note={<>16歳未満の子は<span style={{ color: "#FFE07A" }}>「住民税に関する事項」</span>に記入</>} />
       </Page>
       {/* 16歳未満の子は扶養控除なし → でも生命保険料控除の上限UP */}
-      <Page a={65.94} b={75.8}>
+      <Page a={65.94} b={72.6}>
         <Punch at={66.0} y={420} size={48}>扶養控除がない16歳未満の子でも…</Punch>
         {f >= F(69.02) ? <BeforeAfter at={69.02} y={540} label={<>23歳未満の扶養親族がいる人</>} sub="一般生命保険料控除の上限" from={4} to={6} color={ORANGE} /> : null}
+      </Page>
+      <Page a={72.6} b={75.8}>
+        <FormZoom at={72.6} zoomAt={73.1} src="hoken" title="保険料控除申告書（令和8年分）" reg={[0.06, 0.33, 0.48, 0.48]} mark={[0.07, 0.402, 0.33, 0.44]} color={ORANGE} note={<>新しい欄：<span style={{ color: "#FFE07A" }}>23歳未満の扶養親族の有無</span></>} />
       </Page>
     </Scene>
   );
@@ -335,25 +369,14 @@ const Seiho: React.FC = () => {
 // ═══════════════ まとめ（96.92–115.52） ═══════════════
 const Matome: React.FC = () => {
   const f = useCurrentFrame();
-  const rows: [number, string, string, string, string][] = [[96.92, "基礎控除", "最大95万", "104万円", A2.green], [100.44, "扶養の年収ライン", "123万", "136万円", BLUE], [104.0, "一般生命保険料控除", "4万", "6万円", ORANGE]];
   const shake = useShake(F(112.1), 10, 10);
   return (
+    <>
+    <BigTree a={96.92} b={115.52} title={<><span style={{ color: A2.green }}>まとめ</span>：この3つだけ押さえる</>} checks={[97.9, 101.82, 108.38]} />
     <Scene a={96.92} b={115.52} inT="zoom">
       <div style={{ position: "absolute", inset: 0, transform: shake }}>
-        {rows.map(([at, k, a, b, c], i) => {
-          const A = F(at);
-          if (f < A) return null;
-          return (
-            <div key={k} style={{ ...CARD, left: 70, top: 410 + i * 210, width: 940, height: 180, opacity: interpolate(f - A, [0, 5], [0, 1], clamp), transform: `translateX(${interpolate(f - A, [0, 8], [-160, 0], out)}px)` }}>
-              <div style={{ position: "absolute", left: 30, top: 54, width: 72, height: 72, borderRadius: 18, background: c, color: "#fff", ...B, fontSize: 50, textAlign: "center", lineHeight: "72px", transform: `scale(${pop(f, A + 8)})` }}>✓</div>
-              <div style={{ position: "absolute", left: 130, top: 30, ...B, fontSize: 38, color: A2.ink }}>{k}</div>
-              <div style={{ position: "absolute", left: 130, top: 100, ...B, fontSize: 30, color: A2.sub }}>{a} →</div>
-              <div style={{ position: "absolute", right: 34, top: 40, ...B, fontSize: 92, color: c }}>{b}</div>
-            </div>
-          );
-        })}
         {f >= F(109.76) ? (
-          <div style={{ position: "absolute", left: 0, top: 1060, width: 1080, textAlign: "center", transform: `scale(${pop(f, F(109.76))})` }}>
+          <div style={{ position: "absolute", left: 0, top: 1090, width: 1080, textAlign: "center", transform: `scale(${pop(f, F(109.76))})` }}>
             <span style={{ display: "inline-block", background: A2.ink, borderRadius: 24, padding: "12px 36px", ...B, fontSize: 44, color: "#fff" }}>去年の控えを<span style={{ color: "#FFE07A" }}>写さず</span>、今年の数字で</span>
           </div>
         ) : null}
@@ -361,6 +384,7 @@ const Matome: React.FC = () => {
         <Note at={112.1} y={1200}>出典：国税庁 令和8年分（No.1199・1410・1191・1195・1177・1140）</Note>
       </div>
     </Scene>
+    </>
   );
 };
 
@@ -512,7 +536,7 @@ export const NenchoReel: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
     <Audio src={staticFile("nencho-narration.wav")} />
     <SfxTrack cues={CUES} />
-    <Hook /><UnderTree><Kiso /><Fuyo /><Seiho /><Matome /></UnderTree><Tree /><Outro />
+    <Hook /><BigTree a={9.04} b={10.72} title="今年 変わったのは3つ" /><Kiso /><Fuyo /><Seiho /><Matome /><TabBar /><Outro />
     <SubFade />
     <Captions subs={SUBS} end={127.7} />
   </AbsoluteFill>
