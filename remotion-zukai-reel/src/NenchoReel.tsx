@@ -124,34 +124,62 @@ const ChipPop: React.FC<{ at: number; children: React.ReactNode }> = ({ at, chil
   return <span style={{ display: "inline-block", transform: `scale(${pop(f, at)})`, filter: "drop-shadow(0 8px 14px rgba(80,60,20,0.15))" }}>{children}</span>;
 };
 
-// ═══════════════ 全体像（9.04–10.72） ═══════════════
-const Overview: React.FC = () => {
-  const rows: [string, string, string, string][] = [["基礎控除（最大）", "95万円", "104万円", A2.green], ["扶養の年収ライン", "123万円", "136万円", BLUE], ["生命保険料控除（一般）", "4万円", "6万円", ORANGE]];
+// ═══════════════ ツリー（年収の壁と同じ型）：9.04〜115.52 上に固定、解説中の枝が光る ═══════════════
+const BRANCH: { key: string; t: string; ch: string; c: string; from: number; to: number }[] = [
+  { key: "kiso", t: "基礎控除", ch: "95→104万", c: A2.green, from: 10.72, to: 29.5 },
+  { key: "fuyo", t: "扶養", ch: "123→136万", c: BLUE, from: 29.5, to: 75.66 },
+  { key: "seiho", t: "生命保険料控除", ch: "4→6万", c: ORANGE, from: 75.66, to: 96.92 },
+];
+const TREE_A = 9.04, TREE_Z = 115.52, MATOME = 96.92;
+const Tree: React.FC = () => {
   const f = useCurrentFrame();
+  const A = F(TREE_A), Z = F(TREE_Z);
+  if (f < A || f >= Z + 12) return null;
+  const t = f / 30;
+  const big = interpolate(f, [F(10.5), F(10.72) + 8], [1, 0], io); // 全体像の間は大きく → 解説に入ると上に縮む
+  const leave = interpolate(f, [Z, Z + 12], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+  const line = interpolate(f, [A + 6, A + 20], [0, 1], out);
+  const pulse = 1 + (Math.sin(f / 7) * 0.5 + 0.5) * 0.07;
+  const BXs = [200, 540, 880];
+  const all = t >= MATOME;
   return (
-    <Scene a={9.04} b={10.72} inT="zoom">
-      <Head text={<>今年 変わったのは<span style={{ color: A2.green }}>3つ</span></>} from={F(9.04)} />
-      {rows.map(([k, a, b, c], i) => {
-        const at = F(9.2) + i * 5;
+    <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 600, transform: `translateY(${big * 300 - leave * 600}px)`, transformOrigin: "540px 250px", opacity: 1 - leave }}>
+      <div style={{ position: "absolute", left: 0, top: 250, width: 1080, textAlign: "center", transform: `scale(${pop(f, A)})` }}>
+        <span style={{ ...B, fontSize: 46, color: A2.ink, borderBottom: `6px solid ${A2.green}`, paddingBottom: 4 }}>年末調整 2026</span>
+        <div style={{ ...B, fontSize: 24, color: A2.green, marginTop: 8 }}>今年 変わったのは3つ</div>
+      </div>
+      <svg width={1080} height={600} style={{ position: "absolute", inset: 0 }}>
+        <path d="M540 360 L540 390 M200 390 L880 390 M200 390 L200 420 M540 390 L540 420 M880 390 L880 420" fill="none" stroke={A2.green} strokeWidth={6} strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - line} />
+      </svg>
+      {BRANCH.map((b, i) => {
+        const at = A + 14 + i * 7;
         if (f < at) return null;
+        const on = all || (t >= b.from && t < b.to);
+        const dim = !all && t >= b.from - 99 && t >= 10.72 && !on;
+        const done = all && f >= F(MATOME) + i * 105 + 8; // まとめの読み上げに合わせてチェック
         return (
-          <div key={k} style={{ ...CARD, left: 90, top: 420 + i * 220, width: 900, height: 180, transform: `translateX(${interpolate(f - at, [0, 8], [-160, 0], out)}px)`, opacity: interpolate(f - at, [0, 5], [0, 1], clamp) }}>
-            <div style={{ position: "absolute", left: 34, top: 28, ...B, fontSize: 40, color: A2.ink }}>{k}</div>
-            <div style={{ position: "absolute", left: 34, top: 100, ...B, fontSize: 32, color: A2.sub }}>{a} →</div>
-            <div style={{ position: "absolute", right: 34, top: 40, ...B, fontSize: 92, color: c as string }}>{b}</div>
+          <div key={b.key} style={{ position: "absolute", left: BXs[i] - 150, top: 425, width: 300, textAlign: "center", opacity: dim ? 0.4 : 1, transform: `scale(${pop(f, at) * (on && !all ? pulse : 1)})` }}>
+            <div style={{ position: "relative", background: on ? b.c + "18" : "#fff", border: `${on ? 5 : 3}px solid ${dim ? A2.bar : b.c}`, borderRadius: 20, padding: "12px 6px 10px", boxShadow: on ? `0 8px 22px ${b.c}55` : "0 6px 16px rgba(80,60,20,0.10)" }}>
+              <div style={{ ...B, fontSize: b.t.length > 4 ? 30 : 36, color: dim ? A2.sub : A2.ink }}>{b.t}</div>
+              <div style={{ ...B, fontSize: 26, color: dim ? A2.sub : b.c, marginTop: 2 }}>{b.ch}</div>
+              {done ? <div style={{ position: "absolute", right: -16, top: -16, width: 48, height: 48, borderRadius: "50%", background: b.c, color: "#fff", ...B, fontSize: 30, lineHeight: "48px", transform: `scale(${pop(f, F(MATOME) + i * 105 + 8)})` }}>✓</div> : null}
+            </div>
           </div>
         );
       })}
-    </Scene>
+    </div>
   );
 };
+// 解説パートの中身はツリーの下に収まるよう、少し縮めて下げる
+const UnderTree: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <AbsoluteFill style={{ transform: "translateY(225px) scale(0.79)", transformOrigin: "540px 0px" }}>{children}</AbsoluteFill>
+);
 
 // ═══════════════ ① 基礎控除（10.72–29.5） ═══════════════
 const Kiso: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <Scene a={10.72} b={29.5}>
-      <Head text={<>①<span style={{ color: A2.green }}>基礎控除</span></>} from={F(10.72)} />
       <Page a={10.72} b={14.52}><BeforeAfter at={10.9} label="基礎控除（最大）" from={95} to={104} /></Page>
       <Page a={14.52} b={18.14}><BeforeAfter at={14.6} label="給与所得控除（最低）" from={65} to={74} color={BLUE} /></Page>
       {/* 104 + 74 = 178 */}
@@ -201,7 +229,6 @@ const Fuyo: React.FC = () => {
   const stepP = interpolate(f, [F(57.74), F(59.5)], [0, 1], out);
   return (
     <Scene a={29.5} b={75.66} inT="drop">
-      <Head text={<>②<span style={{ color: BLUE }}>扶養</span></>} from={F(29.5)} />
       <Page a={29.5} b={34.62}><BeforeAfter at={29.7} label="扶養控除の年収ライン" sub="給与のみの場合" from={123} to={136} color={BLUE} /><Note at={30.5} y={1080}>※税金の扶養と、社会保険の扶養（130万円）は別の制度</Note></Page>
       {/* 書くのは年収ではなく所得：130 − 74 = 56 */}
       <Page a={34.62} b={42.1}>
@@ -267,7 +294,6 @@ const Seiho: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <Scene a={75.66} b={96.92}>
-      <Head text={<>③<span style={{ color: ORANGE }}>生命保険料控除</span></>} from={F(75.66)} />
       {/* 6万円控除 ≠ 6万円安くなる */}
       <Page a={75.66} b={86.86}>
         <Punch at={77.34} y={420} size={64}>最大<span style={{ color: ORANGE }}>6万円</span>控除できても</Punch>
@@ -314,7 +340,6 @@ const Matome: React.FC = () => {
   return (
     <Scene a={96.92} b={115.52} inT="zoom">
       <div style={{ position: "absolute", inset: 0, transform: shake }}>
-        <Head text={<><span style={{ color: A2.green }}>まとめ</span></>} from={F(96.92)} />
         {rows.map(([at, k, a, b, c], i) => {
           const A = F(at);
           if (f < A) return null;
@@ -487,7 +512,7 @@ export const NenchoReel: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
     <Audio src={staticFile("nencho-narration.wav")} />
     <SfxTrack cues={CUES} />
-    <Hook /><Overview /><Kiso /><Fuyo /><Seiho /><Matome /><Outro />
+    <Hook /><UnderTree><Kiso /><Fuyo /><Seiho /><Matome /></UnderTree><Tree /><Outro />
     <SubFade />
     <Captions subs={SUBS} end={127.7} />
   </AbsoluteFill>
