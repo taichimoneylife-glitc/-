@@ -17,14 +17,14 @@ const F = (t: number) => Math.round(t * 30);
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const io = { ...clamp, easing: Easing.inOut(Easing.cubic) };
 const out = { ...clamp, easing: Easing.out(Easing.cubic) };
-const pop = (f: number, at: number) => interpolate(f - at, [0, 3, 6], [0.3, 1.2, 1], clamp);
+export const pop = (f: number, at: number) => interpolate(f - at, [0, 3, 6], [0.3, 1.2, 1], clamp);
 const STOCK = A2.green, BOND = "#4A8FD6", CASH = "#E9B82E";
 
 type Trans = "whip" | "drop" | "punch" | "zoom";
 // 場面転換：意味に合わせて使い分ける
 //  whip＝右からシュッ→左へ加速して抜ける（基本） / drop＝下へストンと落ちて抜ける（落とし穴）
 //  punch＝ドンと拡大して入り、揺れる（山場） / zoom＝奥から寄って入り、手前に抜ける（締め）
-const Scene: React.FC<{ a: number; b: number; inT?: Trans; outT?: Trans; children: React.ReactNode }> = ({ a, b, inT = "whip", outT = "whip", children }) => {
+export const Scene: React.FC<{ a: number; b: number; inT?: Trans; outT?: Trans; children: React.ReactNode }> = ({ a, b, inT = "whip", outT = "whip", children }) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   const A = F(a), Bf = F(b);
@@ -45,14 +45,14 @@ const Scene: React.FC<{ a: number; b: number; inT?: Trans; outT?: Trans; childre
   return <AbsoluteFill style={{ opacity: Math.min(1, (f - A + 1) / 3) * (1 - o * 0.6), filter: blur > 0.3 ? `blur(${blur}px)` : undefined, transform: `translate(${tx}px, ${ty}px) scale(${sc}) rotate(${rot}deg)` }}>{children}</AbsoluteFill>;
 };
 // 画面ゆれ（衝撃の瞬間）
-const useShake = (at: number, power = 18, dur = 14) => {
+export const useShake = (at: number, power = 18, dur = 14) => {
   const f = useCurrentFrame();
   const k = interpolate(f - at, [0, dur], [1, 0], clamp);
   if (f < at || k <= 0) return "";
   return `translate(${Math.sin((f - at) * 2.7) * power * k}px, ${Math.cos((f - at) * 3.3) * power * 0.6 * k}px)`;
 };
 // 1つの場面の中のページ送り（a〜b の間だけ出す。ぼかし＋少しズームで入れ替わる）
-const Page: React.FC<{ a: number; b: number; children: React.ReactNode }> = ({ a, b, children }) => {
+export const Page: React.FC<{ a: number; b: number; children: React.ReactNode }> = ({ a, b, children }) => {
   const f = useCurrentFrame();
   const A = F(a), Bf = F(b);
   if (f < A - 1 || f >= Bf + 6) return null;
@@ -62,7 +62,7 @@ const Page: React.FC<{ a: number; b: number; children: React.ReactNode }> = ({ a
   return <AbsoluteFill style={{ opacity: 1 - k, filter: k > 0.02 ? `blur(${k * 14}px)` : undefined, transform: `scale(${1 + i * 0.06 - o * 0.06})` }}>{children}</AbsoluteFill>;
 };
 // 大きな数字（主役）
-const Hero: React.FC<{ at: number; y: number; pre?: string; to: number; unit: string; sub?: string; color?: string; comma?: boolean; size?: number }> = ({ at, y, pre, to, unit, sub, color = A2.green, comma, size = 210 }) => (
+export const Hero: React.FC<{ at: number; y: number; pre?: string; to: number; unit: string; sub?: string; color?: string; comma?: boolean; size?: number }> = ({ at, y, pre, to, unit, sub, color = A2.green, comma, size = 210 }) => (
   <PopAt at={at} x={0} y={y} w={1080} center>
     <div style={{ whiteSpace: "nowrap", lineHeight: 1 }}>
       {pre ? <span style={{ ...B, fontSize: size * 0.34, color: A2.ink }}>{pre}</span> : null}
@@ -74,7 +74,7 @@ const Hero: React.FC<{ at: number; y: number; pre?: string; to: number; unit: st
 );
 
 // 画像（直置き＋足元の影、任意でふわふわ）
-const Pic: React.FC<{ name: string; size: number; bob?: boolean }> = ({ name, size, bob }) => {
+export const Pic: React.FC<{ name: string; size: number; bob?: boolean }> = ({ name, size, bob }) => {
   const f = useCurrentFrame();
   const y = bob ? Math.sin(f / 10) * 8 : 0;
   return (
@@ -84,16 +84,16 @@ const Pic: React.FC<{ name: string; size: number; bob?: boolean }> = ({ name, si
     </div>
   );
 };
-const PopAt: React.FC<{ at: number; x: number; y: number; w?: number; center?: boolean; children: React.ReactNode }> = ({ at, x, y, w, center, children }) => {
+export const PopAt: React.FC<{ at: number; x: number; y: number; w?: number; center?: boolean; children: React.ReactNode }> = ({ at, x, y, w, center, children }) => {
   const f = useCurrentFrame();
   const A = F(at);
   if (f < A) return null;
   return <div style={{ position: "absolute", left: x, top: y, width: w, textAlign: center ? "center" : undefined, transform: `scale(${pop(f, A)})` }}>{children}</div>;
 };
-const Pill: React.FC<{ bg?: string; color?: string; size?: number; children: React.ReactNode }> = ({ bg = A2.coral, color = "#fff", size = 44, children }) => (
+export const Pill: React.FC<{ bg?: string; color?: string; size?: number; children: React.ReactNode }> = ({ bg = A2.coral, color = "#fff", size = 44, children }) => (
   <span style={{ display: "inline-block", background: bg, color, ...B, fontSize: size, padding: `${size * 0.22}px ${size * 0.7}px`, borderRadius: 999, whiteSpace: "nowrap" }}>{children}</span>
 );
-const Stamp: React.FC<{ at: number; x: number; y: number; text: string; color?: string; size?: number; rot?: number }> = ({ at, x, y, text, color = A2.coral, size = 76, rot = -6 }) => {
+export const Stamp: React.FC<{ at: number; x: number; y: number; text: string; color?: string; size?: number; rot?: number }> = ({ at, x, y, text, color = A2.coral, size = 76, rot = -6 }) => {
   const f = useCurrentFrame();
   const A = F(at);
   if (f < A) return null;
@@ -124,12 +124,12 @@ const Flag: React.FC<{ c: string; w?: number }> = ({ c, w = 96 }) => {
   );
 };
 const FLAGS = ["us", "jp", "fr", "de", "ca", "in", "it", "br"];
-const Count: React.FC<{ at: number; to: number; dur?: number; comma?: boolean; style?: React.CSSProperties }> = ({ at, to, dur = 16, comma, style }) => {
+export const Count: React.FC<{ at: number; to: number; dur?: number; comma?: boolean; style?: React.CSSProperties }> = ({ at, to, dur = 16, comma, style }) => {
   const f = useCurrentFrame();
   const n = Math.round(interpolate(f, [F(at), F(at) + dur], [0, to], out));
   return <span style={style}>{comma ? n.toLocaleString("en-US") : n}</span>;
 };
-const Note: React.FC<{ at: number; y?: number; children: React.ReactNode }> = ({ at, y = 1262, children }) => {
+export const Note: React.FC<{ at: number; y?: number; children: React.ReactNode }> = ({ at, y = 1262, children }) => {
   const f = useCurrentFrame();
   if (f < F(at)) return null;
   return <div style={{ position: "absolute", left: 60, right: 60, top: y, textAlign: "center", ...B, fontSize: 24, color: A2.sub, opacity: interpolate(f - F(at), [0, 8], [0, 1], clamp) }}>{children}</div>;
@@ -175,7 +175,7 @@ const S1: React.FC = () => {
     </Scene>
   );
 };
-const PopIn: React.FC<{ at: number; children: React.ReactNode }> = ({ at, children }) => {
+export const PopIn: React.FC<{ at: number; children: React.ReactNode }> = ({ at, children }) => {
   const f = useCurrentFrame();
   return <div style={{ transform: `scale(${f >= F(at) ? pop(f, F(at)) : 0})` }}>{children}</div>;
 };
@@ -559,8 +559,8 @@ const RateMeter: React.FC<{ at: number }> = ({ at }) => {
 };
 
 // ════════ ⑥ 金利が高い・利回りを固定（44.8–56.8） ════════
-const CARD: React.CSSProperties = { position: "absolute", background: "#fff", borderRadius: 34, boxShadow: "0 18px 40px rgba(80,60,20,0.12)" };
-const useCardIn = (at: number) => {
+export const CARD: React.CSSProperties = { position: "absolute", background: "#fff", borderRadius: 34, boxShadow: "0 18px 40px rgba(80,60,20,0.12)" };
+export const useCardIn = (at: number) => {
   const f = useCurrentFrame();
   const k = interpolate(f, [F(at), F(at) + 9], [0, 1], out);
   return { on: f >= F(at), style: { opacity: k, transform: `translateY(${(1 - k) * 40}px)` } as React.CSSProperties };
@@ -694,14 +694,14 @@ const S7: React.FC = () => {
 };
 
 // ── 太一キャラ：シュッと入って行き過ぎて戻る／サッと抜ける。talk があると声に合わせて口パク ──
-const Taichi: React.FC<{ name: string; talk?: string; at: number; until: number; side?: "left" | "right" | "bottom" }> = ({ name, talk, at, until, side = "left" }) => {
+export const Taichi: React.FC<{ name: string; talk?: string; at: number; until: number; side?: "left" | "right" | "bottom"; mouth?: string }> = ({ name, talk, at, until, side = "left", mouth = MOUTH }) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   const A = F(at), U = F(until);
   if (f < A || f >= U) return null;
   const s = spring({ frame: f - A, fps, config: { damping: 9, stiffness: 230, mass: 0.6 } });
   const o = interpolate(f, [U - 7, U], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
-  const lv = MOUTH.charCodeAt(Math.min(MOUTH.length - 1, f)) - 48;
+  const lv = mouth.charCodeAt(Math.min(mouth.length - 1, f)) - 48;
   const open = talk && lv >= 1 && Math.floor(f / 3) % 2 === 0;
   const img = open ? talk! : name;
   let x = 20, y = 1000, lean = 0;
@@ -735,7 +735,7 @@ const parseCap = (s: string): Seg[] => {
   return out;
 };
 const KCOL = { g: A2.green, r: A2.coral, b: BOND, "": A2.ink } as const;
-const Captions: React.FC<{ subs: [number, string][]; end: number }> = ({ subs, end }) => {
+export const Captions: React.FC<{ subs: [number, string][]; end: number }> = ({ subs, end }) => {
   const f = useCurrentFrame();
   const t = f / 30;
   let i = -1;

@@ -45,6 +45,7 @@ import { MileReel4, MILE4_FRAMES } from "./MileReel4";
 import { MileLifePlan, MILE_LP_FRAMES } from "./MileLifePlan";
 import { MileZukai, MILE_Z_FRAMES } from "./MileZukai";
 import { BourakuReel, BOURAKU_FRAMES } from "./BourakuReel";
+import { NenchoReel, NENCHO_FRAMES } from "./NenchoReel";
 import { MileV2, MILE_V2_FRAMES } from "./MileV2";
 import { MileLifeChart, MILE_LC_FRAMES } from "./MileLifeChart";
 import { FPS, TOTAL_FRAMES } from "./config";
@@ -58,6 +59,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="MileLifePlan" component={MileLifePlan} durationInFrames={MILE_LP_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MileLifeChart" component={MileLifeChart} durationInFrames={MILE_LC_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MileV2" component={MileV2} durationInFrames={MILE_V2_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="NenchoReel" component={NenchoReel} durationInFrames={NENCHO_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="BourakuReel" component={BourakuReel} durationInFrames={BOURAKU_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MileZukai" component={MileZukai} durationInFrames={MILE_Z_FRAMES} fps={FPS} width={1080} height={1920} />
 
