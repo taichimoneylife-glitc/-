@@ -208,7 +208,7 @@ const BigTree: React.FC<{ a: number; b: number; checks?: number[]; title: React.
     </Scene>
   );
 };
-// 解説中：上のタブ（3つのうち今どこ）。光る下地がスッと移動する
+// 解説中：上に固定のツリー（年収の壁と同じ型）。話している枝だけ色が付いて光る
 const TabBar: React.FC = () => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -217,20 +217,37 @@ const TabBar: React.FC = () => {
   const t = f / 30;
   let idx = 0;
   BRANCH.forEach((b, i) => { if (t >= b.a) idx = i; });
-  const sw = BRANCH.map((b, i) => spring({ frame: f - F(b.a), fps, config: { damping: 16, stiffness: 170 } }) * (i > 0 ? 1 : 0));
-  const pos = sw[1] + sw[2]; // 0→1→2
   const enter = interpolate(f, [A - 2, A + 8], [0, 1], out);
   const leave = interpolate(f, [Z, Z + 8], [0, 1], clamp);
-  const W = 940, SW = W / 3;
+  const X = [200, 540, 880];
   const col = BRANCH[idx].c;
+  const since = f - F(BRANCH[idx].a);
+  const grow = interpolate(since, [0, 10], [0, 1], out); // 根元→枝へ色が走る
+  const pulse = 1 + (Math.sin(f / 7) * 0.5 + 0.5) * 0.06;
+  const pop1 = spring({ frame: since, fps, config: { damping: 9, stiffness: 220, mass: 0.5 } });
+  const hx = X[idx];
+  // 根元(540,300)→横線→枝(hx,330) を走る色付きの道
+  const segH = Math.abs(hx - 540);
   return (
-    <div style={{ position: "absolute", left: 70, top: 252, width: W, height: 100, borderRadius: 30, background: "#fff", boxShadow: "0 10px 26px rgba(80,60,20,0.10)", opacity: enter * (1 - leave), transform: `translateY(${(1 - enter) * -40}px)` }}>
-      <div style={{ position: "absolute", left: 8 + pos * SW, top: 8, width: SW - 16, height: 84, borderRadius: 24, background: col, boxShadow: `0 8px 18px ${col}66` }} />
-      {BRANCH.map((b, i) => (
-        <div key={b.key} style={{ position: "absolute", left: i * SW, top: 0, width: SW, height: 100, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, ...B, fontSize: b.t.length > 4 ? 30 : 38, color: i === idx ? "#fff" : A2.sub }}>
-          <span style={{ fontSize: 30 }}>{["①", "②", "③"][i]}</span>{b.t}
-        </div>
-      ))}
+    <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 420, opacity: enter * (1 - leave), transform: `translateY(${(1 - enter) * -30}px)` }}>
+      {/* 根元 */}
+      <div style={{ position: "absolute", left: 0, top: 246, width: 1080, textAlign: "center" }}>
+        <span style={{ display: "inline-block", background: A2.ink, color: "#fff", borderRadius: 999, padding: "6px 26px", ...B, fontSize: 28 }}>年末調整 <span style={{ color: "#FFE07A" }}>2026</span></span>
+      </div>
+      <svg width={1080} height={420} style={{ position: "absolute", inset: 0 }}>
+        <path d="M540 294 L540 312 M200 312 L880 312 M200 312 L200 330 M540 312 L540 330 M880 312 L880 330" fill="none" stroke={A2.bar} strokeWidth={6} strokeLinecap="round" />
+        {/* 話している枝への道だけ色付き */}
+        <path d={`M540 294 L540 312 L${hx} 312 L${hx} 330`} fill="none" stroke={col} strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - grow} />
+        {grow > 0.05 && grow < 0.98 ? <circle cx={grow < 0.5 && segH > 0 ? 540 + (hx - 540) * Math.min(1, grow * 1.4) : hx} cy={312} r={9} fill="#fff" stroke={col} strokeWidth={4} /> : null}
+      </svg>
+      {BRANCH.map((b, i) => {
+        const on = i === idx;
+        return (
+          <div key={b.key} style={{ position: "absolute", left: X[i] - 150, top: 330, width: 300, height: 66, borderRadius: 20, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: on ? b.c : "#fff", border: `4px solid ${on ? b.c : A2.bar}`, boxSizing: "border-box", boxShadow: on ? `0 8px 20px ${b.c}66` : "0 4px 10px rgba(80,60,20,0.06)", transform: `scale(${on ? (0.85 + 0.15 * pop1) * pulse : 0.94})`, opacity: on ? 1 : 0.55, ...B, fontSize: b.t.length > 4 ? 28 : 34, color: on ? "#fff" : A2.sub }}>
+            <span>{["①", "②", "③"][i]}</span>{b.t}
+          </div>
+        );
+      })}
     </div>
   );
 };
