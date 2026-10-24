@@ -126,11 +126,11 @@ const ChipPop: React.FC<{ at: number; children: React.ReactNode }> = ({ at, chil
 
 // ═══════════════ 全体像（9.04–10.72） ═══════════════
 const Overview: React.FC = () => {
-  const rows: [string, string, string, string][] = [["基礎控除", "最大95万", "104万円", A2.green], ["扶養の年収ライン", "123万", "136万円", BLUE], ["一般生命保険料控除", "4万", "6万円", ORANGE]];
+  const rows: [string, string, string, string][] = [["基礎控除（最大）", "95万円", "104万円", A2.green], ["扶養の年収ライン", "123万円", "136万円", BLUE], ["生命保険料控除（一般）", "4万円", "6万円", ORANGE]];
   const f = useCurrentFrame();
   return (
     <Scene a={9.04} b={10.72} inT="zoom">
-      <Head text={<>今年の<span style={{ color: A2.green }}>全体像</span></>} from={F(9.04)} />
+      <Head text={<>今年 変わったのは<span style={{ color: A2.green }}>3つ</span></>} from={F(9.04)} />
       {rows.map(([k, a, b, c], i) => {
         const at = F(9.2) + i * 5;
         if (f < at) return null;
@@ -152,8 +152,8 @@ const Kiso: React.FC = () => {
   return (
     <Scene a={10.72} b={29.5}>
       <Head text={<>①<span style={{ color: A2.green }}>基礎控除</span></>} from={F(10.72)} />
-      <Page a={10.72} b={14.52}><BeforeAfter at={10.9} label="基礎控除" pre="最大" from={95} to={104} /></Page>
-      <Page a={14.52} b={18.14}><BeforeAfter at={14.6} label="給与所得控除" sub="最低保障額" from={65} to={74} color={BLUE} /></Page>
+      <Page a={10.72} b={14.52}><BeforeAfter at={10.9} label="基礎控除（最大）" from={95} to={104} /></Page>
+      <Page a={14.52} b={18.14}><BeforeAfter at={14.6} label="給与所得控除（最低）" from={65} to={74} color={BLUE} /></Page>
       {/* 104 + 74 = 178 */}
       <Page a={18.14} b={24.9}>
         <div style={{ position: "absolute", left: 0, top: 430, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 22 }}>
@@ -161,21 +161,22 @@ const Kiso: React.FC = () => {
           <ChipPop at={F(18.7)}><span style={{ ...B, fontSize: 70, color: A2.ink }}>＋</span></ChipPop>
           <ChipPop at={F(19.0)}><span style={{ ...CARD, position: "relative", display: "inline-block", padding: "20px 30px", ...B, fontSize: 64, color: BLUE }}>74<span style={{ fontSize: 30 }}>万</span><div style={{ fontSize: 22, color: A2.sub }}>給与所得控除</div></span></ChipPop>
         </div>
-        <PopAt at={20.62} x={0} y={700} w={1080} center><span style={{ ...B, fontSize: 40, color: A2.ink }}>給与収入だけなら、所得税がかかり始める目安</span></PopAt>
+        <PopAt at={20.62} x={0} y={700} w={1080} center><span style={{ ...B, fontSize: 40, color: A2.ink }}>所得税がかかり始める給与収入</span></PopAt>
         {f >= F(22.28) ? (
           <div style={{ position: "absolute", left: 0, top: 790, width: 1080, textAlign: "center", whiteSpace: "nowrap" }}>
-            <span style={{ ...B, fontSize: 70, color: A2.sub, textDecoration: "line-through" }}>160万</span>
+            <span style={{ ...B, fontSize: 64, color: A2.sub, textDecoration: "line-through" }}>160万超</span>
             <span style={{ ...B, fontSize: 70, color: A2.ink, margin: "0 18px" }}>→</span>
-            <span style={{ display: "inline-block", transform: `scale(${pop(f, F(22.8))})` }}><Count at={22.8} to={178} dur={12} style={{ ...B, fontSize: 200, color: A2.green, letterSpacing: -6 }} /><span style={{ ...B, fontSize: 70, color: A2.ink }}>万円</span></span>
+            <span style={{ display: "inline-block", transform: `scale(${pop(f, F(22.8))})` }}><Count at={22.8} to={178} dur={12} style={{ ...B, fontSize: 200, color: A2.green, letterSpacing: -6 }} /><span style={{ ...B, fontSize: 70, color: A2.ink }}>万円超</span></span>
           </div>
         ) : null}
+        <Note at={22.8} y={1080}>※給与だけの場合の目安。所得税の話（住民税の基礎控除は43万円のまま）</Note>
       </Page>
       {/* ただし所得で変わる */}
       <Page a={24.9} b={29.6}>
         {f >= F(25.0) ? (
           <div style={{ ...CARD, left: 70, top: 420, width: 940, height: 560 }}>
             <div style={{ position: "absolute", left: 40, top: 30, ...B, fontSize: 40, color: A2.ink }}>基礎控除は<span style={{ color: ORANGE }}>所得で変わる</span></div>
-            {[["合計所得 489万円以下", "104万円"], ["489万円超〜655万円以下", "67万円"], ["655万円超〜2,350万円以下", "62万円"]].map(([a, b], i) => {
+            {[["合計所得 489万円以下", "104万円"], ["489万円超〜655万円", "67万円"], ["655万円超〜2,350万円", "62万円"]].map(([a, b], i) => {
               const at = F(25.6) + i * 8;
               if (f < at) return null;
               return (
@@ -201,10 +202,11 @@ const Fuyo: React.FC = () => {
   return (
     <Scene a={29.5} b={75.66} inT="drop">
       <Head text={<>②<span style={{ color: BLUE }}>扶養</span></>} from={F(29.5)} />
-      <Page a={29.5} b={34.62}><BeforeAfter at={29.7} label="扶養控除の年収ライン" sub="給与のみの場合" from={123} to={136} color={BLUE} /></Page>
+      <Page a={29.5} b={34.62}><BeforeAfter at={29.7} label="扶養控除の年収ライン" sub="給与のみの場合" from={123} to={136} color={BLUE} /><Note at={30.5} y={1080}>※税金の扶養と、社会保険の扶養（130万円）は別の制度</Note></Page>
       {/* 書くのは年収ではなく所得：130 − 74 = 56 */}
       <Page a={34.62} b={42.1}>
-        <Punch at={34.7} y={420} size={60}>書くのは<span style={{ color: A2.sub, textDecoration: "line-through" }}>年収</span>ではなく<span style={{ color: ORANGE }}>所得</span></Punch>
+        <Punch at={34.7} y={420} size={56}>紙に書くのは<span style={{ color: A2.sub, textDecoration: "line-through" }}>「年収」</span>ではなく<span style={{ color: ORANGE }}>「所得」</span></Punch>
+        <PopAt at={36.4} x={0} y={510} w={1080} center><Pill bg="#fff" color={A2.ink} size={36}>所得 ＝ 年収 − 74万円</Pill></PopAt>
         {f >= F(37.48) ? (
           <div style={{ ...CARD, left: 70, top: 580, width: 940, height: 420 }}>
             <div style={{ position: "absolute", left: 0, top: 40, width: 940, textAlign: "center", ...B, fontSize: 34, color: A2.sub }}>例えば</div>
@@ -217,10 +219,10 @@ const Fuyo: React.FC = () => {
           </div>
         ) : null}
       </Page>
-      <Page a={42.1} b={48.42}><BeforeAfter at={42.2} label="配偶者特別控除" sub="38万円を満額受けられる年収" from={160} to={169} color={BLUE} /></Page>
-      <Page a={48.42} b={55.68}><BeforeAfter at={48.5} label="19〜22歳の子ども" sub="63万円の控除を受けられる年収" from={150} to={159} color={BLUE} /></Page>
+      <Page a={42.1} b={48.42}><BeforeAfter at={42.2} label="配偶者特別控除" sub="満額38万円の年収上限" from={160} to={169} color={BLUE} /></Page>
+      <Page a={48.42} b={55.68}><BeforeAfter at={48.5} label="19〜22歳の子" sub="63万円控除の年収上限" from={150} to={159} color={BLUE} /></Page>
       {/* 159万〜197万：段階的に残る */}
-      <Page a={55.68} b={65.94}>
+      <Page a={55.68} b={61.92}>
         <Punch at={55.8} y={420} size={50}><span style={{ color: BLUE }}>159万円</span>を超えても</Punch>
         <div style={{ ...CARD, left: 70, top: 540, width: 940, height: 470 }}>
           <div style={{ position: "absolute", left: 40, top: 30, ...B, fontSize: 36, color: A2.ink }}>特定親族特別控除</div>
@@ -235,11 +237,25 @@ const Fuyo: React.FC = () => {
           <div style={{ position: "absolute", left: 40, top: 420, ...B, fontSize: 28, color: A2.ink }}>159万</div>
           <div style={{ position: "absolute", right: 40, top: 420, ...B, fontSize: 28, color: ORANGE }}>197万まで</div>
         </div>
-        <div style={{ position: "absolute", inset: 0 }}><Stamp at={61.92} x={180} y={1050} text="住民税のために記入が必要" color={BLUE} size={50} rot={-3} /></div>
+        <Note at={57.74} y={1040}>159万円超〜197万円は「特定親族特別控除」で段階的に残る</Note>
+      </Page>
+      {/* 16歳未満の子：扶養控除なし／「住民税に関する事項」欄に記入 */}
+      <Page a={61.92} b={65.94}>
+        <Punch at={62.0} y={420} size={56}><span style={{ color: BLUE }}>16歳未満の子</span>は</Punch>
+        <div style={{ ...CARD, left: 120, top: 540, width: 840, height: 440 }}>
+          <div style={{ position: "absolute", left: 30, top: 24, ...B, fontSize: 26, color: A2.sub }}>扶養控除等申告書（令和8年分）</div>
+          {[["主たる給与から控除を受ける", 0], ["住民税に関する事項", 1]].map(([t, i]) => (
+            <div key={t as string} style={{ position: "absolute", left: 30, right: 30, top: 80 + (i as number) * 160, height: 140, borderRadius: 16, border: `4px solid ${i ? BLUE : A2.bar}`, background: i ? "rgba(74,143,214,0.08)" : "#fff", boxSizing: "border-box", padding: "14px 22px" }}>
+              <div style={{ ...B, fontSize: 30, color: i ? BLUE : A2.sub }}>{t as string}</div>
+              {i ? <div style={{ ...B, fontSize: 36, color: A2.ink, marginTop: 10 }}>16歳未満の扶養親族を記入</div> : <div style={{ ...B, fontSize: 32, color: A2.sub, marginTop: 10 }}>扶養控除なし</div>}
+            </div>
+          ))}
+        </div>
+        <div style={{ position: "absolute", inset: 0 }}><Stamp at={64.26} x={300} y={1000} text="忘れずに記入" color={BLUE} size={56} rot={-3} /></div>
       </Page>
       {/* 16歳未満の子は扶養控除なし → でも生命保険料控除の上限UP */}
       <Page a={65.94} b={75.8}>
-        <Punch at={66.0} y={420} size={48}>16歳未満の子は<span style={{ color: A2.sub }}>扶養控除なし</span>だけど…</Punch>
+        <Punch at={66.0} y={420} size={48}>扶養控除がない16歳未満の子でも…</Punch>
         {f >= F(69.02) ? <BeforeAfter at={69.02} y={540} label={<>23歳未満の扶養親族がいる人</>} sub="一般生命保険料控除の上限" from={4} to={6} color={ORANGE} /> : null}
       </Page>
     </Scene>
@@ -255,7 +271,7 @@ const Seiho: React.FC = () => {
       {/* 6万円控除 ≠ 6万円安くなる */}
       <Page a={75.66} b={86.86}>
         <Punch at={77.34} y={420} size={64}>最大<span style={{ color: ORANGE }}>6万円</span>控除できても</Punch>
-        {f >= F(79.46) ? <Punch at={79.46} y={540} size={52} color="#fff" bg={A2.ink}>6万円そのまま安くなる<span style={{ color: "#FFE07A" }}>わけではない</span></Punch> : null}
+        {f >= F(79.46) ? <Punch at={79.46} y={540} size={52} color="#fff" bg={A2.ink}>6万円がそのまま<span style={{ color: "#FFE07A" }}>戻るわけではない</span></Punch> : null}
         {f >= F(82.46) ? (
           <div style={{ ...CARD, left: 70, top: 720, width: 940, height: 360 }}>
             <div style={{ position: "absolute", left: 0, top: 40, width: 940, display: "flex", justifyContent: "center", alignItems: "baseline", gap: 16, whiteSpace: "nowrap" }}>
@@ -316,6 +332,8 @@ const Matome: React.FC = () => {
             <span style={{ display: "inline-block", background: A2.ink, borderRadius: 24, padding: "12px 36px", ...B, fontSize: 44, color: "#fff" }}>去年の控えを<span style={{ color: "#FFE07A" }}>写さず</span>、今年の数字で</span>
           </div>
         ) : null}
+        <Note at={112.1} y={1160}>※用紙は「令和8年分」を使用。改正は令和8年12月1日施行で、12月の年末調整で精算</Note>
+        <Note at={112.1} y={1200}>出典：国税庁 令和8年分（No.1199・1410・1191・1195・1177・1140）</Note>
       </div>
     </Scene>
   );
@@ -354,7 +372,7 @@ const Outro: React.FC = () => {
 const SUBS: [number, string][] = [
   [0, "今年の*年末調整*"], [1.1, "これ知らないと!大損!します"], [2.58, "今年の年末調整は*変更点*があるので"], [5.14, "*基礎控除*、*扶養*、*生命保険料控除*"], [7.6, "それぞれ解説していきます"],
   [9.04, "今回の全体像はこんな感じ"], [10.72, "まずは*基礎控除*"], [11.92, "最大95万円から*104万円*にアップ"], [14.52, "給与所得控除も最低65万円から~74万円~に"], [18.14, "この2つが上がったことで"], [19.9, "給与収入だけなら"], [20.62, "所得税がかかり始める目安も"], [22.28, "160万円から*178万円*に上がっています"], [24.9, "ただし基礎控除は!所得によって金額が変わる!ので"], [27.76, "自分の金額は*必ず確認*"],
-  [29.5, "次は~扶養~"], [30.96, "扶養控除の年収ラインが123万円から~136万円~にアップ"], [34.62, "ここで注意したいのが"], [35.6, "紙に書くのは年収ではなくて!所得!"], [37.48, "例えば年収130万円なら74万円を引いて"], [40.68, "所得は!56万円!"], [42.1, "~配偶者特別控除~は38万円を"], [44.56, "満額受けられる年収が160万円から~169万円~に"], [48.42, "19歳から22歳の子どもは"], [50.5, "63万円の控除を受けられる年収が"], [53.12, "150万円から~159万円~にアップ"], [55.68, "さらに159万円を超えても"], [57.74, "197万円までは*特定親族特別控除*が段階的に残ります"], [61.92, "~住民税~に関するので記入が必要なので"], [64.26, "ここも忘れないようにしてください"], [65.94, "16歳未満の子どもは扶養控除はありませんが"], [69.02, "*23歳未満の扶養親族*がいる人は"], [71.48, "一般生命保険料控除の上限が"], [73.64, "4万円から!6万円!に上がりました"],
+  [29.5, "次は~扶養~"], [30.96, "扶養控除の年収ラインが123万円から~136万円~にアップ"], [34.62, "ここで注意したいのが"], [35.6, "紙に書くのは年収ではなくて!所得!"], [37.48, "例えば年収130万円なら74万円を引いて"], [40.68, "所得は!56万円!"], [42.1, "~配偶者特別控除~は38万円を"], [44.56, "満額受けられる年収が160万円から~169万円~に"], [48.42, "19歳から22歳の子どもは"], [50.5, "63万円の控除を受けられる年収が"], [53.12, "150万円から~159万円~にアップ"], [55.68, "さらに159万円を超えても"], [57.74, "197万円までは*特定親族特別控除*が段階的に残ります"], [61.92, "「~住民税に関する事項~」は記入が必要なので"], [64.26, "ここも忘れないようにしてください"], [65.94, "16歳未満の子どもは扶養控除はありませんが"], [69.02, "*23歳未満の扶養親族*がいる人は"], [71.48, "一般生命保険料控除の上限が"], [73.64, "4万円から!6万円!に上がりました"],
   [75.66, "最後は!生命保険料控除!"], [77.34, "例えば最大6万円控除できても"], [79.46, "6万円そのまま"], [80.8, "税金が安くなる!わけではありません!"], [82.46, "所得税率10%なら"], [84.08, "所得税が安くなるのは年間*約6000円*です"], [86.86, "しかも最大まで使うには"], [88.28, "年間!12万円!を超える一般生命保険料が必要"], [90.96, "なので保険料控除のためだけに保険に入ったりとか"], [93.88, "保険料を増やしたりするのは"], [95.4, "個人的には!おすすめしません!"],
   [96.92, "まとめると"], [97.9, "基礎控除は最大95万円から*104万円*"], [100.44, "扶養控除の年収ラインは"], [101.82, "123万円から~136万円~"], [104.0, "23歳未満の扶養親族がいる人は"], [106.32, "一般生命保険料控除の上限が"], [108.38, "4万円から!6万円!"], [109.76, "今年は去年と数字が*かなり変わって*います"], [112.1, "去年の控えをそのまま!写さず!"], [113.84, "今年の数字で確認してください"],
   [115.52, "こんな感じで一見ややこしいですが"], [117.66, "*変わったところ*を押さえれば大丈夫"], [119.32, "2026年版の年末調整を"], [121.74, "実際の用紙を見ながら書けるように"], [123.48, "*完全ガイド*にまとめました"], [124.8, "欲しい方はプロフィールの*公式LINE*から"], [126.9, "受け取ってください"],
