@@ -104,20 +104,62 @@ const BeforeAfter: React.FC<{ at: number; y?: number; label: React.ReactNode; su
 };
 
 // ═══════════════ 冒頭（0–9.04）：太一がしゃべる ═══════════════
-const Hook: React.FC = () => (
-  <Scene a={0} b={9.04} inT="punch" outT="zoom">
-    <Punch at={0.0} y={300} size={70}>今年の<span style={{ color: A2.green }}>年末調整</span></Punch>
-    <Punch at={1.1} y={400} size={96} color="#fff" bg={A2.coral}>知らないと大損</Punch>
-    <BigTaichi a={0} b={9.04} poses={[[0, "taichi_surprise_hands", undefined], [1.0, "taichi_talk_closed", "taichi_talk_open"], [2.58, "taichi_point_talk_closed", "taichi_point_talk_open"], [5.14, "taichi_talk_closed", "taichi_talk_open"]]} shrinkTo />
-    {/* 変更点の3つ */}
-    <div style={{ position: "absolute", left: 0, top: 580, width: 1080, display: "flex", justifyContent: "center", gap: 18 }}>
-      {[["基礎控除", 5.3], ["扶養", 6.1], ["生命保険料控除", 6.7]].map(([t, at]) => {
-        const f0 = F(at as number);
-        return <ChipPop key={t as string} at={f0}><Pill bg="#fff" color={A2.ink} size={42}>{t as string}</Pill></ChipPop>;
-      })}
+// 冒頭：体は固定、口とまばたきだけ動く（同じ構図の talk_closed / talk_mid / talk_open / blink を切り替え）
+const MouthOnly: React.FC<{ size: number; x: number; y: number }> = ({ size, x, y }) => {
+  const f = useCurrentFrame();
+  const lv = NENCHO_MOUTH.charCodeAt(Math.min(NENCHO_MOUTH.length - 1, f)) - 48;
+  const prev = NENCHO_MOUTH.charCodeAt(Math.max(0, f - 1)) - 48;
+  const m = Math.max(lv, prev > lv ? lv : lv); // 音量そのまま
+  const blink = f % 84 >= 80 && lv === 0;
+  const img = blink ? "taichi_blink" : m >= 2 ? (Math.floor(f / 2) % 3 === 0 ? "taichi_talk_mid" : "taichi_talk_open") : m === 1 ? "taichi_talk_mid" : "taichi_talk_closed";
+  return (
+    <div style={{ position: "absolute", left: x, top: y, width: size, height: size }}>
+      <GenSlot name={img} size={size} />
     </div>
-  </Scene>
-);
+  );
+};
+const FormFan: React.FC = () => {
+  const f = useCurrentFrame();
+  const forms: [string, number, number, number][] = [["fuyo", -14, -250, 2], ["kiso", 3, 0, 0], ["hoken", 15, 250, 4]];
+  return (
+    <>
+      {forms.map(([n, r, dx, d]) => {
+        const k = interpolate(f - d, [0, 10], [0, 1], out);
+        return (
+          <div key={n} style={{ position: "absolute", left: 540 - 300 + dx * k, top: 600 - (1 - k) * 200, width: 600, transform: `rotate(${r * k}deg)`, opacity: 0.9 * k, filter: "drop-shadow(0 18px 26px rgba(80,60,20,0.22))" }}>
+            <Img src={staticFile(`nencho_forms/${n}.png`)} style={{ width: 600, borderRadius: 10, border: "6px solid #fff" }} />
+          </div>
+        );
+      })}
+    </>
+  );
+};
+const Hook: React.FC = () => {
+  const f = useCurrentFrame();
+  const shake = useShake(F(1.1) + 3, 12, 10);
+  return (
+    <Scene a={0} b={9.04} inT="punch" outT="zoom">
+      {/* 背景：本物の用紙（令和8年分）を扇形に */}
+      <FormFan />
+      {f >= F(2.58) ? <div style={{ position: "absolute", left: 760, top: 610, transform: `rotate(-12deg) scale(${interpolate(f - F(2.58), [0, 4, 7], [1.8, 0.92, 1], clamp)})`, opacity: interpolate(f - F(2.58), [0, 3], [0, 1], clamp), border: `8px solid ${A2.red}`, borderRadius: 18, padding: "4px 20px", background: "rgba(255,255,255,0.9)", ...B, fontSize: 48, color: A2.red }}>改正あり</div> : null}
+      {/* 太一：体は動かさず、口だけ */}
+      <MouthOnly size={760} x={160} y={560} />
+      {/* テロップ */}
+      <div style={{ position: "absolute", inset: 0, transform: shake }}>
+        <Punch at={0.0} y={262} size={68}>今年の<span style={{ color: A2.green }}>年末調整</span></Punch>
+        <Punch at={1.1} y={360} size={118} color="#fff" bg={A2.red}>知らないと大損</Punch>
+      </div>
+      {/* 変更点の3つ */}
+      {f >= F(5.14) ? (
+        <div style={{ position: "absolute", left: 0, top: 1170, width: 1080, display: "flex", justifyContent: "center", gap: 14 }}>
+          {[["基礎控除", 5.3, A2.green], ["扶養", 6.1, BLUE], ["生命保険料控除", 6.7, ORANGE]].map(([t, at, c]) => (
+            <ChipPop key={t as string} at={F(at as number)}><Pill bg={c as string} color="#fff" size={40}>{t as string}</Pill></ChipPop>
+          ))}
+        </div>
+      ) : null}
+    </Scene>
+  );
+};
 const ChipPop: React.FC<{ at: number; children: React.ReactNode }> = ({ at, children }) => {
   const f = useCurrentFrame();
   if (f < at) return null;
@@ -509,7 +551,8 @@ const SUBS: [number, string][] = [
 ];
 
 const CUES: { file: string; at: number; volume: number }[] = [
-  { file: "user/u05", at: F(1.1), volume: 0.34 },
+  { file: "dadan", at: F(1.1), volume: 0.36 },
+  { file: "user/u05", at: F(2.58), volume: 0.28 },
   ...[5.3, 6.1, 6.7].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.22 })),
   ...[9.04, 10.72, 29.5, 75.66, 96.92, 115.52].map((t) => ({ file: "user/u03", at: F(t), volume: 0.26 })),
   ...[10.72, 29.5, 75.66].map((t) => ({ file: "swipe", at: F(t) - 2, volume: 0.2 })),
