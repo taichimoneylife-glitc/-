@@ -62,7 +62,19 @@ const Punch: React.FC<{ at: number; y: number; children: React.ReactNode; size?:
 };
 
 // 前 → 後 の数字カード（いちばん使う部品）
-const BeforeAfter: React.FC<{ at: number; y?: number; label: React.ReactNode; sub?: string; from: number; to: number; unit?: string; color?: string; pre?: string }> = ({ at, y = 420, label, sub, from, to, unit = "万円", color = A2.green, pre }) => {
+const ImgRow: React.FC<{ at: number; y: number; names: string[]; size?: number }> = ({ at, y, names, size = 250 }) => {
+  const f = useCurrentFrame();
+  return (
+    <div style={{ position: "absolute", left: 0, top: y, width: 1080, display: "flex", justifyContent: "center", gap: 40 }}>
+      {names.map((n, i) => {
+        const A = F(at) + i * 5;
+        if (f < A) return <div key={n} style={{ width: size, height: size }} />;
+        return <div key={n} style={{ transform: `scale(${pop(f, A)}) translateY(${Math.sin((f - A) / 10 + i) * 5}px)`, filter: "drop-shadow(0 14px 16px rgba(80,60,20,0.16))" }}><GenSlot name={n} size={size} /></div>;
+      })}
+    </div>
+  );
+};
+const BeforeAfter: React.FC<{ at: number; y?: number; label: React.ReactNode; sub?: string; from: number; to: number; unit?: string; color?: string; pre?: string; imgs?: string[]; imgSize?: number }> = ({ at, y = 420, label, sub, from, to, unit = "万円", color = A2.green, pre, imgs, imgSize = 250 }) => {
   const c = useCardIn(at);
   const f = useCurrentFrame();
   if (!c.on) return null;
@@ -70,6 +82,8 @@ const BeforeAfter: React.FC<{ at: number; y?: number; label: React.ReactNode; su
   const strike = interpolate(f, [A + 10, A + 18], [0, 100], out);
   const arrow = interpolate(f, [A + 14, A + 22], [0, 1], out);
   return (
+    <>
+    {imgs ? <ImgRow at={at + 0.9} y={y + 545} names={imgs} size={imgSize} /> : null}
     <div style={{ ...CARD, left: 70, top: y, width: 940, height: 520, ...c.style }}>
       <div style={{ position: "absolute", left: 0, top: 40, width: 940, textAlign: "center" }}>
         <div style={{ ...B, fontSize: 52, color: A2.ink }}>{label}</div>
@@ -100,6 +114,7 @@ const BeforeAfter: React.FC<{ at: number; y?: number; label: React.ReactNode; su
       ) : null}
       {f >= A + 26 ? <div style={{ position: "absolute", right: 30, top: 30, transform: `scale(${pop(f, A + 26)}) rotate(8deg)` }}><Pill bg={color} size={34}>UP</Pill></div> : null}
     </div>
+    </>
   );
 };
 
@@ -195,7 +210,8 @@ const BigTree: React.FC<{ a: number; b: number; checks?: number[]; title: React.
           <div key={br.key} style={{ position: "absolute", left: X[i] - 160, top: 630, width: 320, transform: `scale(${pop(f, at)})`, transformOrigin: "50% 0" }}>
             <div style={{ position: "relative", background: "#fff", borderRadius: 30, boxShadow: done ? `0 14px 30px ${br.c}55` : "0 14px 30px rgba(80,60,20,0.12)", border: done ? `5px solid ${br.c}` : "5px solid transparent", overflow: "hidden" }}>
               <div style={{ background: br.c, color: "#fff", ...B, fontSize: br.t.length > 4 ? 32 : 40, textAlign: "center", padding: "16px 0" }}>{["①", "②", "③"][i]} {br.t}</div>
-              <div style={{ padding: "22px 0 26px", textAlign: "center" }}>
+              <div style={{ display: "flex", justifyContent: "center", paddingTop: 14 }}><GenSlot name={["nencho_icon_kiso", "nencho_icon_fuyo", "nencho_icon_seiho"][i]} size={130} /></div>
+              <div style={{ padding: "6px 0 26px", textAlign: "center" }}>
                 <div style={{ ...B, fontSize: 28, color: A2.sub, textDecoration: "line-through" }}>{br.from}</div>
                 <div style={{ ...B, fontSize: 30, color: A2.sub, margin: "4px 0" }}>↓</div>
                 <div style={{ ...B, fontSize: 74, color: br.c, lineHeight: 1 }}>{br.to}</div>
@@ -292,8 +308,8 @@ const Kiso: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <Scene a={10.72} b={29.5}>
-      <Page a={10.72} b={14.52}><BeforeAfter at={10.9} label="基礎控除（最大）" from={95} to={104} /></Page>
-      <Page a={14.52} b={18.14}><BeforeAfter at={14.6} label="給与所得控除（最低）" from={65} to={74} color={BLUE} /></Page>
+      <Page a={10.72} b={14.52}><BeforeAfter at={10.9} label="基礎控除（最大）" from={95} to={104} imgs={["nencho_payslip", "nencho_tax_lighter"]} /></Page>
+      <Page a={14.52} b={18.14}><BeforeAfter at={14.6} label="給与所得控除（最低）" from={65} to={74} color={BLUE} imgs={["nencho_salary_bag"]} imgSize={280} /></Page>
       {/* 104 + 74 = 178 */}
       <Page a={18.14} b={24.9}>
         <div style={{ position: "absolute", left: 0, top: 430, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 22 }}>
@@ -309,7 +325,7 @@ const Kiso: React.FC = () => {
             <span style={{ display: "inline-block", transform: `scale(${pop(f, F(22.8))})` }}><Count at={22.8} to={178} dur={12} style={{ ...B, fontSize: 200, color: A2.green, letterSpacing: -6 }} /><span style={{ ...B, fontSize: 70, color: A2.ink }}>万円超</span></span>
           </div>
         ) : null}
-        <Note at={22.8} y={1080}>※給与だけの場合の目安。所得税の話（住民税の基礎控除は43万円のまま）</Note>
+                <Note at={22.8} y={1235}>※給与だけの場合の目安。所得税の話（住民税の基礎控除は43万円のまま）</Note>
       </Page>
       {/* ただし所得で変わる → 実際の用紙の「控除額の計算」 */}
       <Page a={24.9} b={29.6}>
@@ -326,13 +342,13 @@ const Fuyo: React.FC = () => {
   const stepP = interpolate(f, [F(57.74), F(59.5)], [0, 1], out);
   return (
     <Scene a={29.5} b={75.66} inT="drop">
-      <Page a={29.5} b={34.62}><BeforeAfter at={29.7} label="扶養控除の年収ライン" sub="給与のみの場合" from={123} to={136} color={BLUE} /><Note at={30.5} y={1080}>※税金の扶養と、社会保険の扶養（130万円）は別の制度</Note></Page>
+      <Page a={29.5} b={34.62}><BeforeAfter at={29.7} label="扶養控除の年収ライン" sub="給与のみの場合" from={123} to={136} color={BLUE} imgs={["mile_family_happy"]} imgSize={250} /><Note at={30.5} y={1235}>※税金の扶養と、社会保険の扶養（130万円）は別の制度</Note></Page>
       {/* 書くのは年収ではなく所得：130 − 74 = 56 */}
       <Page a={34.62} b={42.1}>
         {f < F(37.48) ? <FormZoom at={34.62} zoomAt={35.3} src="fuyo" title="扶養控除等申告書（令和8年分）" reg={[0.03, 0.2, 0.92, 0.56]} mark={[0.49, 0.2, 0.556, 0.56]} kz={2.0} fxr={0.45} color={ORANGE} note={<>ここは<span style={{ color: "#FFE07A" }}>「所得」</span>を書く（年収ではない）</>} /> : null}
         {f >= F(37.48) ? <Punch at={37.48} y={430} size={52}>所得 ＝ 年収 − <span style={{ color: BLUE }}>74万円</span></Punch> : null}
         {f >= F(37.48) ? (
-          <div style={{ ...CARD, left: 70, top: 580, width: 940, height: 420 }}>
+          <div style={{ ...CARD, left: 70, top: 540, width: 940, height: 420 }}>
             <div style={{ position: "absolute", left: 0, top: 40, width: 940, textAlign: "center", ...B, fontSize: 34, color: A2.sub }}>例えば</div>
             <div style={{ position: "absolute", left: 0, top: 110, width: 940, display: "flex", justifyContent: "center", alignItems: "baseline", gap: 18, whiteSpace: "nowrap" }}>
               <ChipPop at={F(37.6)}><span style={{ ...B, fontSize: 30, color: A2.sub }}>年収</span><span style={{ ...B, fontSize: 90, color: A2.ink }}>130</span><span style={{ ...B, fontSize: 34, color: A2.ink }}>万</span></ChipPop>
@@ -342,9 +358,10 @@ const Fuyo: React.FC = () => {
             {f >= F(40.68) ? <div style={{ position: "absolute", left: 0, top: 270, width: 940, textAlign: "center", transform: `scale(${pop(f, F(40.68))})`, whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 34, color: A2.ink }}>所得 ＝ </span><span style={{ ...B, fontSize: 110, color: ORANGE }}>56</span><span style={{ ...B, fontSize: 40, color: A2.ink }}>万円</span></div> : null}
           </div>
         ) : null}
+        <ImgRow at={38.0} y={985} names={["nencho_calculator", "nencho_pen_form"]} size={220} />
       </Page>
-      <Page a={42.1} b={48.42}><BeforeAfter at={42.2} label="配偶者特別控除" sub="満額38万円の年収上限" from={160} to={169} color={BLUE} /></Page>
-      <Page a={48.42} b={55.68}><BeforeAfter at={48.5} label="19〜22歳の子" sub="63万円控除の年収上限" from={150} to={159} color={BLUE} /></Page>
+      <Page a={42.1} b={48.42}><BeforeAfter at={42.2} label="配偶者特別控除" sub="満額38万円の年収上限" from={160} to={169} color={BLUE} imgs={["nencho_couple_parttime"]} imgSize={280} /></Page>
+      <Page a={48.42} b={55.68}><BeforeAfter at={48.5} label="19〜22歳の子" sub="63万円控除の年収上限" from={150} to={159} color={BLUE} imgs={["mile_lp_university", "nencho_student_parttime"]} /></Page>
       {/* 159万〜197万：段階的に残る */}
       <Page a={55.68} b={58.9}>
         <Punch at={55.8} y={420} size={50}><span style={{ color: BLUE }}>159万円</span>を超えても</Punch>
@@ -373,7 +390,7 @@ const Fuyo: React.FC = () => {
       {/* 16歳未満の子は扶養控除なし → でも生命保険料控除の上限UP */}
       <Page a={65.94} b={72.6}>
         <Punch at={66.0} y={420} size={48}>扶養控除がない16歳未満の子でも…</Punch>
-        {f >= F(69.02) ? <BeforeAfter at={69.02} y={540} label={<>23歳未満の扶養親族がいる人</>} sub="一般生命保険料控除の上限" from={4} to={6} color={ORANGE} /> : null}
+        {f >= F(69.02) ? <BeforeAfter at={69.02} y={540} label={<>23歳未満の扶養親族がいる人</>} sub="一般生命保険料控除の上限" from={4} to={6} color={ORANGE} imgs={["nencho_small_kids", "nencho_insurance_doc"]} imgSize={180} /> : null}
       </Page>
       <Page a={72.6} b={75.8}>
         <FormZoom at={72.6} zoomAt={73.1} src="hoken" title="保険料控除申告書（令和8年分）" reg={[0.06, 0.33, 0.48, 0.48]} mark={[0.07, 0.402, 0.33, 0.44]} color={ORANGE} note={<>新しい欄：<span style={{ color: "#FFE07A" }}>23歳未満の扶養親族の有無</span></>} />
@@ -400,6 +417,7 @@ const Seiho: React.FC = () => {
             </div>
             <div style={{ position: "absolute", left: 120, right: 120, top: 170, height: 6, borderRadius: 3, background: A2.bar }} />
             {f >= F(84.08) ? <div style={{ position: "absolute", left: 0, top: 190, width: 940, textAlign: "center", transform: `scale(${pop(f, F(85.3))})`, whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 34, color: A2.ink }}>安くなるのは 年間約</span><Count at={85.3} to={6000} dur={12} comma style={{ ...B, fontSize: 110, color: A2.green }} /><span style={{ ...B, fontSize: 40, color: A2.ink }}>円</span></div> : null}
+            {f >= F(85.6) ? <div style={{ position: "absolute", right: -20, top: -90, transform: `scale(${pop(f, F(85.6))})` }}><GenSlot name="nencho_coins_small" size={160} /></div> : null}
           </div>
         ) : null}
       </Page>
@@ -410,6 +428,7 @@ const Seiho: React.FC = () => {
           <div style={{ ...B, fontSize: 36, color: A2.sub }}>一般生命保険料が 年間</div>
           <div style={{ whiteSpace: "nowrap" }}><Count at={88.4} to={12} dur={10} style={{ ...B, fontSize: 220, color: ORANGE, letterSpacing: -6 }} /><span style={{ ...B, fontSize: 70, color: A2.ink }}>万円超</span></div>
         </PopAt>
+        <ImgRow at={88.9} y={900} names={["nencho_piggy_heavy"]} size={300} />
       </Page>
       {/* 控除のためだけに保険に入る・増やす → おすすめしません */}
       <Page a={90.96} b={97.0}>
@@ -436,11 +455,12 @@ const Matome: React.FC = () => {
       <div style={{ position: "absolute", inset: 0, transform: shake }}>
         {f >= F(109.76) ? (
           <div style={{ position: "absolute", left: 0, top: 1090, width: 1080, textAlign: "center", transform: `scale(${pop(f, F(109.76))})` }}>
-            <span style={{ display: "inline-block", background: A2.ink, borderRadius: 24, padding: "12px 36px", ...B, fontSize: 44, color: "#fff" }}>去年の控えを<span style={{ color: "#FFE07A" }}>写さず</span>、今年の数字で</span>
+            {f >= F(112.1) ? <span style={{ display: "inline-block", verticalAlign: "middle", marginRight: 10, transform: `scale(${pop(f, F(112.1))})` }}><GenSlot name="nencho_copy_ng" size={120} /></span> : null}
+            <span style={{ display: "inline-block", verticalAlign: "middle", background: A2.ink, borderRadius: 24, padding: "12px 36px", ...B, fontSize: 44, color: "#fff" }}>去年の控えを<span style={{ color: "#FFE07A" }}>写さず</span>、今年の数字で</span>
           </div>
         ) : null}
-        <Note at={112.1} y={1160}>※用紙は「令和8年分」を使用。改正は令和8年12月1日施行で、12月の年末調整で精算</Note>
-        <Note at={112.1} y={1200}>出典：国税庁 令和8年分（No.1199・1410・1191・1195・1177・1140）</Note>
+        <Note at={112.1} y={1230}>※用紙は「令和8年分」を使用。改正は令和8年12月1日施行で、12月の年末調整で精算</Note>
+        <Note at={112.1} y={1262}>出典：国税庁 令和8年分（No.1199・1410・1191・1195・1177・1140）</Note>
       </div>
     </Scene>
     </>
