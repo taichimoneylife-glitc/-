@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring, Easing } from "remotion";
+import { AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring, Easing } from "remotion";
 import { A2 } from "./components/kit2";
 import { FONT } from "./components/font";
 import { SfxTrack } from "./components/sfx";
@@ -340,31 +340,112 @@ const Matome: React.FC = () => {
 };
 
 // ═══════════════ 締め（115.52–127.8）：太一がしゃべる＋公式LINE ═══════════════
+// ── スマホ画面の流れ（Instagramプロフ → リンク一覧 → 公式LINE → リッチメニューの「情報まとめ」） ──
+const PW = 560, PH = 940, PX = 260, PY = 290; // スマホの位置
+const Tap: React.FC<{ at: number; x: number; y: number }> = ({ at, x, y }) => {
+  const f = useCurrentFrame();
+  if (f < at - 8 || f > at + 14) return null;
+  const move = interpolate(f, [at - 8, at], [1, 0], out);
+  const ring = interpolate(f, [at, at + 12], [0, 1], out);
+  return (
+    <>
+      {f >= at ? <div style={{ position: "absolute", left: x - 60 * ring, top: y - 60 * ring, width: 120 * ring, height: 120 * ring, borderRadius: "50%", border: `6px solid rgba(46,158,107,${1 - ring})` }} /> : null}
+      <div style={{ position: "absolute", left: x - 26 + move * 60, top: y - 26 + move * 80, width: 52, height: 52, borderRadius: "50%", background: "rgba(46,44,38,0.35)", border: "4px solid #fff", transform: `scale(${f >= at && f < at + 4 ? 0.8 : 1})` }} />
+    </>
+  );
+};
+const Phone: React.FC<{ a: number }> = ({ a }) => {
+  const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const A = F(a);
+  if (f < A) return null;
+  const s = spring({ frame: f - A, fps, config: { damping: 14, stiffness: 180, mass: 0.7 } });
+  const tLink = F(125.7), tSheet = F(126.0), tLine = F(126.75), tMenu = F(127.1), tPick = F(128.0);
+  const sheet = interpolate(f, [tSheet, tSheet + 8], [0, 1], out);
+  const menuIn = interpolate(f, [tMenu, tMenu + 8], [0, 1], out);
+  const pulse = f >= tPick ? 1 + 0.05 * Math.sin((f - tPick) / 3) : 1;
+  const zoom = interpolate(f, [tPick - 6, tPick + 8], [0, 1], io); // リッチメニューへ寄る
+  // リッチメニュー画像内「情報まとめ」の位置（2000x1349 → 幅PW）
+  const rmH = PW * 1349 / 2000;
+  const hx = PW * 685 / 2000, hy = PH - rmH + rmH * 705 / 1349, hw = PW * 630 / 2000, hh = rmH * 600 / 1349;
+  return (
+    <div style={{ position: "absolute", left: PX, top: PY + (1 - s) * 900, width: PW, height: PH, transform: `translateY(${-zoom * 330}px) scale(${1 + zoom * 0.55})`, transformOrigin: `50% ${hy + hh / 2}px` }}>
+      <div style={{ position: "absolute", inset: -18, borderRadius: 70, background: "#1E1E1E", boxShadow: "0 30px 60px rgba(0,0,0,0.35)" }} />
+      <div style={{ position: "absolute", inset: 0, borderRadius: 54, overflow: "hidden", background: "#fff" }}>
+        {/* ① Instagramプロフィール */}
+        <div style={{ position: "absolute", left: 0, top: 70, width: PW }}><Img src={staticFile("nencho_cta/ig_profile.png")} style={{ width: PW }} /></div>
+        <div style={{ position: "absolute", left: 0, top: 0, width: PW, height: 70, background: "#fff", borderBottom: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "center", ...B, fontSize: 26 }}>Instagram</div>
+        {/* ② リンク一覧（下からシート） */}
+        {sheet > 0 ? (
+          <>
+            <div style={{ position: "absolute", inset: 0, background: `rgba(0,0,0,${0.35 * sheet})` }} />
+            <div style={{ position: "absolute", left: 0, top: PH - 470 * sheet, width: PW, height: 470, borderRadius: "30px 30px 0 0", background: "#fff", overflow: "hidden" }}>
+              <div style={{ width: 70, height: 8, borderRadius: 4, background: "#ccc", margin: "12px auto 0" }} />
+              <Img src={staticFile("nencho_cta/ig_links.png")} style={{ width: PW, marginTop: 6 }} />
+            </div>
+          </>
+        ) : null}
+        {/* ③ 公式LINE：トーク画面＋リッチメニュー */}
+        {menuIn > 0 ? (
+          <div style={{ position: "absolute", inset: 0, background: "#8CABD9", transform: `translateX(${(1 - menuIn) * PW}px)` }}>
+            <div style={{ position: "absolute", left: 0, top: 0, width: PW, height: 90, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", ...B, fontSize: 24, color: A2.ink }}>たいち｜積立保険を売らない保険屋さん</div>
+            <div style={{ position: "absolute", left: 30, top: 130, maxWidth: 380, background: "#fff", borderRadius: 26, padding: "16px 22px", ...B, fontSize: 24, color: A2.ink }}>友だち追加ありがとうございます！<br />下のメニューからどうぞ</div>
+            <Img src={staticFile("nencho_cta/richmenu.png")} style={{ position: "absolute", left: 0, top: PH - rmH, width: PW }} />
+            {f >= tPick ? <div style={{ position: "absolute", left: hx, top: hy, width: hw, height: hh, borderRadius: 10, border: "8px solid #FFD43B", boxShadow: "0 0 0 8px rgba(255,212,59,0.35)", transform: `scale(${pulse})`, boxSizing: "border-box" }} /> : null}
+          </div>
+        ) : null}
+      </div>
+      <Tap at={tLink} x={190} y={70 + PW * 857 / 1179} />
+      <Tap at={tLine} x={240} y={PH - 470 + 32 + PW * 70 / 1179} />
+      <Tap at={tMenu + 22} x={hx + hw / 2} y={hy + hh / 2} />
+      {/* 「特典はここ！」吹き出し */}
+      {f >= tPick ? (
+        <div style={{ position: "absolute", left: hx + hw / 2 - 170, top: hy - 140, width: 340, textAlign: "center", transform: `scale(${pop(f, tPick)})`, transformOrigin: "50% 100%" }}>
+          <div style={{ display: "inline-block", background: A2.coral, color: "#fff", ...B, fontSize: 40, padding: "12px 28px", borderRadius: 22, whiteSpace: "nowrap" }}>特典はここ！</div>
+          <div style={{ width: 0, height: 0, margin: "0 auto", borderLeft: "16px solid transparent", borderRight: "16px solid transparent", borderTop: `18px solid ${A2.coral}` }} />
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+// ═══════════════ 締め（115.52–）：太一がしゃべる → ガイドの画面収録 → スマホでLINEまで ═══════════════
 const Outro: React.FC = () => {
   const f = useCurrentFrame();
   const guide = F(119.32), line = F(124.8);
-  const tap = interpolate(f, [line + 12, line + 16, line + 20], [1, 0.9, 1], clamp);
+  const bg = interpolate(f, [guide, guide + 12], [0, 1], out);
+  const card = interpolate(f, [guide + 4, guide + 16], [0, 1], out);
+  const cardOut = interpolate(f, [line - 6, line + 4], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
   return (
-    <Scene a={115.52} b={128.6} inT="zoom">
-      <Punch at={115.6} y={300} size={56}>一見ややこしいけど</Punch>
-      <Punch at={117.66} y={390} size={70}><span style={{ color: A2.green }}>変わった所</span>を押さえれば大丈夫</Punch>
-      <BigTaichi a={115.52} b={128.6} poses={[[115.52, "taichi_talk_closed", "taichi_talk_open"], [117.66, "taichi_ok_hand", undefined], [118.6, "taichi_talk_closed", "taichi_talk_open"], [124.8, "taichi_point_talk_closed", "taichi_point_talk_open"]]} />
-      {/* 完全ガイド */}
-      {f >= guide ? (
-        <div style={{ position: "absolute", left: 720, top: 600, transform: `scale(${pop(f, guide)}) rotate(6deg)` }}>
-          <div style={{ width: 300, height: 400, borderRadius: 18, background: "#fff", boxShadow: "0 18px 40px rgba(80,60,20,0.18)", padding: 24, boxSizing: "border-box" }}>
-            <div style={{ ...B, fontSize: 24, color: A2.sub }}>2026年版</div>
-            <div style={{ ...B, fontSize: 40, color: A2.ink, lineHeight: 1.2, marginTop: 6 }}>年末調整<br /><span style={{ color: A2.green }}>完全ガイド</span></div>
-            {[0, 1, 2, 3, 4].map((i) => <div key={i} style={{ height: 14, borderRadius: 7, background: A2.track, marginTop: 18, width: `${90 - i * 9}%` }} />)}
+    <Scene a={115.52} b={131.0} inT="zoom">
+      {/* 背景：ガイドの画面収録をぼかして流す */}
+      {f >= guide - 1 ? (
+        <AbsoluteFill style={{ opacity: bg }}>
+          <Sequence from={guide}><OffthreadVideo src={staticFile("nencho_cta/guide.mp4")} muted style={{ width: 1080, height: 1920, objectFit: "cover", filter: "blur(18px) saturate(1.1)", transform: "scale(1.12)" }} /></Sequence>
+          <AbsoluteFill style={{ background: "rgba(251,246,216,0.45)" }} />
+        </AbsoluteFill>
+      ) : null}
+      {f < guide + 8 ? (
+        <div style={{ position: "absolute", inset: 0, opacity: 1 - interpolate(f, [guide, guide + 8], [0, 1], clamp) }}>
+          <Punch at={115.6} y={300} size={56}>一見ややこしいけど</Punch>
+          <Punch at={117.66} y={390} size={70}><span style={{ color: A2.green }}>変わった所</span>を押さえれば大丈夫</Punch>
+        </div>
+      ) : null}
+      <BigTaichi a={115.52} b={119.32} poses={[[115.52, "taichi_talk_closed", "taichi_talk_open"], [117.66, "taichi_ok_hand", undefined], [118.6, "taichi_talk_closed", "taichi_talk_open"]]} shrinkTo />
+      {/* 完全ガイド：実物の画面をカードで見せる */}
+      {card > 0 && cardOut < 1 ? (
+        <div style={{ position: "absolute", left: 160, top: 420, width: 760, transform: `translateY(${(1 - card) * 80 - cardOut * 200}px) scale(${1 - cardOut * 0.1})`, opacity: card * (1 - cardOut) }}>
+          <div style={{ textAlign: "center", marginBottom: 18 }}><span style={{ display: "inline-block", background: A2.ink, color: "#fff", ...B, fontSize: 40, padding: "10px 32px", borderRadius: 999 }}>2026年版 <span style={{ color: "#FFE07A" }}>年末調整 完全ガイド</span></span></div>
+          <div style={{ borderRadius: 28, overflow: "hidden", boxShadow: "0 24px 50px rgba(0,0,0,0.25)", border: "8px solid #fff", height: 900 }}>
+            <Sequence from={guide}><OffthreadVideo src={staticFile("nencho_cta/guide.mp4")} muted style={{ width: 744, height: 1102, objectFit: "cover", objectPosition: "top" }} /></Sequence>
           </div>
+          <div style={{ textAlign: "center", marginTop: 18 }}><span style={{ ...B, fontSize: 36, color: A2.ink, background: "rgba(255,255,255,0.85)", padding: "6px 22px", borderRadius: 14 }}>実際の用紙を見ながら書ける</span></div>
         </div>
       ) : null}
-      {/* 公式LINEボタン */}
-      {f >= line ? (
-        <div style={{ position: "absolute", left: 0, top: 1170, width: 1080, textAlign: "center", transform: `scale(${pop(f, line) * tap})` }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 16, background: "#06C755", color: "#fff", ...B, fontSize: 48, padding: "18px 50px", borderRadius: 999, boxShadow: "0 12px 26px rgba(6,199,85,0.35)" }}>プロフィールの公式LINEから受け取る</span>
-        </div>
-      ) : null}
+      {/* スマホ：プロフ → リンク → 公式LINE → 情報まとめ */}
+      <Phone a={124.8} />
+      {f >= line && f < F(127.6) ? <div style={{ position: "absolute", left: 0, top: 200, width: 1080, textAlign: "center", transform: `scale(${pop(f, line)})` }}><span style={{ display: "inline-block", background: "#06C755", color: "#fff", ...B, fontSize: 40, padding: "10px 34px", borderRadius: 999 }}>プロフィールの公式LINEから</span></div> : null}
+      <Taichi name="taichi_point_upright" at={128.3} until={131.0} side="left" mouth={NENCHO_MOUTH} />
     </Scene>
   );
 };
@@ -396,10 +477,12 @@ const CUES: { file: string; at: number; volume: number }[] = [
   ...[96.92, 100.44, 104.0].map((t) => ({ file: "user/u02s", at: F(t) + 8, volume: 0.22 })),
   { file: "user/u05", at: F(109.76), volume: 0.26 },
   { file: "user/u05s", at: F(119.32), volume: 0.26 },
-  { file: "user/u10", at: F(124.8), volume: 0.3 },
+  { file: "user/u03s", at: F(124.8), volume: 0.26 },
+  ...[125.7, 126.75, 127.85].map((t) => ({ file: "tap", at: F(t), volume: 0.35 })),
+  { file: "user/u10", at: F(128.0), volume: 0.3 },
 ];
 
-export const NENCHO_FRAMES = F(127.81) + 24;
+export const NENCHO_FRAMES = F(131.0);
 export const NenchoReel: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
     <Audio src={staticFile("nencho-narration.wav")} />
