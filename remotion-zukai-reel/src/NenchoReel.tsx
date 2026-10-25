@@ -136,7 +136,7 @@ const Hook: React.FC = () => {
   const mk = interpolate(f, [big + 6, big + 14], [0, 100], out);
   return (
     <Scene a={0} b={9.04} inT="punch" outT="zoom">
-      <AbsoluteFill style={{ background: `radial-gradient(circle at 50% 66%, #FFF3BF 0%, ${A2.bg} 58%)` }} />
+      <div style={{ position: "absolute", inset: -400, background: `radial-gradient(circle at 50% 58%, #FFF3BF 0%, ${A2.bg} 40%)` }} />
       <div style={{ position: "absolute", left: 0, top: 250, width: 1080, textAlign: "center", transform: shake }}>
         <div style={{ opacity: k1, transform: `translateY(${(1 - k1) * -30}px)` }}>
           <div style={{ display: "inline-block", background: A2.ink, color: "#FFE07A", borderRadius: 999, padding: "8px 30px", ...K, fontSize: 36, letterSpacing: 2 }}>2026年分（令和8年）</div>
@@ -747,8 +747,12 @@ export const NenchoReel: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
     <Audio src={staticFile("nencho-narration.wav")} />
     <SfxTrack cues={CUES} />
-    <Hook /><BigTree a={9.04} b={10.72} title="今年 変わったのは3つ" /><Kiso /><Fuyo /><Seiho /><Matome /><TabBar /><Outro />
+    {/* 横に余白を残すため、図解は一回り小さく（中心は画面のやや上） */}
+    <AbsoluteFill style={{ transform: "scale(0.88)", transformOrigin: "540px 860px" }}>
+      <Hook /><BigTree a={9.04} b={10.72} title="今年 変わったのは3つ" /><Kiso /><Fuyo /><Seiho /><Matome /><TabBar />
+    </AbsoluteFill>
+    <Outro />
     <SubFade />
-    <Captions subs={SUBS} end={127.7} />
+    <Captions subs={SUBS} end={127.7} maxW={880} size={0.9} />
   </AbsoluteFill>
 );

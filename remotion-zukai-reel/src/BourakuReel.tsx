@@ -735,7 +735,7 @@ const parseCap = (s: string): Seg[] => {
   return out;
 };
 const KCOL = { g: A2.green, r: A2.coral, b: BOND, "": A2.ink } as const;
-export const Captions: React.FC<{ subs: [number, string][]; end: number }> = ({ subs, end }) => {
+export const Captions: React.FC<{ subs: [number, string][]; end: number; maxW?: number; size?: number }> = ({ subs, end, maxW = 1000, size = 1 }) => {
   const f = useCurrentFrame();
   const t = f / 30;
   let i = -1;
@@ -746,8 +746,8 @@ export const Captions: React.FC<{ subs: [number, string][]; end: number }> = ({ 
   const segs = parseCap(raw);
   const total = segs.reduce((n, g) => n + g.t.length, 0);
   let idx = 0;
-  const est = segs.reduce((n, g) => n + g.t.length * (g.k ? 74 : 58), 0);
-  const fit = Math.min(1, 1000 / est); // はみ出す長さなら縮める
+  const est = segs.reduce((n, g) => n + g.t.length * (g.k ? 74 : 58) * size, 0);
+  const fit = Math.min(1, maxW / est); // はみ出す長さなら縮める
   return (
     <div style={{ position: "absolute", left: 30, right: 30, top: 1350, display: "flex", justifyContent: "center", alignItems: "baseline", flexWrap: "nowrap", transform: `scale(${fit})`, transformOrigin: "50% 100%" }}>
       {segs.map((g, gi) => {
@@ -762,7 +762,7 @@ export const Captions: React.FC<{ subs: [number, string][]; end: number }> = ({ 
             {Array.from(g.t).map((ch, k) => {
               const at = s0 + (e - s0) * 0.8 * (idx++ / total) - 0.06;
               const p = interpolate(t, [at, at + 0.14], [0, 1], clamp);
-              return <span key={k} style={{ position: "relative", display: "inline-block", ...B, fontSize: kw ? 74 : 58, color: KCOL[g.k], opacity: 0.15 + 0.85 * p, filter: p < 1 ? `blur(${(1 - p) * 8}px)` : undefined, transform: `translateY(${(1 - p) * 10}px) scale(${kw ? 1 + (1 - p) * 0.3 : 1})`, textShadow: "0 0 10px #FBF6D8, 0 0 4px #FBF6D8" }}>{ch}</span>;
+              return <span key={k} style={{ position: "relative", display: "inline-block", ...B, fontSize: (kw ? 74 : 58) * size, color: KCOL[g.k], opacity: 0.15 + 0.85 * p, filter: p < 1 ? `blur(${(1 - p) * 8}px)` : undefined, transform: `translateY(${(1 - p) * 10}px) scale(${kw ? 1 + (1 - p) * 0.3 : 1})`, textShadow: "0 0 10px #FBF6D8, 0 0 4px #FBF6D8" }}>{ch}</span>;
             })}
           </span>
         );
