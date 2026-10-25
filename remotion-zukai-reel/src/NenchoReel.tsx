@@ -4,7 +4,7 @@ import { A2 } from "./components/kit2";
 import { FONT, FONT_BLACK } from "./components/font";
 import { SfxTrack } from "./components/sfx";
 import { B, GenSlot, Head, SubFade } from "./MileLifePlan";
-import { Scene, Page, PopAt, Pill, Stamp, Count, Note, CARD, useCardIn, Taichi, Captions, pop, useShake } from "./BourakuReel";
+import { Scene, Page, PopAt, PopIn, Pic, Pill, Stamp, Count, Note, CARD, useCardIn, Taichi, Captions, pop, useShake } from "./BourakuReel";
 import { NENCHO_MOUTH } from "./nenchoMouth";
 
 // ════════════════════════════════════════════════════════════════════
@@ -292,132 +292,252 @@ const FormZoom: React.FC<{ at: number; src: string; title: string; reg: Reg; mar
   );
 };
 
-// ═══════════════ ① 基礎控除（10.72–29.5）：年収ものさしに「控除のブロック」を積む ═══════════════
-const Y0 = (man: number) => 1190 - man * 3.45; // 0万=1190, 220万≈431
-const Ticks: React.FC<{ Y: (m: number) => number; from: number; to: number; step: number; label: number }> = ({ Y, from, to, step, label }) => (
-  <>
-    <div style={{ position: "absolute", left: 128, top: Y(to) - 10, width: 22, height: Y(from) - Y(to) + 20, borderRadius: 11, background: "#fff", boxShadow: "inset 0 0 0 4px #E2D9B8" }} />
-    {Array.from({ length: Math.round((to - from) / step) + 1 }).map((_, i) => {
-      const m = from + i * step;
-      const major = m % label === 0;
-      return (
-        <React.Fragment key={m}>
-          <div style={{ position: "absolute", left: 150, top: Y(m) - 2, width: major ? 30 : 14, height: 4, background: "#CFC4A0" }} />
-          {major ? <div style={{ position: "absolute", left: 0, top: Y(m) - 18, width: 118, textAlign: "right", ...B, fontSize: 26, color: A2.sub }}>{m}万</div> : null}
-        </React.Fragment>
-      );
-    })}
-  </>
-);
-const KisoRuler: React.FC = () => {
+// ═══════════════ 解説パートの部品（暴落リールと同じ作り：1ページ1主役・大きく・余白多め） ═══════════════
+// ページの見出し（ツリーの下に固定の位置）
+const Head2: React.FC<{ at: number; color?: string; children: React.ReactNode }> = ({ at, color = A2.green, children }) => {
   const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const sp = (at: number) => spring({ frame: f - F(at), fps, config: { damping: 14, stiffness: 120 } });
-  const appear = interpolate(f, [F(10.8), F(10.8) + 10], [0, 1], out);
-  const kiso = 95 + 9 * sp(11.92);        // 95→104
-  const kyuyo = 65 + 9 * sp(14.52);       // 65→74
-  const top = kiso + kyuyo;               // 160→178
-  const lineOn = f >= F(18.14);
-  const big = F(22.28);
-  const X = 300, W = 300;
-  const blk = (from: number, to: number, c: string, label: string, val: number, on: boolean) => (
-    <div style={{ position: "absolute", left: X, top: Y0(to), width: W, height: (to - from) * 3.45, borderRadius: 18, background: c, boxShadow: on ? `0 0 0 6px ${c}44` : undefined, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#fff", opacity: appear }}>
-      <div style={{ ...B, fontSize: 30 }}>{label}</div>
-      <div style={{ whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 66 }}>{Math.round(val)}</span><span style={{ ...B, fontSize: 30 }}>万円</span></div>
+  const A = F(at);
+  const p = interpolate(f, [A, A + 8], [0, 1], out);
+  return (
+    <div style={{ position: "absolute", left: 0, top: 418, width: 1080, textAlign: "center", opacity: p, transform: `translateY(${(1 - p) * 18}px)` }}>
+      <div style={{ ...B, fontSize: 54, color: A2.ink, letterSpacing: 1, whiteSpace: "nowrap" }}>{children}</div>
+      <div style={{ width: interpolate(f, [A + 4, A + 12], [0, 120], out), height: 10, borderRadius: 999, background: color, margin: "12px auto 0" }} />
     </div>
   );
+};
+const C = (c: string, t: React.ReactNode) => <span style={{ color: c }}>{t}</span>;
+
+// 去年 → 今年（上に画像、下に数字。今年の数字が主役）
+const UpNum: React.FC<{ at: number; rev: number; img: string; imgSize?: number; label: string; from: number; to: number; color: string }> = ({ at, rev, img, imgSize = 300, label, from, to, color }) => {
+  const f = useCurrentFrame();
+  const A = F(at), R = F(rev);
+  const strike = interpolate(f, [R - 8, R], [0, 100], out);
+  const arrow = interpolate(f, [R - 4, R + 4], [0, 1], out);
   return (
     <>
-      <div style={{ position: "absolute", left: 0, top: 410, width: 1080, textAlign: "center", ...K, fontSize: 46, color: A2.ink }}>税金がかからない「土台」</div>
-      <Ticks Y={Y0} from={0} to={200} step={10} label={50} />
-      {/* 去年の高さ（点線） */}
-      {f >= F(12.2) ? <div style={{ position: "absolute", left: X - 10, top: Y0(65 + 95), width: W + 20, borderTop: "5px dashed #BDB28F" }} /> : null}
-      {blk(0, kyuyo, BLUE, "給与所得控除", kyuyo, f >= F(14.52) && f < F(18.14))}
-      {blk(kyuyo, top, A2.green, "基礎控除", kiso, f >= F(11.92) && f < F(14.52))}
-      {/* UPラベル */}
-      {f >= F(11.92) && f < F(18.14) ? <div style={{ position: "absolute", left: X + W + 30, top: Y0(top) - 10, transform: `scale(${pop(f, F(11.92))})`, transformOrigin: "0 50%" }}><Pill bg={A2.green} size={36}>基礎控除 95→104万</Pill></div> : null}
-      {f >= F(14.52) && f < F(18.14) ? <div style={{ position: "absolute", left: X + W + 30, top: Y0(kyuyo / 2) - 30, transform: `scale(${pop(f, F(14.52))})`, transformOrigin: "0 50%" }}><Pill bg={BLUE} size={36}>給与所得控除 65→74万</Pill></div> : null}
-      {/* ライン：所得税がかかり始める年収 */}
-      {lineOn ? (
-        <>
-          <div style={{ position: "absolute", left: 140, top: Y0(160) - 3, width: 860 * interpolate(f, [F(18.14), F(18.14) + 12], [0, 1], out), borderTop: "6px dashed #BDB28F" }} />
-          <div style={{ position: "absolute", left: 140, top: Y0(178) - 7, width: 860 * interpolate(f, [F(18.14), F(18.14) + 12], [0, 1], out), height: 14, borderRadius: 7, background: A2.red, boxShadow: `0 0 0 6px ${A2.red}33` }} />
-          <div style={{ position: "absolute", left: X + W + 40, top: Y0(160) + 10, ...B, fontSize: 32, color: A2.sub, opacity: interpolate(f, [F(20.62), F(20.62) + 8], [0, 1], clamp) }}>去年 <span style={{ textDecoration: "line-through" }}>160万円</span></div>
-        </>
-      ) : null}
-      {f >= F(20.62) ? <div style={{ position: "absolute", left: X + W + 20, top: Y0(160) + 62, ...B, fontSize: 32, color: A2.ink, opacity: interpolate(f, [F(20.62), F(20.62) + 8], [0, 1], clamp) }}>所得税がかかり始める年収</div> : null}
-      {f >= big ? (
-        <div style={{ position: "absolute", left: X + W + 20, top: Y0(160) + 105, transform: `scale(${pop(f, big)})`, transformOrigin: "0 0", whiteSpace: "nowrap" }}>
-          <Count at={big / 30} to={178} dur={12} style={{ ...K, fontSize: 150, color: A2.red, lineHeight: 1 }} /><span style={{ ...K, fontSize: 52, color: A2.ink }}>万円超</span>
+      <div style={{ position: "absolute", left: 540 - imgSize / 2, top: 530 + (300 - imgSize) / 2 }}><PopIn at={at}><Pic name={img} size={imgSize} bob /></PopIn></div>
+      {f >= A + 4 ? <div style={{ position: "absolute", left: 0, top: 862, width: 1080, textAlign: "center", ...B, fontSize: 40, color: A2.sub, opacity: interpolate(f, [A + 4, A + 12], [0, 1], clamp) }}>{label}</div> : null}
+      {f >= A + 6 ? (
+        <div style={{ position: "absolute", left: 0, top: 920, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 26, whiteSpace: "nowrap" }}>
+          <span style={{ position: "relative", display: "inline-block", transform: `scale(${pop(f, A + 6)})` }}>
+            <span style={{ ...B, fontSize: 86, color: A2.sub }}>{from}</span><span style={{ ...B, fontSize: 34, color: A2.sub }}>万円</span>
+            <span style={{ position: "absolute", left: -6, top: "52%", height: 9, borderRadius: 5, background: A2.red, width: `calc(${strike}% + 12px)` }} />
+            <div style={{ position: "absolute", left: 0, right: 0, top: -34, textAlign: "center", ...B, fontSize: 26, color: A2.sub }}>去年</div>
+          </span>
+          <svg width={90} height={60} style={{ opacity: arrow, transform: `translateX(${(arrow - 1) * 30}px)` }}><path d="M4 30 H62 M44 10 L72 30 L44 50" fill="none" stroke={color} strokeWidth={12} strokeLinecap="round" strokeLinejoin="round" /></svg>
+          {f >= R ? (
+            <span style={{ display: "inline-block", transform: `scale(${pop(f, R)})`, lineHeight: 1 }}>
+              <Count at={rev} to={to} dur={12} style={{ ...K, fontSize: 200, color, letterSpacing: -4 }} /><span style={{ ...K, fontSize: 62, color: A2.ink }}>万円</span>
+            </span>
+          ) : <span style={{ display: "inline-block", width: 420 }} />}
         </div>
       ) : null}
-      {f >= big + 6 ? <div style={{ position: "absolute", left: X + W + 30, top: Y0(160) + 275, transform: `scale(${pop(f, big + 6)})` }}><Pill bg={A2.red} size={34}>＋18万円</Pill></div> : null}
-      {f >= F(10.9) ? <div style={{ position: "absolute", left: 770, top: 960, transform: `scale(${pop(f, F(10.9))})` }}><GenSlot name="nencho_payslip" size={230} /></div> : null}
-      <Note at={22.8} y={1235}>※給与だけの場合の目安。所得税の話（住民税の基礎控除は43万円のまま）</Note>
     </>
   );
 };
-const Kiso: React.FC = () => (
-  <Scene a={10.72} b={29.5}>
-    <Page a={10.72} b={24.9}><KisoRuler /></Page>
-    <Page a={24.9} b={29.6}>
-      <FormZoom at={24.9} zoomAt={25.6} src="kiso" title="基礎控除申告書（令和8年分）" reg={[0.055, 0.355, 0.38, 0.595]} mark={[0.062, 0.383, 0.282, 0.406]} color={A2.green} note={<>合計所得489万円以下なら <span style={{ color: "#FFE07A" }}>104万円</span></>} />
-      <div style={{ position: "absolute", inset: 0 }}><Stamp at={27.76} x={250} y={1210} text="自分の金額は必ず確認" size={50} rot={-3} /></div>
+
+// レンガの「壁」：年収ラインが上がる＝壁がグッと高くなる
+const BRICK = `url("data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="60"><rect width="120" height="60" fill="#F3D6B4"/><rect x="3" y="3" width="54" height="24" rx="4" fill="#E0804A"/><rect x="63" y="3" width="54" height="24" rx="4" fill="#D97843"/><rect x="-27" y="33" width="54" height="24" rx="4" fill="#D97843"/><rect x="33" y="33" width="54" height="24" rx="4" fill="#E0804A"/><rect x="93" y="33" width="54" height="24" rx="4" fill="#DC7C46"/></svg>')}")`;
+const GROUND = 1150, WX = 450, WW = 570, H0 = 290, H1 = 450;
+const Wall: React.FC<{ at: number; rise: number; from: number; to: number; img: string; color: string; imgSize?: number }> = ({ at, rise, from, to, img, color, imgSize = 400 }) => {
+  const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const A = F(at), R = F(rise);
+  const inS = spring({ frame: f - A, fps, config: { damping: 14, stiffness: 150 } });
+  const rs = f >= R ? spring({ frame: f - R, fps, config: { damping: 8, stiffness: 150, mass: 0.8 } }) : 0;
+  const h = H0 * inS + (H1 - H0) * rs;
+  const top = GROUND - h;
+  const shake = useShake(R + 7, 12, 12);
+  const val = f >= R ? Math.round(interpolate(f, [R, R + 12], [from, to], out)) : from;
+  const jump = interpolate(f - R, [6, 12, 20], [0, -46, 0], clamp);
+  const after = f >= R + 8;
+  return (
+    <div style={{ position: "absolute", inset: 0, transform: shake }}>
+      <div style={{ position: "absolute", left: 30, top: GROUND - 4, width: 1020, height: 12, borderRadius: 6, background: "#E4D8AF" }} />
+      {/* 人 */}
+      <div style={{ position: "absolute", left: 20, top: GROUND - imgSize + 6, transform: `translateY(${jump}px)` }}><PopIn at={at + 0.15}><Pic name={img} size={imgSize} /></PopIn></div>
+      {/* 壁 */}
+      <div style={{ position: "absolute", left: WX, top, width: WW, height: h, backgroundImage: BRICK, backgroundPosition: "left bottom", borderRadius: "12px 12px 0 0", boxShadow: "0 16px 30px rgba(120,60,20,0.18)", overflow: "hidden" }}>
+        <div style={{ position: "absolute", left: 0, top: 0, width: WW, height: 22, background: "#B9582C" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(255,255,255,0.10), rgba(0,0,0,0.08))" }} />
+      </div>
+      {/* 去年の高さ（点線）と、上がった幅 */}
+      {after ? (
+        <>
+          <div style={{ position: "absolute", left: WX - 14, top: GROUND - H0 - 3, width: WW + 28, borderTop: "7px dashed #fff", opacity: interpolate(f, [R + 8, R + 14], [0, 1], clamp) }} />
+          <div style={{ position: "absolute", left: WX + 24, top: GROUND - H0 + 18, transform: `scale(${pop(f, R + 10)})`, transformOrigin: "0 0" }}>
+            <span style={{ display: "inline-block", background: "rgba(46,44,38,0.82)", color: "#fff", borderRadius: 14, padding: "6px 18px", ...B, fontSize: 30, whiteSpace: "nowrap" }}>去年 <span style={{ textDecoration: "line-through" }}>{from}万円</span></span>
+          </div>
+          <div style={{ position: "absolute", left: WX, top: (top + GROUND - H0) / 2 - 34, width: WW, textAlign: "center", transform: `scale(${pop(f, R + 14)})` }}>
+            <span style={{ display: "inline-block", background: color, color: "#fff", borderRadius: 999, padding: "8px 30px", ...K, fontSize: 40, boxShadow: "0 6px 14px rgba(0,0,0,0.18)" }}>▲ ＋{to - from}万円</span>
+          </div>
+        </>
+      ) : null}
+      {/* 壁の上の札 */}
+      {f >= A + 6 ? (
+        <div style={{ position: "absolute", left: WX + WW / 2 - 230, top: top - 152, width: 460, textAlign: "center", transform: `scale(${pop(f, A + 6) * (f >= R ? interpolate(f - R, [0, 4, 9], [1, 1.12, 1], clamp) : 1)})` }}>
+          <div style={{ display: "inline-block", background: "#fff", border: `7px solid ${f >= R ? color : A2.bar}`, borderRadius: 28, padding: "4px 30px", boxShadow: "0 12px 26px rgba(80,60,20,0.14)", whiteSpace: "nowrap", lineHeight: 1.15 }}>
+            <span style={{ ...K, fontSize: 108, color: f >= R ? color : A2.sub, letterSpacing: -2 }}>{val}</span><span style={{ ...K, fontSize: 44, color: A2.ink }}>万円</span>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+// ═══════════════ ① 基礎控除（10.72–29.5） ═══════════════
+const Kiso: React.FC = () => {
+  const f = useCurrentFrame();
+  return (
+    <Scene a={10.72} b={29.5}>
+      <Page a={10.72} b={14.52}>
+        <Head2 at={10.72}>まずは{C(A2.green, "基礎控除")}</Head2>
+        <UpNum at={10.9} rev={12.6} img="nencho_icon_kiso" label="基礎控除（最大）" from={95} to={104} color={A2.green} />
+      </Page>
+      <Page a={14.52} b={18.14}>
+        <Head2 at={14.52} color={BLUE}>{C(BLUE, "給与所得控除")}も</Head2>
+        <UpNum at={14.6} rev={16.4} img="nencho_payslip" label="給与所得控除（最低）" from={65} to={74} color={BLUE} />
+      </Page>
+      <Page a={18.14} b={24.9}>
+        <Head2 at={18.14} color={A2.red}>{C(A2.red, "所得税")}がかかり始める年収</Head2>
+        <Wall at={18.2} rise={22.28} from={160} to={178} img="kabe_husband_salaryman" color={A2.red} />
+        {f >= F(18.5) ? (
+          <div style={{ position: "absolute", left: 0, top: 1178, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 12, whiteSpace: "nowrap" }}>
+            <ChipPop at={F(18.5)}><Pill bg={A2.green} size={32}>基礎控除 104万</Pill></ChipPop>
+            <span style={{ ...K, fontSize: 40, color: A2.ink }}>＋</span>
+            <ChipPop at={F(18.5) + 5}><Pill bg={BLUE} size={32}>給与所得控除 74万</Pill></ChipPop>
+            {f >= F(22.9) ? <ChipPop at={F(22.9)}><span style={{ ...K, fontSize: 40, color: A2.ink }}>＝ <span style={{ color: A2.red }}>178万</span></span></ChipPop> : null}
+          </div>
+        ) : null}
+        <Note at={19.9} y={1262}>※給与収入だけの場合の目安（所得税の話。住民税は別）</Note>
+      </Page>
+      <Page a={24.9} b={29.6}>
+        <FormZoom at={24.9} zoomAt={25.6} src="kiso" title="基礎控除申告書（令和8年分）" reg={[0.055, 0.355, 0.38, 0.595]} mark={[0.062, 0.383, 0.282, 0.406]} color={A2.green} note={<>合計所得489万円以下なら <span style={{ color: "#FFE07A" }}>104万円</span></>} />
+        <div style={{ position: "absolute", inset: 0 }}><Stamp at={27.76} x={250} y={1210} text="自分の金額は必ず確認" size={50} rot={-3} /></div>
+      </Page>
+    </Scene>
+  );
+};
+
+// ═══════════════ ② 扶養（29.5–75.66） ═══════════════
+// 特定親族特別控除（所得税）：合計所得に応じて 63→61→51→41→31→21→11→6→3万円（国税庁 No.1177）
+const STEPS = [63, 61, 51, 41, 31, 21, 11, 6, 3];
+const Taper: React.FC = () => {
+  const f = useCurrentFrame();
+  const A = F(55.68), S = F(57.74);
+  const c = useCardIn(55.8);
+  const BW = 78, GAP = 14, X0 = 60, BASE = 450, KH = 5.0;
+  return (
+    <>
+      <Head2 at={55.68}>159万円を<span style={{ color: A2.red }}>超えても</span>…</Head2>
+      <div style={{ ...CARD, left: 70, top: 540, width: 940, height: 560, ...c.style }}>
+        <div style={{ position: "absolute", left: 40, top: 28, ...B, fontSize: 32, color: A2.ink }}>{C(A2.green, "特定親族特別控除")}<span style={{ fontSize: 24, color: A2.sub }}>（19〜22歳の子の年収で変わる）</span></div>
+        <div style={{ position: "absolute", left: X0 - 10, top: BASE, width: 9 * (BW + GAP) + 20 + 40, height: 5, background: A2.bar, borderRadius: 3 }} />
+        {STEPS.map((v, i) => {
+          const at = i === 0 ? A + 4 : S + 4 + i * 3;
+          if (f < at) return null;
+          const g = interpolate(f - at, [0, 8], [0, 1], out);
+          const hh = v * KH * g;
+          return (
+            <div key={i} style={{ position: "absolute", left: X0 + i * (BW + GAP), top: BASE - hh, width: BW, height: hh, borderRadius: "12px 12px 4px 4px", background: i === 0 ? A2.green : `${A2.green}${["", "E6", "CC", "B3", "99", "80", "66", "4D", "40"][i]}` }} />
+          );
+        })}
+        {f >= A + 10 ? <div style={{ position: "absolute", left: X0 - 20, top: BASE - 63 * KH - 72, width: BW + 40, textAlign: "center", transform: `scale(${pop(f, A + 10)})`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 56, color: A2.green }}>63</span><span style={{ ...B, fontSize: 26 }}>万</span></div> : null}
+        {f >= A + 10 ? <div style={{ position: "absolute", left: X0 - 20, top: BASE + 14, width: BW + 40, textAlign: "center", ...B, fontSize: 26, color: A2.ink }}>〜159万</div> : null}
+        {f >= S + 30 ? <div style={{ position: "absolute", left: X0 + 8 * (BW + GAP) - 40, top: BASE + 14, width: BW + 80, textAlign: "center", ...B, fontSize: 26, color: A2.ink }}>197万</div> : null}
+        {f >= S + 34 ? <div style={{ position: "absolute", left: X0 + 9 * (BW + GAP), top: BASE - 40, ...K, fontSize: 30, color: A2.sub, transform: `scale(${pop(f, S + 34)})` }}>0</div> : null}
+      </div>
+      <PopAt at={58.9} x={0} y={1130} w={1080} center><span style={{ display: "inline-block", background: A2.green, color: "#fff", borderRadius: 22, padding: "10px 32px", ...K, fontSize: 44 }}>197万円まで<span style={{ color: "#FFE07A" }}>段階的に残る</span></span></PopAt>
+      <Note at={58} y={1262}>※所得税の控除額（国税庁 No.1177）。年収は給与だけの場合の目安</Note>
+    </>
+  );
+};
+const Fuyo: React.FC = () => (
+  <Scene a={29.5} b={75.66} inT="drop">
+    <Page a={29.5} b={34.62}>
+      <Head2 at={29.5} color={BLUE}>{C(BLUE, "扶養控除")}の年収ライン</Head2>
+      <Wall at={29.6} rise={32.6} from={123} to={136} img="mile_family_happy" color={BLUE} />
+      <Note at={31} y={1250}>※給与だけの場合の目安。社会保険の扶養（130万円）とは別の制度</Note>
+    </Page>
+    <Page a={34.62} b={42.1}><ShotokuPage /></Page>
+    <Page a={42.1} b={48.42}>
+      <Head2 at={42.1} color="#8A62C9">{C("#8A62C9", "配偶者特別控除")}<span style={{ fontSize: 36 }}>（38万円 満額）</span></Head2>
+      <Wall at={42.2} rise={46.4} from={160} to={169} img="nencho_couple_parttime" color="#8A62C9" />
+      <Note at={44.6} y={1250}>※配偶者の年収（給与だけの場合の目安）</Note>
+    </Page>
+    <Page a={48.42} b={55.68}>
+      <Head2 at={48.42}>{C(A2.green, "19〜22歳の子")}<span style={{ fontSize: 36 }}>（控除63万円）</span></Head2>
+      <Wall at={48.5} rise={53.7} from={150} to={159} img="nencho_student_parttime" color={A2.green} />
+      <Note at={50.5} y={1250}>※子の年収（給与だけの場合の目安）</Note>
+    </Page>
+    <Page a={55.68} b={61.92}><Taper /></Page>
+    <Page a={61.92} b={65.94}>
+      <FormZoom at={61.92} zoomAt={62.5} src="fuyo" title="扶養控除等申告書（令和8年分）" reg={[0.03, 0.76, 0.92, 0.94]} mark={[0.03, 0.795, 0.92, 0.93]} kz={2.1} fxr={0.3} color={BLUE} note={<>16歳未満の子は<span style={{ color: "#FFE07A" }}>「住民税に関する事項」</span>に記入</>} />
+    </Page>
+    <Page a={65.94} b={69.02}>
+      <Head2 at={65.94}>{C(ORANGE, "16歳未満")}の子ども</Head2>
+      <div style={{ position: "absolute", left: 300, top: 540 }}><PopIn at={66.0}><Pic name="nencho_small_kids" size={480} bob /></PopIn></div>
+      <PopAt at={66.6} x={0} y={1080} w={1080} center><span style={{ display: "inline-block", background: "#fff", borderRadius: 22, padding: "10px 34px", boxShadow: "0 8px 20px rgba(80,60,20,0.12)", ...B, fontSize: 52, color: A2.ink }}>扶養控除は<span style={{ color: A2.red }}>なし</span></span></PopAt>
+    </Page>
+    <Page a={69.02} b={75.66}>
+      <Head2 at={69.02} color={ORANGE}>{C(ORANGE, "23歳未満の扶養親族")}がいる人</Head2>
+      <UpNum at={71.48} rev={73.9} img="nencho_insurance_doc" label="一般生命保険料控除の上限" from={4} to={6} color={ORANGE} />
+      {useCurrentFrame() < F(71.48) ? <div style={{ position: "absolute", left: 220, top: 560 }}><PopIn at={69.1}><Pic name="mile_family_happy" size={640} bob /></PopIn></div> : null}
     </Page>
   </Scene>
 );
 
-// ═══════════════ ② 扶養（29.5–75.66）：家族の年収ものさしに、ラインが次々に上がる ═══════════════
-const Y1 = (man: number) => 1190 - (man - 100) * 6.6; // 100万=1190, 210万≈464
-const FLINES: { at: number; from: number; to: number; c: string; label: string; img: string }[] = [
-  { at: 29.7, from: 123, to: 136, c: BLUE, label: "扶養控除", img: "mile_family_happy" },
-  { at: 42.2, from: 160, to: 169, c: "#8A62C9", label: "配偶者特別控除（満額）", img: "nencho_couple_parttime" },
-  { at: 48.5, from: 150, to: 159, c: A2.green, label: "19〜22歳の子（63万円）", img: "nencho_student_parttime" },
-];
-const FuyoRuler: React.FC = () => {
+// ═══════════════ ③ 生命保険料控除（75.66–96.92） ═══════════════
+const Seiho: React.FC = () => {
   const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const t = f / 30;
-  let active = -1;
-  FLINES.forEach((l, i) => { if (t >= l.at) active = i; });
-  const band = F(57.74);
-  const bandP = interpolate(f, [band, band + 18], [0, 1], out);
-  const appear = interpolate(f, [F(29.6), F(29.6) + 10], [0, 1], out);
   return (
-    <div style={{ position: "absolute", inset: 0, opacity: appear }}>
-      <div style={{ position: "absolute", left: 0, top: 410, width: 1080, textAlign: "center", ...K, fontSize: 46, color: A2.ink }}>家族の<span style={{ color: BLUE }}>年収</span>のライン</div>
-      <Ticks Y={Y1} from={100} to={200} step={10} label={20} />
-      {/* 特定親族特別控除：159万〜197万は段階的に残る */}
-      {bandP > 0 ? (
-        <div style={{ position: "absolute", left: 160, top: Y1(197), width: 840 * bandP, height: Y1(159) - Y1(197), background: `linear-gradient(${A2.green}08, ${A2.green}55)`, borderTop: `4px dashed ${A2.green}` }}>
-          <div style={{ position: "absolute", left: 30, top: 18, ...B, fontSize: 32, color: A2.green, whiteSpace: "nowrap", opacity: bandP }}>〜197万円まで 控除が段階的に残る</div>
-          <div style={{ position: "absolute", left: 30, top: 62, ...B, fontSize: 24, color: A2.sub, whiteSpace: "nowrap", opacity: bandP }}>特定親族特別控除</div>
+    <Scene a={75.66} b={96.92}>
+      <Page a={75.66} b={77.34}>
+        <FormZoom at={75.66} zoomAt={76.0} src="hoken" title="保険料控除申告書（令和8年分）" reg={[0.06, 0.33, 0.48, 0.48]} mark={[0.07, 0.402, 0.33, 0.44]} color={ORANGE} note={<>新しい欄：<span style={{ color: "#FFE07A" }}>23歳未満の扶養親族の有無</span></>} />
+      </Page>
+      <Page a={77.34} b={82.46}>
+        <Head2 at={77.34} color={ORANGE}>控除が{C(ORANGE, "6万円")}でも…</Head2>
+        <div style={{ position: "absolute", left: 340, top: 540 }}><PopIn at={77.4}><Pic name="nencho_insurance_doc" size={400} bob /></PopIn></div>
+        <PopAt at={77.8} x={0} y={940} w={1080} center>
+          <span style={{ ...B, fontSize: 44, color: A2.sub }}>控除 </span><Count at={77.8} to={6} dur={8} style={{ ...K, fontSize: 170, color: ORANGE, lineHeight: 1 }} /><span style={{ ...K, fontSize: 56, color: A2.ink }}>万円</span>
+        </PopAt>
+        <div style={{ position: "absolute", inset: 0 }}><Stamp at={80.8} x={150} y={1150} text="6万円 安くなる訳じゃない" color={A2.red} size={56} rot={-4} /></div>
+      </Page>
+      <Page a={82.46} b={86.86}>
+        <Head2 at={82.46}>実際に{C(A2.green, "安くなる税金")}は？</Head2>
+        <PopAt at={82.6} x={0} y={560} w={1080} center>
+          <span style={{ display: "inline-block", background: "#fff", borderRadius: 26, padding: "14px 36px", boxShadow: "0 10px 24px rgba(80,60,20,0.12)", whiteSpace: "nowrap" }}>
+            <span style={{ ...K, fontSize: 70, color: ORANGE }}>6万円</span><span style={{ ...B, fontSize: 50, color: A2.ink }}> × </span><span style={{ ...B, fontSize: 34, color: A2.sub }}>所得税率</span><span style={{ ...K, fontSize: 70, color: A2.ink }}>10%</span>
+          </span>
+        </PopAt>
+        {f >= F(84.08) ? <div style={{ position: "absolute", left: 510, top: 700, width: 60, height: 70, transform: `scale(${pop(f, F(84.08))})` }}><svg width={60} height={70}><path d="M30 4 V52 M10 34 L30 60 L50 34" fill="none" stroke={A2.green} strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" /></svg></div> : null}
+        <PopAt at={84.3} x={0} y={790} w={1080} center>
+          <div style={{ whiteSpace: "nowrap", lineHeight: 1 }}><span style={{ ...B, fontSize: 50, color: A2.ink }}>年間 約</span><Count at={84.3} to={6000} dur={14} comma style={{ ...K, fontSize: 190, color: A2.green, letterSpacing: -4 }} /><span style={{ ...K, fontSize: 64, color: A2.ink }}>円</span></div>
+        </PopAt>
+        <div style={{ position: "absolute", left: 420, top: 1010 }}><PopIn at={84.8}><Pic name="nencho_coins_small" size={240} /></PopIn></div>
+        <Note at={84.3} y={1262}>※所得税率10%の人の所得税の軽減額（住民税は別に計算）</Note>
+      </Page>
+      <Page a={86.86} b={90.96}>
+        <Head2 at={86.86} color={ORANGE}>しかも最大まで使うには</Head2>
+        <PopAt at={88.28} x={0} y={560} w={1080} center>
+          <div style={{ ...B, fontSize: 38, color: A2.sub }}>一般生命保険料が 年間</div>
+          <div style={{ whiteSpace: "nowrap", lineHeight: 1.05 }}><Count at={88.4} to={12} dur={10} style={{ ...K, fontSize: 220, color: ORANGE, letterSpacing: -6 }} /><span style={{ ...K, fontSize: 70, color: A2.ink }}>万円超</span></div>
+        </PopAt>
+        <div style={{ position: "absolute", left: 370, top: 900 }}><PopIn at={88.9}><Pic name="nencho_piggy_heavy" size={340} bob /></PopIn></div>
+      </Page>
+      <Page a={90.96} b={97.0}>
+        <div style={{ position: "absolute", left: 0, top: 440, width: 1080, display: "flex", flexDirection: "column", alignItems: "center", gap: 22 }}>
+          {[["控除のためだけに保険に入る", 91.2], ["保険料を増やす", 93.88]].map(([t, at]) => (
+            <ChipPop key={t as string} at={F(at as number)}><span style={{ ...CARD, position: "relative", display: "inline-flex", alignItems: "center", gap: 20, padding: "22px 40px", ...B, fontSize: 46, color: A2.ink }}><span style={{ color: A2.red, fontSize: 56 }}>✕</span>{t as string}</span></ChipPop>
+          ))}
         </div>
-      ) : null}
-      {FLINES.map((l, i) => {
-        if (i > active) return null;
-        const s = spring({ frame: f - F(l.at) - 10, fps, config: { damping: 13, stiffness: 120 } });
-        const v = l.from + (l.to - l.from) * s;
-        const on = i === active && f < band;
-        const dim = !on && active !== -1 && f < band ? 0.45 : f >= band && i !== 2 ? 0.45 : 1;
-        const w = interpolate(f, [F(l.at), F(l.at) + 10], [0, 1], out);
-        return (
-          <React.Fragment key={l.label}>
-            {on ? <div style={{ position: "absolute", left: 160, top: Y1(l.from) - 3, width: 840 * w, borderTop: "5px dashed #BDB28F" }} /> : null}
-            {on ? <div style={{ position: "absolute", left: 640, top: Y1(l.from) + 8, ...B, fontSize: 28, color: A2.sub }}>去年 <span style={{ textDecoration: "line-through" }}>{l.from}万円</span></div> : null}
-            <div style={{ position: "absolute", left: 160, top: Y1(v) - (on ? 7 : 4), width: 840 * w, height: on ? 14 : 8, borderRadius: 7, background: l.c, opacity: dim, boxShadow: on ? `0 0 0 6px ${l.c}33` : undefined }} />
-            <div style={{ position: "absolute", right: 70, top: Y1(v) - (on ? 120 : 52), textAlign: "right", opacity: dim, whiteSpace: "nowrap", transform: on ? `scale(${pop(f, F(l.at) + 10)})` : undefined, transformOrigin: "100% 100%" }}>
-              <div style={{ ...B, fontSize: on ? 30 : 24, color: l.c }}>{l.label}</div>
-              {on ? <div><Count at={(F(l.at) + 10) / 30} to={l.to} dur={14} style={{ ...K, fontSize: 96, color: l.c, lineHeight: 1 }} /><span style={{ ...K, fontSize: 40, color: A2.ink }}>万円</span></div> : <div style={{ ...K, fontSize: 36, color: l.c }}>{l.to}万円</div>}
-            </div>
-            {on ? <div style={{ position: "absolute", left: 200, top: Y1(l.to) - 250, transform: `scale(${pop(f, F(l.at) + 6)})` }}><GenSlot name={l.img} size={230} /></div> : null}
-          </React.Fragment>
-        );
-      })}
-      {f >= F(30.5) && f < F(34.62) ? <Note at={30.5} y={1235}>※給与だけの場合の目安。税金の扶養と、社会保険の扶養（130万円）は別の制度</Note> : null}
-    </div>
+        <div style={{ position: "absolute", left: 320, top: 690 }}><PopIn at={95.4}><Pic name="taichi_ng_cross" size={440} /></PopIn></div>
+        <div style={{ position: "absolute", inset: 0 }}><Stamp at={95.6} x={150} y={1130} text="個人的にはおすすめしません" color={A2.red} size={54} rot={-3} /></div>
+      </Page>
+    </Scene>
   );
 };
+
 // 書くのは「所得」：用紙をルーペで拡大＋計算
 const ShotokuPage: React.FC = () => {
   const f = useCurrentFrame();
@@ -426,7 +546,7 @@ const ShotokuPage: React.FC = () => {
   const lp = F(35.6);
   return (
     <>
-      <div style={{ position: "absolute", left: 0, top: 410, width: 1080, textAlign: "center", ...K, fontSize: 56, color: A2.ink, opacity: k }}>書くのは<span style={{ color: A2.red }}>「所得」</span>（年収じゃない）</div>
+      <Head2 at={34.62} color={A2.red}>書くのは{C(A2.red, "「所得」")}<span style={{ fontSize: 40 }}>（年収じゃない）</span></Head2>
       <div style={{ position: "absolute", left: 50, top: 520, width: 640, transform: `rotate(-4deg) translateY(${(1 - k) * 60}px)`, opacity: k, filter: "drop-shadow(0 18px 26px rgba(80,60,20,0.2))" }}>
         <Img src={staticFile("nencho_forms/fuyo.png")} style={{ width: 640, borderRadius: 10, border: "6px solid #fff" }} />
         {f >= lp ? <div style={{ position: "absolute", left: 640 * 0.49, top: 453 * 0.2, width: 640 * 0.066, height: 453 * 0.36, border: `5px solid ${A2.red}`, borderRadius: 6 }} /> : null}
@@ -446,68 +566,6 @@ const ShotokuPage: React.FC = () => {
     </>
   );
 };
-const Fuyo: React.FC = () => (
-  <Scene a={29.5} b={75.66} inT="drop">
-    <Page a={29.5} b={34.62}><FuyoRuler /></Page>
-    <Page a={34.62} b={42.1}><ShotokuPage /></Page>
-    <Page a={42.1} b={61.92}><FuyoRuler /></Page>
-    <Page a={61.92} b={65.94}>
-      <FormZoom at={61.92} zoomAt={62.5} src="fuyo" title="扶養控除等申告書（令和8年分）" reg={[0.03, 0.76, 0.92, 0.94]} mark={[0.03, 0.795, 0.92, 0.93]} kz={2.1} fxr={0.3} color={BLUE} note={<>16歳未満の子は<span style={{ color: "#FFE07A" }}>「住民税に関する事項」</span>に記入</>} />
-    </Page>
-    <Page a={65.94} b={72.6}>
-      <Punch at={66.0} y={420} size={48}>扶養控除がない16歳未満の子でも…</Punch>
-      {useCurrentFrame() >= F(69.02) ? <BeforeAfter at={69.02} y={540} label={<>23歳未満の扶養親族がいる人</>} sub="一般生命保険料控除の上限" from={4} to={6} color={ORANGE} imgs={["nencho_small_kids", "nencho_insurance_doc"]} imgSize={180} /> : null}
-    </Page>
-    <Page a={72.6} b={75.8}>
-      <FormZoom at={72.6} zoomAt={73.1} src="hoken" title="保険料控除申告書（令和8年分）" reg={[0.06, 0.33, 0.48, 0.48]} mark={[0.07, 0.402, 0.33, 0.44]} color={ORANGE} note={<>新しい欄：<span style={{ color: "#FFE07A" }}>23歳未満の扶養親族の有無</span></>} />
-    </Page>
-  </Scene>
-);
-
-// ═══════════════ ③ 生命保険料控除（75.66–96.92）：「控除6万円」と「戻る額」を長さで比べる ═══════════════
-const Seiho: React.FC = () => {
-  const f = useCurrentFrame();
-  const L1 = interpolate(f, [F(77.6), F(77.6) + 14], [0, 1], out);
-  const L2 = interpolate(f, [F(85.0), F(85.0) + 12], [0, 1], out);
-  return (
-    <Scene a={75.66} b={96.92}>
-      <Page a={75.66} b={86.86}>
-        <div style={{ position: "absolute", left: 0, top: 410, width: 1080, textAlign: "center", ...K, fontSize: 50, color: A2.ink }}>控除<span style={{ color: ORANGE }}>6万円</span>で、いくら戻る？</div>
-        {/* 控除される額 */}
-        <div style={{ position: "absolute", left: 70, top: 560, ...B, fontSize: 32, color: A2.ink }}>控除される額</div>
-        <div style={{ position: "absolute", left: 70, top: 610, width: 940 * L1, height: 120, borderRadius: 24, background: `linear-gradient(90deg, #F6A07F, ${ORANGE})`, display: "flex", alignItems: "center", paddingLeft: 30, boxSizing: "border-box", overflow: "hidden" }}>
-          <span style={{ ...K, fontSize: 70, color: "#fff", whiteSpace: "nowrap" }}>6万円</span>
-        </div>
-        {f >= F(79.46) ? <div style={{ position: "absolute", inset: 0 }}><Stamp at={79.46} x={420} y={760} text="そのまま戻る額じゃない" color={A2.red} size={46} rot={-4} /></div> : null}
-        {/* × 所得税率 */}
-        {f >= F(82.46) ? <div style={{ position: "absolute", left: 70, top: 880, transform: `scale(${pop(f, F(82.46))})`, transformOrigin: "0 50%" }}><span style={{ ...B, fontSize: 38 }}>× 所得税率 </span><span style={{ ...K, fontSize: 64, color: A2.ink }}>10%</span><span style={{ ...B, fontSize: 30, color: A2.sub }}>（の人なら）</span></div> : null}
-        {/* 戻る額 */}
-        {f >= F(84.08) ? <div style={{ position: "absolute", left: 70, top: 980, ...B, fontSize: 32, color: A2.ink }}>実際に安くなる税金</div> : null}
-        <div style={{ position: "absolute", left: 70, top: 1030, width: 94 * L2, height: 120, borderRadius: 20, background: A2.green }} />
-        {L2 > 0.9 ? <div style={{ position: "absolute", left: 190, top: 1030, transform: `scale(${pop(f, F(85.3))})`, transformOrigin: "0 50%", whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 36 }}>年間 約</span><Count at={85.3} to={6000} dur={12} comma style={{ ...K, fontSize: 100, color: A2.green, lineHeight: 1.1 }} /><span style={{ ...B, fontSize: 40 }}>円</span></div> : null}
-        {L2 > 0.9 ? <div style={{ position: "absolute", left: 790, top: 960, transform: `scale(${pop(f, F(85.6))})` }}><GenSlot name="nencho_coins_small" size={200} /></div> : null}
-      </Page>
-      <Page a={86.86} b={90.96}>
-        <Punch at={86.9} y={440} size={52}>しかも最大まで使うには</Punch>
-        <PopAt at={88.28} x={0} y={560} w={1080} center>
-          <div style={{ ...B, fontSize: 36, color: A2.sub }}>一般生命保険料が 年間</div>
-          <div style={{ whiteSpace: "nowrap" }}><Count at={88.4} to={12} dur={10} style={{ ...K, fontSize: 220, color: ORANGE, letterSpacing: -6 }} /><span style={{ ...K, fontSize: 70, color: A2.ink }}>万円超</span></div>
-        </PopAt>
-        <ImgRow at={88.9} y={900} names={["nencho_piggy_heavy"]} size={300} />
-      </Page>
-      <Page a={90.96} b={97.0}>
-        <div style={{ position: "absolute", left: 0, top: 440, width: 1080, display: "flex", flexDirection: "column", alignItems: "center", gap: 22 }}>
-          {[["控除のためだけに保険に入る", 91.2], ["保険料を増やす", 93.88]].map(([t, at]) => (
-            <ChipPop key={t as string} at={F(at as number)}><span style={{ ...CARD, position: "relative", display: "inline-flex", alignItems: "center", gap: 20, padding: "22px 40px", ...B, fontSize: 46, color: A2.ink }}><span style={{ color: A2.red, fontSize: 56 }}>✕</span>{t as string}</span></ChipPop>
-          ))}
-        </div>
-        <div style={{ position: "absolute", inset: 0 }}><Stamp at={95.4} x={170} y={760} text="個人的にはおすすめしません" color={A2.red} size={54} rot={-3} /></div>
-        <Taichi name="taichi_ng_cross" at={95.4} until={97.0} side="right" />
-      </Page>
-    </Scene>
-  );
-};
-
 // ═══════════════ まとめ（96.92–115.52） ═══════════════
 const Matome: React.FC = () => {
   const f = useCurrentFrame();
@@ -657,16 +715,25 @@ const CUES: { file: string; at: number; volume: number }[] = [
   ...[5.3, 6.1, 6.7].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.22 })),
   ...[9.04, 10.72, 29.5, 75.66, 96.92, 115.52].map((t) => ({ file: "user/u03", at: F(t), volume: 0.26 })),
   ...[10.72, 29.5, 75.66].map((t) => ({ file: "swipe", at: F(t) - 2, volume: 0.2 })),
-  // 前→後カード：数字が出る所だけ
-  ...[10.9, 14.6, 29.7, 42.2, 48.5, 69.02].map((t) => ({ file: "user/u05s", at: F(t) + 18, volume: 0.24 })),
-  { file: "user/u05", at: F(22.8), volume: 0.3 },
-  { file: "user/u05", at: F(27.76), volume: 0.26 },
-  { file: "user/u05s", at: F(40.68), volume: 0.26 },
-  { file: "user/u05", at: F(61.92), volume: 0.24 },
-  { file: "thud", at: F(79.46), volume: 0.32 },
-  { file: "user/u05s", at: F(85.3), volume: 0.26 },
+  // ページ送り
+  ...[14.52, 18.14, 24.9, 34.62, 42.1, 48.42, 55.68, 61.92, 65.94, 69.02, 77.34, 82.46, 86.86, 90.96].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })),
+  // 去年→今年の数字
+  ...[12.6, 16.4, 73.9].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.26 })),
+  // 壁がグッと上がる
+  ...[22.28, 32.6, 46.4, 53.7].map((t) => ({ file: "dadan", at: F(t), volume: 0.34 })),
+  ...[22.28, 32.6, 46.4, 53.7].map((t) => ({ file: "user/u05", at: F(t) + 10, volume: 0.24 })),
+  // 用紙のズーム
+  ...[25.6, 36.0, 62.5, 76.0].map((t) => ({ file: "user/u05s", at: F(t) + 14, volume: 0.22 })),
+  { file: "user/u05", at: F(40.68), volume: 0.26 },
+  ...[0, 1, 2].map((i) => ({ file: "user/u02s", at: F(57.74) + 4 + i * 9, volume: 0.18 })),
+  { file: "user/u05s", at: F(58.9), volume: 0.24 },
+  { file: "thunk", at: F(66.6), volume: 0.28 },
+  { file: "thud", at: F(27.76), volume: 0.3 },
+  { file: "thud", at: F(80.8), volume: 0.34 },
+  { file: "user/u05", at: F(84.3), volume: 0.28 },
   { file: "user/u05", at: F(88.4), volume: 0.28 },
-  { file: "user/u05", at: F(95.4), volume: 0.3 },
+  ...[91.2, 93.88].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.22 })),
+  { file: "thud", at: F(95.6), volume: 0.34 },
   ...[96.92, 100.44, 104.0].map((t) => ({ file: "user/u02s", at: F(t) + 8, volume: 0.22 })),
   { file: "user/u05", at: F(109.76), volume: 0.26 },
   { file: "user/u05s", at: F(119.32), volume: 0.26 },
