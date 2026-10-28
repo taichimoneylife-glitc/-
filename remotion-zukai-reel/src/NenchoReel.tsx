@@ -3,9 +3,10 @@ import { AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, staticFile, useCurr
 import { A2 } from "./components/kit2";
 import { FONT, FONT_BLACK } from "./components/font";
 import { SfxTrack } from "./components/sfx";
-import { B, GenSlot, Head, SubFade } from "./MileLifePlan";
+import { B, GenSlot, Head } from "./MileLifePlan";
 import { Scene, Page, PopAt, PopIn, Pic, Pill, Stamp, Count, Note, CARD, useCardIn, Taichi, Captions, pop, useShake } from "./BourakuReel";
 import { NENCHO_MOUTH } from "./nenchoMouth";
+import { Camera, CamKey, Spot, Callout, SpeedLines } from "./components/cam";
 
 // ════════════════════════════════════════════════════════════════════
 //  2026年 年末調整（全部図解リール：冒頭・締めは太一キャラがしゃべる）
@@ -176,13 +177,16 @@ const BRANCH: { key: string; t: string; from: string; to: string; c: string; a: 
   { key: "fuyo", t: "扶養", from: "年収123万円", to: "136万円", c: BLUE, a: 29.5, z: 75.66 },
   { key: "seiho", t: "生命保険料控除", from: "一般 4万円", to: "6万円", c: ORANGE, a: 75.66, z: 96.92 },
 ];
-const BigTree: React.FC<{ a: number; b: number; checks?: number[]; title: React.ReactNode }> = ({ a, b, checks, title }) => {
+const TREE_RECT = (i: number): [number, number, number, number] => [[190, 540, 890][i] - 165, 622, 330, 420];
+const TREE_FOCUS = (i: number, t: number, d = 8): CamKey => ({ t, x: [190, 540, 890][i], y: 830, s: 1.7, d });
+const BigTree: React.FC<{ a: number; b: number; checks?: number[]; title: React.ReactNode; instant?: boolean; cam?: CamKey[]; spot?: { t: number; i: number; until?: number }[] }> = ({ a, b, checks, title, instant, cam = [], spot = [] }) => {
   const f = useCurrentFrame();
-  const A = F(a);
+  const A = instant ? F(a) - 60 : F(a);
   const line = interpolate(f, [A + 4, A + 18], [0, 1], out);
   const X = [190, 540, 890];
   return (
-    <Scene a={a} b={b} inT="zoom" outT="zoom">
+    <Scene a={a} b={b} inT={instant ? "whip" : "zoom"} outT={cam.length ? "whip" : "zoom"}>
+      <Camera keys={cam}>
       <div style={{ position: "absolute", left: 0, top: 290, width: 1080, textAlign: "center", transform: `scale(${pop(f, A)})` }}>
         <div style={{ display: "inline-block", background: A2.ink, color: "#fff", borderRadius: 26, padding: "16px 44px", ...B, fontSize: 52 }}>年末調整 <span style={{ color: "#FFE07A" }}>2026</span></div>
         <div style={{ ...B, fontSize: 34, color: A2.ink, marginTop: 14 }}>{title}</div>
@@ -210,6 +214,8 @@ const BigTree: React.FC<{ a: number; b: number; checks?: number[]; title: React.
           </div>
         );
       })}
+      {spot.map((sp) => <Spot key={sp.t} at={sp.t} until={sp.until} rect={TREE_RECT(sp.i)} r={34} />)}
+      </Camera>
     </Scene>
   );
 };
@@ -219,6 +225,7 @@ const TabBar: React.FC = () => {
   const { fps } = useVideoConfig();
   const A = F(10.72), Z = F(96.92);
   if (f < A - 2 || f >= Z + 8) return null;
+  if ((f >= F(29.5) && f < F(30.5)) || (f >= F(75.66) && f < F(76.6))) return null; // 大きなツリーで横に流れている間
   const t = f / 30;
   let idx = 0;
   BRANCH.forEach((b, i) => { if (t >= b.a) idx = i; });
@@ -258,7 +265,7 @@ const TabBar: React.FC = () => {
 };
 // 実際の用紙（国税庁 令和8年分）を出して、該当欄にズーム＋枠＋吹き出し
 type Reg = [number, number, number, number];
-const FormZoom: React.FC<{ at: number; src: string; title: string; reg: Reg; mark?: Reg; zoomAt?: number; note: React.ReactNode; color?: string; top?: number; kz?: number; fxr?: number }> = ({ at, src, title, reg, mark, zoomAt, note, color = ORANGE, top = 400, kz, fxr }) => {
+const FormZoom: React.FC<{ at: number; src: string; title: string; reg: Reg; mark?: Reg; zoomAt?: number; note: React.ReactNode; color?: string; top?: number; kz?: number; fxr?: number; noteY?: number }> = ({ at, src, title, reg, mark, zoomAt, note, color = ORANGE, top = 400, kz, fxr, noteY = 1225 }) => {
   const f = useCurrentFrame();
   const A = F(at), Zt = F(zoomAt ?? at + 0.9);
   if (f < A) return null;
@@ -266,29 +273,41 @@ const FormZoom: React.FC<{ at: number; src: string; title: string; reg: Reg; mar
   const [x0, y0, x1, y1] = reg;
   const rw = (x1 - x0) * IW, rh = (y1 - y0) * IH;
   const kT = kz ?? Math.min((VW * 0.92) / rw, (VH * 0.78) / rh, 4.2);
-  const z = interpolate(f, [Zt, Zt + 16], [0, 1], io);
-  const k = 1 + (kT - 1) * z;
   const cx = (fxr ?? (x0 + x1) / 2) * IW, cy = ((y0 + y1) / 2) * IH;
-  const fx = IW / 2 + (cx - IW / 2) * z, fy = IH / 2 + (cy - IH / 2) * z; // 見る中心
-  const tx = Math.min(0, Math.max(VW - IW * k, VW / 2 - fx * k));
-  const ty = Math.min((VH - IH) / 2, Math.max(VH - IH * k, VH / 2 - fy * k)); // 用紙の外（白）が見えないように
-  const enter = interpolate(f - A, [0, 9], [0, 1], out);
+  // カメラ：ためて → 一気に寄って → ピタッ（動いている間だけ少しぶれる）
+  const view = (z: number) => {
+    const k = 1 + (kT - 1) * z;
+    const fx = IW / 2 + (cx - IW / 2) * z, fy = IH / 2 + (cy - IH / 2) * z;
+    const tx = Math.min(0, Math.max(VW - IW * k, VW / 2 - fx * k));
+    const ty = Math.min((VH - IH) / 2, Math.max(VH - IH * k, VH / 2 - fy * k)); // 用紙の外（白）が見えないように
+    return { k, tx, ty };
+  };
+  const z = interpolate(f, [Zt, Zt + 9], [0, 1], { ...clamp, easing: Easing.bezier(0.7, 0, 0.18, 1) });
+  const blur = interpolate(f, [Zt + 2, Zt + 5, Zt + 8], [0, 5, 0], clamp);
+  const { k, tx, ty } = view(z);
+  const enter = interpolate(f - A, [0, 6], [0, 1], out);
   const m = mark ?? reg;
-  const box = interpolate(f, [Zt + 14, Zt + 22], [0, 1], out);
-  const pulse = 1 + 0.03 * Math.sin((f - Zt) / 4);
+  // 寄り切った時の、注目の欄の画面上の位置
+  const e = view(1);
+  const VX = 50, VY = top + 48;
+  const sx = VX + e.tx + m[0] * IW * e.k, sy = VY + e.ty + m[1] * IH * e.k;
+  const sw = (m[2] - m[0]) * IW * e.k, sh = (m[3] - m[1]) * IH * e.k;
+  const cl = Math.max(VX, sx), ct = Math.max(VY, sy);
+  const rect: [number, number, number, number] = [cl, ct, Math.min(VX + VW, sx + sw) - cl, Math.min(VY + VH, sy + sh) - ct];
   return (
-    <div style={{ position: "absolute", left: 50, top, width: VW, opacity: enter, transform: `translateY(${(1 - enter) * 50}px)` }}>
-      <div style={{ ...B, fontSize: 28, color: A2.sub, marginBottom: 10, textAlign: "center" }}>実際の用紙：<span style={{ color: A2.ink }}>{title}</span></div>
-      <div style={{ position: "relative", width: VW, height: VH, borderRadius: 26, overflow: "hidden", background: "#fff", boxShadow: "0 18px 40px rgba(80,60,20,0.16)", border: "6px solid #fff" }}>
-        <div style={{ position: "absolute", left: 0, top: 0, width: IW, height: IH, transform: `translate(${tx}px, ${ty}px) scale(${k})`, transformOrigin: "0 0" }}>
-          <Img src={staticFile(`nencho_forms/${src}.png`)} style={{ width: IW, height: IH }} />
-          {/* 該当欄以外を少し暗く */}
-          <div style={{ position: "absolute", inset: 0, background: `rgba(30,30,30,${0.28 * box})`, clipPath: `polygon(0 0,100% 0,100% 100%,0 100%,0 0,${m[0] * 100}% ${m[1] * 100}%,${m[0] * 100}% ${m[3] * 100}%,${m[2] * 100}% ${m[3] * 100}%,${m[2] * 100}% ${m[1] * 100}%,${m[0] * 100}% ${m[1] * 100}%)` }} />
-          {box > 0 ? <div style={{ position: "absolute", left: `${m[0] * 100}%`, top: `${m[1] * 100}%`, width: `${(m[2] - m[0]) * 100}%`, height: `${(m[3] - m[1]) * 100}%`, border: `${9 / k}px solid ${color}`, borderRadius: 8 / k, background: `${color}26`, boxShadow: `0 0 ${18 / k}px ${color}`, opacity: box, transform: `scale(${pulse})`, boxSizing: "border-box" }} /> : null}
+    <>
+      <div style={{ position: "absolute", left: VX, top, width: VW, opacity: enter, transform: `translateY(${(1 - enter) * 50}px)` }}>
+        <div style={{ ...B, fontSize: 28, color: A2.sub, marginBottom: 10, textAlign: "center" }}>実際の用紙：<span style={{ color: A2.ink }}>{title}</span></div>
+        <div style={{ position: "relative", width: VW, height: VH, borderRadius: 26, overflow: "hidden", background: "#fff", boxShadow: "0 18px 40px rgba(80,60,20,0.16)", border: "6px solid #fff", boxSizing: "border-box" }}>
+          <div style={{ position: "absolute", left: 0, top: 0, width: IW, height: IH, transform: `translate(${tx}px, ${ty}px) scale(${k})`, transformOrigin: "0 0", filter: blur > 0.3 ? `blur(${blur}px)` : undefined }}>
+            <Img src={staticFile(`nencho_forms/${src}.png`)} style={{ width: IW, height: IH }} />
+          </div>
         </div>
       </div>
-      {box > 0.5 ? <div style={{ marginTop: 22, textAlign: "center", transform: `scale(${pop(f, Zt + 18)})` }}><span style={{ display: "inline-block", background: color, color: "#fff", ...B, fontSize: 38, padding: "12px 30px", borderRadius: 22, whiteSpace: "nowrap" }}>{note}</span></div> : null}
-    </div>
+      {/* 画面ごと暗くして、注目の欄だけ明るく */}
+      <Spot at={(Zt + 11) / 30} rect={rect} r={10} color={color} />
+      <Callout at={(Zt + 15) / 30} from={[rect[0] + rect[2] / 2, rect[1] + rect[3]]} to={[540, noteY]} size={38}>{note}</Callout>
+    </>
   );
 };
 
@@ -351,8 +370,9 @@ const Wall: React.FC<{ at: number; rise: number; from: number; to: number; img: 
   const val = f >= R ? Math.round(interpolate(f, [R, R + 12], [from, to], out)) : from;
   const jump = interpolate(f - R, [6, 12, 20], [0, -46, 0], clamp);
   const after = f >= R + 8;
+  const push = interpolate(f - R, [0, 5, 26], [1, 1.07, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
   return (
-    <div style={{ position: "absolute", inset: 0, transform: shake }}>
+    <div style={{ position: "absolute", inset: 0, transform: `${shake} scale(${push})`, transformOrigin: `${WX + WW / 2}px ${GROUND - H1 - 80}px` }}>
       <div style={{ position: "absolute", left: 30, top: GROUND - 4, width: 1020, height: 12, borderRadius: 6, background: "#E4D8AF" }} />
       {/* 人 */}
       <div style={{ position: "absolute", left: 20, top: GROUND - imgSize + 6, transform: `translateY(${jump}px)` }}><PopIn at={at + 0.15}><Pic name={img} size={imgSize} /></PopIn></div>
@@ -412,8 +432,8 @@ const Kiso: React.FC = () => {
         <Note at={19.9} y={1262}>※給与収入だけの場合の目安（所得税の話。住民税は別）</Note>
       </Page>
       <Page a={24.9} b={29.6}>
-        <FormZoom at={24.9} zoomAt={25.6} src="kiso" title="基礎控除申告書（令和8年分）" reg={[0.055, 0.355, 0.38, 0.595]} mark={[0.062, 0.383, 0.282, 0.406]} color={A2.green} note={<>合計所得489万円以下なら <span style={{ color: "#FFE07A" }}>104万円</span></>} />
-        <div style={{ position: "absolute", inset: 0 }}><Stamp at={27.76} x={250} y={1210} text="自分の金額は必ず確認" size={50} rot={-3} /></div>
+        <FormZoom at={24.9} zoomAt={25.6} src="kiso" title="基礎控除申告書（令和8年分）" reg={[0.055, 0.355, 0.38, 0.595]} mark={[0.062, 0.383, 0.282, 0.406]} color={A2.green} note={<>合計所得489万円以下なら <span style={{ color: A2.green }}>104万円</span></>} />
+        <div style={{ position: "absolute", inset: 0 }}><Stamp at={27.76} x={250} y={1270} text="自分の金額は必ず確認" size={50} rot={-3} /></div>
       </Page>
     </Scene>
   );
@@ -447,16 +467,17 @@ const Taper: React.FC = () => {
         {f >= S + 30 ? <div style={{ position: "absolute", left: X0 + 8 * (BW + GAP) - 40, top: BASE + 14, width: BW + 80, textAlign: "center", ...B, fontSize: 26, color: A2.ink }}>197万</div> : null}
         {f >= S + 34 ? <div style={{ position: "absolute", left: X0 + 9 * (BW + GAP), top: BASE - 40, ...K, fontSize: 30, color: A2.sub, transform: `scale(${pop(f, S + 34)})` }}>0</div> : null}
       </div>
+      <Spot at={55.9} until={57.6} rect={[118, 640, 102, 380]} r={16} />
       <PopAt at={58.9} x={0} y={1130} w={1080} center><span style={{ display: "inline-block", background: A2.green, color: "#fff", borderRadius: 22, padding: "10px 32px", ...K, fontSize: 44 }}>197万円まで<span style={{ color: "#FFE07A" }}>段階的に残る</span></span></PopAt>
       <Note at={58} y={1262}>※所得税の控除額（国税庁 No.1177）。年収は給与だけの場合の目安</Note>
     </>
   );
 };
 const Fuyo: React.FC = () => (
-  <Scene a={29.5} b={75.66} inT="drop">
-    <Page a={29.5} b={34.62}>
-      <Head2 at={29.5} color={BLUE}>{C(BLUE, "扶養控除")}の年収ライン</Head2>
-      <Wall at={29.6} rise={32.6} from={123} to={136} img="mile_family_happy" color={BLUE} />
+  <Scene a={30.5} b={75.66} inT="whip">
+    <Page a={30.5} b={34.62}>
+      <Head2 at={30.5} color={BLUE}>{C(BLUE, "扶養控除")}の年収ライン</Head2>
+      <Wall at={30.55} rise={32.6} from={123} to={136} img="mile_family_happy" color={BLUE} />
       <Note at={31} y={1250}>※給与だけの場合の目安。社会保険の扶養（130万円）とは別の制度</Note>
     </Page>
     <Page a={34.62} b={42.1}><ShotokuPage /></Page>
@@ -472,17 +493,19 @@ const Fuyo: React.FC = () => (
     </Page>
     <Page a={55.68} b={61.92}><Taper /></Page>
     <Page a={61.92} b={65.94}>
-      <FormZoom at={61.92} zoomAt={62.5} src="fuyo" title="扶養控除等申告書（令和8年分）" reg={[0.03, 0.76, 0.92, 0.94]} mark={[0.03, 0.795, 0.92, 0.93]} kz={2.1} fxr={0.3} color={BLUE} note={<>16歳未満の子は<span style={{ color: "#FFE07A" }}>「住民税に関する事項」</span>に記入</>} />
+      <FormZoom at={61.92} zoomAt={62.5} src="fuyo" title="扶養控除等申告書（令和8年分）" reg={[0.03, 0.76, 0.92, 0.94]} mark={[0.03, 0.795, 0.92, 0.93]} kz={2.1} fxr={0.3} color={BLUE} note={<>16歳未満の子は<span style={{ color: BLUE }}>「住民税に関する事項」</span>に記入</>} />
     </Page>
     <Page a={65.94} b={69.02}>
       <Head2 at={65.94}>{C(ORANGE, "16歳未満")}の子ども</Head2>
       <div style={{ position: "absolute", left: 300, top: 540 }}><PopIn at={66.0}><Pic name="nencho_small_kids" size={480} bob /></PopIn></div>
       <PopAt at={66.6} x={0} y={1080} w={1080} center><span style={{ display: "inline-block", background: "#fff", borderRadius: 22, padding: "10px 34px", boxShadow: "0 8px 20px rgba(80,60,20,0.12)", ...B, fontSize: 52, color: A2.ink }}>扶養控除は<span style={{ color: A2.red }}>なし</span></span></PopAt>
     </Page>
-    <Page a={69.02} b={75.66}>
-      <Head2 at={69.02} color={ORANGE}>{C(ORANGE, "23歳未満の扶養親族")}がいる人</Head2>
-      <UpNum at={71.48} rev={73.9} img="nencho_insurance_doc" label="一般生命保険料控除の上限" from={4} to={6} color={ORANGE} />
-      {useCurrentFrame() < F(71.48) ? <div style={{ position: "absolute", left: 220, top: 560 }}><PopIn at={69.1}><Pic name="mile_family_happy" size={640} bob /></PopIn></div> : null}
+    <Page a={69.02} b={71.48}>
+      <FormZoom at={69.02} zoomAt={69.5} src="hoken" title="保険料控除申告書（令和8年分）" reg={[0.06, 0.33, 0.48, 0.48]} mark={[0.07, 0.402, 0.33, 0.44]} color={ORANGE} note={<>新しい欄：<span style={{ color: ORANGE }}>23歳未満の扶養親族</span></>} />
+    </Page>
+    <Page a={71.48} b={75.66}>
+      <Head2 at={71.48} color={ORANGE}>{C(ORANGE, "23歳未満の扶養親族")}がいる人</Head2>
+      <UpNum at={71.6} rev={73.9} img="nencho_insurance_doc" label="一般生命保険料控除の上限" from={4} to={6} color={ORANGE} />
     </Page>
   </Scene>
 );
@@ -491,16 +514,14 @@ const Fuyo: React.FC = () => (
 const Seiho: React.FC = () => {
   const f = useCurrentFrame();
   return (
-    <Scene a={75.66} b={96.92}>
-      <Page a={75.66} b={77.34}>
-        <FormZoom at={75.66} zoomAt={76.0} src="hoken" title="保険料控除申告書（令和8年分）" reg={[0.06, 0.33, 0.48, 0.48]} mark={[0.07, 0.402, 0.33, 0.44]} color={ORANGE} note={<>新しい欄：<span style={{ color: "#FFE07A" }}>23歳未満の扶養親族の有無</span></>} />
-      </Page>
-      <Page a={77.34} b={82.46}>
-        <Head2 at={77.34} color={ORANGE}>控除が{C(ORANGE, "6万円")}でも…</Head2>
-        <div style={{ position: "absolute", left: 340, top: 540 }}><PopIn at={77.4}><Pic name="nencho_insurance_doc" size={400} bob /></PopIn></div>
+    <Scene a={76.6} b={96.92}>
+      <Page a={76.6} b={82.46}>
+        <Head2 at={76.6} color={ORANGE}>控除が{C(ORANGE, "6万円")}でも…</Head2>
+        <div style={{ position: "absolute", left: 340, top: 540 }}><PopIn at={76.7}><Pic name="nencho_insurance_doc" size={400} bob /></PopIn></div>
         <PopAt at={77.8} x={0} y={940} w={1080} center>
           <span style={{ ...B, fontSize: 44, color: A2.sub }}>控除 </span><Count at={77.8} to={6} dur={8} style={{ ...K, fontSize: 170, color: ORANGE, lineHeight: 1 }} /><span style={{ ...K, fontSize: 56, color: A2.ink }}>万円</span>
         </PopAt>
+        <Spot at={79.46} rect={[300, 930, 480, 190]} r={30} dim={0.7} color={ORANGE} />
         <div style={{ position: "absolute", inset: 0 }}><Stamp at={80.8} x={150} y={1150} text="6万円 安くなる訳じゃない" color={A2.red} size={56} rot={-4} /></div>
       </Page>
       <Page a={82.46} b={86.86}>
@@ -716,14 +737,17 @@ const CUES: { file: string; at: number; volume: number }[] = [
   ...[9.04, 10.72, 29.5, 75.66, 96.92, 115.52].map((t) => ({ file: "user/u03", at: F(t), volume: 0.26 })),
   ...[10.72, 29.5, 75.66].map((t) => ({ file: "swipe", at: F(t) - 2, volume: 0.2 })),
   // ページ送り
-  ...[14.52, 18.14, 24.9, 34.62, 42.1, 48.42, 55.68, 61.92, 65.94, 69.02, 77.34, 82.46, 86.86, 90.96].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })),
+  ...[14.52, 18.14, 24.9, 34.62, 42.1, 48.42, 55.68, 61.92, 65.94, 69.02, 71.48, 82.46, 86.86, 90.96].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })),
   // 去年→今年の数字
   ...[12.6, 16.4, 73.9].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.26 })),
   // 壁がグッと上がる
   ...[22.28, 32.6, 46.4, 53.7].map((t) => ({ file: "dadan", at: F(t), volume: 0.34 })),
   ...[22.28, 32.6, 46.4, 53.7].map((t) => ({ file: "user/u05", at: F(t) + 10, volume: 0.24 })),
   // 用紙のズーム
-  ...[25.6, 36.0, 62.5, 76.0].map((t) => ({ file: "user/u05s", at: F(t) + 14, volume: 0.22 })),
+  ...[25.6, 36.0, 62.5, 69.5].map((t) => ({ file: "user/u05s", at: F(t) + 14, volume: 0.22 })),
+  // カメラが寄る・横に流れる（シュッ）
+  ...[10.05, 29.62, 75.78, 25.6, 62.5, 69.5].map((t) => ({ file: "whoosh2", at: F(t), volume: 0.24 })),
+  ...[55.9, 79.46].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.22 })),
   { file: "user/u05", at: F(40.68), volume: 0.26 },
   ...[0, 1, 2].map((i) => ({ file: "user/u02s", at: F(57.74) + 4 + i * 9, volume: 0.18 })),
   { file: "user/u05s", at: F(58.9), volume: 0.24 },
@@ -742,6 +766,9 @@ const CUES: { file: string; at: number; volume: number }[] = [
   { file: "user/u10", at: F(128.0), volume: 0.3 },
 ];
 
+// 字幕の下地（図解を一回り小さくした分、少し下から）
+const SubFade: React.FC = () => <div style={{ position: "absolute", left: 0, right: 0, top: 1290, bottom: 0, background: `linear-gradient(${A2.bg}00, ${A2.bg} 90px)` }} />;
+
 export const NENCHO_FRAMES = F(131.0);
 export const NenchoReel: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
@@ -749,7 +776,15 @@ export const NenchoReel: React.FC = () => (
     <SfxTrack cues={CUES} />
     {/* 横に余白を残すため、図解は一回り小さく（中心は画面のやや上） */}
     <AbsoluteFill style={{ transform: "scale(0.88)", transformOrigin: "540px 860px" }}>
-      <Hook /><BigTree a={9.04} b={10.72} title="今年 変わったのは3つ" /><Kiso /><Fuyo /><Seiho /><Matome /><TabBar />
+      <Hook />
+      <BigTree a={9.04} b={10.72} title="今年 変わったのは3つ" cam={[TREE_FOCUS(0, 10.05, 9)]} spot={[{ t: 10.3, i: 0 }]} />
+      <Kiso />
+      {/* 次の枝へ：ツリーの上をシュッと横に流れる */}
+      <BigTree a={29.5} b={30.5} instant checks={[0]} title="今年 変わったのは3つ" cam={[TREE_FOCUS(0, 29.5, 1), TREE_FOCUS(1, 29.62, 9)]} spot={[{ t: 29.95, i: 1 }]} />
+      <Fuyo />
+      <BigTree a={75.66} b={76.6} instant checks={[0, 0]} title="今年 変わったのは3つ" cam={[TREE_FOCUS(1, 75.66, 1), TREE_FOCUS(2, 75.78, 9)]} spot={[{ t: 76.1, i: 2 }]} />
+      <Seiho /><Matome /><TabBar />
+      {[10.72, 30.5, 76.6].map((t) => <SpeedLines key={t} at={t} />)}
     </AbsoluteFill>
     <Outro />
     <SubFade />
