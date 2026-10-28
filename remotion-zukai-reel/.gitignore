@@ -16,3 +16,5 @@ public/nencho_cta/
 public/marke-ref-audio.wav
 # 証券会社の公式ページの画面（描き直しの元。リポジトリに入れない）
 assets/ref_screens/
+# たいちさんの口座の画面（口座番号が映るため、リポジトリに入れない）
+assets/user_screens/
