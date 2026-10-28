@@ -12,3 +12,5 @@ public/mile-narration.wav
 public/bouraku-narration.wav
 public/nencho-narration.wav
 public/nencho_cta/
+# 参考リールの音（再現の練習用。リポジトリに入れない）
+public/marke-ref-audio.wav
