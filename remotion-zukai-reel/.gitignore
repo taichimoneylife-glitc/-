@@ -21,3 +21,6 @@ assets/user_screens/
 public/sbi-narration.wav
 # たいちさんの口座の実際の画面（口座番号は塗りつぶし済み。リポジトリに入れない）
 public/sbi_screens/
+public/rakuten-narration.wav
+# 楽天証券の公式ページの画面（リポジトリに入れない）
+public/rakuten_screens/
