@@ -39,7 +39,7 @@ const Ghost: React.FC<{ at: number; until?: number; style?: React.CSSProperties;
   const o = interpolate(f, [Z, Z + 5], [0, 1], clamp);
   return (
     <div style={{ position: "absolute", ...style, ...g, opacity: (g.opacity as number) * (1 - o) }}>
-      <div style={{ transform: o > 0 ? `translateY(${-40 * o}px) scale(${1 - 0.08 * o})` : undefined }}>{children}</div>
+      <div style={{ display: style?.display, justifyContent: style?.justifyContent, alignItems: style?.alignItems, gap: style?.gap, width: style?.display ? "100%" : undefined, transform: o > 0 ? `translateY(${-40 * o}px) scale(${1 - 0.08 * o})` : undefined }}>{children}</div>
     </div>
   );
 };
