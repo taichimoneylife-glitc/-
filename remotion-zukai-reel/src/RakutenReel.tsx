@@ -410,7 +410,7 @@ const SUBS: [number, string][] = [
 
 // 効果音（たいちさん指定の音だけ：user/u02s・u03・u03s・u04・u05・u05s・u06・u10）
 const CUES: { file: string; at: number; volume: number }[] = [
-  { file: "user/intro", at: 0, volume: 0.7 }, // 冒頭の音源
+  { file: "user/intro", at: 0, volume: 1 }, // 冒頭の音源
   { file: "user/u04", at: F(1.84), volume: 0.3 },
   { file: "user/u05", at: F(3.16), volume: 0.26 },
   ...TABS.map(([, , t]) => ({ file: "user/u02s", at: F(t), volume: 0.22 })),
