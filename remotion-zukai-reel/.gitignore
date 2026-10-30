@@ -19,3 +19,5 @@ assets/ref_screens/
 # たいちさんの口座の画面（口座番号が映るため、リポジトリに入れない）
 assets/user_screens/
 public/sbi-narration.wav
+# たいちさんの口座の実際の画面（口座番号は塗りつぶし済み。リポジトリに入れない）
+public/sbi_screens/

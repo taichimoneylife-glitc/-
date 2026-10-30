@@ -1,10 +1,11 @@
 import React from "react";
-import { AbsoluteFill, Audio, Easing, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, Easing, Img, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { FONT, FONT_BLACK } from "./components/font";
+import { A2 } from "./components/kit2";
 import { SfxTrack } from "./components/sfx";
 import { B, GenSlot } from "./MileLifePlan";
 import { Scene, Stamp, PopIn, Pic, Captions } from "./BourakuReel";
-import { Camera, CamKey, Spot, ghostIn, SpeedLines } from "./components/cam";
+import { Camera, CamKey, camAt, Spot, ghostIn, SpeedLines } from "./components/cam";
 import { SBI_MOUTH } from "./sbiMouth";
 
 // ════════════════════════════════════════════════════════════════════
@@ -18,12 +19,15 @@ const F = (t: number) => Math.round(t * 30);
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const out = { ...clamp, easing: Easing.out(Easing.cubic) };
 const K = { fontFamily: FONT_BLACK, fontWeight: 900 as const };
-const INK = "#1B1F3B", SH = "#2C42C9", NAVY = "#1B2A7A", BLUE = "#2F5BF0", YEL = "#FFC23A", RED = "#EE4646", GREEN = "#21A35B", LAV = "#ECEDFA", SUB = "#6B7092";
+const INK = A2.ink, SH = "#E3B53C", NAVY = "#1B2A7A", BLUE = A2.green, YEL = A2.marker, RED = A2.red, GREEN = A2.green, LAV = A2.bg, SUB = A2.sub;
 const pop = (f: number, at: number) => interpolate(f - at, [0, 3, 6], [0.3, 1.2, 1], clamp);
 
 // ── 背景：方眼 ──
+// ── 背景：黄色いノート（罫線＋左の余白線） ──
 const Bg: React.FC = () => (
-  <AbsoluteFill style={{ background: LAV, backgroundImage: "linear-gradient(rgba(60,70,170,0.07) 2px, transparent 2px), linear-gradient(90deg, rgba(60,70,170,0.07) 2px, transparent 2px)", backgroundSize: "56px 56px" }} />
+  <AbsoluteFill style={{ background: LAV, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
+    <div style={{ position: "absolute", left: 70, top: 0, bottom: 0, width: 4, background: "rgba(239,125,87,0.35)" }} />
+  </AbsoluteFill>
 );
 
 const Ghost: React.FC<{ at: number; until?: number; style?: React.CSSProperties; children: React.ReactNode }> = ({ at, until = 999, style, children }) => {
@@ -43,7 +47,7 @@ const Head: React.FC<{ at: number; no: string; crumb: string; big?: boolean; chi
     </Ghost>
     <Ghost at={at + 0.05} style={{ left: 0, top: 300, width: 1080, textAlign: "center", whiteSpace: "nowrap" }}>
       <span style={{ display: "inline-block", width: 92, height: 92, borderRadius: "50%", background: BLUE, border: `5px solid ${INK}`, color: "#fff", ...K, fontSize: 56, lineHeight: "82px", verticalAlign: "middle", marginRight: 18, boxShadow: `0 6px 0 ${INK}` }}>{no}</span>
-      <span style={{ ...K, fontSize: big ? 84 : 64, color: INK, verticalAlign: "middle", textShadow: `0 7px 0 #B8C2F7` }}>{children}</span>
+      <span style={{ ...K, fontSize: big ? 84 : 64, color: INK, verticalAlign: "middle", textShadow: `0 6px 0 ${YEL}` }}>{children}</span>
     </Ghost>
   </>
 );
@@ -99,6 +103,37 @@ const SecTitle: React.FC<{ t: string }> = ({ t }) => (
   <div style={{ margin: "22px 26px 10px", paddingTop: 10, borderTop: `5px solid ${BLUE}`, ...K, fontSize: 34, color: INK }}>{t}</div>
 );
 
+// ── 実際の画面（たいちさんの口座のスクショ。口座番号は塗りつぶし済み） ──
+type Shot = { src: string; iw: number; x: number; y: number; w: number; cy0: number; cy1: number };
+const sr = (s: Shot, r: [number, number, number, number]): [number, number, number, number] => {
+  const k = s.w / s.iw;
+  return [s.x + r[0] * k, s.y + (r[1] - s.cy0) * k, (r[2] - r[0]) * k, (r[3] - r[1]) * k];
+};
+const ShotView: React.FC<{ s: Shot; at: number; until?: number }> = ({ s, at, until = 999 }) => {
+  const k = s.w / s.iw;
+  return (
+    <Ghost at={at} until={until} style={{ left: s.x - 6, top: s.y - 6 }}>
+      <div style={{ position: "relative", width: s.w, height: (s.cy1 - s.cy0) * k, overflow: "hidden", border: `6px solid ${INK}`, borderRadius: 24, boxShadow: `9px 11px 0 ${SH}`, background: "#fff" }}>
+        <Img src={staticFile(`sbi_screens/${s.src}.jpg`)} style={{ position: "absolute", left: 0, top: -s.cy0 * k, width: s.w }} />
+      </div>
+    </Ghost>
+  );
+};
+const PK_MUST: Shot = { src: "pk_must", iw: 1179, x: 160, y: 480, w: 760, cy0: 0, cy1: 900 };
+const PK_ADD: Shot = { src: "pk_add", iw: 1179, x: 160, y: 480, w: 760, cy0: 760, cy1: 1640 };
+const PW_CHG: Shot = { src: "pw_change", iw: 1179, x: 160, y: 480, w: 760, cy0: 820, cy1: 1700 };
+const PW_TOP: Shot = { src: "pw_top", iw: 1179, x: 160, y: 560, w: 760, cy0: 300, cy1: 1000 };
+const APP_T: Shot = { src: "app_table", iw: 872, x: 120, y: 500, w: 840, cy0: 0, cy1: 512 };
+const APP_D: Shot = { src: "app_done", iw: 663, x: 120, y: 480, w: 840, cy0: 0, cy1: 477 };
+const ACC: Shot = { src: "accounts", iw: 1179, x: 160, y: 500, w: 760, cy0: 1400, cy1: 2117 };
+const FAQ: Shot = { src: "faq_head", iw: 1179, x: 110, y: 230, w: 860, cy0: 0, cy1: 560 };
+
+// 世界の座標 → 画面の座標（カメラが止まった後）
+const toScr = (keys: CamKey[], t: number, p: [number, number]): [number, number] => {
+  const k = camAt(F(t) + 20, keys);
+  return [(p[0] - k.x) * k.s + 540, (p[1] - k.y) * k.s + 960];
+};
+
 // アイコン（SVG）
 const FaceIcon: React.FC<{ s: number; col?: string }> = ({ s, col = BLUE }) => (
   <svg width={s} height={s} viewBox="0 0 100 100" fill="none" stroke={col} strokeWidth={7} strokeLinecap="round">
@@ -137,7 +172,7 @@ const Hook: React.FC = () => {
           <span style={{ display: "inline-block", background: NAVY, color: "#fff", borderRadius: 999, padding: "10px 40px", ...K, fontSize: 44 }}>SBI証券を使っている人</span>
         </Ghost>
         <Ghost at={1.6} style={{ left: 0, top: 330, width: 1080, textAlign: "center", whiteSpace: "nowrap" }}>
-          <span style={{ ...K, fontSize: 80, color: INK, textShadow: "0 8px 0 #B8C2F7" }}>証券口座の<span style={{ color: RED }}>乗っ取り</span>対策</span>
+          <span style={{ ...K, fontSize: 80, color: INK, textShadow: `0 7px 0 ${YEL}` }}>証券口座の<span style={{ color: RED }}>乗っ取り</span>対策</span>
         </Ghost>
         <Ghost at={3.26} style={{ left: 0, top: 466, width: 1080, textAlign: "center" }}>
           <span style={{ display: "inline-block", background: YEL, border: `5px solid ${INK}`, borderRadius: 16, padding: "6px 34px", ...K, fontSize: 52, color: INK, boxShadow: `0 7px 0 ${INK}` }}>ちゃんとできていますか？</span>
@@ -164,7 +199,7 @@ const Hook: React.FC = () => {
 const S1: React.FC = () => {
   const f = useCurrentFrame();
   const strike = interpolate(f, [F(8.5), F(8.5) + 6], [0, 100], out);
-  const keys: CamKey[] = [{ t: 0, x: 540, y: 860, s: 1, d: 1 }, { t: 11.5, x: 540, y: 760, s: 1.14, d: 7 }, { t: 14.9, x: 540, y: 860, s: 1, d: 7 }];
+  const keys: CamKey[] = [{ t: 0, x: 540, y: 860, s: 1, d: 1 }, { t: 11.5, x: 540, y: 640, s: 1.3, d: 7 }, { t: 14.9, x: 540, y: 860, s: 1, d: 7 }];
   return (
     <Scene a={6.64} b={17.46}>
       <Bg />
@@ -186,26 +221,12 @@ const S1: React.FC = () => {
           </div>
         </Ghost>
         <Box at={10.26} until={11.28} to={[540, 860]} size={44}>パスワードの代わりに{"\n"}{c(BLUE, "顔や指紋でログイン")}する仕組み</Box>
-        {/* 画面：パスキー認証（原則必須化） */}
-        {f >= F(11.28) ? (
-          <div style={{ ...SCR, left: 140, top: 480, width: 800, height: 600, ...ghostIn(f, F(11.28)) }}>
-            <ScrHead t="パスキー認証" />
-            <div style={{ margin: "24px 26px", border: "3px solid #C9CFE6", borderRadius: 18, padding: "20px 24px" }}>
-              <div style={{ ...K, fontSize: 32, color: INK }}><span style={{ color: "#2E8C7A" }}>❗</span> 6/30よりパスキー認証の設定を原則必須化いたしました。</div>
-              <div style={{ ...B, fontSize: 24, color: SUB, marginTop: 10 }}>不正ログイン対策のため、パスキー認証の設定を強く推奨しております。</div>
-            </div>
-            <SecTitle t="パスキーの新規追加" />
-            <div style={{ margin: "0 26px", ...B, fontSize: 24, color: SUB }}>取引パスワードを入力のうえ「認証コードを送信」</div>
-            <div style={{ margin: "16px 120px 0", height: 62, border: "3px solid #B9BFD6", borderRadius: 12, ...B, fontSize: 26, color: "#9AA0BC", lineHeight: "56px", paddingLeft: 20 }}>取引パスワード</div>
-            <div style={{ margin: "14px 120px 0", height: 62, background: NAVY, borderRadius: 12, ...K, fontSize: 28, color: "#fff", textAlign: "center", lineHeight: "62px" }}>認証コードを送信 ＞</div>
-          </div>
-        ) : null}
-        <Spot at={12.3} until={14.9} rect={[160, 548, 760, 168]} r={18} />
-        {/* 使っている端末で登録 */}
-        <Ghost at={14.94} style={{ left: 0, top: 1100, width: 1080, display: "flex", justifyContent: "center", gap: 40, alignItems: "center" }}>
-          <div style={{ ...BOXS, display: "flex", alignItems: "center", gap: 18, padding: "10px 28px" }}><PhoneIcon s={90} /><span style={{ fontSize: 34 }}>スマホ</span><Check at={16.44} s={56} /></div>
-          <div style={{ ...BOXS, display: "flex", alignItems: "center", gap: 18, padding: "10px 28px" }}><PcIcon s={90} /><span style={{ fontSize: 34 }}>パソコン</span><Check at={16.6} s={56} /></div>
-        </Ghost>
+        {/* 実際の画面：原則必須化 → 新規追加 */}
+        <ShotView s={PK_MUST} at={11.28} until={14.94} />
+        <Spot at={12.3} until={14.9} rect={sr(PK_MUST, [80, 205, 1100, 335])} r={18} />
+        <ShotView s={PK_ADD} at={14.94} />
+        <Spot at={15.3} rect={sr(PK_ADD, [220, 1265, 960, 1615])} r={18} />
+        <Box at={15.8} from={[540, sr(PK_ADD, [0, 1615, 0, 0])[1]]} to={[400, 1200]} size={38}>{c(BLUE, "使っている端末")}で登録</Box>
         <Side poses={[[6.64, "taichi_point_up"], [9.08, "taichi_idea"], [11.28, "taichi_point_left"], [14.94, "taichi_ok_hand"]]} />
       </Camera>
     </Scene>
@@ -216,9 +237,8 @@ const S1: React.FC = () => {
 const S2: React.FC = () => {
   const f = useCurrentFrame();
   const flip = interpolate(f, [F(24.4), F(24.4) + 6], [0, 1], out);
-  const keys: CamKey[] = [{ t: 0, x: 540, y: 860, s: 1, d: 1 }, { t: 22.54, x: 540, y: 820, s: 1.1, d: 7 }, { t: 26.5, x: 540, y: 860, s: 1, d: 7 }];
-  const dark = interpolate(f, [F(26.62), F(26.62) + 4], [0, 1], clamp);
-  return (
+  const keys: CamKey[] = [{ t: 0, x: 540, y: 860, s: 1, d: 1 }, { t: 22.54, x: 540, y: 820, s: 1.1, d: 7 }, { t: 26.5, x: 540, y: 820, s: 1.08, d: 7 }];
+    return (
     <Scene a={17.46} b={30.26}>
       <Bg />
       <Camera keys={keys}>
@@ -233,77 +253,40 @@ const S2: React.FC = () => {
             </div>
           </div>
         </Ghost>
-        {/* 画面：ログインパスワード無効設定 */}
-        {f >= F(22.54) ? (
-          <div style={{ ...SCR, left: 140, top: 480, width: 800, height: 640, ...ghostIn(f, F(22.54)) }}>
-            <ScrHead t="ログインパスワード無効設定" />
-            <SecTitle t="現在の設定内容" />
-            <div style={{ margin: "0 26px", ...B, fontSize: 24, color: SUB }}>現在の設定内容</div>
-            <div style={{ margin: "4px 26px 0", ...B, fontSize: 32, color: INK }}>設定しない（ログインパスワード利用可）</div>
-            <div style={{ textAlign: "center", ...K, fontSize: 48, color: BLUE, margin: "8px 0" }}>↓</div>
-            <div style={{ margin: "0 26px", ...B, fontSize: 24, color: SUB }}>変更後の設定内容</div>
-            <div style={{ margin: "4px 26px 0", ...B, fontSize: 32, color: flip > 0.5 ? RED : INK }}>設定する（ログインパスワード利用不可）</div>
-            <div style={{ margin: "34px 150px 0", height: 76, background: NAVY, borderRadius: 14, ...K, fontSize: 34, color: "#fff", textAlign: "center", lineHeight: "76px", transform: `scale(${f >= F(24.04) ? interpolate(f - F(24.04), [0, 3, 6], [1, 0.92, 1], clamp) : 1})` }}>変更(パスキー認証)</div>
-          </div>
-        ) : null}
-        <Spot at={22.9} until={24.04} rect={[160, 670, 760, 250]} r={16} />
-        <Spot at={24.04} until={26.5} rect={[284, 1000, 512, 92]} r={16} />
-        <Box at={24.66} until={26.5} from={[540, 1092]} to={[540, 1200]} size={40}>{c(BLUE, "パスキー中心")}のログインに切り替え</Box>
+        {/* 実際の画面：ログインパスワード無効設定 */}
+        <ShotView s={PW_CHG} at={22.54} until={26.62} />
+        <Spot at={22.9} until={24.04} rect={sr(PW_CHG, [40, 835, 1140, 1390])} r={16} />
+        <Spot at={24.04} until={26.5} rect={sr(PW_CHG, [220, 1515, 960, 1680])} r={16} />
+        {/* 注意：画面のピンクの線の所 */}
+        <ShotView s={PW_TOP} at={26.62} />
+        <Spot at={26.9} rect={sr(PW_TOP, [40, 740, 1110, 930])} r={14} color={RED} />
+        <Ghost at={26.62} style={{ left: 0, top: 470, width: 1080, textAlign: "center" }}><span style={{ display: "inline-block", background: RED, color: "#fff", borderRadius: 999, padding: "6px 34px", ...K, fontSize: 44 }}>ただし注意</span></Ghost>
+        <div style={{ position: "absolute", inset: 0 }}><Stamp at={29.94} x={230} y={1010} text="パスキーは消さない" color={RED} size={60} rot={-4} /></div>
         <Side poses={[[17.46, "taichi_explain_both"], [20.44, "taichi_notice"], [22.54, "taichi_point_left"], [24.66, "taichi_thumbs_up"]]} />
       </Camera>
-      {/* 注意：パスキーを消すとログインできない */}
-      {dark > 0 ? (
-        <AbsoluteFill style={{ background: `rgba(30,31,46,${0.82 * dark})` }}>
-          <Ghost at={26.7} style={{ left: 0, top: 470, width: 1080, textAlign: "center" }}><span style={{ ...K, fontSize: 60, color: "#fff" }}>ただし注意</span></Ghost>
-          <Ghost at={27.0} style={{ left: 290, top: 580 }}>
-            <div style={{ position: "relative", width: 500, height: 300, display: "flex", justifyContent: "center", alignItems: "center", gap: 30 }}>
-              <div style={{ ...BOXS, padding: 16 }}><FaceIcon s={120} /><div style={{ fontSize: 26 }}>保存したパスキー</div></div>
-              {f >= F(28.0) ? <span style={{ ...K, fontSize: 120, color: RED, transform: `scale(${pop(f, F(28.0))})` }}>✕</span> : null}
-            </div>
-          </Ghost>
-          <Ghost at={28.34} style={{ left: 0, top: 920, width: 1080, textAlign: "center" }}><span style={{ ...K, fontSize: 56, color: "#fff" }}>消すと<span style={{ color: YEL }}>ログインできなくなる</span>ことも</span></Ghost>
-          <div style={{ position: "absolute", inset: 0 }}><Stamp at={29.94} x={250} y={1060} text="パスキーは消さない" color={RED} size={60} rot={-4} /></div>
-        </AbsoluteFill>
-      ) : null}
+        <Box at={24.66} until={26.5} from={toScr(keys, 24.66, [540, sr(PW_CHG, [0, 1680, 0, 0])[1]])} to={[400, 1200]} size={38}>{c(BLUE, "パスキー中心")}のログインに</Box>
     </Scene>
   );
 };
 
 // ════════ ③ 使わないアプリを確認（30.26–40.02） ════════
-const APPS = ["SBI証券Plus", "国内株アプリ", "投信つみたてアプリ", "米国株アプリ", "FXアプリ", "先物・オプションアプリ", "店頭CFDアプリ", "HYPER SBI 2"];
+const _APPS = ["SBI証券Plus", "国内株アプリ", "投信つみたてアプリ", "米国株アプリ", "FXアプリ", "先物・オプションアプリ", "店頭CFDアプリ", "HYPER SBI 2"];
 const S3: React.FC = () => {
   const f = useCurrentFrame();
-  const RY = 600, RH = 58;
-  const keys: CamKey[] = [{ t: 0, x: 540, y: 860, s: 1, d: 1 }, { t: 31.82, x: 540, y: 880, s: 1.1, d: 7 }, { t: 35.2, x: 540, y: 860, s: 1, d: 7 }];
-  const off = (i: number) => (i === 3 ? F(37.3) : i === 4 ? F(37.5) : i === 5 ? F(37.7) : i === 6 ? F(37.9) : 99999);
+  const keys: CamKey[] = [{ t: 0, x: 540, y: 860, s: 1, d: 1 }, { t: 31.82, x: 540, y: 760, s: 1.25, d: 7 }, { t: 35.2, x: 540, y: 860, s: 1, d: 7 }];
   return (
     <Scene a={30.26} b={40.02}>
       <Bg />
       <Camera keys={keys}>
         <Head at={30.26} no="3" crumb="アプリ・ツールのログイン制限設定">使わないアプリを確認</Head>
-        {f >= F(30.6) ? (
-          <div style={{ ...SCR, left: 120, top: 480, width: 840, height: 600, ...ghostIn(f, F(30.6)) }}>
-            <ScrHead t="アプリ・ツールのログイン制限設定" />
-            <div style={{ display: "flex", background: "#F3F1DE", ...B, fontSize: 24, color: INK, height: 50, lineHeight: "50px", borderBottom: "2px solid #DDD" }}>
-              <div style={{ width: 460, textAlign: "center" }}>アプリ・ツール</div><div style={{ flex: 1, textAlign: "center" }}>ログイン</div>
-            </div>
-            {APPS.map((a, i) => {
-              const ng = f >= off(i);
-              return (
-                <div key={a} style={{ position: "absolute", left: 0, top: RY - 480 + i * RH - 4, width: 828, height: RH, display: "flex", alignItems: "center", borderBottom: "2px solid #EEE", ...B, fontSize: 28, color: INK }}>
-                  <div style={{ width: 460, textAlign: "center" }}>{a}</div>
-                  <div style={{ flex: 1, textAlign: "center", color: ng ? RED : INK, ...(ng ? K : {}), transform: ng ? `scale(${pop(f, off(i))})` : undefined }}>{ng ? "ログイン不可" : "ログイン可"}</div>
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
-        <Spot at={32.0} until={35.2} rect={[132, RY + 3 * RH + 2, 816, RH * 2 - 6]} r={12} />
-        <Box at={32.6} until={35.2} from={[540, RY + 5 * RH]} to={[400, 1160]} size={38}>{c(BLUE, "米国株やFX")}など{"\n"}使っていないアプリはない？</Box>
-        <Spot at={37.3} until={40.0} rect={[590, RY + 3 * RH + 2, 358, RH * 4 - 6]} r={12} color={RED} />
-        <Box at={38.0} from={[770, RY + 7 * RH]} to={[400, 1160]} size={38}>「{c(RED, "ログイン不可")}」になっているか{"\n"}確認しておく</Box>
+        <ShotView s={APP_T} at={30.6} until={37.3} />
+        <Spot at={32.0} until={35.2} rect={sr(APP_T, [0, 205, 872, 292])} r={12} />
+        <ShotView s={APP_D} at={37.3} />
+        <Spot at={37.6} rect={sr(APP_D, [462, 108, 660, 448])} r={12} color={RED} />
         <Side poses={[[30.26, "taichi_think_chin"], [32.6, "taichi_hmm_doubt"], [37.3, "taichi_ok_circle"]]} />
       </Camera>
+        <Box at={32.6} until={35.2} from={toScr(keys, 32.6, [540, sr(APP_T, [0, 292, 0, 0])[1]])} to={[400, 1200]} size={38}>{c(BLUE, "米国株やFX")}など{"\n"}使っていないアプリはない？</Box>
+        <Box at={38.0} from={toScr(keys, 38.0, [sr(APP_D, [560, 0, 0, 0])[0], sr(APP_D, [0, 448, 0, 0])[1]])} to={[400, 1200]} size={38}>「{c(RED, "ログイン不可")}」になっているか{"\n"}確認しておく</Box>
       <Ghost at={34.0} until={37.2} style={{ left: 0, top: 1170, width: 1080, textAlign: "center" }}><span style={{ ...B, fontSize: 24, color: SUB }}>※パスキーを設定していれば、制限してもパスキーではログインできます</span></Ghost>
     </Scene>
   );
@@ -318,9 +301,12 @@ const S4: React.FC = () => {
     <Scene a={40.02} b={56.08}>
       <Bg />
       <Head at={40.02} no="4" crumb="取引制限受付フォーム">使わない取引を止める</Head>
+      <ShotView s={ACC} at={40.6} until={44.92} />
+      <Spot at={42.02} until={44.9} rect={sr(ACC, [0, 1770, 1179, 2060])} r={12} />
+      <Box at={42.4} until={44.9} from={[540, sr(ACC, [0, 2060, 0, 0])[1]]} to={[400, 1200]} size={38}>使っていなくても{"\n"}{c(RED, "開設済")}になっていることも</Box>
       {/* 自分の取引に合わせて止める（自作の図） */}
       {TRADES.map(([t, stop], i) => {
-        const at = F(42.0) + i * 4;
+        const at = F(44.92) + i * 3;
         if (f < at) return null;
         const on = stop && f >= F(46.5) + (i - 1) * 4;
         return (
@@ -361,19 +347,14 @@ const Close: React.FC = () => {
   return (
     <Scene a={56.08} b={62.4} inT="zoom" outT="zoom">
       <Bg />
-      <Ghost at={56.1} style={{ left: 110, top: 240, width: 860 }}>
-        <div style={{ ...SCR, position: "relative", width: 860 }}>
-          <div style={{ background: `linear-gradient(90deg, #3E66C8, ${NAVY})`, color: "#fff", padding: "22px 30px", ...K, fontSize: 38, lineHeight: 1.3 }}>不正なアクセスを防止するための対策を教えてください</div>
-          <div style={{ padding: "14px 30px", ...B, fontSize: 24, color: SUB }}>SBI証券 よくあるご質問（画面イメージ）</div>
-        </div>
-      </Ghost>
-      <Ghost at={57.06} style={{ left: 0, top: 500, width: 1080, textAlign: "center" }}><span style={{ ...K, fontSize: 50, color: INK }}>どれも{c(BLUE, "SBI証券の公式ページ")}で紹介</span></Ghost>
+      <ShotView s={FAQ} at={56.1} />
+      <Ghost at={57.06} style={{ left: 0, top: 680, width: 1080, textAlign: "center" }}><span style={{ ...K, fontSize: 50, color: INK }}>どれも{c(BLUE, "SBI証券の公式ページ")}で紹介</span></Ghost>
       {["パスキー", "パスワード", "アプリ", "取引"].map((t, i) => (
-        <Ghost key={t} at={57.3 + i * 0.12} style={{ left: 40 + i * 255, top: 600, width: 240, textAlign: "center", whiteSpace: "nowrap" }}>
+        <Ghost key={t} at={57.3 + i * 0.12} style={{ left: 40 + i * 255, top: 775, width: 240, textAlign: "center", whiteSpace: "nowrap" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#fff", border: `4px solid ${INK}`, borderRadius: 999, padding: "6px 18px", ...B, fontSize: 28 }}><Check at={60.94 + i * 0.12} s={34} />{t}</span>
         </Ghost>
       ))}
-      <Mouth x={290} y={700} size={500} />
+      <Mouth x={340} y={850} size={400} />
       <Ghost at={59.78} style={{ left: 0, top: 1180, width: 1080, textAlign: "center" }}>
         <span style={{ display: "inline-block", background: YEL, border: `5px solid ${INK}`, borderRadius: 16, padding: "8px 36px", ...K, fontSize: 48, color: INK, boxShadow: `0 7px 0 ${INK}` }}>保存して、今日のうちに確認！</span>
       </Ghost>
