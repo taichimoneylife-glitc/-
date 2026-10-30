@@ -5,7 +5,7 @@ import { A2 } from "./components/kit2";
 import { SfxTrack } from "./components/sfx";
 import { B, GenSlot } from "./MileLifePlan";
 import { Scene, Stamp, PopIn, Pic, Captions } from "./BourakuReel";
-import { Camera, CamKey, camAt, Spot, ghostIn, SpeedLines } from "./components/cam";
+import { Camera, CamKey, camAt, Spot, ghostIn as ghostBase, SpeedLines } from "./components/cam";
 import { SBI_MOUTH } from "./sbiMouth";
 
 // ════════════════════════════════════════════════════════════════════
@@ -30,14 +30,38 @@ const Bg: React.FC = () => (
   </AbsoluteFill>
 );
 
-const Ghost: React.FC<{ at: number; until?: number; style?: React.CSSProperties; children: React.ReactNode }> = ({ at, until = 999, style, children }) => {
+const Ghost: React.FC<{ at: number; until?: number; style?: React.CSSProperties; enter?: "ghost" | "slide"; children: React.ReactNode }> = ({ at, until = 999, style, enter = "ghost", children }) => {
   const f = useCurrentFrame();
   const A = F(at), Z = F(until);
-  if (f < A || f >= Z + 3) return null;
-  const g = ghostIn(f, A);
-  return <div style={{ position: "absolute", ...style, ...g, opacity: (g.opacity as number) * (1 - interpolate(f, [Z, Z + 3], [0, 1], clamp)) }}>{children}</div>;
+  if (f < A || f >= Z + 5) return null;
+  const g = enter === "slide" ? slideIn(f, A) : ghostIn(f, A);
+  // 消え方：少し縮んで上へ抜ける
+  const o = interpolate(f, [Z, Z + 5], [0, 1], clamp);
+  return (
+    <div style={{ position: "absolute", ...style, ...g, opacity: (g.opacity as number) * (1 - o) }}>
+      <div style={{ transform: o > 0 ? `translateY(${-40 * o}px) scale(${1 - 0.08 * o})` : undefined }}>{children}</div>
+    </div>
+  );
 };
 const c = (col: string, t: React.ReactNode) => <span style={{ color: col }}>{t}</span>;
+// 出方：うっすら大きめ → くっきり＋下からポンと跳ねて止まる（少し傾きが戻る）
+const ghostIn = (f: number, A: number) => {
+  const g = ghostBase(f, A);
+  const d = f - A;
+  const y = interpolate(d, [0, 4, 8, 12], [36, -8, 2, 0], clamp);
+  const r = interpolate(d, [0, 5, 10], [-3, 1, 0], clamp);
+  const sc = interpolate(d, [0, 2, 5, 9], [1.16, 1.06, 0.96, 1], clamp);
+  return { opacity: g.opacity, transform: `translateY(${y}px) rotate(${r}deg) scale(${sc})` };
+};
+// 実際の画面の出方：下からシュッと上がってきて、少し傾いて止まる
+const slideIn = (f: number, A: number) => {
+  const d = f - A;
+  return {
+    opacity: interpolate(d, [0, 3], [0, 1], clamp),
+    transform: `translateY(${interpolate(d, [0, 6, 10, 14], [260, -14, 4, 0], clamp)}px) rotate(${interpolate(d, [0, 7, 14], [6, -1, 0], clamp)}deg)`,
+    filter: d < 5 ? `blur(${interpolate(d, [0, 5], [8, 0], clamp)}px)` : undefined,
+  };
+};
 
 // 道順の札＋見出し（番号つき）
 const Head: React.FC<{ at: number; no: string; crumb: string; big?: boolean; children: React.ReactNode }> = ({ at, no, crumb, big, children }) => (
@@ -46,7 +70,7 @@ const Head: React.FC<{ at: number; no: string; crumb: string; big?: boolean; chi
       <span style={{ display: "inline-block", background: INK, color: "#fff", borderRadius: 999, padding: "8px 30px", ...B, fontSize: 30, boxShadow: `0 6px 0 ${SH}` }}>{crumb}</span>
     </Ghost>
     <Ghost at={at + 0.05} style={{ left: 0, top: 300, width: 1080, textAlign: "center", whiteSpace: "nowrap" }}>
-      <span style={{ display: "inline-block", width: 92, height: 92, borderRadius: "50%", background: BLUE, border: `5px solid ${INK}`, color: "#fff", ...K, fontSize: 56, lineHeight: "82px", verticalAlign: "middle", marginRight: 18, boxShadow: `0 6px 0 ${INK}` }}>{no}</span>
+      <span style={{ display: "inline-block", width: 92, height: 92, borderRadius: "50%", background: BLUE, transform: `rotate(${interpolate(useCurrentFrame() - F(at), [0, 8], [-180, 0], { ...clamp, easing: Easing.out(Easing.back(2)) })}deg)`, border: `5px solid ${INK}`, color: "#fff", ...K, fontSize: 56, lineHeight: "82px", verticalAlign: "middle", marginRight: 18, boxShadow: `0 6px 0 ${INK}` }}>{no}</span>
       <span style={{ ...K, fontSize: big ? 84 : 64, color: INK, verticalAlign: "middle", textShadow: `0 6px 0 ${YEL}` }}>{children}</span>
     </Ghost>
   </>
@@ -112,7 +136,7 @@ const sr = (s: Shot, r: [number, number, number, number]): [number, number, numb
 const ShotView: React.FC<{ s: Shot; at: number; until?: number }> = ({ s, at, until = 999 }) => {
   const k = s.w / s.iw;
   return (
-    <Ghost at={at} until={until} style={{ left: s.x - 6, top: s.y - 6 }}>
+    <Ghost at={at} until={until} style={{ left: s.x - 6, top: s.y - 6 }} enter="slide">
       <div style={{ position: "relative", width: s.w, height: (s.cy1 - s.cy0) * k, overflow: "hidden", border: `6px solid ${INK}`, borderRadius: 24, boxShadow: `9px 11px 0 ${SH}`, background: "#fff" }}>
         <Img src={staticFile(`sbi_screens/${s.src}.jpg`)} style={{ position: "absolute", left: 0, top: -s.cy0 * k, width: s.w }} />
       </div>
@@ -239,7 +263,7 @@ const S2: React.FC = () => {
   const flip = interpolate(f, [F(24.4), F(24.4) + 6], [0, 1], out);
   const keys: CamKey[] = [{ t: 0, x: 540, y: 860, s: 1, d: 1 }, { t: 22.54, x: 540, y: 820, s: 1.1, d: 7 }, { t: 26.5, x: 540, y: 820, s: 1.08, d: 7 }];
     return (
-    <Scene a={17.46} b={30.26}>
+    <Scene a={17.46} b={30.26} inT="drop">
       <Bg />
       <Camera keys={keys}>
         <Head at={17.46} no="2" crumb="ログインパスワード無効設定">パスワードログインを止める</Head>
@@ -298,7 +322,7 @@ const S4: React.FC = () => {
   const f = useCurrentFrame();
   const dark = interpolate(f, [F(48.12), F(48.12) + 4], [0, 1], clamp) * (1 - interpolate(f, [F(53.2), F(53.2) + 5], [0, 1], clamp));
   return (
-    <Scene a={40.02} b={56.08}>
+    <Scene a={40.02} b={56.08} inT="punch">
       <Bg />
       <Head at={40.02} no="4" crumb="取引制限受付フォーム">使わない取引を止める</Head>
       <ShotView s={ACC} at={40.6} until={44.92} />
@@ -392,7 +416,36 @@ const CUES: { file: string; at: number; volume: number }[] = [
   { file: "user/u05", at: F(53.3), volume: 0.28 },
   { file: "user/u02s", at: F(57.3), volume: 0.2 }, ...[0, 1, 2, 3].map((i) => ({ file: "user/u05s", at: F(60.94 + i * 0.12), volume: 0.18 })),
   { file: "user/u10", at: F(59.78), volume: 0.3 },
+  // 追加：画面・箱・スポット・カメラ・文字の出現
+  { file: "user/u02s", at: F(0.05), volume: 0.14 },
+  { file: "user/u02s", at: F(4.46), volume: 0.14 },
+  { file: "pop", at: F(10.26), volume: 0.2 },
+  { file: "whoosh2", at: F(14.9), volume: 0.2 },
+  { file: "user/u05s", at: F(15.3), volume: 0.2 },
+  { file: "pop", at: F(15.8), volume: 0.2 },
+  { file: "user/u05s", at: F(22.9), volume: 0.2 },
+  { file: "whoosh2", at: F(26.5), volume: 0.2 },
+  { file: "user/u05s", at: F(26.9), volume: 0.2 },
+  { file: "pop", at: F(32.6), volume: 0.2 },
+  { file: "user/u02s", at: F(34.0), volume: 0.14 },
+  { file: "whoosh2", at: F(35.2), volume: 0.2 },
+  { file: "swipe", at: F(37.3), volume: 0.22 },
+  { file: "user/u05s", at: F(37.6), volume: 0.2 },
+  { file: "swipe", at: F(40.6), volume: 0.22 },
+  { file: "pop", at: F(42.4), volume: 0.2 },
+  { file: "user/u02s", at: F(44.92), volume: 0.14 },
+  { file: "user/u02s", at: F(48.6), volume: 0.14 },
+  { file: "user/u02s", at: F(51.6), volume: 0.14 },
+  { file: "swipe", at: F(56.1), volume: 0.22 },
+  { file: "user/u02s", at: F(57.06), volume: 0.14 },
 ];
+
+// 場面が変わる瞬間の白い光
+const Flash: React.FC<{ at: number }> = ({ at }) => {
+  const f = useCurrentFrame();
+  const o = interpolate(f - F(at), [0, 1, 6], [0, 0.55, 0], clamp);
+  return o > 0 ? <AbsoluteFill style={{ background: "#fff", opacity: o, pointerEvents: "none" }} /> : null;
+};
 
 export const SBI_FRAMES = F(62.4);
 export const SbiReel: React.FC = () => (
@@ -400,6 +453,8 @@ export const SbiReel: React.FC = () => (
     <Audio src={staticFile("sbi-narration.wav")} />
     <SfxTrack cues={CUES} />
     <Hook /><S1 /><S2 /><S3 /><S4 /><Close />
+    {[6.64, 17.46, 30.26, 40.02, 56.08].map((t) => <SpeedLines key={t} at={t} dur={10} />)}
+    {[6.64, 17.46, 30.26, 40.02].map((t) => <Flash key={t} at={t} />)}
     <div style={{ position: "absolute", left: 0, right: 0, top: 1310, bottom: 0, background: `linear-gradient(${LAV}00, ${LAV} 70px)` }} />
     <Captions subs={SUBS} end={61.9} maxW={900} size={0.9} />
   </AbsoluteFill>
