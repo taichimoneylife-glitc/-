@@ -193,12 +193,15 @@ const Hook: React.FC = () => {
       <Bg />
       <Camera keys={keys}>
         <Ghost at={0.05} style={{ left: 0, top: 236, width: 1080, textAlign: "center" }}>
-          <span style={{ display: "inline-block", background: NAVY, color: "#fff", borderRadius: 999, padding: "10px 40px", ...K, fontSize: 44 }}>SBI証券を使っている人</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 18, background: "#fff", border: `5px solid ${INK}`, borderRadius: 22, padding: "14px 34px", boxShadow: `0 8px 0 ${SH}` }}>
+            <Img src={staticFile("logos/sbi.png")} style={{ width: 360 }} />
+            <span style={{ ...K, fontSize: 44, color: INK }}>を使っている人</span>
+          </span>
         </Ghost>
-        <Ghost at={1.6} style={{ left: 0, top: 330, width: 1080, textAlign: "center", whiteSpace: "nowrap" }}>
+        <Ghost at={1.6} style={{ left: 0, top: 360, width: 1080, textAlign: "center", whiteSpace: "nowrap" }}>
           <span style={{ ...K, fontSize: 80, color: INK, textShadow: `0 7px 0 ${YEL}` }}>証券口座の<span style={{ color: RED }}>乗っ取り</span>対策</span>
         </Ghost>
-        <Ghost at={3.26} style={{ left: 0, top: 466, width: 1080, textAlign: "center" }}>
+        <Ghost at={3.26} style={{ left: 0, top: 486, width: 1080, textAlign: "center" }}>
           <span style={{ display: "inline-block", background: YEL, border: `5px solid ${INK}`, borderRadius: 16, padding: "6px 34px", ...K, fontSize: 52, color: INK, boxShadow: `0 7px 0 ${INK}` }}>ちゃんとできていますか？</span>
         </Ghost>
         {/* 口だけ動く太一 → 4つの設定が出たら下へ */}

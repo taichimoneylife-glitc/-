@@ -24,3 +24,5 @@ public/sbi_screens/
 public/rakuten-narration.wav
 # 楽天証券の公式ページの画面（リポジトリに入れない）
 public/rakuten_screens/
+# 証券会社のロゴ（リポジトリに入れない）
+public/logos/
