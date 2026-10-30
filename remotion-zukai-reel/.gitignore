@@ -26,3 +26,5 @@ public/rakuten-narration.wav
 public/rakuten_screens/
 # 証券会社のロゴ（リポジトリに入れない）
 public/logos/
+# 冒頭の音源（たいちさんの画面収録から。リポジトリに入れない）
+public/sfx/user/intro.mp3

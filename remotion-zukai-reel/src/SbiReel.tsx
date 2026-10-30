@@ -400,6 +400,7 @@ const SUBS: [number, string][] = [
 ];
 
 const CUES: { file: string; at: number; volume: number }[] = [
+  { file: "user/intro", at: 0, volume: 0.7 }, // 冒頭の音源
   { file: "user/u04", at: F(1.6), volume: 0.34 },
   { file: "user/u05", at: F(3.26), volume: 0.26 },
   ...TABS.map(([, , t]) => ({ file: "user/u02s", at: F(t), volume: 0.22 })),
