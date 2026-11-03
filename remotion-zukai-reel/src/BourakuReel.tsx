@@ -735,7 +735,7 @@ const parseCap = (s: string): Seg[] => {
   return out;
 };
 const KCOL = { g: A2.green, r: A2.coral, b: BOND, "": A2.ink } as const;
-export const Captions: React.FC<{ subs: [number, string][]; end: number; maxW?: number; size?: number; kcol?: Partial<Record<"g" | "r" | "b" | "", string>>; top?: number; swap?: boolean }> = ({ subs, end, maxW = 1000, size = 1, kcol, top = 1350, swap }) => {
+export const Captions: React.FC<{ subs: [number, string][]; end: number; maxW?: number; size?: number; kcol?: Partial<Record<"g" | "r" | "b" | "", string>>; top?: number; swap?: boolean; shadow?: string; font?: React.CSSProperties; mark?: string }> = ({ subs, end, maxW = 1000, size = 1, kcol, top = 1350, swap, shadow, font, mark }) => {
   const COL = { ...KCOL, ...(kcol ?? {}) };
   const f = useCurrentFrame();
   const t = f / 30;
@@ -761,11 +761,11 @@ export const Captions: React.FC<{ subs: [number, string][]; end: number; maxW?: 
           const mw = full ? 100 : interpolate(t, [mStart, mEnd], [0, 100], clamp);
           return (
             <span key={gi} style={{ position: "relative", display: "inline-block", whiteSpace: "nowrap" }}>
-              {kw && mw > 0 ? <span style={{ position: "absolute", left: -4, width: `calc(${mw}% + 8px)`, bottom: 4, height: "34%", background: g.k === "r" ? "rgba(239,125,87,0.25)" : g.k === "b" ? "rgba(74,143,214,0.22)" : "rgba(252,224,122,0.9)", borderRadius: 6 }} /> : null}
+              {kw && mw > 0 ? <span style={{ position: "absolute", left: -4, width: `calc(${mw}% + 8px)`, bottom: 4, height: "34%", background: mark ?? (g.k === "r" ? "rgba(239,125,87,0.25)" : g.k === "b" ? "rgba(74,143,214,0.22)" : "rgba(252,224,122,0.9)"), borderRadius: 6 }} /> : null}
               {Array.from(g.t).map((ch, k) => {
                 const at = s0 + (e - s0) * 0.8 * (idx++ / total) - 0.06;
                 const p = full ? 1 : interpolate(t, [at, at + 0.14], [0, 1], clamp);
-                return <span key={k} style={{ position: "relative", display: "inline-block", ...B, fontSize: (kw ? 74 : 58) * size, color: COL[g.k], opacity: (swap ? 0 : 0.15) + (swap ? 1 : 0.85) * p, filter: p < 1 ? `blur(${(1 - p) * 8}px)` : undefined, transform: `translateY(${(1 - p) * 10}px) scale(${kw ? 1 + (1 - p) * 0.3 : 1})`, textShadow: "0 0 10px #FBF6D8, 0 0 4px #FBF6D8" }}>{ch}</span>;
+                return <span key={k} style={{ position: "relative", display: "inline-block", ...B, fontSize: (kw ? 74 : 58) * size, color: COL[g.k], opacity: (swap ? 0 : 0.15) + (swap ? 1 : 0.85) * p, filter: p < 1 ? `blur(${(1 - p) * 8}px)` : undefined, transform: `translateY(${(1 - p) * 10}px) scale(${kw ? 1 + (1 - p) * 0.3 : 1})`, textShadow: shadow ?? "0 0 10px #FBF6D8, 0 0 4px #FBF6D8", ...(font ?? {}) }}>{ch}</span>;
               })}
             </span>
           );
