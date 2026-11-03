@@ -73,6 +73,46 @@ const Foot: React.FC<{ at: number; children: React.ReactNode; y?: number }> = ({
   <At at={at} x={60} y={y} mode="rise"><div style={{ maxWidth: 940, display: "inline-block", background: "#FFF8E3", border: "2px solid #E8D9A8", borderRadius: 14, padding: "6px 16px", ...B, fontSize: 23, lineHeight: 1.45, color: SUB }}>{children}</div></At>
 );
 
+// ── 集中線（ここぞの所で、画面の外側から中心へ細い線がシャッと走る） ──
+const Burst: React.FC<{ at: number; dur?: number; r0?: number; cx?: number; cy?: number }> = ({ at, dur = 22, r0 = 330, cx = 540, cy = 860 }) => {
+  const f = useCurrentFrame();
+  const d = f - F(at);
+  if (d < 0 || d > dur) return null;
+  const o = interpolate(d, [0, 3, dur - 6, dur], [0, 1, 1, 0], clamp);
+  const grow = interpolate(d, [0, 6], [0.6, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
+  return (
+    <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0, opacity: o, pointerEvents: "none" }}>
+      {Array.from({ length: 56 }).map((_, i) => {
+        const a = (i / 56) * Math.PI * 2 + ((i * 37) % 7) * 0.01;
+        const jit = ((i * 53 + d * 17) % 11) / 11;
+        const r1 = (r0 + jit * 90) / grow, r2 = 1500;
+        const w = 0.006 + ((i * 29) % 5) * 0.003;
+        const p = (r: number, aa: number) => `${cx + Math.cos(aa) * r},${cy + Math.sin(aa) * r}`;
+        return <polygon key={i} points={`${p(r1, a)} ${p(r2, a - w)} ${p(r2, a + w)}`} fill={INK} opacity={0.16 + (i % 3) * 0.06} />;
+      })}
+    </svg>
+  );
+};
+const Confetti: React.FC<{ at: number }> = ({ at }) => {
+  const f = useCurrentFrame();
+  const d = f - F(at);
+  if (d < 0) return null;
+  const cols = [RED, STOCK, BOND, CASH, "#F28DB2"];
+  return (
+    <>
+      {Array.from({ length: 34 }).map((_, i) => {
+        const x0 = 540 + (((i * 97) % 200) - 100) * 1.2, vx = (((i * 61) % 21) - 10) * 2.6, vy = -26 - ((i * 37) % 14);
+        const x = x0 + vx * d, y = 1000 + vy * d + 0.9 * d * d;
+        if (y > 1500) return null;
+        return <div key={i} style={{ position: "absolute", left: x, top: y, width: 16, height: 26, borderRadius: 4, background: cols[i % 5], transform: `rotate(${d * (8 + (i % 5) * 4) + i * 40}deg) scaleX(${Math.cos(d * 0.3 + i)})` }} />;
+      })}
+    </>
+  );
+};
+const Pill: React.FC<{ c: string; children: React.ReactNode; size?: number; ink?: boolean }> = ({ c, children, size = 30, ink = true }) => (
+  <span style={{ display: "inline-block", background: c, color: "#fff", border: ink ? `4px solid ${INK}` : undefined, borderRadius: 999, padding: "4px 22px", ...K, fontSize: size, whiteSpace: "nowrap", boxShadow: `4px 5px 0 ${INK}` }}>{children}</span>
+);
+
 // ── 10マスのブロック（1マス＝10%） ──
 type Mix = [number, number, number]; // 株・債券・現金その他
 const mixAt = (t: number): Mix => (t >= 10.42 ? [5, 3, 2] : t >= 5.9 ? [8, 1, 1] : t >= 5.14 ? [7, 2, 1] : [6, 2, 2]);
@@ -185,36 +225,61 @@ const P3: React.FC = () => (
   </>
 );
 
-// ── P4 16年後・30年後（36.38–45.26）柱の高さ＝金額の比（500：1,091：2,161）。金額は柱の上、絵はその上 ──
-const BASE = 1062, H0 = 110, H1 = 240, H2 = 475;
+// ── P4 16年後・30年後（36.38–45.26）横軸＝上の子の年齢（2歳→18歳→32歳）。柱の高さ＝金額の比、黄色い点が時間を進む ──
+const BASE = 1040, H0 = 100, H1 = 220, H2 = 440;
+const AX0 = 200, AX1 = 880; // 今（0年）〜30年後
+const ax = (yr: number) => AX0 + (yr / 30) * (AX1 - AX0);
 const P4: React.FC = () => {
   const f = useCurrentFrame();
   const g1 = interpolate(f, [F(38.1), F(38.1) + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.4)) });
   const g2 = interpolate(f, [F(39.74), F(39.74) + 26], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.2)) });
-  const col = (x: number, h: number, c: string) => <div style={{ position: "absolute", left: x, top: BASE - h, width: 200, height: h, borderRadius: "16px 16px 0 0", background: c, boxShadow: "inset 0 -8px 0 rgba(0,0,0,0.1)" }} />;
+  const axP = interpolate(f, [F(36.2), F(36.2) + 16], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
+  // 時間を進む黄色い点：今 → 16年後（38.1） → 30年後（39.74）
+  const yr = f < F(38.1) ? 0 : f < F(39.74) ? 16 * interpolate(f, [F(38.1) - 8, F(38.1) + 4], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) }) : 16 + 14 * interpolate(f, [F(39.74) - 8, F(39.74) + 4], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const col = (yr: number, h: number, c: string) => <div style={{ position: "absolute", left: ax(yr) - 80, top: BASE - h, width: 160, height: h, borderRadius: "16px 16px 0 0", background: c, boxShadow: "inset 0 -8px 0 rgba(0,0,0,0.1)" }} />;
   const money = (cx: number, top: number, v: number, at: number, mode: "slam" | "drop" | "rise") => (
-    <At at={at} x={cx - 200} y={top} mode={mode}><div style={{ width: 400, textAlign: "center", whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 30 }}>約</span><span style={{ ...SER, fontSize: 64, color: BOND }}><Count at={at} from={500} to={v} dur={mode === "slam" ? 22 : 16} /></span><span style={{ ...B, fontSize: 30 }}>万円</span></div></At>
+    <At at={at} x={cx - 200} y={top} mode={mode}><div style={{ width: 400, textAlign: "center", whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 30 }}>約</span><span style={{ ...SER, fontSize: 60, color: BOND }}><Count at={at} from={500} to={v} dur={mode === "slam" ? 22 : 16} /></span><span style={{ ...B, fontSize: 30 }}>万円</span></div></At>
   );
+  const ages = [2, 6, 10, 14, 18, 22, 26, 30];
   return (
     <>
       <Lines y={330} size={48} lines={[[36.38, <>何年後に<R>いくら</R>になるか、わかる</>]]} />
-      <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><line x1={60} y1={BASE} x2={60 + 960 * interpolate(f, [F(36.2), F(36.2) + 12], [0, 1], out)} y2={BASE} stroke={INK} strokeWidth={6} strokeLinecap="round" /></svg>
-      {col(100, H0, BOND)}
-      {f >= F(38.1) ? col(440, H0 + (H1 - H0) * g1, BOND) : null}
-      {f >= F(39.74) ? col(780, H0 + (H2 - H0) * g2, BOND) : null}
-      <At at={36.4} x={60} y={1080} mode="rise"><div style={{ width: 280, textAlign: "center", ...K, fontSize: 34 }}>今<br /><span style={{ ...B, fontSize: 26, color: SUB }}>子ども2歳と0歳</span></div></At>
-      <At at={36.6} x={115} y={690} mode="spring"><Img2 n="nb_kid_toddler" s={170} /></At>
-      <At at={36.6} x={100} y={BASE - H0 - 82} mode="drop"><div style={{ width: 200, textAlign: "center", ...SER, fontSize: 52, color: BOND }}>500万</div></At>
-      <At at={38.1} x={440} y={1080} mode="rise"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>16年後<br /><span style={{ ...B, fontSize: 26, color: SUB }}>18歳・大学</span></div></At>
-      <At at={37.34} x={420} y={560} mode="spring"><Img2 n="nb_kid_student" s={170} /></At>
-      <At at={37.6} x={590} y={640} mode="drop"><Img2 n="nb_grad_cap" s={90} /></At>
-      {money(540, BASE - H1 - 92, 1091, 38.4, "drop")}
-      <At at={39.74} x={780} y={1080} mode="rise"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>30年後<br /><span style={{ ...B, fontSize: 26, color: SUB }}>老後</span></div></At>
-      <At at={39.9} x={805} y={335} mode="spring"><Img2 n="nb_elderly_couple" s={150} /></At>
-      {money(880, BASE - H2 - 92, 2161, 40.1, "slam")}
-      <At at={42.7} x={350} y={1180} mode="drop"><Tag c={STOCK} size={36}>教育資金</Tag></At>
-      <At at={43.78} x={640} y={1180} mode="drop"><Tag c={CASH} size={36}>老後資金</Tag></At>
-      <Foot at={38.4} y={1270}>※500万円を年5%で複利運用した場合の目安。ドル建て・満期まで持った場合／円での金額は為替で変わります</Foot>
+      {/* 横軸（年齢の目盛り） */}
+      <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
+        <line x1={120} y1={BASE} x2={120 + 860 * axP} y2={BASE} stroke={INK} strokeWidth={6} strokeLinecap="round" />
+        {Array.from({ length: 31 }).map((_, y) => {
+          const on = axP > (y / 30) * 0.9 + 0.05;
+          const big = y % 2 === 0;
+          return on ? <line key={y} x1={ax(y)} y1={BASE} x2={ax(y)} y2={BASE + (big ? 16 : 9)} stroke={INK} strokeWidth={big ? 4 : 2} /> : null;
+        })}
+        {f >= F(36.4) ? <polygon points={`${980},${BASE - 12} ${1000},${BASE} ${980},${BASE + 12}`} fill={INK} /> : null}
+      </svg>
+      {ages.map((a, i) => {
+        const y = a - 2, key = a === 18;
+        return <At key={a} at={36.5 + i * 0.05} x={ax(y) - 40} y={BASE + 20} mode="rise"><div style={{ width: 80, textAlign: "center", ...K, fontSize: key ? 30 : 22, color: key ? RED : SUB }}>{a}歳</div></At>;
+      })}
+      <At at={36.9} x={920} y={BASE + 22} mode="rise"><div style={{ ...K, fontSize: 22, color: SUB }}>32歳</div></At>
+      <At at={36.7} x={60} y={BASE - 46} mode="fade"><div style={{ ...B, fontSize: 20, color: SUB }}>上の子の年齢 →</div></At>
+      {/* 時間を進む点 */}
+      {f >= F(36.6) ? <div style={{ position: "absolute", left: ax(yr) - 20, top: BASE - 20, width: 40, height: 40, borderRadius: "50%", background: CASH, border: `5px solid ${INK}`, boxSizing: "border-box", boxShadow: `0 0 0 ${8 + 4 * Math.sin(f / 4)}px rgba(233,184,46,0.35)`, zIndex: 3 }} /> : null}
+      {col(0, H0, BOND)}
+      {f >= F(38.1) ? col(16, H0 + (H1 - H0) * g1, BOND) : null}
+      {f >= F(39.74) ? col(30, H0 + (H2 - H0) * g2, BOND) : null}
+      {/* 下の見出し */}
+      <At at={36.4} x={ax(0) - 130} y={BASE + 66} mode="rise"><div style={{ width: 260, textAlign: "center", ...K, fontSize: 34 }}>今<br /><span style={{ ...B, fontSize: 24, color: SUB }}>子ども2歳と0歳</span></div></At>
+      <At at={38.1} x={ax(16) - 130} y={BASE + 66} mode="rise"><div style={{ width: 260, textAlign: "center", ...K, fontSize: 34 }}>16年後<br /><span style={{ ...B, fontSize: 24, color: SUB }}>上の子 18歳・大学</span></div></At>
+      <At at={39.74} x={ax(30) - 130} y={BASE + 66} mode="rise"><div style={{ width: 260, textAlign: "center", ...K, fontSize: 34 }}>30年後<br /><span style={{ ...B, fontSize: 24, color: SUB }}>老後</span></div></At>
+      {/* 絵と金額 */}
+      <At at={36.6} x={ax(0) - 80} y={BASE - H0 - 82 - 170} mode="spring"><Img2 n="nb_kid_toddler" s={160} /></At>
+      <At at={36.6} x={ax(0) - 100} y={BASE - H0 - 76} mode="drop"><div style={{ width: 200, textAlign: "center", ...SER, fontSize: 50, color: BOND }}>500万</div></At>
+      <At at={38.1} x={ax(16) - 110} y={BASE - H1 - 92 - 165} mode="spring"><Img2 n="nb_kid_student" s={160} /></At>
+      <At at={38.3} x={ax(16) + 40} y={BASE - H1 - 92 - 90} mode="drop"><Img2 n="nb_grad_cap" s={85} /></At>
+      {money(ax(16), BASE - H1 - 90, 1091, 38.4, "drop")}
+      <At at={39.9} x={ax(30) - 75} y={BASE - H2 - 92 - 150} mode="spring"><Img2 n="nb_elderly_couple" s={145} /></At>
+      {money(ax(30), BASE - H2 - 90, 2161, 40.1, "slam")}
+      <At at={42.7} x={ax(16) - 90} y={BASE + 160} mode="drop"><Pill c={STOCK} size={32}>教育資金</Pill></At>
+      <At at={43.78} x={ax(30) - 100} y={BASE + 160} mode="drop"><Pill c={CASH} size={32}>老後資金</Pill></At>
+      <Foot at={38.4} y={BASE + 250}>※500万円を年5%で複利運用した場合の目安。ドル建て・満期まで持った場合／円での金額は為替で変わります</Foot>
     </>
   );
 };
@@ -232,15 +297,17 @@ const P5: React.FC = () => {
       </div>
       <At at={47.5} until={49.6} x={330} y={470} mode="drop"><Img2 n="nb_storm" s={170} /></At>
       <Cross at={48.66} x={190} y={680} s={200} />
-      <At at={48.86} x={110} y={1000} mode="slam"><span style={{ ...K, fontSize: 38, color: RED }}>無理に売らない</span></At>
+      <At at={48.86} x={150} y={905} mode="slam"><Pill c={RED} size={32}>× 売らない</Pill></At>
       <div style={{ position: "absolute", left: 600, top: 600, width: 400, height: 380, background: "#fff", border: `5px solid ${INK}`, borderRadius: 22, boxSizing: "border-box", ...swoop(f, 45.6, 1) }}>
         <div style={{ position: "absolute", left: 24, top: 16, ...K, fontSize: 40, color: BOND }}>債券</div>
         <div style={{ position: "absolute", left: 110, top: 110 }}><Img2 n="nb_bond_box" s={180} /></div>
       </div>
       <Spot at={49.66} until={52.0} rect={[590, 590, 420, 400]} r={26} color={CASH} />
-      <Arrow at={50.2} x1={800} y1={1000} x2={800} y2={1110} color={BOND} />
-      <At at={50.4} x={640} y={1110} mode="drop"><Img2 n="nb_envelope_money" s={150} /></At>
-      <At at={50.6} x={800} y={1150} mode="spring" origin="0 50%"><Tag c={BOND} size={30}>債券側から使う</Tag></At>
+      <Arrow at={50.2} x1={800} y1={985} x2={800} y2={1030} color={BOND} />
+      <At at={50.4} x={725} y={1020} mode="drop"><Img2 n="nb_envelope_money" s={140} /></At>
+      <At at={50.0} x={650} y={905} mode="slam"><Pill c={STOCK} size={32}>✓ ここから使う</Pill></At>
+      <Burst at={51.2} cy={1000} r0={300} />
+      <At at={51.26} x={220} y={1180} mode="slam"><span style={{ display: "inline-block", background: CASH, border: `6px solid ${INK}`, borderRadius: 20, padding: "8px 40px", ...K, fontSize: 64, color: INK, boxShadow: `6px 8px 0 ${INK}`, transform: "rotate(-3deg)" }}>選択肢が持てる！</span></At>
     </>
   );
 };
@@ -270,42 +337,118 @@ const P6: React.FC = () => {
       <div style={{ position: "absolute", left: 550, top: 470, width: 470, height: 600, background: "#fff", border: `5px solid ${INK}`, borderRadius: 24, boxSizing: "border-box", ...swoop(f, 52.5, 1) }}>
         <div style={{ position: "absolute", left: 24, top: 16, ...K, fontSize: 44, color: BOND }}>債券</div>
         <svg width={460} height={590} style={{ position: "absolute", left: 0, top: 0 }}>
-          {f >= F(58.46) ? <line x1={50} y1={360} x2={50 + 340 * line} y2={360 - 150 * line} stroke={BOND} strokeWidth={8} strokeLinecap="round" /> : null}
-          <circle cx={50} cy={360} r={10} fill={BOND} />
-          {line > 0.95 ? <circle cx={390} cy={210} r={16} fill={RED} /> : null}
+          {f >= F(58.46) ? <polyline points="50,380 118,380 118,350 186,350 186,315 254,315 254,280 322,280 322,240 390,240 390,200" fill="none" stroke={STOCK} strokeWidth={9} strokeLinejoin="round" strokeLinecap="round" strokeDasharray={760} strokeDashoffset={760 * (1 - line)} /> : null}
+          <circle cx={50} cy={380} r={10} fill={STOCK} />
+          {line > 0.95 ? <g transform={`translate(390,200) scale(${interpolate(f - F(61.3), [0, 4, 7], [0.3, 1.2, 1], clamp)})`}><line x1={0} y1={0} x2={0} y2={-70} stroke={INK} strokeWidth={5} /><polygon points="0,-70 46,-56 0,-42" fill={RED} /></g> : null}
         </svg>
-        <At at={59.5} x={250} y={130} mode="drop"><span style={{ ...B, fontSize: 28, color: INK }}>満期 🏁</span></At>
+        <At at={61.4} x={330} y={60} mode="drop"><span style={{ ...K, fontSize: 28, color: INK }}>満期</span></At>
         <At at={60.8} x={40} y={440} mode="type"><span style={{ ...B, fontSize: 30, color: INK }}>何年後にいくらか</span></At>
         <At at={61.6} x={40} y={500} mode="type"><span style={{ ...B, fontSize: 28, color: SUB }}>満期まで持つ前提なら</span></At>
         <At at={58.7} x={335} y={450} mode="spring"><Img2 n="nb_bond_paper" s={120} /></At>
       </div>
+      <Spot at={55.28} until={57.9} rect={[50, 460, 490, 620]} r={30} color={CASH} />
+      <Spot at={60.8} until={63.0} rect={[540, 460, 490, 620]} r={30} color={CASH} />
+      <Burst at={63.1} cy={1000} r0={320} />
       <At at={63.14} x={600} y={1090} mode="slam"><span style={{ display: "inline-block", border: `6px solid ${BOND}`, borderRadius: 14, padding: "2px 22px", ...SER, fontSize: 44, color: BOND, background: "#F1F6FD", transform: "rotate(-4deg)" }}>計画が立てやすい</span></At>
       <Foot at={60.0} y={1210}>※ドル建て・満期まで持った場合。円での金額は為替で変わります</Foot>
     </>
   );
 };
 
-// ── P7 まとめ（70.7–76.4） ──
-const P7: React.FC = () => (
-  <>
-    <div style={{ position: "absolute", left: 0, top: 330, width: 1080, textAlign: React.useContext(Look) === "taichi" ? "center" : "left", paddingLeft: React.useContext(Look) === "taichi" ? 0 : 60, boxSizing: "border-box", ...K, fontSize: 60, color: INK }}><TypeIn at={F(70.6)}><R>株</R>と<R>債券</R>、両方を持つと</TypeIn></div>
-    <At at={71.0} x={250} y={470} mode="spring"><Img2 n="nb_family" s={580} /></At>
-    <Lines y={1030} size={52} lines={[[72.94, <><R>将来のお金</R>も</>], [73.9, <><R>今使っていいお金</R>も</>], [75.16, "計画しやすくなる"]]} />
-  </>
-);
+// ── まとめ（65.0–70.5）：チェックしていく ──
+const PSum: React.FC = () => {
+  const f = useCurrentFrame();
+  const rows: [string, string, number][] = [["株の割合が増えていく", STOCK, 66.4], ["今は高金利", CASH, 68.24], ["一部を債券に移した", BOND, 69.0]];
+  const mk = interpolate(f, [F(65.6), F(65.6) + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
+  return (
+    <>
+      {/* プロフィールの札 */}
+      <div style={{ position: "absolute", left: 60, top: 290, width: 960, height: 120, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", gap: 22, padding: "0 26px", boxSizing: "border-box", ...swoop(f, 65.1, -1) }}>
+        <div style={{ width: 80, height: 80, borderRadius: "50%", background: A2.bg, border: `4px solid ${INK}`, overflow: "hidden", flex: "none" }}><GenSlot name="taichi_face_smile" size={80} /></div>
+        <div><div style={{ ...K, fontSize: 34, color: INK }}>たいち</div><div style={{ ...B, fontSize: 20, color: SUB }}>積立保険を売らない保険屋さん</div></div>
+        <span style={{ marginLeft: "auto" }}><Pill c={BOND} size={26}>フォロー</Pill></span>
+      </div>
+      {/* 見出し */}
+      <div style={{ position: "absolute", left: 0, width: 1080, top: 450, textAlign: "center" }}>
+        <span style={{ position: "relative", display: "inline-block", ...K, fontSize: 96, color: INK }}>
+          <span style={{ position: "absolute", left: -10, bottom: 8, height: 30, width: `calc(${mk * 100}% + 20px)`, background: "rgba(255,201,60,0.7)", borderRadius: 8 }} />
+          <span style={{ position: "relative" }}><TypeIn at={F(65.3)} step={3}>まとめ</TypeIn></span>
+        </span>
+      </div>
+      {/* チェックの行 */}
+      {rows.map(([t, c, at], i) => {
+        const inP = interpolate(f - F(65.5) - i * 4, [0, 10], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
+        const d = f - F(at), on = d >= 0;
+        const ck = interpolate(d, [0, 4, 8], [0, 1.25, 1], clamp);
+        const sweep = interpolate(d, [2, 12], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
+        return (
+          <div key={t} style={{ position: "absolute", left: 60, top: 630 + i * 150, width: 960, height: 122, background: on ? "#F3FBF6" : "#fff", border: `5px solid ${INK}`, borderRadius: 24, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", gap: 28, padding: "0 30px", boxSizing: "border-box", opacity: inP, transform: `translateX(${(1 - inP) * -160}px) scale(${on ? interpolate(d, [0, 4, 9], [1, 1.04, 1], clamp) : 1})` }}>
+            <div style={{ position: "relative", width: 64, height: 64, borderRadius: 14, border: `5px solid ${INK}`, background: on ? STOCK : "#fff", boxSizing: "border-box", flex: "none" }}>
+              {on ? <svg width={64} height={64} viewBox="0 0 64 64" style={{ position: "absolute", left: -5, top: -5, transform: `scale(${ck})` }}><polyline points="14,33 27,46 50,19" fill="none" stroke="#fff" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={60} strokeDashoffset={60 * (1 - Math.min(1, d / 6))} /></svg> : null}
+            </div>
+            <span style={{ position: "relative", ...K, fontSize: 50, color: INK }}>
+              <span style={{ position: "absolute", left: -6, bottom: 4, height: 22, width: `calc(${sweep * 100}% + 12px)`, background: `${c}55`, borderRadius: 6 }} />
+              <span style={{ position: "relative" }}>{t}</span>
+            </span>
+            <div style={{ marginLeft: "auto", width: 16, height: 70, borderRadius: 8, background: c }} />
+          </div>
+        );
+      })}
+      <Burst at={69.0} cy={1000} r0={380} dur={18} />
+    </>
+  );
+};
 
+// ── 締め（70.72–76.9）：株と債券が合わさって、2つのお金へ → 計画しやすくなる ──
+const P7: React.FC = () => {
+  const look = React.useContext(Look);
+  const f = useCurrentFrame();
+  const inL = interpolate(f, [F(71.0), F(71.0) + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.5)) });
+  const inR = interpolate(f, [F(71.2), F(71.2) + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.5)) });
+  const join = interpolate(f, [F(72.0), F(72.0) + 12], [0, 1], { ...clamp, easing: Easing.bezier(0.7, 0, 0.2, 1) });
+  const ring = f >= F(72.3) ? interpolate(f - F(72.3), [0, 14], [0, 1], clamp) : 0;
+  const lx = 330 + 95 * join, rx = 750 - 95 * join, cy = 640;
+  const bubble = (x: number, c: string, label: string, k: number, from: number) => (
+    <div style={{ position: "absolute", left: x - 140 + (1 - k) * from, top: cy - 140, width: 280, height: 280, borderRadius: "50%", background: c, border: `6px solid ${INK}`, boxShadow: `8px 10px 0 ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 70, color: "#fff", opacity: Math.min(1, k * 2), transform: `scale(${0.6 + 0.4 * k}) rotate(${(1 - k) * (from > 0 ? 30 : -30)}deg)`, mixBlendMode: "normal" }}>{label}</div>
+  );
+  // 下の2つへ線が伸びる
+  const l1 = interpolate(f, [F(72.94), F(72.94) + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
+  const l2 = interpolate(f, [F(73.9), F(73.9) + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
+  const card = (x: number, at: number, title: string, img: string, c: string) => (
+    <At at={at + 0.2} x={x} y={900} mode="spring"><div style={{ width: 470, height: 220, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", gap: 10, padding: "0 20px", boxSizing: "border-box" }}><Img2 n={img} s={150} /><div style={{ ...K, fontSize: 38, color: INK, lineHeight: 1.25, whiteSpace: "pre-line" }}><span style={{ color: c }}>{title}</span>も</div></div></At>
+  );
+  return (
+    <>
+      <div style={{ position: "absolute", left: 0, top: 330, width: 1080, textAlign: look === "taichi" ? "center" : "left", paddingLeft: look === "taichi" ? 0 : 60, boxSizing: "border-box", ...K, fontSize: 60, color: INK }}><TypeIn at={F(70.6)}><R>株</R>と<R>債券</R>、両方を持つと</TypeIn></div>
+      {/* 合わさった時の輪 */}
+      {ring > 0 ? <div style={{ position: "absolute", left: 540 - 300 * (0.7 + 0.5 * ring), top: cy - 300 * (0.7 + 0.5 * ring), width: 600 * (0.7 + 0.5 * ring), height: 600 * (0.7 + 0.5 * ring), borderRadius: "50%", border: `8px solid ${CASH}`, opacity: 1 - ring }} /> : null}
+      {f >= F(71.0) - 1 ? bubble(lx, STOCK, "株", inL, -700) : null}
+      {f >= F(71.2) - 1 ? bubble(rx, BOND, "債券", inR, 700) : null}
+      {f >= F(72.3) ? <div style={{ position: "absolute", left: 540 - 50, top: cy - 50, width: 100, height: 100, borderRadius: "50%", background: CASH, border: `6px solid ${INK}`, ...K, fontSize: 70, lineHeight: "84px", textAlign: "center", color: INK, transform: `scale(${interpolate(f - F(72.3), [0, 4, 8], [0, 1.3, 1], clamp)}) rotate(${interpolate(f - F(72.3), [0, 8], [-90, 0], clamp)}deg)` }}>+</div> : null}
+      <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
+        {l1 > 0 ? <path d={`M540,${cy + 150} C540,${cy + 210} 270,${cy + 180} 270,${cy + 180 + 80 * l1}`} fill="none" stroke={INK} strokeWidth={6} strokeDasharray="14 10" /> : null}
+        {l2 > 0 ? <path d={`M540,${cy + 150} C540,${cy + 210} 810,${cy + 180} 810,${cy + 180 + 80 * l2}`} fill="none" stroke={INK} strokeWidth={6} strokeDasharray="14 10" /> : null}
+      </svg>
+      {card(40, 72.94, "将来のお金", "nb_coin_pile", STOCK)}
+      {card(570, 73.9, "今使って\nいいお金", "nb_family", BOND)}
+      <Burst at={75.1} cy={1180} r0={360} dur={26} />
+      <At at={75.16} x={140} y={1150} mode="slam"><span style={{ display: "inline-block", background: CASH, border: `7px solid ${INK}`, borderRadius: 24, padding: "10px 46px", ...K, fontSize: 76, color: INK, boxShadow: `8px 10px 0 ${INK}`, transform: "rotate(-3deg)", whiteSpace: "nowrap" }}>計画しやすくなる！</span></At>
+      <Confetti at={75.3} />
+    </>
+  );
+};
 // ════════ 地図の並び ════════
 const PANELS: Panel[] = [
   { id: "p1", col: 0, row: 0 }, { id: "p2", col: 1, row: 0 }, { id: "p3", col: 2, row: 0 },
-  { id: "p4", col: 2, row: 1 }, { id: "p5", col: 1, row: 1 }, { id: "p6", col: 0, row: 1 }, { id: "p7", col: 0, row: 2 },
+  { id: "p4", col: 2, row: 1 }, { id: "p5", col: 1, row: 1 }, { id: "p6", col: 0, row: 1 }, { id: "psum", col: 0, row: 2 }, { id: "p7", col: 1, row: 2 },
 ];
 const MAPIDS = ["p1", "p2", "p3", "p4", "p5", "p6"];
 const STOPS: Stop[] = [
   { id: "p1", trans: 0 }, { id: "p2", trans: 11.45, kind: "kick" }, { id: "p3", trans: 24.0, kind: "kick" }, { id: "p4", trans: 36.15, kind: "fast" },
-  { id: "p5", trans: 45.05, kind: "fast" }, { id: "p6", trans: 51.85, kind: "kick" }, { id: "__map", trans: 65.0, scale: 0.2, ids: MAPIDS, oy: 300 }, { id: "p7", trans: 70.5 },
+  { id: "p5", trans: 45.05, kind: "fast" }, { id: "p6", trans: 51.85, kind: "kick" }, { id: "psum", trans: 64.9, kind: "kick" }, { id: "p7", trans: 70.45, kind: "kick" },
 ];
 const LINKS: [string, string][] = PANELS.slice(1).map((p, i) => [PANELS[i].id, p.id]);
-const BODY: Record<string, React.FC> = { p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7 };
+const BODY: Record<string, React.FC> = { p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, psum: PSum, p7: P7 };
 // ページの中の寄り・引き（緩急）。d＝動く長さ（f）：短い＝ドン、長い＝じわっ
 const HOME = { x: 540, y: 960, s: 1 };
 const PUNCH: Record<string, CamKey[]> = {
@@ -314,7 +457,7 @@ const PUNCH: Record<string, CamKey[]> = {
   p3: [{ t: 32.3, x: 560, y: 940, s: 1.06, d: 4 }, { t: 33.7, ...HOME, d: 12 }],
   p4: [{ t: 40.1, x: 600, y: 950, s: 1.04, d: 50 }, { t: 42.5, ...HOME, d: 14 }],
   p5: [{ t: 47.5, x: 380, y: 860, s: 1.22, d: 5 }, { t: 49.66, x: 700, y: 860, s: 1.22, d: 6 }, { t: 50.3, ...HOME, d: 12 }],
-  p7: [{ t: 72.9, x: 540, y: 900, s: 1.04, d: 90 }],
+  p7: [{ t: 75.16, x: 540, y: 1000, s: 1.05, d: 5 }, { t: 75.6, x: 540, y: 980, s: 1.02, d: 20 }],
 };
 
 // まとめの全体マップ：見出し＋各理由に赤い枠
@@ -380,7 +523,7 @@ const CUES: { file: string; at: number; volume: number }[] = [
   ...[38.4, 40.1].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.22 })), ...[42.7, 43.78].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })),
   { file: "user/u04", at: F(47.5), volume: 0.26 }, { file: "user/u05s", at: F(49.66), volume: 0.22 }, { file: "user/u02s", at: F(50.6), volume: 0.2 },
   { file: "user/u04", at: F(57.16), volume: 0.24 }, { file: "user/u04", at: F(63.14), volume: 0.24 },
-  ...[66.4, 68.24, 68.9, 70.0].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.2 })), { file: "user/u10", at: F(75.16), volume: 0.28 },
+  ...[66.4, 68.24, 69.0].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.22 })), ...[71.0, 71.2, 72.3, 73.14, 74.1].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })), { file: "user/u04", at: F(51.26), volume: 0.26 }, { file: "user/u10", at: F(75.16), volume: 0.28 },
 ];
 
 // ── 太一版：まとめ（65.22–70.72）＝3つの理由にチェック ──
@@ -453,7 +596,6 @@ export const NisaBondReel: React.FC = () => (
     <Board streaks panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: A2.bg, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
       {(id) => { const C = BODY[id]; const body = <div style={{ position: "absolute", inset: 0, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}><C /></div>; return PUNCH[id] ? <Camera keys={PUNCH[id]}>{body}</Camera> : <AbsoluteFill>{body}</AbsoluteFill>; }}
     </Board>
-    <MapLayer />
     <StepperWrap><Stepper labels={["分散", "高金利", "見える化", "株と債券"]} steps={[0, 11.8, 24.42, 52.3]} x={616 / STEP_S} y={226 / STEP_S} color={RED} /></StepperWrap>
     <Chara />
     {/* 下のテロップ（横150〜930pxに収める・インスタの説明文より上） */}
