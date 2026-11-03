@@ -30,3 +30,6 @@ public/logos/
 public/sfx/user/intro.mp3
 public/marke2-ref-audio.wav
 public/nisabond-narration.wav
+
+# 参考動画の元ファイル（他の人の動画。リポジトリに入れない）
+assets/ref_videos/
