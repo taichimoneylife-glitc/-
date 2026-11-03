@@ -282,19 +282,18 @@ const MapLayer: React.FC = () => {
   );
 };
 
-// 右下の太一
-const POSES: [number, string][] = [
-  [0, "taichi_point_up"], [7.5, "taichi_scared"], [10.42, "taichi_ok_hand"], [11.8, "taichi_explain_both"], [16.68, "taichi_notice"], [17.94, "taichi_point_upright"],
-  [21.88, "taichi_thumbs_up"], [24.42, "taichi_point_left"], [32.22, "taichi_proud"], [36.38, "taichi_think_chin"], [42.7, "taichi_happy_big"],
-  [45.26, "taichi_worry"], [49.66, "taichi_idea"], [52.3, "taichi_explain_both"], [57.16, "taichi_hmm_doubt"], [62.62, "taichi_ok_circle"],
-  [65.22, "taichi_point_up"], [70.72, "taichi_heart_hands"],
+// 右下の太一：ずっとは出さず、気持ちが動く所だけ（横からひょこっと出て、引っこむ）
+const APPEAR: [number, number, string][] = [
+  [7.5, 10.4, "taichi_scared"], [20.6, 24.2, "taichi_thumbs_up"], [45.26, 49.6, "taichi_worry"], [49.66, 52.05, "taichi_idea"], [72.0, 76.9, "taichi_heart_hands"],
 ];
 const Chara: React.FC = () => {
   const f = useCurrentFrame();
-  let name = POSES[0][1], at = 0;
-  POSES.forEach(([t, n]) => { if (f >= F(t)) { name = n; at = t; } });
-  const k = interpolate(f - F(at), [0, 3, 7], [0.82, 1.06, 1], clamp);
-  return <div style={{ position: "absolute", left: 680, top: 1390, width: 400, height: 400, transform: `scale(${k})`, transformOrigin: "50% 100%" }}><GenSlot name={name} size={400} /></div>;
+  const a = APPEAR.find(([s0, e]) => f >= F(s0) - 2 && f < F(e) + 8);
+  if (!a) return null;
+  const [s0, e, name] = a;
+  const inP = interpolate(f, [F(s0) - 2, F(s0) + 8], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.6)) });
+  const outP = interpolate(f, [F(e), F(e) + 8], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+  return <div style={{ position: "absolute", left: 680 + (1 - inP) * 420 + outP * 420, top: 1390, width: 400, height: 400 }}><GenSlot name={name} size={400} /></div>;
 };
 
 // 効果音（たいちさん指定の音だけ）
