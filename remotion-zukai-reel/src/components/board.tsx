@@ -71,7 +71,7 @@ export const Board: React.FC<{ panels: Panel[]; stops: Stop[]; links?: [string, 
         </svg>
         {panels.map((p) => {
           const [x, y] = panelXY(p);
-          return <div key={p.id} style={{ position: "absolute", left: x, top: y, width: PW, height: PH, overflow: "hidden" }}>{children(p.id)}</div>;
+          return <div key={p.id} style={{ position: "absolute", left: x, top: y, width: PW, height: PH, overflow: "hidden", ...(paper ?? {}) }}>{children(p.id)}</div>;
         })}
       </div>
     </AbsoluteFill>
