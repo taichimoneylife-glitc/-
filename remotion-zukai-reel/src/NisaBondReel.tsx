@@ -353,18 +353,17 @@ const P5: React.FC = () => {
   return (
     <>
       <Lines y={330} size={48} lines={[[45.26, <>もし<R>教育費が必要な時</R>に</>], [47.08, <>株が<R>暴落</R>していたら？</>]]} />
-      <div style={{ position: "absolute", left: 80, top: 600, width: 400, height: 380, background: "#fff", border: `5px solid ${INK}`, borderRadius: 22, boxSizing: "border-box", ...swoop(f, 45.4, -1) }}>
+      <div style={{ position: "absolute", left: 80, top: 600, width: 400, height: 380, background: "#fff", border: `5px solid ${INK}`, borderRadius: 22, boxSizing: "border-box", ...swoop(f, 45.4, -1), ...(f >= F(49.9) ? { opacity: interpolate(f, [F(49.9), F(49.9) + 6], [1, 0.4], clamp), filter: "grayscale(0.6)" } : {}) }}>
         <div style={{ position: "absolute", left: 24, top: 16, ...K, fontSize: 40, color: STOCK }}>株</div>
         <svg width={390} height={370} style={{ position: "absolute", left: 0, top: 0 }}><polyline points={`30,280 100,230 170,250 240,170 ${240 + 110 * cr},${170 + 170 * cr}`} fill="none" stroke={cr > 0 ? RED : STOCK} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" /></svg>
       </div>
       <At at={47.5} until={49.6} x={330} y={470} mode="drop"><Img2 n="nb_storm" s={170} /></At>
       <Cross at={48.66} x={190} y={680} s={200} />
       <At at={48.86} x={150} y={905} mode="slam"><Pill c={RED} size={32}>× 売らない</Pill></At>
-      <div style={{ position: "absolute", left: 600, top: 600, width: 400, height: 380, background: "#fff", border: `5px solid ${INK}`, borderRadius: 22, boxSizing: "border-box", ...swoop(f, 45.6, 1) }}>
+      <div style={{ position: "absolute", left: 600, top: 600, width: 400, height: 380, background: "#fff", border: `5px solid ${INK}`, borderRadius: 22, boxSizing: "border-box", ...swoop(f, 45.6, 1), ...(f >= F(49.9) ? { boxShadow: `0 0 0 8px ${CASH}, 0 0 ${30 + 10 * Math.sin((f - F(49.9)) / 4)}px ${CASH}`, transform: `scale(${interpolate(f - F(49.9), [0, 4, 8], [1, 1.05, 1.02], clamp)})` } : {}) }}>
         <div style={{ position: "absolute", left: 24, top: 16, ...K, fontSize: 40, color: BOND }}>債券</div>
         <div style={{ position: "absolute", left: 110, top: 110 }}><Img2 n="nb_bond_box" s={180} /></div>
       </div>
-      <Spot at={49.66} until={52.0} rect={[590, 590, 420, 400]} r={26} color={CASH} />
       <Arrow at={50.2} x1={800} y1={985} x2={800} y2={1030} color={BOND} />
       <At at={50.4} x={725} y={1020} mode="drop"><Img2 n="nb_envelope_money" s={140} /></At>
       <At at={50.0} x={650} y={905} mode="slam"><Pill c={STOCK} size={32}>✓ ここから使う</Pill></At>
@@ -549,7 +548,7 @@ const PUNCH: Record<string, CamKey[]> = {
   p2: [{ t: 18.14, x: 540, y: 900, s: 1.08, d: 6 }, { t: 20.3, ...HOME, d: 14 }],
   p3: [{ t: 32.3, x: 560, y: 940, s: 1.06, d: 4 }, { t: 33.7, ...HOME, d: 12 }],
   p4: [{ t: 40.1, x: 600, y: 950, s: 1.04, d: 50 }, { t: 42.5, ...HOME, d: 14 }],
-  p5: [{ t: 47.5, x: 380, y: 860, s: 1.22, d: 5 }, { t: 49.66, x: 700, y: 860, s: 1.22, d: 6 }, { t: 50.3, ...HOME, d: 12 }],
+  p5: [{ t: 47.5, x: 440, y: 860, s: 1.12, d: 5 }, { t: 49.66, x: 600, y: 860, s: 1.1, d: 6 }, { t: 50.3, ...HOME, d: 12 }],
   p7: [{ t: 75.16, x: 540, y: 1000, s: 1.05, d: 5 }, { t: 75.6, x: 540, y: 980, s: 1.02, d: 20 }],
 };
 
@@ -674,7 +673,7 @@ const CapBand: React.FC = () => {
 // 左下の進み具合：全体マップの間は引っこめる
 const StepperWrap: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const f = useCurrentFrame();
-  const o = interpolate(f, [F(65.0), F(65.0) + 6, F(70.5), F(70.5) + 8], [1, 0, 0, 1], clamp);
+  const o = interpolate(f, [F(65.0), F(65.0) + 6], [1, 0], clamp); // まとめ以降は出さない（見出しとかぶるため）
   return <div style={{ position: "absolute", left: 0, top: 0, transform: `scale(${STEP_S}) translateY(${(1 - o) * -60}px)`, transformOrigin: "0 0", opacity: o }}>{children}</div>;
 };
 // インスタの右のボタン・下の文章にかからないよう、図は少し小さく（左右に余白）
