@@ -151,7 +151,7 @@ const P2: React.FC = () => {
       <Spot at={16.68} until={17.9} rect={[gx(iLow) - 70, gy(UST10Y[iLow]) - 60, 140, 110]} r={18} />
       <At at={16.9} until={17.9} x={gx(iLow) - 150} y={gy(UST10Y[iLow]) + 60} mode="drop"><Tag c={INK}>2020年 0.52%</Tag></At>
       <At at={18.14} x={gx(iEnd) - 300} y={gy(UST10Y[iEnd]) - 150} mode="slam"><span style={{ ...SER, fontSize: 84, color: RED }}>約5%</span><span style={{ ...B, fontSize: 28, color: INK }}> 今</span></At>
-      <At at={20.6} x={680} y={950} mode="slam"><span style={{ display: "inline-block", border: `6px solid ${RED}`, borderRadius: 14, padding: "2px 26px", ...SER, fontSize: 52, color: RED, background: "#FFF6F2", transform: "rotate(-6deg)" }}>期間限定</span></At>
+      <At at={20.6} x={650} y={440} mode="slam"><span style={{ display: "inline-block", border: `6px solid ${RED}`, borderRadius: 14, padding: "2px 26px", ...SER, fontSize: 52, color: RED, background: "#FFF6F2", transform: "rotate(-6deg)" }}>期間限定</span></At>
       <Foot at={13.6} y={1250}>※出典：FRED（米セントルイス連銀）DGS10。2026年10月時点</Foot>
     </>
   );
@@ -391,7 +391,7 @@ const SUBS: [number, string][] = [
   [24.42, "3つ目は将来のお金を"], [26.18, "*ある程度確定*させたかったから"], [27.9, "僕はもともと300万円を債券に入れていて"], [30.6, "今回200万円を追加"], [32.22, "合計*500万円*"], [33.38, "どちらも*5%を超える水準*で運用しています"],
   [36.38, "例えば子どもが18歳になる*16年後*"], [38.88, "さらに今から*30年後*"], [40.48, "いくらくらいになるのか、ある程度わかるので"], [42.7, "*教育資金*にも*老後資金*にも使えるし"],
   [45.26, "もし教育費が必要な時に"], [47.08, "株が!暴落!していたら"], [48.66, "株を無理に売らず"], [49.66, "*債券側から使う*っていう選択肢も持てます"],
-  [52.3, "株は「年利5%で増えたら」と計算しても"], [55.28, "あくまで過去の実績をもとにした"], [57.16, "将来の*シミュレーション*"], [58.46, "一方で債券は、満期まで持つ前提なら"], [60.8, "数年後にいくらくらいになるのか"], [62.62, "原則約束された資産だから*計画的*"],
+  [52.3, "株は「年利5%で増えたら」と計算しても"], [55.28, "あくまで過去の実績をもとにした"], [57.16, "将来の*シミュレーション*"], [58.46, "一方で債券は、満期まで持つ前提なら"], [60.8, "数年後にいくらくらいになるのか"], [62.62, "満期の金額が決まっているから*計画的*"],
   [65.22, "まとめると、これから株の割合が増えていく中で"], [68.24, "*高金利の今*、一部を債券に移しました"], [70.72, "株と債券、*両方を持つ*ことで"], [72.94, "将来のお金も、今使っていいお金も"], [75.16, "*計画しやすく*なります"],
 ];
 export const NisaBondReelT: React.FC = () => (
@@ -418,11 +418,12 @@ export const NisaBondReelT: React.FC = () => (
 const StepperWrap: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const f = useCurrentFrame();
   const o = interpolate(f, [F(65.0), F(65.0) + 6, F(70.5), F(70.5) + 8], [1, 0, 0, 1], clamp);
-  return <div style={{ position: "absolute", left: 0, top: 0, transform: `scale(${SAFE}) translateY(${(1 - o) * 60}px)`, transformOrigin: "0 0", opacity: o }}>{children}</div>;
+  return <div style={{ position: "absolute", left: 0, top: 0, transform: `scale(${STEP_S}) translateY(${(1 - o) * -60}px)`, transformOrigin: "0 0", opacity: o }}>{children}</div>;
 };
 // インスタの右のボタン・下の文章にかからないよう、図は少し小さく（左右に余白）
 //  リールの見えない所（1080×1920のうち）：上 約220px（名前・音源）、下 約420px（説明文）、右 約140px（いいね・コメント・シェア）
 //  → 図は 横 150〜930px ／ 縦 300〜1110px に収める（元の 60〜1020 を 0.81倍して左右150pxずつ空ける）
+const STEP_S = 0.6; // 右上の進み具合の大きさ
 const SAFE = 0.81, SAFE_X = 150 - 60 * 0.81, SAFE_Y = 300 - 300 * 0.81;
 export const NISABOND_FRAMES = F(76.9);
 export const NisaBondReel: React.FC = () => (
@@ -433,7 +434,7 @@ export const NisaBondReel: React.FC = () => (
       {(id) => { const C = BODY[id]; const body = <div style={{ position: "absolute", inset: 0, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}><C /></div>; return PUNCH[id] ? <Camera keys={PUNCH[id]}>{body}</Camera> : <AbsoluteFill>{body}</AbsoluteFill>; }}
     </Board>
     <MapLayer />
-    <StepperWrap><Stepper labels={["分散", "高金利", "見える化", "株と債券"]} steps={[0, 11.8, 24.42, 52.3]} x={505 / SAFE} y={222 / SAFE} color={RED} /></StepperWrap>
+    <StepperWrap><Stepper labels={["分散", "高金利", "見える化", "株と債券"]} steps={[0, 11.8, 24.42, 52.3]} x={616 / STEP_S} y={226 / STEP_S} color={RED} /></StepperWrap>
     <Chara />
     {/* 下のテロップ（横150〜930pxに収める・インスタの説明文より上） */}
     <Captions subs={SUBS} end={76.4} maxW={780} size={0.78} />
