@@ -5,7 +5,8 @@ import { FONT } from "./components/font";
 import { B, GenSlot } from "./MileLifePlan";
 import { SfxTrack } from "./components/sfx";
 import { Board, Panel, Stop, Stepper, panelXY, PW, PH } from "./components/board";
-import { F, K, SER, pop, R, Lines, At, Arrow, Cross, Count } from "./components/zukaiKit";
+import { F, K, SER, pop, R as RM, Lines as LinesM, At, Arrow, Cross, Count } from "./components/zukaiKit";
+import { Scene, Captions } from "./BourakuReel";
 import { ghostIn, Spot } from "./components/cam";
 import { UST10Y } from "./ust10y";
 
@@ -16,6 +17,17 @@ import { UST10Y } from "./ust10y";
 //  画像 nb_*（太一と同じ絵柄で依頼中）は、届くまで点線の枠で表示される。
 // ════════════════════════════════════════════════════════════════════
 
+// 見た目の切り替え：marke＝参考リール②寄り（地図・左寄せ・赤の明朝）／taichi＝太一の元の図解寄り（場面転換・中央寄せ・マーカー・下に字幕）
+const Look = React.createContext<"marke" | "taichi">("marke");
+const R: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const look = React.useContext(Look);
+  if (look === "marke") return <RM>{children}</RM>;
+  return <span style={{ position: "relative", display: "inline-block" }}><span style={{ position: "absolute", left: -4, right: -4, bottom: "4%", height: "38%", background: A2.marker, borderRadius: 6 }} /><span style={{ position: "relative", color: A2.green }}>{children}</span></span>;
+};
+const Lines: React.FC<React.ComponentProps<typeof LinesM>> = (p) => {
+  const look = React.useContext(Look);
+  return look === "marke" ? <LinesM {...p} /> : <LinesM {...p} center x={0} />;
+};
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const out = { ...clamp, easing: Easing.out(Easing.cubic) };
 const INK = A2.ink, RED = A2.red, STOCK = "#2E9E6B", BOND = "#4A8FD6", CASH = "#E9B82E", SUB = A2.sub;
@@ -25,7 +37,17 @@ const Tag: React.FC<{ c: string; children: React.ReactNode; size?: number }> = (
 );
 const Head: React.FC<{ n: number; at: number; title: string }> = ({ n, at, title }) => {
   const f = useCurrentFrame();
+  const look = React.useContext(Look);
   if (f < F(at)) return null;
+  if (look === "taichi") {
+    const p = interpolate(f - F(at), [0, 8], [0, 1], out);
+    return (
+      <div style={{ position: "absolute", left: 0, top: 250, width: 1080, textAlign: "center", opacity: p, transform: `translateY(${(1 - p) * 18}px)` }}>
+        <div style={{ ...B, fontSize: 64, color: INK }}><span style={{ color: A2.green }}>{["①", "②", "③", "④"][n - 1]}</span> {title}</div>
+        <div style={{ width: interpolate(f - F(at), [4, 12], [0, 140], out), height: 12, borderRadius: 999, background: A2.green, margin: "12px auto 0" }} />
+      </div>
+    );
+  }
   return (
     <div style={{ position: "absolute", left: 60, top: 300, display: "flex", alignItems: "center", gap: 20, ...ghostIn(f, F(at)), transformOrigin: "0 50%" }}>
       <span style={{ background: RED, color: "#fff", borderRadius: 999, padding: "6px 28px", ...K, fontSize: 36 }}>理由 {n}</span>
@@ -164,7 +186,7 @@ const P4: React.FC = () => {
       <At at={37.34} x={450} y={530} mode="pop"><Img2 n="nb_kid_student" s={180} /></At>
       <At at={38.4} x={410} y={735} mode="pop"><span style={{ ...B, fontSize: 30 }}>約</span><span style={{ ...SER, fontSize: 64, color: BOND }}>1,091</span><span style={{ ...B, fontSize: 30 }}>万円</span></At>
       <At at={39.74} x={780} y={1080} mode="fade"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>30年後<br /><span style={{ ...B, fontSize: 26, color: SUB }}>老後</span></div></At>
-      <At at={39.9} x={790} y={300} mode="pop"><Img2 n="nb_elderly_couple" s={170} /></At>
+      <At at={39.9} x={900} y={395} mode="pop"><Img2 n="nb_elderly_couple" s={115} /></At>
       <At at={40.1} x={750} y={515} mode="pop"><span style={{ ...B, fontSize: 30 }}>約</span><span style={{ ...SER, fontSize: 64, color: BOND }}>2,161</span><span style={{ ...B, fontSize: 30 }}>万円</span></At>
       <At at={42.7} x={350} y={1180} mode="pop"><Tag c={STOCK} size={36}>教育資金</Tag></At>
       <At at={43.78} x={640} y={1180} mode="pop"><Tag c={CASH} size={36}>老後資金</Tag></At>
@@ -207,7 +229,7 @@ const P6: React.FC = () => {
   const ends = [-170, -90, -20, 50, 120];
   return (
     <>
-      <div style={{ position: "absolute", left: 60, top: 330, ...K, fontSize: 58, color: INK }}>株と債券を<R>両方</R>持つ理由</div>
+      <div style={{ position: "absolute", left: 0, top: 330, width: 1080, textAlign: React.useContext(Look) === "taichi" ? "center" : "left", paddingLeft: React.useContext(Look) === "taichi" ? 0 : 60, boxSizing: "border-box", ...K, fontSize: 58, color: INK }}>株と債券を<R>両方</R>持つ理由</div>
       {/* 株：シミュレーション（点線が広がる） */}
       <div style={{ position: "absolute", left: 60, top: 470, width: 470, height: 600, background: "#fff", border: `5px solid ${INK}`, borderRadius: 24, boxSizing: "border-box" }}>
         <div style={{ position: "absolute", left: 24, top: 16, ...K, fontSize: 44, color: STOCK }}>株</div>
@@ -240,7 +262,7 @@ const P6: React.FC = () => {
 // ── P7 まとめ（70.7–76.4） ──
 const P7: React.FC = () => (
   <>
-    <div style={{ position: "absolute", left: 60, top: 330, ...K, fontSize: 60, color: INK }}><R>株</R>と<R>債券</R>、両方を持つと</div>
+    <div style={{ position: "absolute", left: 0, top: 330, width: 1080, textAlign: React.useContext(Look) === "taichi" ? "center" : "left", paddingLeft: React.useContext(Look) === "taichi" ? 0 : 60, boxSizing: "border-box", ...K, fontSize: 60, color: INK }}><R>株</R>と<R>債券</R>、両方を持つと</div>
     <At at={71.0} x={250} y={470} mode="pop"><Img2 n="nb_family" s={580} /></At>
     <Lines y={1070} size={52} lines={[[72.94, <><R>将来のお金</R>も</>], [73.9, <><R>今使っていいお金</R>も</>], [75.16, "計画しやすくなる"]]} />
   </>
@@ -309,6 +331,51 @@ const CUES: { file: string; at: number; volume: number }[] = [
   { file: "user/u04", at: F(57.16), volume: 0.24 }, { file: "user/u04", at: F(63.14), volume: 0.24 },
   ...[66.4, 68.24, 68.9, 70.0].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.2 })), { file: "user/u10", at: F(75.16), volume: 0.28 },
 ];
+
+// ── 太一版：まとめ（65.22–70.72）＝3つの理由にチェック ──
+const SumT: React.FC = () => {
+  const f = useCurrentFrame();
+  const items: [string, string, number][] = [["①", "株の割合が増えていく中で", 66.4], ["②", "高金利の今", 68.24], ["③", "一部を債券に移した", 69.08]];
+  return (
+    <>
+      <div style={{ position: "absolute", left: 0, top: 260, width: 1080, textAlign: "center", ...B, fontSize: 64, color: INK }}><span style={{ color: A2.green }}>まとめ</span></div>
+      {items.map(([n, t, at], i) => f >= F(at) ? (
+        <div key={n} style={{ position: "absolute", left: 110, top: 440 + i * 200, width: 860, height: 160, background: "#fff", borderRadius: 34, boxShadow: "0 18px 40px rgba(80,60,20,0.12)", display: "flex", alignItems: "center", gap: 26, padding: "0 40px", boxSizing: "border-box", ...ghostIn(f, F(at)) }}>
+          <span style={{ ...K, fontSize: 60, color: A2.green }}>{n}</span><span style={{ ...K, fontSize: 48, color: INK }}>{t}</span>
+          <span style={{ marginLeft: "auto", width: 70, height: 70, borderRadius: "50%", background: A2.green, color: "#fff", ...K, fontSize: 44, textAlign: "center", lineHeight: "70px", transform: `scale(${pop(f, F(at) + 6)})` }}>✓</span>
+        </div>
+      ) : null)}
+    </>
+  );
+};
+const SUBS: [number, string][] = [
+  [0, "1つ目は*資産分散*"], [1.4, "僕はこれからも投資信託を積み立てていきます"], [4.0, "なので今後さらに*株の割合*が増えていくのは"], [6.6, "わかりきっています"], [7.5, "株に偏るほど!暴落した時の影響!も大きいので"], [10.42, "*資産を分散*しました"],
+  [11.8, "2つ目は今の*高金利*"], [13.6, "債券の金利は*日々変わって*います"], [15.66, "高い時もあれば、低い時もある"], [17.5, "つまり今の高金利は"], [18.9, "ずっと続くとは限らないし"], [20.6, "ある意味!期間限定!"], [21.88, "だから高金利の今、*債券に移しました*"],
+  [24.42, "3つ目は将来のお金を"], [26.18, "*ある程度確定*させたかったから"], [27.9, "僕はもともと300万円を債券に入れていて"], [30.6, "今回200万円を追加"], [32.22, "合計*500万円*"], [33.38, "どちらも*5%を超える水準*で運用しています"],
+  [36.38, "例えば子どもが18歳になる*16年後*"], [38.88, "さらに今から*30年後*"], [40.48, "いくらくらいになるのか、ある程度わかるので"], [42.7, "*教育資金*にも*老後資金*にも使えるし"],
+  [45.26, "もし教育費が必要な時に"], [47.08, "株が!暴落!していたら"], [48.66, "株を無理に売らず"], [49.66, "*債券側から使う*っていう選択肢も持てます"],
+  [52.3, "株は「年利5%で増えたら」と計算しても"], [55.28, "あくまで過去の実績をもとにした"], [57.16, "将来の*シミュレーション*"], [58.46, "一方で債券は、満期まで持つ前提なら"], [60.8, "数年後にいくらくらいになるのか"], [62.62, "原則約束された資産だから*計画的*"],
+  [65.22, "まとめると、これから株の割合が増えていく中で"], [68.24, "*高金利の今*、一部を債券に移しました"], [70.72, "株と債券、*両方を持つ*ことで"], [72.94, "将来のお金も、今使っていいお金も"], [75.16, "*計画しやすく*なります"],
+];
+export const NisaBondReelT: React.FC = () => (
+  <Look.Provider value="taichi">
+    <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
+      <Audio src={staticFile("nisabond-narration.wav")} />
+      <SfxTrack cues={CUES} />
+      <Scene a={0} b={11.8} inT="punch"><P1 /></Scene>
+      <Scene a={11.8} b={24.42} inT="drop"><P2 /></Scene>
+      <Scene a={24.42} b={36.38}><P3 /></Scene>
+      <Scene a={36.38} b={45.26} inT="zoom"><P4 /></Scene>
+      <Scene a={45.26} b={52.3} inT="drop"><P5 /></Scene>
+      <Scene a={52.3} b={65.22}><P6 /></Scene>
+      <Scene a={65.22} b={70.72} inT="zoom"><SumT /></Scene>
+      <Scene a={70.72} b={76.9} inT="zoom" outT="zoom"><P7 /></Scene>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 1330, bottom: 0, background: `linear-gradient(${A2.bg}00, ${A2.bg} 60px)` }} />
+      <Captions subs={SUBS} end={76.4} maxW={900} size={0.9} />
+      <Chara />
+    </AbsoluteFill>
+  </Look.Provider>
+);
 
 export const NISABOND_FRAMES = F(76.9);
 export const NisaBondReel: React.FC = () => (

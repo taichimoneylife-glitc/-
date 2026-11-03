@@ -52,7 +52,7 @@ import { SbiReel, SBI_FRAMES } from "./SbiReel";
 import { RakutenReel, RAKUTEN_FRAMES } from "./RakutenReel";
 import { BoardDemo, BOARD_DEMO_FRAMES } from "./BoardDemo";
 import { Marke2Repro, MARKE2_FRAMES } from "./Marke2Repro";
-import { NisaBondReel, NISABOND_FRAMES } from "./NisaBondReel";
+import { NisaBondReel, NisaBondReelT, NISABOND_FRAMES } from "./NisaBondReel";
 import { MileV2, MILE_V2_FRAMES } from "./MileV2";
 import { MileLifeChart, MILE_LC_FRAMES } from "./MileLifeChart";
 import { FPS, TOTAL_FRAMES } from "./config";
@@ -66,6 +66,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="MileLifePlan" component={MileLifePlan} durationInFrames={MILE_LP_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MileLifeChart" component={MileLifeChart} durationInFrames={MILE_LC_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MileV2" component={MileV2} durationInFrames={MILE_V2_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="NisaBondReelT" component={NisaBondReelT} durationInFrames={NISABOND_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="NisaBondReel" component={NisaBondReel} durationInFrames={NISABOND_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="Marke2Repro" component={Marke2Repro} durationInFrames={MARKE2_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="BoardDemo" component={BoardDemo} durationInFrames={BOARD_DEMO_FRAMES} fps={FPS} width={1080} height={1920} />
