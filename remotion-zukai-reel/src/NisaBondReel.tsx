@@ -9,6 +9,7 @@ import { F, K, SER, pop, R as RM, Lines as LinesM, At, Arrow, Cross, Count, ente
 import { Scene, Captions } from "./BourakuReel";
 import { ghostIn, Spot, Camera, CamKey } from "./components/cam";
 import { UST10Y } from "./ust10y";
+import { NB_MOUTH } from "./nisaBondMouth";
 
 // ════════════════════════════════════════════════════════════════════
 //  NISAを売って債券に移した理由（図解パート・76.4秒。冒頭と締めは実写トーク）
@@ -189,8 +190,8 @@ const P4: React.FC = () => {
   const g1 = interpolate(f, [F(38.1), F(38.1) + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.4)) });
   const g2 = interpolate(f, [F(39.74), F(39.74) + 26], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.2)) });
   const col = (x: number, h: number, c: string) => <div style={{ position: "absolute", left: x, top: BASE - h, width: 200, height: h, borderRadius: "16px 16px 0 0", background: c, boxShadow: "inset 0 -8px 0 rgba(0,0,0,0.1)" }} />;
-  const money = (cx: number, top: number, v: string, at: number, mode: "slam" | "drop" | "rise") => (
-    <At at={at} x={cx - 200} y={top} mode={mode}><div style={{ width: 400, textAlign: "center", whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 30 }}>約</span><span style={{ ...SER, fontSize: 64, color: BOND }}>{v}</span><span style={{ ...B, fontSize: 30 }}>万円</span></div></At>
+  const money = (cx: number, top: number, v: number, at: number, mode: "slam" | "drop" | "rise") => (
+    <At at={at} x={cx - 200} y={top} mode={mode}><div style={{ width: 400, textAlign: "center", whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 30 }}>約</span><span style={{ ...SER, fontSize: 64, color: BOND }}><Count at={at} from={500} to={v} dur={mode === "slam" ? 22 : 16} /></span><span style={{ ...B, fontSize: 30 }}>万円</span></div></At>
   );
   return (
     <>
@@ -205,10 +206,10 @@ const P4: React.FC = () => {
       <At at={38.1} x={440} y={1080} mode="rise"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>16年後<br /><span style={{ ...B, fontSize: 26, color: SUB }}>18歳・大学</span></div></At>
       <At at={37.34} x={420} y={560} mode="spring"><Img2 n="nb_kid_student" s={170} /></At>
       <At at={37.6} x={590} y={640} mode="drop"><Img2 n="nb_grad_cap" s={90} /></At>
-      {money(540, BASE - H1 - 92, "1,091", 38.4, "drop")}
+      {money(540, BASE - H1 - 92, 1091, 38.4, "drop")}
       <At at={39.74} x={780} y={1080} mode="rise"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>30年後<br /><span style={{ ...B, fontSize: 26, color: SUB }}>老後</span></div></At>
       <At at={39.9} x={805} y={335} mode="spring"><Img2 n="nb_elderly_couple" s={150} /></At>
-      {money(880, BASE - H2 - 92, "2,161", 40.1, "slam")}
+      {money(880, BASE - H2 - 92, 2161, 40.1, "slam")}
       <At at={42.7} x={350} y={1180} mode="drop"><Tag c={STOCK} size={36}>教育資金</Tag></At>
       <At at={43.78} x={640} y={1180} mode="drop"><Tag c={CASH} size={36}>老後資金</Tag></At>
       <Foot at={38.4} y={1270}>※500万円を年5%で複利運用した場合の目安。ドル建て・満期まで持った場合／円での金額は為替で変わります</Foot>
@@ -339,7 +340,7 @@ const MapLayer: React.FC = () => {
 
 // 右下の太一：ずっとは出さず、気持ちが動く所だけ（横からひょこっと出て、引っこむ）
 const APPEAR: [number, number, string][] = [
-  [7.5, 10.4, "taichi_scared"], [20.6, 24.2, "taichi_thumbs_up"], [45.26, 49.6, "taichi_worry"], [49.66, 52.05, "taichi_idea"], [72.0, 76.9, "taichi_thumbs_up"],
+  [7.5, 10.4, "taichi_scared"], [20.6, 24.2, "taichi_thumbs_up"], [45.26, 49.6, "taichi_worry"], [49.66, 52.05, "taichi_idea"], [71.0, 76.9, "__talk"],
 ];
 const Chara: React.FC = () => {
   const f = useCurrentFrame();
@@ -349,8 +350,19 @@ const Chara: React.FC = () => {
   const inP = interpolate(f, [F(s0) - 2, F(s0) + 8], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.6)) });
   const outP = interpolate(f, [F(e), F(e) + 8], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
   const look = React.useContext(Look);
+  // 締めは口だけ動いて話す（声の大きさ NB_MOUTH に合わせる）
+  let img = name;
+  if (name === "__talk") {
+    const lv = NB_MOUTH.charCodeAt(Math.min(NB_MOUTH.length - 1, f)) - 48;
+    const blink = f % 84 >= 80 && lv === 0;
+    img = blink ? "taichi_blink" : lv >= 2 ? (Math.floor(f / 2) % 3 === 0 ? "taichi_talk_mid" : "taichi_talk_open") : lv === 1 ? "taichi_talk_mid" : "taichi_talk_closed";
+  }
+  const sq = interpolate(f - F(s0), [6, 10, 14], [1, 0.94, 1], clamp); // 着地で少しつぶれる
+  const bob = Math.sin(f / 10) * 3;
+  const big = name === "__talk";
+  const S = big ? 250 : 200;
   return look === "marke"
-    ? <div style={{ position: "absolute", left: 730 + (1 - inP) * 380 + outP * 380, top: 1140, width: 200, height: 200 }}><GenSlot name={name} size={200} /></div>
+    ? <div style={{ position: "absolute", left: (big ? 690 : 730) + (1 - inP) * 380 + outP * 380, top: (big ? 1090 : 1140) + bob, width: S, height: S, transform: `scaleY(${sq}) scaleX(${2 - sq})`, transformOrigin: "50% 100%" }}><GenSlot name={img} size={S} /></div>
     : <div style={{ position: "absolute", left: 680 + (1 - inP) * 420 + outP * 420, top: 1390, width: 400, height: 400 }}><GenSlot name={name} size={400} /></div>;
 };
 
@@ -414,6 +426,12 @@ export const NisaBondReelT: React.FC = () => (
   </Look.Provider>
 );
 
+// テロップの下じき（白い帯で読みやすく。最初にスッと伸びる）
+const CapBand: React.FC = () => {
+  const f = useCurrentFrame();
+  const w = interpolate(f, [0, 10], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) }) * (1 - interpolate(f, [F(76.4), F(76.4) + 8], [0, 1], clamp));
+  return <div style={{ position: "absolute", left: 540 - 410 * w, width: 820 * w, top: 1340, height: 112, borderRadius: 999, background: "rgba(255,255,255,0.72)", boxShadow: "0 6px 18px rgba(120,90,20,0.10)" }} />;
+};
 // 左下の進み具合：全体マップの間は引っこめる
 const StepperWrap: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const f = useCurrentFrame();
@@ -437,6 +455,7 @@ export const NisaBondReel: React.FC = () => (
     <StepperWrap><Stepper labels={["分散", "高金利", "見える化", "株と債券"]} steps={[0, 11.8, 24.42, 52.3]} x={616 / STEP_S} y={226 / STEP_S} color={RED} /></StepperWrap>
     <Chara />
     {/* 下のテロップ（横150〜930pxに収める・インスタの説明文より上） */}
-    <Captions subs={SUBS} end={76.4} maxW={780} size={0.78} />
+    <CapBand />
+    <Captions subs={SUBS} end={76.4} maxW={740} size={0.78} kcol={{ g: RED, r: RED }} top={1352} />
   </AbsoluteFill>
 );
