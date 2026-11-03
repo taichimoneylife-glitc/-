@@ -461,8 +461,10 @@ const PCta: React.FC = () => {
       </div>
       <At at={78.3} until={79.3} x={250} y={1160} mode="drop"><Pill c={RED} size={40}>図解スライドで全部まとめ</Pill></At>
       {/* 参考④の最後の形：実際のプロフ画面 → 暗くしてリンクだけ明るく → 指でタップ → 札 */}
-      <TapCard at={79.45} until={80.8} src="cta_nisabond/igprofile.jpg" iw={1178} ih={915} x={90} y={380} w={900} hit={[0.03, 0.9, 0.52, 0.085]} dimAt={79.8} tapAt={80.25} label={<>プロフの<span style={{ color: RED }}>リンク</span>から</>} labelAt={80.4} />
-      <TapCard at={80.86} until={83.9} src="cta_nisabond/links.jpg" iw={1179} ih={525} x={90} y={420} w={900} hit={[0.02, 0.03, 0.96, 0.3]} dimAt={81.0} tapAt={81.45} label={<><span style={{ color: "#06C755" }}>公式LINE</span>を追加して</>} labelAt={81.6} labelTop={860} call={<>ここから<span style={{ color: RED }}>受け取って</span>ね！</>} callAt={82.24} />
+      <TapCard at={79.45} until={80.8} src="cta_nisabond/igprofile.jpg" iw={1178} ih={915} x={90} y={380} w={900} hit={[0.03, 0.9, 0.52, 0.085]} dimAt={79.7} tapAt={80.35} label={<>プロフの<span style={{ color: RED }}>リンク</span>から</>} labelAt={80.0} />
+      <TapCard at={80.86} until={82.0} src="cta_nisabond/links.jpg" iw={1179} ih={525} x={90} y={420} w={900} hit={[0.02, 0.03, 0.96, 0.3]} dimAt={81.0} tapAt={81.4} label={<><span style={{ color: "#06C755" }}>公式LINE</span>を追加して</>} labelAt={81.1} labelTop={900} labelLeft={150} />
+      {/* 公式LINEのリッチメニュー：「情報まとめ」に特典 */}
+      <TapCard at={82.0} src="cta_nisabond/site.webp" iw={2000} ih={1349} x={90} y={400} w={900} hit={[0.34, 0.52, 0.32, 0.45]} dimAt={82.2} tapAt={82.6} label={<>特典は<span style={{ color: RED }}>ここ</span>から！</>} labelAt={82.3} labelTop={1080} labelLeft={130} call={<>リッチメニューの「情報まとめ」</>} callAt={82.85} rot={1} />
     </>
   );
 };
