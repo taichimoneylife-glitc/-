@@ -366,7 +366,6 @@ const PSum: React.FC = () => {
       <div style={{ position: "absolute", left: 60, top: 290, width: 960, height: 120, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", gap: 22, padding: "0 26px", boxSizing: "border-box", ...swoop(f, 65.1, -1) }}>
         <div style={{ width: 80, height: 80, borderRadius: "50%", background: A2.bg, border: `4px solid ${INK}`, overflow: "hidden", flex: "none" }}><GenSlot name="taichi_face_smile" size={80} /></div>
         <div><div style={{ ...K, fontSize: 34, color: INK }}>たいち</div><div style={{ ...B, fontSize: 20, color: SUB }}>積立保険を売らない保険屋さん</div></div>
-        <span style={{ marginLeft: "auto" }}><Pill c={BOND} size={26}>フォロー</Pill></span>
       </div>
       {/* 見出し */}
       <div style={{ position: "absolute", left: 0, width: 1080, top: 450, textAlign: "center" }}>
