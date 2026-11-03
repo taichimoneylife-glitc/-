@@ -192,7 +192,7 @@ const P4: React.FC = () => {
       <At at={37.6} x={590} y={640} mode="drop"><Img2 n="nb_grad_cap" s={90} /></At>
       {money(540, BASE - H1 - 92, "1,091", 38.4, "drop")}
       <At at={39.74} x={780} y={1080} mode="rise"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>30年後<br /><span style={{ ...B, fontSize: 26, color: SUB }}>老後</span></div></At>
-      <At at={39.9} x={800} y={410} mode="spring"><Img2 n="nb_elderly_couple" s={150} /></At>
+      <At at={39.9} x={805} y={335} mode="spring"><Img2 n="nb_elderly_couple" s={150} /></At>
       {money(880, BASE - H2 - 92, "2,161", 40.1, "slam")}
       <At at={42.7} x={350} y={1180} mode="drop"><Tag c={STOCK} size={36}>教育資金</Tag></At>
       <At at={43.78} x={640} y={1180} mode="drop"><Tag c={CASH} size={36}>老後資金</Tag></At>
@@ -295,7 +295,7 @@ const PUNCH: Record<string, CamKey[]> = {
   p1: [{ t: 8.46, x: 540, y: 880, s: 1.1, d: 5 }, { t: 10.42, ...HOME, d: 12 }],
   p2: [{ t: 18.14, x: 540, y: 760, s: 1.12, d: 6 }, { t: 20.3, ...HOME, d: 14 }],
   p3: [{ t: 32.3, x: 560, y: 880, s: 1.1, d: 4 }, { t: 33.7, ...HOME, d: 12 }],
-  p4: [{ t: 40.1, x: 600, y: 820, s: 1.08, d: 50 }, { t: 42.5, ...HOME, d: 14 }],
+  p4: [{ t: 40.1, x: 600, y: 900, s: 1.05, d: 50 }, { t: 42.5, ...HOME, d: 14 }],
   p5: [{ t: 47.5, x: 300, y: 860, s: 1.3, d: 5 }, { t: 49.66, x: 780, y: 860, s: 1.3, d: 6 }, { t: 50.3, ...HOME, d: 12 }],
   p7: [{ t: 70.5, x: 540, y: 880, s: 1.0, d: 1 }, { t: 72.9, x: 540, y: 860, s: 1.06, d: 90 }],
 };
