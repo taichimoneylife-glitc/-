@@ -70,7 +70,7 @@ const swoop = (f: number, at: number, dir: 1 | -1): React.CSSProperties => {
   return { transform: `translateX(${(1 - p) * 700 * dir}px) rotate(${(1 - p) * 6 * dir}deg)`, filter: p < 0.9 ? `blur(${(1 - p) * 8}px)` : undefined };
 };
 const Foot: React.FC<{ at: number; children: React.ReactNode; y?: number }> = ({ at, children, y = 1290 }) => (
-  <At at={at} x={60} y={y} mode="rise"><span style={{ ...B, fontSize: 24, color: SUB }}>{children}</span></At>
+  <At at={at} x={60} y={y} mode="rise"><div style={{ maxWidth: 940, display: "inline-block", background: "#FFF8E3", border: "2px solid #E8D9A8", borderRadius: 14, padding: "6px 16px", ...B, fontSize: 23, lineHeight: 1.45, color: SUB }}>{children}</div></At>
 );
 
 // ── 10マスのブロック（1マス＝10%） ──
@@ -151,6 +151,8 @@ const P2: React.FC = () => {
       </svg>
       <Spot at={16.68} until={17.9} rect={[gx(iLow) - 70, gy(UST10Y[iLow]) - 60, 140, 110]} r={18} />
       <At at={16.9} until={17.9} x={gx(iLow) - 150} y={gy(UST10Y[iLow]) + 60} mode="drop"><Tag c={INK}>2020年 0.52%</Tag></At>
+      <Spot at={18.0} until={20.4} rect={[gx(iEnd) - 330, gy(UST10Y[iEnd]) - 175, 380, 235]} r={22} color={RED} />
+      <At at={18.6} until={20.4} x={gx(iEnd) - 300} y={gy(UST10Y[iEnd]) + 80} mode="drop"><Tag c={RED} size={32}>今は高い水準</Tag></At>
       <At at={18.14} x={gx(iEnd) - 300} y={gy(UST10Y[iEnd]) - 150} mode="slam"><span style={{ ...SER, fontSize: 84, color: RED }}>約5%</span><span style={{ ...B, fontSize: 28, color: INK }}> 今</span></At>
       <At at={20.6} x={650} y={440} mode="slam"><span style={{ display: "inline-block", border: `6px solid ${RED}`, borderRadius: 14, padding: "2px 26px", ...SER, fontSize: 52, color: RED, background: "#FFF6F2", transform: "rotate(-6deg)" }}>期間限定</span></At>
       <Foot at={13.6} y={1250}>※出典：FRED（米セントルイス連銀）DGS10。2026年10月時点</Foot>
@@ -200,7 +202,7 @@ const P4: React.FC = () => {
       {col(100, H0, BOND)}
       {f >= F(38.1) ? col(440, H0 + (H1 - H0) * g1, BOND) : null}
       {f >= F(39.74) ? col(780, H0 + (H2 - H0) * g2, BOND) : null}
-      <At at={36.4} x={100} y={1080} mode="rise"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>今<br /><span style={{ ...B, fontSize: 26, color: SUB }}>子ども2歳</span></div></At>
+      <At at={36.4} x={60} y={1080} mode="rise"><div style={{ width: 280, textAlign: "center", ...K, fontSize: 34 }}>今<br /><span style={{ ...B, fontSize: 26, color: SUB }}>子ども2歳と0歳</span></div></At>
       <At at={36.6} x={115} y={690} mode="spring"><Img2 n="nb_kid_toddler" s={170} /></At>
       <At at={36.6} x={100} y={BASE - H0 - 82} mode="drop"><div style={{ width: 200, textAlign: "center", ...SER, fontSize: 52, color: BOND }}>500万</div></At>
       <At at={38.1} x={440} y={1080} mode="rise"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>16年後<br /><span style={{ ...B, fontSize: 26, color: SUB }}>18歳・大学</span></div></At>
@@ -300,7 +302,7 @@ const PANELS: Panel[] = [
 const MAPIDS = ["p1", "p2", "p3", "p4", "p5", "p6"];
 const STOPS: Stop[] = [
   { id: "p1", trans: 0 }, { id: "p2", trans: 11.45, kind: "kick" }, { id: "p3", trans: 24.0, kind: "kick" }, { id: "p4", trans: 36.15, kind: "fast" },
-  { id: "p5", trans: 45.05, kind: "fast" }, { id: "p6", trans: 51.85, kind: "kick" }, { id: "__map", trans: 65.0, scale: 0.22, ids: MAPIDS }, { id: "p7", trans: 70.5 },
+  { id: "p5", trans: 45.05, kind: "fast" }, { id: "p6", trans: 51.85, kind: "kick" }, { id: "__map", trans: 65.0, scale: 0.2, ids: MAPIDS, oy: 300 }, { id: "p7", trans: 70.5 },
 ];
 const LINKS: [string, string][] = PANELS.slice(1).map((p, i) => [PANELS[i].id, p.id]);
 const BODY: Record<string, React.FC> = { p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7 };
@@ -321,18 +323,18 @@ const MapLayer: React.FC = () => {
   if (f < F(65.2) || f >= F(70.6)) return null;
   const ps = PANELS.filter((p) => MAPIDS.includes(p.id));
   const xs = ps.map((p) => panelXY(p)[0]), ys = ps.map((p) => panelXY(p)[1]);
-  const cx = (Math.min(...xs) + Math.max(...xs) + PW) / 2, cy = (Math.min(...ys) + Math.max(...ys) + PH) / 2, s = 0.22;
+  const cx = (Math.min(...xs) + Math.max(...xs) + PW) / 2, cy = (Math.min(...ys) + Math.max(...ys) + PH) / 2 + 300, s = 0.2;
   return (
     <>
       {["p1", "p2", "p3", "p6"].map((id, i) => {
         const [x, y] = panelXY(PANELS.find((q) => q.id === id)!);
         const at = F([66.4, 68.24, 68.9, 70.0][i]);
         if (f < at) return null;
-        return <div key={id} style={{ position: "absolute", left: 540 + (x - cx) * s - 6, top: 960 + (y - cy) * s - 6, width: PW * s + 12, height: PH * s + 12, border: `7px solid ${RED}`, borderRadius: 16, background: "rgba(232,85,59,0.07)", transform: `scale(${pop(f, at)})` }} />;
+        return <div key={id} style={{ position: "absolute", left: 540 + (x - cx) * s - 6, top: 960 + (y - cy) * s - 6, width: PW * s + 12, height: PH * s + 12, border: `7px solid ${RED}`, borderRadius: 16, background: "rgba(232,85,59,0.07)", transform: `scale(${pop(f, at) * interpolate(f - at, [0, 6, 16], [1, 1.07, 1.03], clamp)}) translateY(${interpolate(f - at, [0, 6, 16], [0, -14, -6], clamp)}px)`, boxShadow: `0 ${interpolate(f - at, [0, 8], [0, 22], clamp)}px 30px rgba(120,40,20,0.25), 0 0 0 ${interpolate(f - at, [0, 4, 12], [0, 18, 0], clamp)}px rgba(232,85,59,0.25)` }} />;
       })}
       <div style={{ position: "absolute", left: 0, top: 230, width: 1080, padding: "26px 150px", background: "rgba(251,246,216,0.94)", boxSizing: "border-box" }}>
         <Lines x={150} y={26} size={46} lines={[[65.22, "まとめると、"], [66.4, <>これから<R>株の割合</R>が増えていく中で</>], [68.24, <><R>高金利の今</R>、一部を債券に移しました</>]]} />
-        <div style={{ height: 250 }} />
+        <div style={{ height: 150 }} />
       </div>
     </>
   );
@@ -448,7 +450,7 @@ export const NisaBondReel: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
     <Audio src={staticFile("nisabond-narration.wav")} />
     <SfxTrack cues={CUES} />
-    <Board panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: A2.bg, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
+    <Board streaks panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: A2.bg, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
       {(id) => { const C = BODY[id]; const body = <div style={{ position: "absolute", inset: 0, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}><C /></div>; return PUNCH[id] ? <Camera keys={PUNCH[id]}>{body}</Camera> : <AbsoluteFill>{body}</AbsoluteFill>; }}
     </Board>
     <MapLayer />
@@ -456,6 +458,6 @@ export const NisaBondReel: React.FC = () => (
     <Chara />
     {/* 下のテロップ（横150〜930pxに収める・インスタの説明文より上） */}
     <CapBand />
-    <Captions subs={SUBS} end={76.4} maxW={740} size={0.78} kcol={{ g: RED, r: RED }} top={1352} />
+    <Captions subs={SUBS} end={76.4} maxW={740} size={0.78} kcol={{ g: RED, r: RED }} top={1352} swap />
   </AbsoluteFill>
 );

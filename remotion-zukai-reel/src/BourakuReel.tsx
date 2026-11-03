@@ -735,40 +735,53 @@ const parseCap = (s: string): Seg[] => {
   return out;
 };
 const KCOL = { g: A2.green, r: A2.coral, b: BOND, "": A2.ink } as const;
-export const Captions: React.FC<{ subs: [number, string][]; end: number; maxW?: number; size?: number; kcol?: Partial<Record<"g" | "r" | "b" | "", string>>; top?: number }> = ({ subs, end, maxW = 1000, size = 1, kcol, top = 1350 }) => {
+export const Captions: React.FC<{ subs: [number, string][]; end: number; maxW?: number; size?: number; kcol?: Partial<Record<"g" | "r" | "b" | "", string>>; top?: number; swap?: boolean }> = ({ subs, end, maxW = 1000, size = 1, kcol, top = 1350, swap }) => {
   const COL = { ...KCOL, ...(kcol ?? {}) };
   const f = useCurrentFrame();
   const t = f / 30;
   let i = -1;
   subs.forEach(([s0], k) => { if (t >= s0) i = k; });
   if (i < 0 || t > end) return null;
-  const [s0, raw] = subs[i];
-  const e = i + 1 < subs.length ? subs[i + 1][0] : end;
-  const segs = parseCap(raw);
-  const total = segs.reduce((n, g) => n + g.t.length, 0);
-  let idx = 0;
-  const est = segs.reduce((n, g) => n + g.t.length * (g.k ? 74 : 58) * size, 0);
-  const fit = Math.min(1, maxW / est); // はみ出す長さなら縮める
+  // 1行ぶんを描く（full＝全部出しきった状態）
+  const line = (j: number, full: boolean, extra: React.CSSProperties, key: string) => {
+    const [s0, raw] = subs[j];
+    const e = j + 1 < subs.length ? subs[j + 1][0] : end;
+    const segs = parseCap(raw);
+    const total = segs.reduce((n, g) => n + g.t.length, 0);
+    let idx = 0;
+    const est = segs.reduce((n, g) => n + g.t.length * (g.k ? 74 : 58) * size, 0);
+    const fit = Math.min(1, maxW / est); // はみ出す長さなら縮める
+    return (
+      <div key={key} style={{ position: "absolute", left: 30, right: 30, top, display: "flex", justifyContent: "center", alignItems: "baseline", flexWrap: "nowrap", transform: `scale(${fit})`, transformOrigin: "50% 100%", ...extra }}>
+        {segs.map((g, gi) => {
+          const kw = g.k !== "";
+          const k0 = idx;
+          const mStart = s0 + (e - s0) * 0.8 * (k0 / total) - 0.06;
+          const mEnd = s0 + (e - s0) * 0.8 * ((k0 + g.t.length) / total) + 0.08;
+          const mw = full ? 100 : interpolate(t, [mStart, mEnd], [0, 100], clamp);
+          return (
+            <span key={gi} style={{ position: "relative", display: "inline-block", whiteSpace: "nowrap" }}>
+              {kw && mw > 0 ? <span style={{ position: "absolute", left: -4, width: `calc(${mw}% + 8px)`, bottom: 4, height: "34%", background: g.k === "r" ? "rgba(239,125,87,0.25)" : g.k === "b" ? "rgba(74,143,214,0.22)" : "rgba(252,224,122,0.9)", borderRadius: 6 }} /> : null}
+              {Array.from(g.t).map((ch, k) => {
+                const at = s0 + (e - s0) * 0.8 * (idx++ / total) - 0.06;
+                const p = full ? 1 : interpolate(t, [at, at + 0.14], [0, 1], clamp);
+                return <span key={k} style={{ position: "relative", display: "inline-block", ...B, fontSize: (kw ? 74 : 58) * size, color: COL[g.k], opacity: (swap ? 0 : 0.15) + (swap ? 1 : 0.85) * p, filter: p < 1 ? `blur(${(1 - p) * 8}px)` : undefined, transform: `translateY(${(1 - p) * 10}px) scale(${kw ? 1 + (1 - p) * 0.3 : 1})`, textShadow: "0 0 10px #FBF6D8, 0 0 4px #FBF6D8" }}>{ch}</span>;
+              })}
+            </span>
+          );
+        })}
+      </div>
+    );
+  };
+  if (!swap) return line(i, false, {}, "c");
+  // 前の行は上へ抜け、次の行は下から入る（7f）
+  const d = f - Math.round(subs[i][0] * 30);
+  const p = interpolate(d, [0, 7], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
   return (
-    <div style={{ position: "absolute", left: 30, right: 30, top, display: "flex", justifyContent: "center", alignItems: "baseline", flexWrap: "nowrap", transform: `scale(${fit})`, transformOrigin: "50% 100%" }}>
-      {segs.map((g, gi) => {
-        const kw = g.k !== "";
-        const k0 = idx;
-        const mStart = s0 + (e - s0) * 0.8 * (k0 / total) - 0.06;
-        const mEnd = s0 + (e - s0) * 0.8 * ((k0 + g.t.length) / total) + 0.08;
-        const mw = interpolate(t, [mStart, mEnd], [0, 100], clamp);
-        return (
-          <span key={gi} style={{ position: "relative", display: "inline-block", whiteSpace: "nowrap" }}>
-            {kw && mw > 0 ? <span style={{ position: "absolute", left: -4, width: `calc(${mw}% + 8px)`, bottom: 4, height: "34%", background: g.k === "r" ? "rgba(239,125,87,0.25)" : g.k === "b" ? "rgba(74,143,214,0.22)" : "rgba(252,224,122,0.9)", borderRadius: 6 }} /> : null}
-            {Array.from(g.t).map((ch, k) => {
-              const at = s0 + (e - s0) * 0.8 * (idx++ / total) - 0.06;
-              const p = interpolate(t, [at, at + 0.14], [0, 1], clamp);
-              return <span key={k} style={{ position: "relative", display: "inline-block", ...B, fontSize: (kw ? 74 : 58) * size, color: COL[g.k], opacity: 0.15 + 0.85 * p, filter: p < 1 ? `blur(${(1 - p) * 8}px)` : undefined, transform: `translateY(${(1 - p) * 10}px) scale(${kw ? 1 + (1 - p) * 0.3 : 1})`, textShadow: "0 0 10px #FBF6D8, 0 0 4px #FBF6D8" }}>{ch}</span>;
-            })}
-          </span>
-        );
-      })}
-    </div>
+    <>
+      {i > 0 && p < 1 ? line(i - 1, true, { opacity: 1 - p, translate: `0 ${-34 * p}px` }, "p") : null}
+      {line(i, false, { translate: `0 ${26 * (1 - p)}px` }, "c")}
+    </>
   );
 };
 

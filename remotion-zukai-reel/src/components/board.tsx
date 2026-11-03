@@ -20,7 +20,7 @@ export const panelXY = (p: Panel) => [p.col * (PW + GAP_X), p.row * (PH + GAP_Y)
 
 // t秒に、どのページを見ているか（順番に並べる）。trans＝そのページへ移り始める時刻
 // kind：kick＝新しい章（ためて大きく流れ、ちょっと行き過ぎて止まる）／fast＝同じ章の中（さっと）
-export type Stop = { id: string; trans: number; kind?: "kick" | "fast" } | { id: "__map"; trans: number; scale: number; ids?: string[] };
+export type Stop = { id: string; trans: number; kind?: "kick" | "fast" } | { id: "__map"; trans: number; scale: number; ids?: string[]; oy?: number };
 
 const camOf = (panels: Panel[], s: Stop) => {
   if (s.id === "__map") {
@@ -28,7 +28,7 @@ const camOf = (panels: Panel[], s: Stop) => {
     const ps = only ? panels.filter((p) => only.includes(p.id)) : panels;
     const xs = ps.map((p) => panelXY(p)[0]), ys = ps.map((p) => panelXY(p)[1]);
     const cx = (Math.min(...xs) + Math.max(...xs) + PW) / 2, cy = (Math.min(...ys) + Math.max(...ys) + PH) / 2;
-    return { x: cx, y: cy, s: (s as { scale: number }).scale };
+    return { x: cx, y: cy + ((s as { oy?: number }).oy ?? 0), s: (s as { scale: number }).scale };
   }
   const p = panels.find((q) => q.id === s.id)!;
   const [x, y] = panelXY(p);
@@ -61,7 +61,7 @@ export const boardCam = (f: number, panels: Panel[], stops: Stop[]) => {
   return cur;
 };
 
-export const Board: React.FC<{ panels: Panel[]; stops: Stop[]; links?: [string, string][]; paper?: React.CSSProperties; children: (id: string) => React.ReactNode }> = ({ panels, stops, links = [], paper, children }) => {
+export const Board: React.FC<{ panels: Panel[]; stops: Stop[]; links?: [string, string][]; paper?: React.CSSProperties; streaks?: boolean; children: (id: string) => React.ReactNode }> = ({ panels, stops, links = [], paper, streaks, children }) => {
   const f = useCurrentFrame();
   const c = boardCam(f, panels, stops);
   // 動きの速さに合わせて少しぶらす（モーションブラー）
@@ -87,6 +87,19 @@ export const Board: React.FC<{ panels: Panel[]; stops: Stop[]; links?: [string, 
           return <div key={p.id} style={{ position: "absolute", left: x, top: y, width: PW, height: PH, overflow: "hidden", ...(paper ?? {}) }}>{children(p.id)}</div>;
         })}
       </div>
+      {/* 流れ線：動いている間だけ、動く向きに細い線が走る（スピード感） */}
+      {streaks && v > 12 ? (() => {
+        const ang = Math.atan2(-(c.y - p0.y), -(c.x - p0.x)) * 180 / Math.PI;
+        const a = Math.min(1, (v - 12) / 60);
+        return (
+          <div style={{ position: "absolute", left: -500, top: -500, width: 2080, height: 2920, transform: `rotate(${ang}deg)`, transformOrigin: "1040px 1460px", pointerEvents: "none" }}>
+            {Array.from({ length: 14 }).map((_, i) => {
+              const yy = 260 + ((i * 397) % 2400), len = 180 + ((i * 131) % 260), xx = ((i * 577 + f * 90) % 2600) - 300;
+              return <div key={i} style={{ position: "absolute", left: xx, top: yy, width: len * (0.6 + a), height: 4, borderRadius: 4, background: `rgba(120,95,40,${0.28 * a})` }} />;
+            })}
+          </div>
+        );
+      })() : null}
     </AbsoluteFill>
   );
 };
