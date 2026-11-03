@@ -50,6 +50,7 @@ import { NenchoMock } from "./NenchoMock";
 import { MarkeRepro, MARKE_FRAMES } from "./MarkeRepro";
 import { SbiReel, SBI_FRAMES } from "./SbiReel";
 import { RakutenReel, RAKUTEN_FRAMES } from "./RakutenReel";
+import { BoardDemo, BOARD_DEMO_FRAMES } from "./BoardDemo";
 import { MileV2, MILE_V2_FRAMES } from "./MileV2";
 import { MileLifeChart, MILE_LC_FRAMES } from "./MileLifeChart";
 import { FPS, TOTAL_FRAMES } from "./config";
@@ -63,6 +64,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="MileLifePlan" component={MileLifePlan} durationInFrames={MILE_LP_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MileLifeChart" component={MileLifeChart} durationInFrames={MILE_LC_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MileV2" component={MileV2} durationInFrames={MILE_V2_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="BoardDemo" component={BoardDemo} durationInFrames={BOARD_DEMO_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="RakutenReel" component={RakutenReel} durationInFrames={RAKUTEN_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="SbiReel" component={SbiReel} durationInFrames={SBI_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MarkeRepro" component={MarkeRepro} durationInFrames={MARKE_FRAMES} fps={FPS} width={1080} height={1920} />
