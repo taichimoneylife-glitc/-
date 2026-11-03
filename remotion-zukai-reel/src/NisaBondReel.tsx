@@ -8,6 +8,7 @@ import { Board, Panel, Stop, Stepper, panelXY, PW, PH } from "./components/board
 import { F, K, SER, pop, R as RM, Lines as LinesM, At, Arrow, Cross, Count, enter, wipeIn, TCtx, TypeIn } from "./components/zukaiKit";
 import { Scene, Captions } from "./BourakuReel";
 import { ghostIn, Spot, Camera, CamKey } from "./components/cam";
+import { TapCard } from "./components/tapCard";
 import { UST10Y } from "./ust10y";
 import { NB_MOUTH } from "./nisaBondMouth";
 
@@ -444,12 +445,6 @@ const PCta: React.FC = () => {
   const slIn = interpolate(f, [F(76.5), F(76.5) + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.2)) });
   const away = interpolate(f, [F(79.3), F(79.3) + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.7, 0, 0.2, 1) });
   // 後半：スマホ（プロフ → リンク一覧 → 公式LINE）
-  const phIn = interpolate(f, [F(79.45), F(79.45) + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.2)) });
-  const sheet = interpolate(f, [F(80.15), F(80.15) + 8], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
-  const toLine = interpolate(f, [F(80.86), F(80.86) + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
-  const tap1 = f - F(79.95), tap2 = f - F(80.55), tap3 = f - F(81.75);
-  const ripple = (d: number, x: number, y: number) => d > 0 && d < 16 ? <div style={{ position: "absolute", left: x - 45, top: y - 45, width: 90, height: 90, borderRadius: "50%", border: `6px solid ${RED}`, transform: `scale(${0.4 + d / 8})`, opacity: 1 - d / 16, zIndex: 9 }} /> : null;
-  const SW = 448; // スマホの画面の幅
   return (
     <>
       {/* 背景：ぼかした実物（前半＝スライド、後半＝プロフィールのサイト） */}
@@ -465,43 +460,9 @@ const PCta: React.FC = () => {
         <Sequence from={A} layout="none"><OffthreadVideo src={staticFile("cta_nisabond/slides.mp4")} muted playbackRate={3} startFrom={30} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 0%" }} /></Sequence>
       </div>
       <At at={78.3} until={79.3} x={250} y={1160} mode="drop"><Pill c={RED} size={40}>図解スライドで全部まとめ</Pill></At>
-      {/* スマホ */}
-      {f >= F(79.45) ? (
-        <div style={{ position: "absolute", left: 300, top: 300 + (1 - phIn) * 900, width: SW + 32, height: 880, borderRadius: 60, background: INK, padding: 16, boxSizing: "border-box", boxShadow: `10px 14px 0 rgba(0,0,0,0.18)` }}>
-          <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: 46, overflow: "hidden", background: "#fff" }}>
-            {/* インスタのプロフ（実際の画面） */}
-            <div style={{ position: "absolute", inset: 0, transform: `translateX(${-100 * toLine}%)`, paddingTop: 60 }}>
-              <Img src={staticFile("cta_nisabond/igprofile.jpg")} style={{ width: SW, display: "block" }} />
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4, marginTop: 14 }}>{Array.from({ length: 9 }).map((_, i) => <div key={i} style={{ height: 140, background: i % 2 ? "#F6EDC9" : "#EFE4BC" }} />)}</div>
-              {ripple(tap1, 150, 60 + 0.95 * SW * (915 / 1178))}
-              {/* 下から出るリンク一覧（実際の画面） */}
-              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 360, background: "#fff", borderRadius: "28px 28px 0 0", boxShadow: "0 -10px 30px rgba(0,0,0,0.2)", transform: `translateY(${(1 - sheet) * 110}%)`, paddingTop: 24 }}>
-                <div style={{ width: 70, height: 8, borderRadius: 4, background: "#ccc", margin: "0 auto 18px" }} />
-                <div style={{ position: "relative" }}>
-                  <Img src={staticFile("cta_nisabond/links.jpg")} style={{ width: SW, display: "block" }} />
-                  {tap2 > 0 ? <div style={{ position: "absolute", left: 8, top: 4, width: SW - 16, height: SW * (525 / 1179) / 3, borderRadius: 14, border: `5px solid ${RED}`, opacity: tap2 < 12 ? 1 : 0.7 }} /> : null}
-                  {ripple(tap2, 200, 34)}
-                </div>
-              </div>
-            </div>
-            {/* 公式LINE */}
-            <div style={{ position: "absolute", inset: 0, transform: `translateX(${100 * (1 - toLine)}%)`, background: "#fff", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 100 }}>
-              <div style={{ width: 170, height: 170, borderRadius: "50%", border: `5px solid ${INK}`, overflow: "hidden", background: "#FFE07A" }}><GenSlot name="taichi_face_smile" size={170} /></div>
-              <div style={{ ...K, fontSize: 36, color: INK, marginTop: 20 }}>たいち</div>
-              <div style={{ ...B, fontSize: 22, color: "#06C755", marginTop: 6 }}>公式LINE</div>
-              <div style={{ position: "relative", marginTop: 60, width: 340, height: 86, borderRadius: 999, background: "#06C755", color: "#fff", ...K, fontSize: 32, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${tap3 > 0 && tap3 < 6 ? 0.94 : 1})` }}>友だち追加</div>
-              {tap3 > 6 ? <div style={{ marginTop: 40, ...K, fontSize: 30, color: INK, ...enter("drop", f, F(81.75) + 6) }}>📄 図解スライドが届く！</div> : null}
-              <div style={{ position: "absolute", left: 0, right: 0, top: 0 }}>{ripple(tap3, SW / 2, 490)}</div>
-            </div>
-          </div>
-        </div>
-      ) : null}
-      {/* ここから → 左下（リールのアカウント名の所）を指す */}
-      {f >= F(82.24) ? (
-        <div style={{ position: "absolute", left: 40, top: 1210, ...enter("slam", f, F(82.24)) }}>
-          <span style={{ display: "inline-block", background: CASH, border: `6px solid ${INK}`, borderRadius: 20, padding: "6px 30px", ...K, fontSize: 52, color: INK, boxShadow: `6px 8px 0 ${INK}` }}>ここから ↙</span>
-        </div>
-      ) : null}
+      {/* 参考④の最後の形：実際のプロフ画面 → 暗くしてリンクだけ明るく → 指でタップ → 札 */}
+      <TapCard at={79.45} until={80.8} src="cta_nisabond/igprofile.jpg" iw={1178} ih={915} x={90} y={380} w={900} hit={[0.03, 0.9, 0.52, 0.085]} dimAt={79.8} tapAt={80.25} label={<>プロフの<span style={{ color: RED }}>リンク</span>から</>} labelAt={80.4} />
+      <TapCard at={80.86} until={83.9} src="cta_nisabond/links.jpg" iw={1179} ih={525} x={90} y={420} w={900} hit={[0.02, 0.03, 0.96, 0.3]} dimAt={81.0} tapAt={81.45} label={<><span style={{ color: "#06C755" }}>公式LINE</span>を追加して</>} labelAt={81.6} labelTop={860} call={<>ここから<span style={{ color: RED }}>受け取って</span>ね！</>} callAt={82.24} />
     </>
   );
 };
