@@ -45,7 +45,7 @@ const Tag: React.FC<{ c: string; children: React.ReactNode; size?: number }> = (
 );
 // 「理由n」の見せ方の候補（pill＝今の赤い札）
 export type HeadKind = "pill" | "sticky" | "badge" | "tab";
-export const HeadStyle = React.createContext<HeadKind>("badge"); // 本編＝大きな数字（中は透明）
+export const HeadStyle = React.createContext<HeadKind>("sticky"); // 本編＝付箋
 const HeadAlt: React.FC<{ kind: HeadKind; n: number; at: number; title: string }> = ({ kind, n, at, title }) => {
   const f = useCurrentFrame();
   const A = F(at);
