@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, Easing, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, Easing, Img, interpolate, OffthreadVideo, Sequence, staticFile, useCurrentFrame } from "remotion";
 import { A2 } from "./components/kit2";
 import { FONT } from "./components/font";
 import { B, GenSlot } from "./MileLifePlan";
@@ -437,62 +437,68 @@ const P7: React.FC = () => {
   );
 };
 // ── 締め（76.42–83.75）：具体的にまとめた資料 → プロフ → 公式LINE → ここから受け取る ──
-// 資料の中身は、この動画の図そのもの（P1・P2・P4・P6 を小さくして紙に載せる）
-const MiniPage: React.FC<{ C: React.FC; w: number }> = ({ C, w }) => (
-  <div style={{ width: w, height: w * (PH / PW), overflow: "hidden", position: "relative", background: A2.bg, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)", borderRadius: 18, border: `5px solid ${INK}`, boxShadow: `6px 8px 0 ${INK}` }}>
-    <div style={{ position: "absolute", left: 0, top: -230 * (w / PW), width: PW, height: PH, transform: `scale(${w / PW})`, transformOrigin: "0 0" }}><C /></div>
-  </div>
-);
 const PCta: React.FC = () => {
   const f = useCurrentFrame();
-  const fanP = interpolate(f, [F(76.7), F(76.7) + 16], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
-  const away = interpolate(f, [F(79.4), F(79.4) + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.7, 0, 0.2, 1) });
-  const pages: [React.FC, number][] = [[P1, -14], [P2, -5], [P4, 5], [P6, 14]];
-  // スマホ：プロフ（79.56〜）→ 公式LINE（80.86〜）
-  const phIn = interpolate(f, [F(79.5), F(79.5) + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.2)) });
+  const A = F(76.42);
+  // 前半：実際のスライド（画面収録）を大きく。後ろにはぼかした同じ映像
+  const slIn = interpolate(f, [F(76.5), F(76.5) + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.2)) });
+  const away = interpolate(f, [F(79.3), F(79.3) + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.7, 0, 0.2, 1) });
+  // 後半：スマホ（プロフ → リンク一覧 → 公式LINE）
+  const phIn = interpolate(f, [F(79.45), F(79.45) + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.2)) });
+  const sheet = interpolate(f, [F(80.15), F(80.15) + 8], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
   const toLine = interpolate(f, [F(80.86), F(80.86) + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
-  const tap1 = f - F(80.5), tap2 = f - F(81.75);
-  const ripple = (d: number, x: number, y: number) => d > 0 && d < 16 ? <div style={{ position: "absolute", left: x - 45, top: y - 45, width: 90, height: 90, borderRadius: "50%", border: `6px solid ${RED}`, transform: `scale(${0.4 + d / 8})`, opacity: 1 - d / 16 }} /> : null;
+  const tap1 = f - F(79.95), tap2 = f - F(80.55), tap3 = f - F(81.75);
+  const ripple = (d: number, x: number, y: number) => d > 0 && d < 16 ? <div style={{ position: "absolute", left: x - 45, top: y - 45, width: 90, height: 90, borderRadius: "50%", border: `6px solid ${RED}`, transform: `scale(${0.4 + d / 8})`, opacity: 1 - d / 16, zIndex: 9 }} /> : null;
+  const SW = 448; // スマホの画面の幅
   return (
     <>
-      <div style={{ position: "absolute", left: 60, top: 330, ...K, fontSize: 56, color: INK, lineHeight: 1.35, opacity: 1 - away }}>
+      {/* 背景：ぼかした実物（前半＝スライド、後半＝プロフィールのサイト） */}
+      <div style={{ position: "absolute", inset: -60, opacity: 0.32 * (1 - away), filter: "blur(16px)" }}>
+        <Sequence from={A} layout="none"><OffthreadVideo src={staticFile("cta_nisabond/slides.mp4")} muted playbackRate={3} startFrom={30} style={{ width: "100%", height: "100%", objectFit: "cover" }} /></Sequence>
+      </div>
+      <div style={{ position: "absolute", inset: -60, opacity: 0.28 * away, filter: "blur(12px)" }}><Img src={staticFile("cta_nisabond/site.webp")} style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
+      <div style={{ position: "absolute", left: 60, top: 320, ...K, fontSize: 56, color: INK, lineHeight: 1.35, opacity: 1 - away, textShadow: `0 0 14px ${A2.bg}, 0 0 6px ${A2.bg}` }}>
         <TypeIn at={F(76.42)}>債券に移した理由を</TypeIn><br />{f >= F(77.6) ? <TypeIn at={F(77.6)}><R>具体的</R>にまとめました</TypeIn> : null}
       </div>
-      {/* 資料（この動画の図）が扇のように広がる */}
-      {pages.map(([C, rot], i) => (
-        <div key={i} style={{ position: "absolute", left: 540 - 150 + (i - 1.5) * 150 * fanP, top: 560 + Math.abs(i - 1.5) * 26 * fanP, transform: `rotate(${rot * fanP}deg) translateY(${(1 - fanP) * 300 + away * 900}px)`, transformOrigin: "50% 100%", opacity: Math.min(1, fanP * 2) * (1 - away), zIndex: i }}><MiniPage C={C} w={300} /></div>
-      ))}
-      <At at={78.3} until={79.4} x={300} y={1150} mode="drop"><Pill c={RED} size={40}>図解まとめ（全部入り）</Pill></At>
-      {/* スマホ：プロフ → 公式LINE */}
-      {f >= F(79.5) ? (
-        <div style={{ position: "absolute", left: 210, top: 330 + (1 - phIn) * 900, width: 480, height: 860, borderRadius: 60, background: INK, padding: 16, boxSizing: "border-box", boxShadow: `10px 14px 0 rgba(0,0,0,0.18)` }}>
+      {/* 実際のスライド（動画） */}
+      <div style={{ position: "absolute", left: 540 - 290, top: 480, width: 580, height: 667, borderRadius: 26, overflow: "hidden", background: "#fff", border: `6px solid ${INK}`, boxShadow: `10px 12px 0 ${INK}`, transform: `translateY(${(1 - slIn) * 700 + away * 1400}px) rotate(${(1 - slIn) * 6 - away * 8}deg)`, opacity: Math.min(1, slIn * 2) * (1 - away) }}>
+        <Sequence from={A} layout="none"><OffthreadVideo src={staticFile("cta_nisabond/slides.mp4")} muted playbackRate={3} startFrom={30} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 0%" }} /></Sequence>
+      </div>
+      <At at={78.3} until={79.3} x={250} y={1160} mode="drop"><Pill c={RED} size={40}>図解スライドで全部まとめ</Pill></At>
+      {/* スマホ */}
+      {f >= F(79.45) ? (
+        <div style={{ position: "absolute", left: 300, top: 300 + (1 - phIn) * 900, width: SW + 32, height: 880, borderRadius: 60, background: INK, padding: 16, boxSizing: "border-box", boxShadow: `10px 14px 0 rgba(0,0,0,0.18)` }}>
           <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: 46, overflow: "hidden", background: "#fff" }}>
-            {/* プロフィール */}
-            <div style={{ position: "absolute", inset: 0, transform: `translateX(${-100 * toLine}%)`, padding: "70px 30px 0", boxSizing: "border-box" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                <div style={{ width: 120, height: 120, borderRadius: "50%", border: `5px solid ${INK}`, overflow: "hidden", background: A2.bg }}><GenSlot name="taichi_face_smile" size={120} /></div>
-                <div style={{ ...K, fontSize: 34, color: INK }}>たいち</div>
+            {/* インスタのプロフ（実際の画面） */}
+            <div style={{ position: "absolute", inset: 0, transform: `translateX(${-100 * toLine}%)`, paddingTop: 60 }}>
+              <Img src={staticFile("cta_nisabond/igprofile.jpg")} style={{ width: SW, display: "block" }} />
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4, marginTop: 14 }}>{Array.from({ length: 9 }).map((_, i) => <div key={i} style={{ height: 140, background: i % 2 ? "#F6EDC9" : "#EFE4BC" }} />)}</div>
+              {ripple(tap1, 150, 60 + 0.95 * SW * (915 / 1178))}
+              {/* 下から出るリンク一覧（実際の画面） */}
+              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 360, background: "#fff", borderRadius: "28px 28px 0 0", boxShadow: "0 -10px 30px rgba(0,0,0,0.2)", transform: `translateY(${(1 - sheet) * 110}%)`, paddingTop: 24 }}>
+                <div style={{ width: 70, height: 8, borderRadius: 4, background: "#ccc", margin: "0 auto 18px" }} />
+                <div style={{ position: "relative" }}>
+                  <Img src={staticFile("cta_nisabond/links.jpg")} style={{ width: SW, display: "block" }} />
+                  {tap2 > 0 ? <div style={{ position: "absolute", left: 8, top: 4, width: SW - 16, height: SW * (525 / 1179) / 3, borderRadius: 14, border: `5px solid ${RED}`, opacity: tap2 < 12 ? 1 : 0.7 }} /> : null}
+                  {ripple(tap2, 200, 34)}
+                </div>
               </div>
-              <div style={{ ...B, fontSize: 22, color: SUB, marginTop: 18, lineHeight: 1.5 }}>積立保険を売らない保険屋さん<br />お金と保険を図解で解説</div>
-              <div style={{ position: "relative", marginTop: 26, height: 70, borderRadius: 16, background: "#F2F2F2", display: "flex", alignItems: "center", gap: 12, padding: "0 20px", ...K, fontSize: 26, color: "#1E6FD9", boxShadow: tap1 > 0 ? `0 0 0 5px ${RED}` : "none", transform: `scale(${tap1 > 0 && tap1 < 6 ? 0.95 : 1})` }}>🔗 公式LINEはこちら</div>
-              {ripple(tap1, 210, 330)}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, marginTop: 30 }}>{Array.from({ length: 9 }).map((_, i) => <div key={i} style={{ height: 120, background: i % 2 ? "#F6EDC9" : "#EFE4BC", borderRadius: 6 }} />)}</div>
             </div>
             {/* 公式LINE */}
-            <div style={{ position: "absolute", inset: 0, transform: `translateX(${100 * (1 - toLine)}%)`, background: "#fff", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 90 }}>
-              <div style={{ width: 160, height: 160, borderRadius: "50%", border: `5px solid ${INK}`, overflow: "hidden", background: A2.bg }}><GenSlot name="taichi_face_smile" size={160} /></div>
+            <div style={{ position: "absolute", inset: 0, transform: `translateX(${100 * (1 - toLine)}%)`, background: "#fff", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 100 }}>
+              <div style={{ width: 170, height: 170, borderRadius: "50%", border: `5px solid ${INK}`, overflow: "hidden", background: "#FFE07A" }}><GenSlot name="taichi_face_smile" size={170} /></div>
               <div style={{ ...K, fontSize: 36, color: INK, marginTop: 20 }}>たいち</div>
               <div style={{ ...B, fontSize: 22, color: "#06C755", marginTop: 6 }}>公式LINE</div>
-              <div style={{ position: "relative", marginTop: 60, width: 340, height: 86, borderRadius: 999, background: "#06C755", color: "#fff", ...K, fontSize: 32, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${tap2 > 0 && tap2 < 6 ? 0.94 : 1})` }}>友だち追加</div>
-              {tap2 > 6 ? <div style={{ marginTop: 40, ...K, fontSize: 30, color: INK, ...enter("drop", f, F(81.75) + 6) }}>📄 まとめが届く！</div> : null}
-              <div style={{ position: "absolute", left: 0, right: 0, top: 0 }}>{ripple(tap2, 224, 470)}</div>
+              <div style={{ position: "relative", marginTop: 60, width: 340, height: 86, borderRadius: 999, background: "#06C755", color: "#fff", ...K, fontSize: 32, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${tap3 > 0 && tap3 < 6 ? 0.94 : 1})` }}>友だち追加</div>
+              {tap3 > 6 ? <div style={{ marginTop: 40, ...K, fontSize: 30, color: INK, ...enter("drop", f, F(81.75) + 6) }}>📄 図解スライドが届く！</div> : null}
+              <div style={{ position: "absolute", left: 0, right: 0, top: 0 }}>{ripple(tap3, SW / 2, 490)}</div>
             </div>
           </div>
         </div>
       ) : null}
-      {/* ここから → 左下（プロフの名前の所）を指す */}
+      {/* ここから → 左下（リールのアカウント名の所）を指す */}
       {f >= F(82.24) ? (
-        <div style={{ position: "absolute", left: 40, top: 1200, ...enter("slam", f, F(82.24)) }}>
+        <div style={{ position: "absolute", left: 40, top: 1210, ...enter("slam", f, F(82.24)) }}>
           <span style={{ display: "inline-block", background: CASH, border: `6px solid ${INK}`, borderRadius: 20, padding: "6px 30px", ...K, fontSize: 52, color: INK, boxShadow: `6px 8px 0 ${INK}` }}>ここから ↙</span>
         </div>
       ) : null}
