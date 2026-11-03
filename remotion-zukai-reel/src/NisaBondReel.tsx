@@ -436,18 +436,82 @@ const P7: React.FC = () => {
     </>
   );
 };
+// ── 締め（76.42–83.75）：具体的にまとめた資料 → プロフ → 公式LINE → ここから受け取る ──
+// 資料の中身は、この動画の図そのもの（P1・P2・P4・P6 を小さくして紙に載せる）
+const MiniPage: React.FC<{ C: React.FC; w: number }> = ({ C, w }) => (
+  <div style={{ width: w, height: w * (PH / PW), overflow: "hidden", position: "relative", background: A2.bg, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)", borderRadius: 18, border: `5px solid ${INK}`, boxShadow: `6px 8px 0 ${INK}` }}>
+    <div style={{ position: "absolute", left: 0, top: -230 * (w / PW), width: PW, height: PH, transform: `scale(${w / PW})`, transformOrigin: "0 0" }}><C /></div>
+  </div>
+);
+const PCta: React.FC = () => {
+  const f = useCurrentFrame();
+  const fanP = interpolate(f, [F(76.7), F(76.7) + 16], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
+  const away = interpolate(f, [F(79.4), F(79.4) + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.7, 0, 0.2, 1) });
+  const pages: [React.FC, number][] = [[P1, -14], [P2, -5], [P4, 5], [P6, 14]];
+  // スマホ：プロフ（79.56〜）→ 公式LINE（80.86〜）
+  const phIn = interpolate(f, [F(79.5), F(79.5) + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.2)) });
+  const toLine = interpolate(f, [F(80.86), F(80.86) + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
+  const tap1 = f - F(80.5), tap2 = f - F(81.75);
+  const ripple = (d: number, x: number, y: number) => d > 0 && d < 16 ? <div style={{ position: "absolute", left: x - 45, top: y - 45, width: 90, height: 90, borderRadius: "50%", border: `6px solid ${RED}`, transform: `scale(${0.4 + d / 8})`, opacity: 1 - d / 16 }} /> : null;
+  return (
+    <>
+      <div style={{ position: "absolute", left: 60, top: 330, ...K, fontSize: 56, color: INK, lineHeight: 1.35, opacity: 1 - away }}>
+        <TypeIn at={F(76.42)}>債券に移した理由を</TypeIn><br />{f >= F(77.6) ? <TypeIn at={F(77.6)}><R>具体的</R>にまとめました</TypeIn> : null}
+      </div>
+      {/* 資料（この動画の図）が扇のように広がる */}
+      {pages.map(([C, rot], i) => (
+        <div key={i} style={{ position: "absolute", left: 540 - 150 + (i - 1.5) * 150 * fanP, top: 560 + Math.abs(i - 1.5) * 26 * fanP, transform: `rotate(${rot * fanP}deg) translateY(${(1 - fanP) * 300 + away * 900}px)`, transformOrigin: "50% 100%", opacity: Math.min(1, fanP * 2) * (1 - away), zIndex: i }}><MiniPage C={C} w={300} /></div>
+      ))}
+      <At at={78.3} until={79.4} x={300} y={1150} mode="drop"><Pill c={RED} size={40}>図解まとめ（全部入り）</Pill></At>
+      {/* スマホ：プロフ → 公式LINE */}
+      {f >= F(79.5) ? (
+        <div style={{ position: "absolute", left: 210, top: 330 + (1 - phIn) * 900, width: 480, height: 860, borderRadius: 60, background: INK, padding: 16, boxSizing: "border-box", boxShadow: `10px 14px 0 rgba(0,0,0,0.18)` }}>
+          <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: 46, overflow: "hidden", background: "#fff" }}>
+            {/* プロフィール */}
+            <div style={{ position: "absolute", inset: 0, transform: `translateX(${-100 * toLine}%)`, padding: "70px 30px 0", boxSizing: "border-box" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                <div style={{ width: 120, height: 120, borderRadius: "50%", border: `5px solid ${INK}`, overflow: "hidden", background: A2.bg }}><GenSlot name="taichi_face_smile" size={120} /></div>
+                <div style={{ ...K, fontSize: 34, color: INK }}>たいち</div>
+              </div>
+              <div style={{ ...B, fontSize: 22, color: SUB, marginTop: 18, lineHeight: 1.5 }}>積立保険を売らない保険屋さん<br />お金と保険を図解で解説</div>
+              <div style={{ position: "relative", marginTop: 26, height: 70, borderRadius: 16, background: "#F2F2F2", display: "flex", alignItems: "center", gap: 12, padding: "0 20px", ...K, fontSize: 26, color: "#1E6FD9", boxShadow: tap1 > 0 ? `0 0 0 5px ${RED}` : "none", transform: `scale(${tap1 > 0 && tap1 < 6 ? 0.95 : 1})` }}>🔗 公式LINEはこちら</div>
+              {ripple(tap1, 210, 330)}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, marginTop: 30 }}>{Array.from({ length: 9 }).map((_, i) => <div key={i} style={{ height: 120, background: i % 2 ? "#F6EDC9" : "#EFE4BC", borderRadius: 6 }} />)}</div>
+            </div>
+            {/* 公式LINE */}
+            <div style={{ position: "absolute", inset: 0, transform: `translateX(${100 * (1 - toLine)}%)`, background: "#fff", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 90 }}>
+              <div style={{ width: 160, height: 160, borderRadius: "50%", border: `5px solid ${INK}`, overflow: "hidden", background: A2.bg }}><GenSlot name="taichi_face_smile" size={160} /></div>
+              <div style={{ ...K, fontSize: 36, color: INK, marginTop: 20 }}>たいち</div>
+              <div style={{ ...B, fontSize: 22, color: "#06C755", marginTop: 6 }}>公式LINE</div>
+              <div style={{ position: "relative", marginTop: 60, width: 340, height: 86, borderRadius: 999, background: "#06C755", color: "#fff", ...K, fontSize: 32, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${tap2 > 0 && tap2 < 6 ? 0.94 : 1})` }}>友だち追加</div>
+              {tap2 > 6 ? <div style={{ marginTop: 40, ...K, fontSize: 30, color: INK, ...enter("drop", f, F(81.75) + 6) }}>📄 まとめが届く！</div> : null}
+              <div style={{ position: "absolute", left: 0, right: 0, top: 0 }}>{ripple(tap2, 224, 470)}</div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {/* ここから → 左下（プロフの名前の所）を指す */}
+      {f >= F(82.24) ? (
+        <div style={{ position: "absolute", left: 40, top: 1200, ...enter("slam", f, F(82.24)) }}>
+          <span style={{ display: "inline-block", background: CASH, border: `6px solid ${INK}`, borderRadius: 20, padding: "6px 30px", ...K, fontSize: 52, color: INK, boxShadow: `6px 8px 0 ${INK}` }}>ここから ↙</span>
+        </div>
+      ) : null}
+    </>
+  );
+};
+
 // ════════ 地図の並び ════════
 const PANELS: Panel[] = [
   { id: "p1", col: 0, row: 0 }, { id: "p2", col: 1, row: 0 }, { id: "p3", col: 2, row: 0 },
-  { id: "p4", col: 2, row: 1 }, { id: "p5", col: 1, row: 1 }, { id: "p6", col: 0, row: 1 }, { id: "psum", col: 0, row: 2 }, { id: "p7", col: 1, row: 2 },
+  { id: "p4", col: 2, row: 1 }, { id: "p5", col: 1, row: 1 }, { id: "p6", col: 0, row: 1 }, { id: "psum", col: 0, row: 2 }, { id: "p7", col: 1, row: 2 }, { id: "pcta", col: 2, row: 2 },
 ];
 const MAPIDS = ["p1", "p2", "p3", "p4", "p5", "p6"];
 const STOPS: Stop[] = [
   { id: "p1", trans: 0 }, { id: "p2", trans: 11.45, kind: "kick" }, { id: "p3", trans: 24.0, kind: "kick" }, { id: "p4", trans: 36.15, kind: "fast" },
-  { id: "p5", trans: 45.05, kind: "fast" }, { id: "p6", trans: 51.85, kind: "kick" }, { id: "psum", trans: 64.9, kind: "kick" }, { id: "p7", trans: 70.45, kind: "kick" },
+  { id: "p5", trans: 45.05, kind: "fast" }, { id: "p6", trans: 51.85, kind: "kick" }, { id: "psum", trans: 64.9, kind: "kick" }, { id: "p7", trans: 70.45, kind: "kick" }, { id: "pcta", trans: 76.3, kind: "kick" },
 ];
 const LINKS: [string, string][] = PANELS.slice(1).map((p, i) => [PANELS[i].id, p.id]);
-const BODY: Record<string, React.FC> = { p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, psum: PSum, p7: P7 };
+const BODY: Record<string, React.FC> = { p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, psum: PSum, p7: P7, pcta: PCta };
 // ページの中の寄り・引き（緩急）。d＝動く長さ（f）：短い＝ドン、長い＝じわっ
 const HOME = { x: 540, y: 960, s: 1 };
 const PUNCH: Record<string, CamKey[]> = {
@@ -484,7 +548,7 @@ const MapLayer: React.FC = () => {
 
 // 右下の太一：ずっとは出さず、気持ちが動く所だけ（横からひょこっと出て、引っこむ）
 const APPEAR: [number, number, string][] = [
-  [7.5, 10.4, "taichi_scared"], [20.6, 24.2, "taichi_thumbs_up"], [45.26, 49.6, "taichi_worry"], [49.66, 52.05, "taichi_idea"], [71.0, 76.9, "__talk"],
+  [7.5, 10.4, "taichi_scared"], [20.6, 24.2, "taichi_thumbs_up"], [45.26, 49.6, "taichi_worry"], [49.66, 52.05, "taichi_idea"], [71.0, 83.8, "__talk"],
 ];
 const Chara: React.FC = () => {
   const f = useCurrentFrame();
@@ -522,7 +586,7 @@ const CUES: { file: string; at: number; volume: number }[] = [
   ...[38.4, 40.1].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.22 })), ...[42.7, 43.78].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })),
   { file: "user/u04", at: F(47.5), volume: 0.26 }, { file: "user/u05s", at: F(49.66), volume: 0.22 }, { file: "user/u02s", at: F(50.6), volume: 0.2 },
   { file: "user/u04", at: F(57.16), volume: 0.24 }, { file: "user/u04", at: F(63.14), volume: 0.24 },
-  ...[66.4, 68.24, 69.0].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.22 })), ...[71.0, 71.2, 72.3, 73.14, 74.1].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })), { file: "user/u04", at: F(51.26), volume: 0.26 }, { file: "user/u10", at: F(75.16), volume: 0.28 },
+  ...[66.4, 68.24, 69.0].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.22 })), ...[71.0, 71.2, 72.3, 73.14, 74.1].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })), { file: "user/u04", at: F(51.26), volume: 0.26 }, { file: "user/u10", at: F(75.16), volume: 0.28 }, { file: "user/u03s", at: F(76.3), volume: 0.24 }, { file: "user/u02s", at: F(76.7), volume: 0.2 }, { file: "user/u04", at: F(78.3), volume: 0.24 }, { file: "user/u03s", at: F(79.4), volume: 0.22 }, ...[80.5, 81.75].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.22 })), { file: "user/u04", at: F(82.24), volume: 0.26 },
 ];
 
 // ── 太一版：まとめ（65.22–70.72）＝3つの理由にチェック ──
@@ -549,6 +613,7 @@ export const SUBS: [number, string][] = [
   [45.26, "もし教育費が必要な時に"], [47.08, "株が!暴落!していたら"], [48.66, "株を無理に売らず"], [49.66, "*債券側から使う*っていう選択肢も持てます"],
   [52.3, "株は「年利5%で増えたら」と計算しても"], [55.28, "あくまで過去の実績をもとにした"], [57.16, "将来の*シミュレーション*"], [58.46, "一方で債券は、満期まで持つ前提なら"], [60.8, "数年後にいくらくらいになるのか"], [62.62, "原則約束された資産だから*計画的*"],
   [65.22, "まとめると、これから株の割合が増えていく中で"], [68.24, "*高金利の今*、一部を債券に移しました"], [70.72, "株と債券、*両方を持つ*ことで"], [72.94, "将来のお金も、今使っていいお金も"], [75.16, "*計画しやすく*なります"],
+  [76.42, "僕が債券に移した理由を"], [77.6, "*具体的にまとめました*"], [79.56, "欲しい人はプロフから"], [80.86, "*公式LINE*を追加して"], [82.24, "ここからお受け取りください"],
 ];
 export const NisaBondReelT: React.FC = () => (
   <Look.Provider value="taichi">
@@ -573,7 +638,7 @@ export const NisaBondReelT: React.FC = () => (
 // テロップの下じき（白い帯で読みやすく。最初にスッと伸びる）
 const CapBand: React.FC = () => {
   const f = useCurrentFrame();
-  const w = interpolate(f, [0, 10], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) }) * (1 - interpolate(f, [F(76.4), F(76.4) + 8], [0, 1], clamp));
+  const w = interpolate(f, [0, 10], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) }) * (1 - interpolate(f, [F(83.7), F(83.7) + 8], [0, 1], clamp));
   return <div style={{ position: "absolute", left: 540 - 410 * w, width: 820 * w, top: 1340, height: 112, borderRadius: 999, background: "rgba(255,255,255,0.72)", boxShadow: "0 6px 18px rgba(120,90,20,0.10)" }} />;
 };
 // 左下の進み具合：全体マップの間は引っこめる
@@ -587,10 +652,11 @@ const StepperWrap: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 //  → 図は 横 150〜930px ／ 縦 300〜1110px に収める（元の 60〜1020 を 0.81倍して左右150pxずつ空ける）
 const STEP_S = 0.6; // 右上の進み具合の大きさ
 const SAFE = 0.81, SAFE_X = 150 - 60 * 0.81, SAFE_Y = 300 - 300 * 0.81;
-export const NISABOND_FRAMES = F(76.9);
+export const NISABOND_FRAMES = F(84.0); // 締めまで
+export const NISABOND_T_FRAMES = F(76.9);
 export const NisaBondReel: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
-    <Audio src={staticFile("nisabond-narration.wav")} />
+    <Audio src={staticFile("nisabond-full.wav")} />
     <SfxTrack cues={CUES} />
     <Board streaks panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: A2.bg, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
       {(id) => { const C = BODY[id]; const body = <div style={{ position: "absolute", inset: 0, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}><C /></div>; return PUNCH[id] ? <Camera keys={PUNCH[id]}>{body}</Camera> : <AbsoluteFill>{body}</AbsoluteFill>; }}
@@ -599,6 +665,6 @@ export const NisaBondReel: React.FC = () => (
     <Chara />
     {/* 下のテロップ（横150〜930pxに収める・インスタの説明文より上） */}
     <CapBand />
-    <Captions subs={SUBS} end={76.4} maxW={740} size={0.78} kcol={{ g: RED, r: RED }} top={1352} swap />
+    <Captions subs={SUBS} end={83.7} maxW={740} size={0.78} kcol={{ g: RED, r: RED }} top={1352} swap />
   </AbsoluteFill>
 );
