@@ -22,13 +22,18 @@ export const pop = (f: number, at: number) => interpolate(f - at, [0, 3, 6], [0.
 // ── 文字 ──
 export const R: React.FC<{ children: React.ReactNode }> = ({ children }) => <span style={{ ...SER, color: RED }}>{children}</span>;
 export type Line = [number, React.ReactNode];
-export const Lines: React.FC<{ x?: number; y: number; size?: number; lines: Line[]; center?: boolean; lh?: number }> = ({ x = 60, y, size = 58, lines, center, lh = 1.45 }) => {
+export const Lines: React.FC<{ x?: number; y: number; size?: number; lines: Line[]; center?: boolean; lh?: number; anim?: "ghost" | "wipe" }> = ({ x = 60, y, size = 58, lines, center, lh = 1.45, anim = "ghost" }) => {
   const f = useCurrentFrame();
   return (
     <div style={{ position: "absolute", left: center ? 0 : x, top: y, width: center ? 1080 : 1000, textAlign: center ? "center" : "left" }}>
-      {lines.map(([t, node], i) => f >= F(t - LEAD) ? <div key={i} style={{ ...K, fontSize: size, color: INK, lineHeight: lh, whiteSpace: "nowrap", ...ghostIn(f, F(t - LEAD)), transformOrigin: center ? "50% 50%" : "0 50%" }}>{node}</div> : <div key={i} style={{ fontSize: size, lineHeight: lh }}>&nbsp;</div>)}
+      {lines.map(([t, node], i) => f >= F(t - LEAD) ? <div key={i} style={{ ...K, fontSize: size, color: INK, lineHeight: lh, whiteSpace: "nowrap", ...(anim === "wipe" ? wipeIn(f, F(t - LEAD)) : ghostIn(f, F(t - LEAD))), transformOrigin: center ? "50% 50%" : "0 50%" }}>{node}</div> : <div key={i} style={{ fontSize: size, lineHeight: lh }}>&nbsp;</div>)}
     </div>
   );
+};
+// 左から書き出すように出る（字幕・本文用）：9fで左→右に見えていき、少し下から上がる
+export const wipeIn = (f: number, A: number): React.CSSProperties => {
+  const p = interpolate(f - A, [0, 9], [0, 1], { ...clamp, easing: Easing.bezier(0.2, 0.7, 0.2, 1) });
+  return { clipPath: `inset(-30% ${(1 - p) * 100}% -30% -4%)`, transform: `translateY(${(1 - p) * 16}px)`, opacity: interpolate(f - A, [0, 3], [0, 1], clamp) };
 };
 export const StepHead: React.FC<{ n: number; at: number; title: string; y?: number }> = ({ n, at, title, y = 400 }) => {
   const f = useCurrentFrame();
@@ -40,12 +45,34 @@ export const StepHead: React.FC<{ n: number; at: number; title: string; y?: numb
     </div>
   );
 };
-export const At: React.FC<{ at: number; until?: number; x: number; y: number; children: React.ReactNode; mode?: "ghost" | "pop" | "fade"; origin?: string }> = ({ at, until = 999, x, y, children, mode = "ghost", origin = "50% 50%" }) => {
+// 出し方：ghost（ふわっと）／pop（ぽん）／fade／rise（下から）／drop（上から落ちて弾む）／slam（大きく叩きつけ＋揺れ）／wipe（左から）／spring（ばねで伸びる）
+export type AtMode = "ghost" | "pop" | "fade" | "rise" | "drop" | "slam" | "wipe" | "spring";
+export const enter = (mode: AtMode, f: number, A: number): React.CSSProperties => {
+  const d = f - A;
+  switch (mode) {
+    case "pop": return { transform: `scale(${pop(f, A)})` };
+    case "fade": return { opacity: interpolate(d, [0, 8], [0, 1], clamp) };
+    case "rise": return { opacity: interpolate(d, [0, 5], [0, 1], clamp), transform: `translateY(${interpolate(d, [0, 9], [46, 0], out)}px)` };
+    case "drop": return { opacity: interpolate(d, [0, 2], [0, 1], clamp), transform: `translateY(${interpolate(d, [0, 7, 10, 13], [-160, 10, -4, 0], { ...clamp, easing: Easing.out(Easing.quad) })}px)` };
+    case "slam": {
+      const k = interpolate(d, [0, 4, 7, 10], [2.4, 0.92, 1.04, 1], { ...clamp, easing: Easing.in(Easing.quad) });
+      const sh = d >= 4 && d < 12 ? Math.sin(d * 2.7) * (12 - d) * 1.6 : 0;
+      return { opacity: interpolate(d, [0, 2], [0, 1], clamp), transform: `translate(${sh}px, ${sh * 0.6}px) scale(${k})` };
+    }
+    case "wipe": return wipeIn(f, A);
+    case "spring": {
+      const k = d <= 0 ? 0 : 1 - Math.exp(-d / 3.2) * Math.cos(d * 0.55);
+      return { transform: `scale(${Math.max(0, k)})` };
+    }
+    default: return ghostIn(f, A);
+  }
+};
+export const At: React.FC<{ at: number; until?: number; x: number; y: number; children: React.ReactNode; mode?: AtMode; origin?: string }> = ({ at, until = 999, x, y, children, mode = "ghost", origin = "50% 50%" }) => {
   const f = useCurrentFrame();
   const A = F(at), Z = F(until);
   if (f < A || f >= Z + 5) return null;
   const o = 1 - interpolate(f, [Z, Z + 5], [0, 1], clamp);
-  const st = mode === "pop" ? { transform: `scale(${pop(f, A)})` } : mode === "fade" ? { opacity: interpolate(f - A, [0, 8], [0, 1], clamp) } : ghostIn(f, A);
+  const st = enter(mode, f, A);
   return <div style={{ position: "absolute", left: x, top: y, ...st, opacity: ((st as { opacity?: number }).opacity ?? 1) * o, transformOrigin: origin }}>{children}</div>;
 };
 

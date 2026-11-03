@@ -5,9 +5,9 @@ import { FONT } from "./components/font";
 import { B, GenSlot } from "./MileLifePlan";
 import { SfxTrack } from "./components/sfx";
 import { Board, Panel, Stop, Stepper, panelXY, PW, PH } from "./components/board";
-import { F, K, SER, pop, R as RM, Lines as LinesM, At, Arrow, Cross, Count } from "./components/zukaiKit";
+import { F, K, SER, pop, R as RM, Lines as LinesM, At, Arrow, Cross, Count, enter, wipeIn } from "./components/zukaiKit";
 import { Scene, Captions } from "./BourakuReel";
-import { ghostIn, Spot } from "./components/cam";
+import { ghostIn, Spot, Camera, CamKey } from "./components/cam";
 import { UST10Y } from "./ust10y";
 
 // ════════════════════════════════════════════════════════════════════
@@ -26,7 +26,7 @@ const R: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 const Lines: React.FC<React.ComponentProps<typeof LinesM>> = (p) => {
   const look = React.useContext(Look);
-  return look === "marke" ? <LinesM {...p} /> : <LinesM {...p} center x={0} />;
+  return look === "marke" ? <LinesM anim="wipe" {...p} /> : <LinesM {...p} center x={0} />;
 };
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const out = { ...clamp, easing: Easing.out(Easing.cubic) };
@@ -49,14 +49,14 @@ const Head: React.FC<{ n: number; at: number; title: string }> = ({ n, at, title
     );
   }
   return (
-    <div style={{ position: "absolute", left: 60, top: 300, display: "flex", alignItems: "center", gap: 20, ...ghostIn(f, F(at)), transformOrigin: "0 50%" }}>
-      <span style={{ background: RED, color: "#fff", borderRadius: 999, padding: "6px 28px", ...K, fontSize: 36 }}>理由 {n}</span>
-      <span style={{ ...K, fontSize: 62, color: INK }}>{title}</span>
+    <div style={{ position: "absolute", left: 60, top: 300, display: "flex", alignItems: "center", gap: 20 }}>
+      <span style={{ background: RED, color: "#fff", borderRadius: 999, padding: "6px 28px", ...K, fontSize: 36, display: "inline-block", ...enter("slam", f, F(at) + 6) }}>理由 {n}</span>
+      <span style={{ ...K, fontSize: 62, color: INK, display: "inline-block", ...wipeIn(f, F(at) + 10) }}>{title}</span>
     </div>
   );
 };
 const Foot: React.FC<{ at: number; children: React.ReactNode; y?: number }> = ({ at, children, y = 1290 }) => (
-  <At at={at} x={60} y={y} mode="fade"><span style={{ ...B, fontSize: 24, color: SUB }}>{children}</span></At>
+  <At at={at} x={60} y={y} mode="rise"><span style={{ ...B, fontSize: 24, color: SUB }}>{children}</span></At>
 );
 
 // ── 10マスのブロック（1マス＝10%） ──
@@ -73,7 +73,8 @@ const Blocks: React.FC<{ x: number; y: number }> = ({ x, y }) => {
     <div style={{ position: "absolute", left: x, top: y, width: 960, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: "8px 10px 0 #E3B53C", padding: "26px 28px", boxSizing: "border-box" }}>
       <div style={{ display: "flex", gap: 10 }}>
         {cols.map((c, i) => {
-          const shake = crash && c === STOCK ? Math.sin((f + i * 3) * 1.9) * 7 : 0;
+          const sink = crash && c === STOCK ? interpolate(f - F(8.46) - i * 1.5, [0, 6, 9], [0, 34, 26], { ...clamp, easing: Easing.in(Easing.quad) }) : 0;
+          const shake = crash && c === STOCK ? Math.sin((f + i * 3) * 1.9) * 5 + sink : 0;
           const flip = flipAt > 0 ? interpolate(f - flipAt - i, [0, 4, 8], [1, 0, 1], clamp) : 1;
           return <div key={i} style={{ flex: 1, height: 120, borderRadius: 12, background: crash && c === STOCK ? RED : c, transform: `translateY(${shake}px) scaleX(${flip})`, boxShadow: "inset 0 -8px 0 rgba(0,0,0,0.12)" }} />;
         })}
@@ -95,19 +96,16 @@ const P1: React.FC = () => {
     <>
       <Head n={1} at={0} title="資産分散" />
       <Lines y={420} size={50} lines={[[1.4, <>僕はこれからも<R>投資信託</R>を積み立てていく</>], [4.4, <>今後さらに<R>株の割合</R>が増えていく</>]]} />
-      <At at={1.6} x={70} y={600} mode="pop"><Img2 n="nb_phone_invest" s={230} /></At>
-      <At at={1.9} x={330} y={640} mode="pop"><Tag c={STOCK} size={34}>毎月 積立</Tag></At>
+      <At at={1.6} x={70} y={600} mode="spring"><Img2 n="nb_phone_invest" s={230} /></At>
+      <At at={1.9} x={330} y={640} mode="drop"><Tag c={STOCK} size={34}>毎月 積立</Tag></At>
       <Arrow at={2.4} x1={340} y1={760} x2={560} y2={760} color={STOCK} />
-      <At at={2.6} x={590} y={690} mode="pop"><span style={{ ...K, fontSize: 52, color: STOCK }}>株 ↑↑</span></At>
+      <At at={2.6} until={8.46} x={590} y={690} mode="spring" origin="0 50%"><span style={{ ...K, fontSize: 52, color: STOCK }}>株 ↑↑</span></At>
+      {f >= F(8.46) && f < F(10.42) ? <div style={{ position: "absolute", left: 590, top: 690, transform: `translateY(${crashP * 30}px)` }}><span style={{ ...K, fontSize: 52, color: RED }}>株 ↓↓</span></div> : null}
       <Blocks x={60} y={890} />
-      {f >= F(8.46) && f < F(10.42) ? (
-        <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
-          <polyline points={`560,640 640,610 720,625 ${720 + 120 * crashP},${625 + 170 * crashP}`} fill="none" stroke={RED} strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      ) : null}
-      <At at={8.6} until={10.4} x={760} y={760} mode="pop"><span style={{ ...K, fontSize: 60, color: RED }}>暴落</span></At>
-      <At at={7.6} until={10.4} x={60} y={1150} mode="ghost"><span style={{ ...K, fontSize: 46, color: INK }}>株に偏るほど <R>暴落の影響</R>も大きい</span></At>
-      <At at={10.6} x={240} y={1140} mode="pop"><span style={{ display: "inline-block", border: `7px solid ${RED}`, borderRadius: 18, padding: "4px 40px", ...SER, fontSize: 64, color: RED, background: "#FFF6F2", transform: "rotate(-4deg)" }}>資産を分散</span></At>
+      <At at={8.6} until={10.4} x={800} y={672} mode="slam"><span style={{ display: "inline-block", border: `6px solid ${RED}`, borderRadius: 14, padding: "0 20px", ...SER, fontSize: 60, color: RED, background: "#FFF6F2", transform: "rotate(-6deg)" }}>暴落</span></At>
+      <At at={8.5} until={10.4} x={830} y={470} mode="drop"><Img2 n="nb_storm" s={190} /></At>
+      <At at={7.6} until={10.4} x={60} y={1150} mode="wipe"><span style={{ ...K, fontSize: 46, color: INK }}>株に偏るほど <R>暴落の影響</R>も大きい</span></At>
+      <At at={10.6} x={240} y={1140} mode="slam"><span style={{ display: "inline-block", border: `7px solid ${RED}`, borderRadius: 18, padding: "4px 40px", ...SER, fontSize: 64, color: RED, background: "#FFF6F2", transform: "rotate(-4deg)" }}>資産を分散</span></At>
     </>
   );
 };
@@ -135,10 +133,10 @@ const P2: React.FC = () => {
         {blink > 0 ? <circle cx={gx(iEnd)} cy={gy(UST10Y[iEnd])} r={18 + 10 * blink} fill={RED} opacity={0.35 + 0.5 * blink} /> : null}
       </svg>
       <Spot at={16.68} until={17.9} rect={[gx(iLow) - 70, gy(UST10Y[iLow]) - 60, 140, 110]} r={18} />
-      <At at={16.9} until={17.9} x={gx(iLow) - 150} y={gy(UST10Y[iLow]) + 60} mode="pop"><Tag c={INK}>2020年 0.52%</Tag></At>
-      <At at={18.14} x={gx(iEnd) - 300} y={gy(UST10Y[iEnd]) - 150} mode="pop"><span style={{ ...SER, fontSize: 84, color: RED }}>約5%</span><span style={{ ...B, fontSize: 28, color: INK }}> 今</span></At>
-      <At at={20.6} x={660} y={1180} mode="pop"><span style={{ display: "inline-block", border: `6px solid ${RED}`, borderRadius: 14, padding: "2px 26px", ...SER, fontSize: 52, color: RED, background: "#FFF6F2", transform: "rotate(-6deg)" }}>期間限定</span></At>
-      <At at={21.88} x={60} y={1180} mode="ghost"><span style={{ ...K, fontSize: 46, color: INK }}>高金利の<R>今</R>、債券へ</span></At>
+      <At at={16.9} until={17.9} x={gx(iLow) - 150} y={gy(UST10Y[iLow]) + 60} mode="drop"><Tag c={INK}>2020年 0.52%</Tag></At>
+      <At at={18.14} x={gx(iEnd) - 300} y={gy(UST10Y[iEnd]) - 150} mode="slam"><span style={{ ...SER, fontSize: 84, color: RED }}>約5%</span><span style={{ ...B, fontSize: 28, color: INK }}> 今</span></At>
+      <At at={20.6} x={660} y={1180} mode="slam"><span style={{ display: "inline-block", border: `6px solid ${RED}`, borderRadius: 14, padding: "2px 26px", ...SER, fontSize: 52, color: RED, background: "#FFF6F2", transform: "rotate(-6deg)" }}>期間限定</span></At>
+      <At at={21.88} x={60} y={1180} mode="wipe"><span style={{ ...K, fontSize: 46, color: INK }}>高金利の<R>今</R>、債券へ</span></At>
       <Foot at={13.6} y={1300}>※出典：FRED（米セントルイス連銀）DGS10。2026年10月時点</Foot>
     </>
   );
@@ -159,37 +157,45 @@ const P3: React.FC = () => (
       <Stack at={28.76} h={330} c={BOND} label="300万円" />
       <Stack at={30.98} h={220} c="#2F6FB8" label="+200万円" />
     </div>
-    <At at={28.9} x={130} y={1190} mode="fade"><span style={{ ...B, fontSize: 28, color: SUB }}>もともと</span></At>
-    <At at={32.22} x={520} y={700} mode="pop"><div style={{ ...B, fontSize: 40, color: INK }}>合計<br /><span style={{ ...SER, fontSize: 150, color: BOND, lineHeight: 1 }}><Count at={32.4} to={500} dur={12} /></span><span style={{ ...K, fontSize: 52 }}>万円</span></div></At>
-    <At at={33.84} x={520} y={980} mode="pop"><Tag c={RED} size={40}>5%超の水準で運用</Tag></At>
-    <At at={30.0} x={540} y={1090} mode="pop"><Img2 n="nb_bond_box" s={190} /></At>
+    <At at={25.5} until={28.5} x={600} y={560} mode="spring"><Img2 n="nb_calendar" s={300} /></At>
+    <At at={26.2} until={28.5} x={560} y={890} mode="drop"><Tag c={INK} size={40}>何年後に いくら？</Tag></At>
+    <At at={28.9} x={130} y={1190} mode="rise"><span style={{ ...B, fontSize: 28, color: SUB }}>もともと</span></At>
+    <At at={32.22} x={520} y={700} mode="slam"><div style={{ ...B, fontSize: 40, color: INK }}>合計<br /><span style={{ ...SER, fontSize: 150, color: BOND, lineHeight: 1 }}><Count at={32.4} to={500} dur={12} /></span><span style={{ ...K, fontSize: 52 }}>万円</span></div></At>
+    <At at={33.84} x={520} y={980} mode="drop"><Tag c={RED} size={40}>5%超の水準で運用</Tag></At>
+    <At at={30.0} x={760} y={1060} mode="spring"><Img2 n="nb_bond_paper" s={220} /></At>
     <Foot at={33.4}>※ドル建て・満期まで持った場合。円での金額は為替で変わります</Foot>
   </>
 );
 
-// ── P4 16年後・30年後（36.38–45.26） ──
+// ── P4 16年後・30年後（36.38–45.26）柱の高さ＝金額の比（500：1,091：2,161）。金額は柱の上、絵はその上 ──
+const BASE = 1062, H0 = 110, H1 = 240, H2 = 475;
 const P4: React.FC = () => {
   const f = useCurrentFrame();
-  const g1 = interpolate(f, [F(38.1), F(38.1) + 18], [0, 1], out), g2 = interpolate(f, [F(39.74), F(39.74) + 18], [0, 1], out);
-  const col = (x: number, h: number, c: string) => <div style={{ position: "absolute", left: x, top: 1060 - h, width: 200, height: h, borderRadius: "16px 16px 0 0", background: c, boxShadow: "inset 0 -8px 0 rgba(0,0,0,0.1)" }} />;
+  const g1 = interpolate(f, [F(38.1), F(38.1) + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.4)) });
+  const g2 = interpolate(f, [F(39.74), F(39.74) + 26], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.2)) });
+  const col = (x: number, h: number, c: string) => <div style={{ position: "absolute", left: x, top: BASE - h, width: 200, height: h, borderRadius: "16px 16px 0 0", background: c, boxShadow: "inset 0 -8px 0 rgba(0,0,0,0.1)" }} />;
+  const money = (cx: number, top: number, v: string, at: number, mode: "slam" | "drop" | "rise") => (
+    <At at={at} x={cx - 200} y={top} mode={mode}><div style={{ width: 400, textAlign: "center", whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 30 }}>約</span><span style={{ ...SER, fontSize: 64, color: BOND }}>{v}</span><span style={{ ...B, fontSize: 30 }}>万円</span></div></At>
+  );
   return (
     <>
       <Lines y={330} size={48} lines={[[36.38, <>何年後に<R>いくら</R>になるか、わかる</>]]} />
-      <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><line x1={60} y1={1062} x2={1020} y2={1062} stroke={INK} strokeWidth={6} /></svg>
-      {col(100, 120, BOND)}
-      {f >= F(38.1) ? col(440, 120 + 140 * g1, BOND) : null}
-      {f >= F(39.74) ? col(780, 120 + 360 * g2, BOND) : null}
-      <At at={36.4} x={100} y={1080} mode="fade"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>今<br /><span style={{ ...B, fontSize: 26, color: SUB }}>子ども2歳</span></div></At>
-      <At at={36.6} x={110} y={620} mode="pop"><Img2 n="nb_kid_toddler" s={180} /></At>
-      <At at={36.6} x={115} y={885} mode="fade"><span style={{ ...SER, fontSize: 52, color: BOND }}>500万</span></At>
-      <At at={38.1} x={440} y={1080} mode="fade"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>16年後<br /><span style={{ ...B, fontSize: 26, color: SUB }}>18歳・大学</span></div></At>
-      <At at={37.34} x={450} y={530} mode="pop"><Img2 n="nb_kid_student" s={180} /></At>
-      <At at={38.4} x={410} y={735} mode="pop"><span style={{ ...B, fontSize: 30 }}>約</span><span style={{ ...SER, fontSize: 64, color: BOND }}>1,091</span><span style={{ ...B, fontSize: 30 }}>万円</span></At>
-      <At at={39.74} x={780} y={1080} mode="fade"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>30年後<br /><span style={{ ...B, fontSize: 26, color: SUB }}>老後</span></div></At>
-      <At at={39.9} x={900} y={395} mode="pop"><Img2 n="nb_elderly_couple" s={115} /></At>
-      <At at={40.1} x={750} y={515} mode="pop"><span style={{ ...B, fontSize: 30 }}>約</span><span style={{ ...SER, fontSize: 64, color: BOND }}>2,161</span><span style={{ ...B, fontSize: 30 }}>万円</span></At>
-      <At at={42.7} x={350} y={1180} mode="pop"><Tag c={STOCK} size={36}>教育資金</Tag></At>
-      <At at={43.78} x={640} y={1180} mode="pop"><Tag c={CASH} size={36}>老後資金</Tag></At>
+      <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><line x1={60} y1={BASE} x2={1020} y2={BASE} stroke={INK} strokeWidth={6} /></svg>
+      {col(100, H0, BOND)}
+      {f >= F(38.1) ? col(440, H0 + (H1 - H0) * g1, BOND) : null}
+      {f >= F(39.74) ? col(780, H0 + (H2 - H0) * g2, BOND) : null}
+      <At at={36.4} x={100} y={1080} mode="rise"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>今<br /><span style={{ ...B, fontSize: 26, color: SUB }}>子ども2歳</span></div></At>
+      <At at={36.6} x={115} y={690} mode="spring"><Img2 n="nb_kid_toddler" s={170} /></At>
+      <At at={36.6} x={100} y={BASE - H0 - 82} mode="drop"><div style={{ width: 200, textAlign: "center", ...SER, fontSize: 52, color: BOND }}>500万</div></At>
+      <At at={38.1} x={440} y={1080} mode="rise"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>16年後<br /><span style={{ ...B, fontSize: 26, color: SUB }}>18歳・大学</span></div></At>
+      <At at={37.34} x={420} y={560} mode="spring"><Img2 n="nb_kid_student" s={170} /></At>
+      <At at={37.6} x={590} y={640} mode="drop"><Img2 n="nb_grad_cap" s={90} /></At>
+      {money(540, BASE - H1 - 92, "1,091", 38.4, "drop")}
+      <At at={39.74} x={780} y={1080} mode="rise"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 34 }}>30年後<br /><span style={{ ...B, fontSize: 26, color: SUB }}>老後</span></div></At>
+      <At at={39.9} x={800} y={410} mode="spring"><Img2 n="nb_elderly_couple" s={150} /></At>
+      {money(880, BASE - H2 - 92, "2,161", 40.1, "slam")}
+      <At at={42.7} x={350} y={1180} mode="drop"><Tag c={STOCK} size={36}>教育資金</Tag></At>
+      <At at={43.78} x={640} y={1180} mode="drop"><Tag c={CASH} size={36}>老後資金</Tag></At>
       <Foot at={38.4} y={1270}>※500万円を年5%で複利運用した場合の目安。ドル建て・満期まで持った場合／円での金額は為替で変わります</Foot>
     </>
   );
@@ -206,17 +212,18 @@ const P5: React.FC = () => {
         <div style={{ position: "absolute", left: 24, top: 16, ...K, fontSize: 40, color: STOCK }}>株</div>
         <svg width={390} height={370} style={{ position: "absolute", left: 0, top: 0 }}><polyline points={`30,280 100,230 170,250 240,170 ${240 + 110 * cr},${170 + 170 * cr}`} fill="none" stroke={cr > 0 ? RED : STOCK} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" /></svg>
       </div>
+      <At at={47.5} until={49.6} x={330} y={470} mode="drop"><Img2 n="nb_storm" s={170} /></At>
       <Cross at={48.66} x={190} y={680} s={200} />
-      <At at={48.86} x={110} y={1000} mode="pop"><span style={{ ...K, fontSize: 38, color: RED }}>無理に売らない</span></At>
+      <At at={48.86} x={110} y={1000} mode="slam"><span style={{ ...K, fontSize: 38, color: RED }}>無理に売らない</span></At>
       <div style={{ position: "absolute", left: 600, top: 600, width: 400, height: 380, background: "#fff", border: `5px solid ${INK}`, borderRadius: 22, boxSizing: "border-box" }}>
         <div style={{ position: "absolute", left: 24, top: 16, ...K, fontSize: 40, color: BOND }}>債券</div>
         <div style={{ position: "absolute", left: 110, top: 110 }}><Img2 n="nb_bond_box" s={180} /></div>
       </div>
       <Spot at={49.66} until={52.0} rect={[590, 590, 420, 400]} r={26} color={CASH} />
       <Arrow at={50.2} x1={800} y1={1000} x2={800} y2={1110} color={BOND} />
-      <At at={50.4} x={660} y={1110} mode="pop"><Img2 n="nb_envelope_money" s={150} /></At>
-      <At at={50.6} x={820} y={1120} mode="pop"><Tag c={BOND} size={30}>債券側から使う</Tag></At>
-      <At at={51.26} x={60} y={1190} mode="ghost"><span style={{ ...K, fontSize: 44, color: INK }}>そんな<R>選択肢</R>も持てる</span></At>
+      <At at={50.4} x={640} y={1110} mode="drop"><Img2 n="nb_envelope_money" s={150} /></At>
+      <At at={50.6} x={800} y={1150} mode="spring" origin="0 50%"><Tag c={BOND} size={30}>債券側から使う</Tag></At>
+      <At at={51.26} x={60} y={1290} mode="wipe"><span style={{ ...K, fontSize: 44, color: INK }}>そんな<R>選択肢</R>も持てる</span></At>
     </>
   );
 };
@@ -237,10 +244,11 @@ const P6: React.FC = () => {
           {f >= F(52.3) ? ends.map((e, i) => <line key={i} x1={50} y1={330} x2={50 + 360 * fan} y2={330 + (e - 40) * fan} stroke={STOCK} strokeWidth={5} strokeDasharray="12 10" opacity={0.85} />) : null}
           <circle cx={50} cy={330} r={10} fill={STOCK} />
         </svg>
-        <At at={52.72} x={40} y={440} mode="pop"><span style={{ ...B, fontSize: 30, color: INK }}>「年利5%なら…」</span></At>
-        <At at={55.66} x={40} y={500} mode="pop"><span style={{ ...B, fontSize: 28, color: SUB }}>過去の実績をもとにした</span></At>
+        <At at={52.72} x={40} y={440} mode="wipe"><span style={{ ...B, fontSize: 30, color: INK }}>「年利5%なら…」</span></At>
+        <At at={55.66} x={40} y={500} mode="wipe"><span style={{ ...B, fontSize: 28, color: SUB }}>過去の実績をもとにした</span></At>
+        <At at={53.4} x={350} y={455} mode="spring"><Img2 n="nb_calculator" s={105} /></At>
       </div>
-      <At at={57.16} x={90} y={1090} mode="pop"><span style={{ display: "inline-block", border: `6px solid ${STOCK}`, borderRadius: 14, padding: "2px 22px", ...SER, fontSize: 44, color: STOCK, background: "#F2FBF6", transform: "rotate(-4deg)" }}>シミュレーション</span></At>
+      <At at={57.16} x={90} y={1090} mode="slam"><span style={{ display: "inline-block", border: `6px solid ${STOCK}`, borderRadius: 14, padding: "2px 22px", ...SER, fontSize: 44, color: STOCK, background: "#F2FBF6", transform: "rotate(-4deg)" }}>シミュレーション</span></At>
       {/* 債券：満期でゴールが決まっている */}
       <div style={{ position: "absolute", left: 550, top: 470, width: 470, height: 600, background: "#fff", border: `5px solid ${INK}`, borderRadius: 24, boxSizing: "border-box" }}>
         <div style={{ position: "absolute", left: 24, top: 16, ...K, fontSize: 44, color: BOND }}>債券</div>
@@ -249,11 +257,12 @@ const P6: React.FC = () => {
           <circle cx={50} cy={360} r={10} fill={BOND} />
           {line > 0.95 ? <circle cx={390} cy={210} r={16} fill={RED} /> : null}
         </svg>
-        <At at={59.5} x={250} y={130} mode="pop"><span style={{ ...B, fontSize: 28, color: INK }}>満期 🏁</span></At>
-        <At at={60.8} x={40} y={440} mode="pop"><span style={{ ...B, fontSize: 30, color: INK }}>何年後にいくらか</span></At>
-        <At at={61.6} x={40} y={500} mode="pop"><span style={{ ...B, fontSize: 28, color: SUB }}>満期まで持つ前提なら</span></At>
+        <At at={59.5} x={250} y={130} mode="drop"><span style={{ ...B, fontSize: 28, color: INK }}>満期 🏁</span></At>
+        <At at={60.8} x={40} y={440} mode="wipe"><span style={{ ...B, fontSize: 30, color: INK }}>何年後にいくらか</span></At>
+        <At at={61.6} x={40} y={500} mode="wipe"><span style={{ ...B, fontSize: 28, color: SUB }}>満期まで持つ前提なら</span></At>
+        <At at={58.7} x={335} y={450} mode="spring"><Img2 n="nb_bond_paper" s={120} /></At>
       </div>
-      <At at={63.14} x={600} y={1090} mode="pop"><span style={{ display: "inline-block", border: `6px solid ${BOND}`, borderRadius: 14, padding: "2px 22px", ...SER, fontSize: 44, color: BOND, background: "#F1F6FD", transform: "rotate(-4deg)" }}>計画が立てやすい</span></At>
+      <At at={63.14} x={600} y={1090} mode="slam"><span style={{ display: "inline-block", border: `6px solid ${BOND}`, borderRadius: 14, padding: "2px 22px", ...SER, fontSize: 44, color: BOND, background: "#F1F6FD", transform: "rotate(-4deg)" }}>計画が立てやすい</span></At>
       <Foot at={60.0} y={1210}>※ドル建て・満期まで持った場合。円での金額は為替で変わります</Foot>
     </>
   );
@@ -263,7 +272,7 @@ const P6: React.FC = () => {
 const P7: React.FC = () => (
   <>
     <div style={{ position: "absolute", left: 0, top: 330, width: 1080, textAlign: React.useContext(Look) === "taichi" ? "center" : "left", paddingLeft: React.useContext(Look) === "taichi" ? 0 : 60, boxSizing: "border-box", ...K, fontSize: 60, color: INK }}><R>株</R>と<R>債券</R>、両方を持つと</div>
-    <At at={71.0} x={250} y={470} mode="pop"><Img2 n="nb_family" s={580} /></At>
+    <At at={71.0} x={250} y={470} mode="spring"><Img2 n="nb_family" s={580} /></At>
     <Lines y={1070} size={52} lines={[[72.94, <><R>将来のお金</R>も</>], [73.9, <><R>今使っていいお金</R>も</>], [75.16, "計画しやすくなる"]]} />
   </>
 );
@@ -275,11 +284,21 @@ const PANELS: Panel[] = [
 ];
 const MAPIDS = ["p1", "p2", "p3", "p4", "p5", "p6"];
 const STOPS: Stop[] = [
-  { id: "p1", trans: 0 }, { id: "p2", trans: 11.6 }, { id: "p3", trans: 24.2 }, { id: "p4", trans: 36.1 },
-  { id: "p5", trans: 45.0 }, { id: "p6", trans: 52.05 }, { id: "__map", trans: 65.0, scale: 0.26, ids: MAPIDS }, { id: "p7", trans: 70.5 },
+  { id: "p1", trans: 0 }, { id: "p2", trans: 11.45, kind: "kick" }, { id: "p3", trans: 24.0, kind: "kick" }, { id: "p4", trans: 36.15, kind: "fast" },
+  { id: "p5", trans: 45.05, kind: "fast" }, { id: "p6", trans: 51.85, kind: "kick" }, { id: "__map", trans: 65.0, scale: 0.26, ids: MAPIDS }, { id: "p7", trans: 70.5 },
 ];
 const LINKS: [string, string][] = PANELS.slice(1).map((p, i) => [PANELS[i].id, p.id]);
 const BODY: Record<string, React.FC> = { p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7 };
+// ページの中の寄り・引き（緩急）。d＝動く長さ（f）：短い＝ドン、長い＝じわっ
+const HOME = { x: 540, y: 960, s: 1 };
+const PUNCH: Record<string, CamKey[]> = {
+  p1: [{ t: 8.46, x: 540, y: 880, s: 1.1, d: 5 }, { t: 10.42, ...HOME, d: 12 }],
+  p2: [{ t: 18.14, x: 540, y: 760, s: 1.12, d: 6 }, { t: 20.3, ...HOME, d: 14 }],
+  p3: [{ t: 32.3, x: 560, y: 880, s: 1.1, d: 4 }, { t: 33.7, ...HOME, d: 12 }],
+  p4: [{ t: 40.1, x: 600, y: 820, s: 1.08, d: 50 }, { t: 42.5, ...HOME, d: 14 }],
+  p5: [{ t: 47.5, x: 300, y: 860, s: 1.3, d: 5 }, { t: 49.66, x: 780, y: 860, s: 1.3, d: 6 }, { t: 50.3, ...HOME, d: 12 }],
+  p7: [{ t: 70.5, x: 540, y: 880, s: 1.0, d: 1 }, { t: 72.9, x: 540, y: 860, s: 1.06, d: 90 }],
+};
 
 // まとめの全体マップ：見出し＋各理由に赤い枠
 const MapLayer: React.FC = () => {
@@ -383,7 +402,7 @@ export const NisaBondReel: React.FC = () => (
     <Audio src={staticFile("nisabond-narration.wav")} />
     <SfxTrack cues={CUES} />
     <Board panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: A2.bg, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
-      {(id) => { const C = BODY[id]; return <AbsoluteFill><C /></AbsoluteFill>; }}
+      {(id) => { const C = BODY[id]; return PUNCH[id] ? <Camera keys={PUNCH[id]}><C /></Camera> : <AbsoluteFill><C /></AbsoluteFill>; }}
     </Board>
     <MapLayer />
     <Stepper labels={["分散", "高金利", "見える化", "株と債券"]} steps={[0, 11.8, 24.42, 52.3]} x={40} y={1420} color={RED} />

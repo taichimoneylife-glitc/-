@@ -19,7 +19,8 @@ export const GAP_X = 260, GAP_Y = 300; // ページとページの間（点線�
 export const panelXY = (p: Panel) => [p.col * (PW + GAP_X), p.row * (PH + GAP_Y)] as const;
 
 // t秒に、どのページを見ているか（順番に並べる）。trans＝そのページへ移り始める時刻
-export type Stop = { id: string; trans: number } | { id: "__map"; trans: number; scale: number; ids?: string[] };
+// kind：kick＝新しい章（ためて大きく流れ、ちょっと行き過ぎて止まる）／fast＝同じ章の中（さっと）
+export type Stop = { id: string; trans: number; kind?: "kick" | "fast" } | { id: "__map"; trans: number; scale: number; ids?: string[] };
 
 const camOf = (panels: Panel[], s: Stop) => {
   if (s.id === "__map") {
@@ -34,7 +35,12 @@ const camOf = (panels: Panel[], s: Stop) => {
   return { x: x + PW / 2, y: y + PH / 2, s: 1 };
 };
 
-// 1回のページ送り：縮む(0→6f) → 流れる(6→16f) → 戻る(16→22f)
+// 1回のページ送り：縮む → 流れる → 戻る。kind で速さを変える（緩急）
+const TIMING = {
+  kick: { o: 7, m0: 5, m1: 19, b1: 28, low: 0.42 },
+  fast: { o: 4, m0: 2, m1: 10, b1: 15, low: 0.62 },
+  base: { o: 6, m0: 4, m1: 16, b1: 22, low: 0.45 },
+};
 export const boardCam = (f: number, panels: Panel[], stops: Stop[]) => {
   let cur = camOf(panels, stops[0]);
   for (let i = 1; i < stops.length; i++) {
@@ -42,12 +48,15 @@ export const boardCam = (f: number, panels: Panel[], stops: Stop[]) => {
     if (f < A) break;
     const nxt = camOf(panels, stops[i]);
     const toMap = stops[i].id === "__map", fromMap = stops[i - 1].id === "__map";
-    const out = interpolate(f - A, [0, 6], [0, 1], { ...clamp, easing: EZ });
-    const move = interpolate(f - A, [4, 16], [0, 1], { ...clamp, easing: EZ });
-    const back = interpolate(f - A, [16, 22], [0, 1], { ...clamp, easing: EZ });
-    const low = toMap || fromMap ? Math.min(cur.s, nxt.s) : 0.45;
-    const s = f - A < 6 ? cur.s + (low - cur.s) * out : low + (nxt.s - low) * back;
-    cur = { x: cur.x + (nxt.x - cur.x) * move, y: cur.y + (nxt.y - cur.y) * move, s: f - A >= 22 ? nxt.s : s };
+    const kind = (stops[i] as { kind?: "kick" | "fast" }).kind;
+    const T = TIMING[kind ?? "base"];
+    const d = f - A;
+    const outP = interpolate(d, [0, T.o], [0, 1], { ...clamp, easing: EZ });
+    const move = interpolate(d, [T.m0, T.m1], [0, 1], { ...clamp, easing: kind === "kick" ? Easing.bezier(0.75, 0, 0.15, 1) : EZ });
+    const back = interpolate(d, [T.m1, T.b1], [0, 1], { ...clamp, easing: kind === "kick" ? Easing.out(Easing.back(1.1)) : EZ });
+    const low = toMap || fromMap ? Math.min(cur.s, nxt.s) : T.low;
+    const s = d < T.o ? cur.s + (low - cur.s) * outP : d < T.m1 ? low : low + (nxt.s - low) * back;
+    cur = { x: cur.x + (nxt.x - cur.x) * move, y: cur.y + (nxt.y - cur.y) * move, s: d >= T.b1 ? nxt.s : s };
   }
   return cur;
 };
@@ -55,10 +64,14 @@ export const boardCam = (f: number, panels: Panel[], stops: Stop[]) => {
 export const Board: React.FC<{ panels: Panel[]; stops: Stop[]; links?: [string, string][]; paper?: React.CSSProperties; children: (id: string) => React.ReactNode }> = ({ panels, stops, links = [], paper, children }) => {
   const f = useCurrentFrame();
   const c = boardCam(f, panels, stops);
+  // 動きの速さに合わせて少しぶらす（モーションブラー）
+  const p0 = boardCam(Math.max(0, f - 1), panels, stops);
+  const v = Math.hypot((c.x - p0.x) * c.s, (c.y - p0.y) * c.s) + Math.abs(c.s - p0.s) * 1400;
+  const blur = Math.min(9, v / 70);
   const center = (id: string) => { const p = panels.find((q) => q.id === id)!; const [x, y] = panelXY(p); return [x + PW / 2, y + PH / 2]; };
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
-      <div style={{ position: "absolute", left: 0, top: 0, transform: `translate(${540 - c.x * c.s}px, ${960 - c.y * c.s}px) scale(${c.s})`, transformOrigin: "0 0" }}>
+      <div style={{ position: "absolute", left: 0, top: 0, transform: `translate(${540 - c.x * c.s}px, ${960 - c.y * c.s}px) scale(${c.s})`, transformOrigin: "0 0", filter: blur > 0.6 ? `blur(${blur.toFixed(1)}px)` : undefined }}>
         {/* 紙（地図と一緒に動く方眼） */}
         {paper ? <div style={{ position: "absolute", left: -4000, top: -4000, width: 4 * (PW + GAP_X) + 8000, height: 4 * (PH + GAP_Y) + 8000, ...paper }} /> : null}
         {/* 点線のつながり */}

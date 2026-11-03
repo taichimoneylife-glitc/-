@@ -21,7 +21,7 @@ export const camAt = (f: number, keys: CamKey[]) => {
     if (f < A) break;
     const p = interpolate(f, [A, A + d], [0, 1], { ...clamp, easing: SNAP });
     const dp = interpolate(f, [A, A + d / 2, A + d], [0, 1, 0], clamp);
-    v = Math.max(v, dp * (Math.abs(k.x - x) + Math.abs(k.y - y) + Math.abs(k.s - s) * 600));
+    v = Math.max(v, dp * (Math.abs(k.x - x) + Math.abs(k.y - y) + Math.abs(k.s - s) * 600) * Math.min(1, 8 / d)); // ゆっくり動くときはぶらさない
     x += (k.x - x) * p; y += (k.y - y) * p; s += (k.s - s) * p;
   }
   return { x, y, s, blur: Math.min(7, v / 90) };
