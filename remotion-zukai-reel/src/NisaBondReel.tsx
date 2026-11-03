@@ -94,18 +94,31 @@ const Burst: React.FC<{ at: number; dur?: number; r0?: number; cx?: number; cy?:
     </svg>
   );
 };
+// 締めのお祝い：お金の話なので、紙吹雪のかわりに「金色のコイン＋キラッとした星」がはじける
+const Star4: React.FC<{ s: number; c: string }> = ({ s, c }) => (
+  <svg width={s} height={s} viewBox="-10 -10 20 20"><path d="M0,-10 C1,-2 2,-1 10,0 C2,1 1,2 0,10 C-1,2 -2,1 -10,0 C-2,-1 -1,-2 0,-10 Z" fill={c} /></svg>
+);
 const Confetti: React.FC<{ at: number }> = ({ at }) => {
   const f = useCurrentFrame();
   const d = f - F(at);
   if (d < 0) return null;
-  const cols = [RED, STOCK, BOND, CASH, "#F28DB2"];
   return (
     <>
-      {Array.from({ length: 34 }).map((_, i) => {
-        const x0 = 540 + (((i * 97) % 200) - 100) * 1.2, vx = (((i * 61) % 21) - 10) * 2.6, vy = -26 - ((i * 37) % 14);
-        const x = x0 + vx * d, y = 1000 + vy * d + 0.9 * d * d;
-        if (y > 1500) return null;
-        return <div key={i} style={{ position: "absolute", left: x, top: y, width: 16, height: 26, borderRadius: 4, background: cols[i % 5], transform: `rotate(${d * (8 + (i % 5) * 4) + i * 40}deg) scaleX(${Math.cos(d * 0.3 + i)})` }} />;
+      {Array.from({ length: 26 }).map((_, i) => {
+        const coin = i % 3 !== 2;
+        const ang = -Math.PI / 2 + (((i * 47) % 100) / 100 - 0.5) * 2.6;
+        const sp = 30 + ((i * 31) % 14);
+        const x = 540 + Math.cos(ang) * sp * d, y = 1190 + Math.sin(ang) * sp * d + 1.0 * d * d;
+        if (y > 1700) return null;
+        const k = interpolate(d, [0, 4], [0.3, 1], clamp);
+        if (coin) {
+          const S = 66 + (i % 3) * 12;
+          return (
+            <div key={i} style={{ position: "absolute", left: x - S / 2, top: y - S / 2, width: S, height: S, borderRadius: "50%", background: "radial-gradient(circle at 35% 30%, #FFE9A0 0, #F2C14E 45%, #D69A1E 100%)", border: `4px solid ${INK}`, boxSizing: "border-box", transform: `scale(${k}) scaleX(${Math.cos(d * 0.35 + i)})`, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: S * 0.5, color: "#8A5A00" }}>¥</div>
+          );
+        }
+        const tw = 0.7 + 0.3 * Math.sin(d * 0.6 + i);
+        return <div key={i} style={{ position: "absolute", left: x - 22, top: y - 22, transform: `scale(${k * tw}) rotate(${d * 6}deg)` }}><Star4 s={54} c={i % 2 ? "#FFFFFF" : CASH} /></div>;
       })}
     </>
   );
