@@ -121,7 +121,6 @@ const P1: React.FC = () => {
       <Blocks x={60} y={890} at={3.2} />
       <At at={8.6} until={10.4} x={800} y={672} mode="slam"><span style={{ display: "inline-block", border: `6px solid ${RED}`, borderRadius: 14, padding: "0 20px", ...SER, fontSize: 60, color: RED, background: "#FFF6F2", transform: "rotate(-6deg)" }}>暴落</span></At>
       <At at={8.5} until={10.4} x={830} y={470} mode="drop"><Img2 n="nb_storm" s={190} /></At>
-      <At at={7.6} until={10.4} x={60} y={1190} mode="type"><span style={{ ...K, fontSize: 46, color: INK }}>株に偏るほど <R>暴落の影響</R>も大きい</span></At>
       <At at={10.6} x={240} y={1185} mode="slam"><span style={{ display: "inline-block", border: `7px solid ${RED}`, borderRadius: 18, padding: "4px 40px", ...SER, fontSize: 64, color: RED, background: "#FFF6F2", transform: "rotate(-4deg)" }}>資産を分散</span></At>
     </>
   );
@@ -152,8 +151,7 @@ const P2: React.FC = () => {
       <Spot at={16.68} until={17.9} rect={[gx(iLow) - 70, gy(UST10Y[iLow]) - 60, 140, 110]} r={18} />
       <At at={16.9} until={17.9} x={gx(iLow) - 150} y={gy(UST10Y[iLow]) + 60} mode="drop"><Tag c={INK}>2020年 0.52%</Tag></At>
       <At at={18.14} x={gx(iEnd) - 300} y={gy(UST10Y[iEnd]) - 150} mode="slam"><span style={{ ...SER, fontSize: 84, color: RED }}>約5%</span><span style={{ ...B, fontSize: 28, color: INK }}> 今</span></At>
-      <At at={20.6} x={660} y={1180} mode="slam"><span style={{ display: "inline-block", border: `6px solid ${RED}`, borderRadius: 14, padding: "2px 26px", ...SER, fontSize: 52, color: RED, background: "#FFF6F2", transform: "rotate(-6deg)" }}>期間限定</span></At>
-      <At at={21.88} x={60} y={1180} mode="type"><span style={{ ...K, fontSize: 46, color: INK }}>高金利の<R>今</R>、債券へ</span></At>
+      <At at={20.6} x={680} y={950} mode="slam"><span style={{ display: "inline-block", border: `6px solid ${RED}`, borderRadius: 14, padding: "2px 26px", ...SER, fontSize: 52, color: RED, background: "#FFF6F2", transform: "rotate(-6deg)" }}>期間限定</span></At>
       <Foot at={13.6} y={1250}>※出典：FRED（米セントルイス連銀）DGS10。2026年10月時点</Foot>
     </>
   );
@@ -240,7 +238,6 @@ const P5: React.FC = () => {
       <Arrow at={50.2} x1={800} y1={1000} x2={800} y2={1110} color={BOND} />
       <At at={50.4} x={640} y={1110} mode="drop"><Img2 n="nb_envelope_money" s={150} /></At>
       <At at={50.6} x={800} y={1150} mode="spring" origin="0 50%"><Tag c={BOND} size={30}>債券側から使う</Tag></At>
-      <At at={51.26} x={60} y={1290} mode="type"><span style={{ ...K, fontSize: 44, color: INK }}>そんな<R>選択肢</R>も持てる</span></At>
     </>
   );
 };
@@ -353,7 +350,7 @@ const Chara: React.FC = () => {
   const outP = interpolate(f, [F(e), F(e) + 8], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
   const look = React.useContext(Look);
   return look === "marke"
-    ? <div style={{ position: "absolute", left: 610 + (1 - inP) * 480 + outP * 480, top: 1170, width: 320, height: 320 }}><GenSlot name={name} size={320} /></div>
+    ? <div style={{ position: "absolute", left: 730 + (1 - inP) * 380 + outP * 380, top: 1140, width: 200, height: 200 }}><GenSlot name={name} size={200} /></div>
     : <div style={{ position: "absolute", left: 680 + (1 - inP) * 420 + outP * 420, top: 1390, width: 400, height: 400 }}><GenSlot name={name} size={400} /></div>;
 };
 
@@ -436,7 +433,9 @@ export const NisaBondReel: React.FC = () => (
       {(id) => { const C = BODY[id]; const body = <div style={{ position: "absolute", inset: 0, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}><C /></div>; return PUNCH[id] ? <Camera keys={PUNCH[id]}>{body}</Camera> : <AbsoluteFill>{body}</AbsoluteFill>; }}
     </Board>
     <MapLayer />
-    <StepperWrap><Stepper labels={["分散", "高金利", "見える化", "株と債券"]} steps={[0, 11.8, 24.42, 52.3]} x={150 / SAFE} y={1180 / SAFE} color={RED} /></StepperWrap>
+    <StepperWrap><Stepper labels={["分散", "高金利", "見える化", "株と債券"]} steps={[0, 11.8, 24.42, 52.3]} x={505 / SAFE} y={222 / SAFE} color={RED} /></StepperWrap>
     <Chara />
+    {/* 下のテロップ（横150〜930pxに収める・インスタの説明文より上） */}
+    <Captions subs={SUBS} end={76.4} maxW={780} size={0.78} />
   </AbsoluteFill>
 );
