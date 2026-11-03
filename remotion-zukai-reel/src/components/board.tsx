@@ -19,11 +19,13 @@ export const GAP_X = 260, GAP_Y = 300; // ページとページの間（点線�
 export const panelXY = (p: Panel) => [p.col * (PW + GAP_X), p.row * (PH + GAP_Y)] as const;
 
 // t秒に、どのページを見ているか（順番に並べる）。trans＝そのページへ移り始める時刻
-export type Stop = { id: string; trans: number } | { id: "__map"; trans: number; scale: number };
+export type Stop = { id: string; trans: number } | { id: "__map"; trans: number; scale: number; ids?: string[] };
 
 const camOf = (panels: Panel[], s: Stop) => {
   if (s.id === "__map") {
-    const xs = panels.map((p) => panelXY(p)[0]), ys = panels.map((p) => panelXY(p)[1]);
+    const only = (s as { ids?: string[] }).ids;
+    const ps = only ? panels.filter((p) => only.includes(p.id)) : panels;
+    const xs = ps.map((p) => panelXY(p)[0]), ys = ps.map((p) => panelXY(p)[1]);
     const cx = (Math.min(...xs) + Math.max(...xs) + PW) / 2, cy = (Math.min(...ys) + Math.max(...ys) + PH) / 2;
     return { x: cx, y: cy, s: (s as { scale: number }).scale };
   }
@@ -50,13 +52,15 @@ export const boardCam = (f: number, panels: Panel[], stops: Stop[]) => {
   return cur;
 };
 
-export const Board: React.FC<{ panels: Panel[]; stops: Stop[]; links?: [string, string][]; children: (id: string) => React.ReactNode }> = ({ panels, stops, links = [], children }) => {
+export const Board: React.FC<{ panels: Panel[]; stops: Stop[]; links?: [string, string][]; paper?: React.CSSProperties; children: (id: string) => React.ReactNode }> = ({ panels, stops, links = [], paper, children }) => {
   const f = useCurrentFrame();
   const c = boardCam(f, panels, stops);
   const center = (id: string) => { const p = panels.find((q) => q.id === id)!; const [x, y] = panelXY(p); return [x + PW / 2, y + PH / 2]; };
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       <div style={{ position: "absolute", left: 0, top: 0, transform: `translate(${540 - c.x * c.s}px, ${960 - c.y * c.s}px) scale(${c.s})`, transformOrigin: "0 0" }}>
+        {/* 紙（地図と一緒に動く方眼） */}
+        {paper ? <div style={{ position: "absolute", left: -4000, top: -4000, width: 4 * (PW + GAP_X) + 8000, height: 4 * (PH + GAP_Y) + 8000, ...paper }} /> : null}
         {/* 点線のつながり */}
         <svg style={{ position: "absolute", left: -4000, top: -4000, overflow: "visible" }} width={1} height={1}>
           {links.map(([a, b]) => {

@@ -7,6 +7,8 @@ export const FONT = "Noto Sans JP, sans-serif";
 export const FONT_ROUND = "M PLUS Rounded 1c";
 // 極太（900）＝ステッカー図解スタイル専用の別名ファミリー（他リールの見た目に影響させない）
 export const FONT_BLACK = "Noto Sans JP Black";
+// 明朝の極太（キーワード・大きい数字を赤の明朝で出す用）
+export const FONT_SERIF = "Noto Serif JP Black";
 
 const face = (family: string, weight: number, file: string) =>
   new FontFace(family, `url(${staticFile(`fonts/${file}`)}) format('woff2')`, { weight: String(weight), style: "normal", display: "swap" });
@@ -25,6 +27,8 @@ const faces = [
   // 極太（ステッカー図解用・別名）
   face("Noto Sans JP Black", 900, "noto-sans-jp-japanese-900-normal.woff2"),
   face("Noto Sans JP Black", 900, "noto-sans-jp-latin-900-normal.woff2"),
+  face("Noto Serif JP Black", 900, "noto-serif-jp-japanese-900-normal.woff2"),
+  face("Noto Serif JP Black", 900, "noto-serif-jp-latin-900-normal.woff2"),
 ];
 
 if (typeof document !== "undefined") {
