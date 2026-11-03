@@ -325,7 +325,7 @@ const MapLayer: React.FC = () => {
 
 // 右下の太一：ずっとは出さず、気持ちが動く所だけ（横からひょこっと出て、引っこむ）
 const APPEAR: [number, number, string][] = [
-  [7.5, 10.4, "taichi_scared"], [20.6, 24.2, "taichi_thumbs_up"], [45.26, 49.6, "taichi_worry"], [49.66, 52.05, "taichi_idea"], [72.0, 76.9, "taichi_heart_hands"],
+  [7.5, 10.4, "taichi_scared"], [20.6, 24.2, "taichi_thumbs_up"], [45.26, 49.6, "taichi_worry"], [49.66, 52.05, "taichi_idea"], [72.0, 76.9, "taichi_ok_circle"],
 ];
 const Chara: React.FC = () => {
   const f = useCurrentFrame();
