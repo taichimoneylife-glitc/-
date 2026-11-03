@@ -368,7 +368,7 @@ const P5: React.FC = () => {
       <At at={50.4} x={725} y={1020} mode="drop"><Img2 n="nb_envelope_money" s={140} /></At>
       <At at={50.0} x={650} y={905} mode="slam"><Pill c={STOCK} size={32}>✓ ここから使う</Pill></At>
       <Burst at={51.2} cy={1000} r0={300} />
-      <At at={51.26} x={220} y={1180} mode="slam"><span style={{ display: "inline-block", background: CASH, border: `6px solid ${INK}`, borderRadius: 20, padding: "8px 40px", ...K, fontSize: 64, color: INK, boxShadow: `6px 8px 0 ${INK}`, transform: "rotate(-3deg)" }}>選択肢が持てる！</span></At>
+      <At at={51.26} x={70} y={1170} mode="slam"><span style={{ display: "inline-block", background: CASH, border: `6px solid ${INK}`, borderRadius: 20, padding: "8px 36px", ...K, fontSize: 58, color: INK, boxShadow: `6px 8px 0 ${INK}`, transform: "rotate(-3deg)" }}>選択肢が持てる！</span></At>
     </>
   );
 };
@@ -492,7 +492,7 @@ const P7: React.FC = () => {
       {card(40, 72.94, "将来のお金", "nb_coin_pile", STOCK)}
       {card(570, 73.9, "今使って\nいいお金", "nb_family", BOND)}
       <Burst at={75.1} cy={1180} r0={360} dur={26} />
-      <At at={75.16} x={140} y={1150} mode="slam"><span style={{ display: "inline-block", background: CASH, border: `7px solid ${INK}`, borderRadius: 24, padding: "10px 46px", ...K, fontSize: 76, color: INK, boxShadow: `8px 10px 0 ${INK}`, transform: "rotate(-3deg)", whiteSpace: "nowrap" }}>計画しやすくなる！</span></At>
+      <At at={75.16} x={70} y={1150} mode="slam"><span style={{ display: "inline-block", background: CASH, border: `7px solid ${INK}`, borderRadius: 24, padding: "10px 40px", ...K, fontSize: 64, color: INK, boxShadow: `8px 10px 0 ${INK}`, transform: "rotate(-3deg)", whiteSpace: "nowrap" }}>計画しやすくなる！</span></At>
       <Confetti at={75.3} />
     </>
   );
@@ -524,7 +524,7 @@ const PCta: React.FC = () => {
       <TapCard at={79.45} until={80.8} src="cta_nisabond/igprofile.jpg" iw={1178} ih={915} x={90} y={380} w={900} hit={[0.03, 0.9, 0.52, 0.085]} dimAt={79.7} tapAt={80.35} label={<>プロフの<span style={{ color: RED }}>リンク</span>から</>} labelAt={80.0} />
       <TapCard at={80.86} until={82.0} src="cta_nisabond/links.jpg" iw={1179} ih={525} x={90} y={420} w={900} hit={[0.02, 0.03, 0.96, 0.3]} dimAt={81.0} tapAt={81.4} label={<><span style={{ color: "#06C755" }}>公式LINE</span>を追加して</>} labelAt={81.1} labelTop={900} labelLeft={150} />
       {/* 公式LINEのリッチメニュー：「情報まとめ」に特典 */}
-      <TapCard at={82.0} src="cta_nisabond/site.webp" iw={2000} ih={1349} x={90} y={400} w={900} hit={[0.34, 0.52, 0.32, 0.45]} dimAt={82.2} tapAt={82.6} label={<>特典は<span style={{ color: RED }}>ここ</span>から！</>} labelAt={82.3} labelTop={1080} labelLeft={130} call={<>リッチメニューの「情報まとめ」</>} callAt={82.85} rot={1} />
+      <TapCard at={82.0} src="cta_nisabond/site.webp" iw={2000} ih={1349} x={90} y={400} w={900} hit={[0.34, 0.52, 0.32, 0.45]} dimAt={82.2} tapAt={82.6} label={<>特典は<span style={{ color: RED }}>ここ</span>から！</>} labelAt={82.3} labelTop={1050} labelLeft={110} call={<>リッチメニューの「情報まとめ」</>} callAt={82.85} rot={1} />
     </>
   );
 };
@@ -597,9 +597,9 @@ const Chara: React.FC = () => {
   const sq = interpolate(f - F(s0), [6, 10, 14], [1, 0.94, 1], clamp); // 着地で少しつぶれる
   const bob = Math.sin(f / 10) * 3;
   const big = name === "__talk";
-  const S = big ? 250 : 200;
+  const S = big ? 220 : 200;
   return look === "marke"
-    ? <div style={{ position: "absolute", left: (big ? 690 : 730) + (1 - inP) * 380 + outP * 380, top: (big ? 1090 : 1140) + bob, width: S, height: S, transform: `scaleY(${sq}) scaleX(${2 - sq})`, transformOrigin: "50% 100%" }}><GenSlot name={img} size={S} /></div>
+    ? <div style={{ position: "absolute", left: (big ? 745 : 755) + (1 - inP) * 380 + outP * 380, top: (big ? 1122 : 1142) + bob, width: S, height: S, transform: `scaleY(${sq}) scaleX(${2 - sq})`, transformOrigin: "50% 100%" }}><GenSlot name={img} size={S} /></div>
     : <div style={{ position: "absolute", left: 680 + (1 - inP) * 420 + outP * 420, top: 1390, width: 400, height: 400 }}><GenSlot name={name} size={400} /></div>;
 };
 
@@ -680,7 +680,8 @@ const StepperWrap: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 //  リールの見えない所（1080×1920のうち）：上 約220px（名前・音源）、下 約420px（説明文）、右 約140px（いいね・コメント・シェア）
 //  → 図は 横 150〜930px ／ 縦 300〜1110px に収める（元の 60〜1020 を 0.81倍して左右150pxずつ空ける）
 const STEP_S = 0.6; // 右上の進み具合の大きさ
-const SAFE = 0.81, SAFE_X = 150 - 60 * 0.81, SAFE_Y = 300 - 300 * 0.81;
+// 図を少し大きく（テロップとの間を詰める）：左右は真ん中そろえで 横108〜972px、上は300pxから
+const SAFE = 0.9, SAFE_X = 540 - 540 * 0.9, SAFE_Y = 300 - 280 * 0.9;
 export const NISABOND_FRAMES = F(84.0); // 締めまで
 export const NISABOND_T_FRAMES = F(76.9);
 export const NisaBondReel: React.FC = () => (

@@ -90,7 +90,7 @@ export const TapCard: React.FC<TapCardProps> = ({ at, until = 999, src, iw, ih, 
       {label && lbP > 0 ? <div style={{ position: "absolute", left: LL, top: LT, transform: `scale(${lbP})`, transformOrigin: "20% 0%" }}><Sticky rot={-2}>{label}</Sticky></div> : null}
       {/* うながしの言葉（マーカー線） */}
       {call && f >= F(callAt) ? (
-        <div style={{ position: "absolute", left: LL, top: LT + 120, ...K, fontSize: 46, color: INK, whiteSpace: "nowrap", opacity: interpolate(f - F(callAt), [0, 5], [0, 1], clamp), transform: `translateY(${interpolate(f - F(callAt), [0, 8], [20, 0], { ...clamp, easing: OUT })}px)` }}>
+        <div style={{ position: "absolute", left: LL, top: LT + 110, ...K, fontSize: 40, color: INK, whiteSpace: "nowrap", opacity: interpolate(f - F(callAt), [0, 5], [0, 1], clamp), transform: `translateY(${interpolate(f - F(callAt), [0, 8], [20, 0], { ...clamp, easing: OUT })}px)` }}>
           <span style={{ position: "relative", display: "inline-block" }}>
             <span style={{ position: "absolute", left: -8, bottom: 2, height: 26, width: `calc(${caW * 100}% + 16px)`, background: "rgba(255,201,60,0.75)", borderRadius: 8 }} />
             <span style={{ position: "relative" }}>{call}</span>
