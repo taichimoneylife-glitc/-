@@ -290,7 +290,7 @@ const P7: React.FC = () => (
   <>
     <div style={{ position: "absolute", left: 0, top: 330, width: 1080, textAlign: React.useContext(Look) === "taichi" ? "center" : "left", paddingLeft: React.useContext(Look) === "taichi" ? 0 : 60, boxSizing: "border-box", ...K, fontSize: 60, color: INK }}><TypeIn at={F(70.6)}><R>株</R>と<R>債券</R>、両方を持つと</TypeIn></div>
     <At at={71.0} x={250} y={470} mode="spring"><Img2 n="nb_family" s={580} /></At>
-    <Lines y={1070} size={52} lines={[[72.94, <><R>将来のお金</R>も</>], [73.9, <><R>今使っていいお金</R>も</>], [75.16, "計画しやすくなる"]]} />
+    <Lines y={1030} size={52} lines={[[72.94, <><R>将来のお金</R>も</>], [73.9, <><R>今使っていいお金</R>も</>], [75.16, "計画しやすくなる"]]} />
   </>
 );
 
@@ -302,19 +302,19 @@ const PANELS: Panel[] = [
 const MAPIDS = ["p1", "p2", "p3", "p4", "p5", "p6"];
 const STOPS: Stop[] = [
   { id: "p1", trans: 0 }, { id: "p2", trans: 11.45, kind: "kick" }, { id: "p3", trans: 24.0, kind: "kick" }, { id: "p4", trans: 36.15, kind: "fast" },
-  { id: "p5", trans: 45.05, kind: "fast" }, { id: "p6", trans: 51.85, kind: "kick" }, { id: "__map", trans: 65.0, scale: 0.26, ids: MAPIDS }, { id: "p7", trans: 70.5 },
+  { id: "p5", trans: 45.05, kind: "fast" }, { id: "p6", trans: 51.85, kind: "kick" }, { id: "__map", trans: 65.0, scale: 0.22, ids: MAPIDS }, { id: "p7", trans: 70.5 },
 ];
 const LINKS: [string, string][] = PANELS.slice(1).map((p, i) => [PANELS[i].id, p.id]);
 const BODY: Record<string, React.FC> = { p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7 };
 // ページの中の寄り・引き（緩急）。d＝動く長さ（f）：短い＝ドン、長い＝じわっ
 const HOME = { x: 540, y: 960, s: 1 };
 const PUNCH: Record<string, CamKey[]> = {
-  p1: [{ t: 8.46, x: 540, y: 930, s: 1.1, d: 5 }, { t: 10.42, ...HOME, d: 12 }],
-  p2: [{ t: 18.14, x: 540, y: 920, s: 1.12, d: 6 }, { t: 20.3, ...HOME, d: 14 }],
-  p3: [{ t: 32.3, x: 560, y: 940, s: 1.1, d: 4 }, { t: 33.7, ...HOME, d: 12 }],
-  p4: [{ t: 40.1, x: 600, y: 950, s: 1.06, d: 50 }, { t: 42.5, ...HOME, d: 14 }],
-  p5: [{ t: 47.5, x: 300, y: 860, s: 1.3, d: 5 }, { t: 49.66, x: 780, y: 860, s: 1.3, d: 6 }, { t: 50.3, ...HOME, d: 12 }],
-  p7: [{ t: 70.5, x: 540, y: 880, s: 1.0, d: 1 }, { t: 72.9, x: 540, y: 860, s: 1.06, d: 90 }],
+  p1: [{ t: 8.46, x: 540, y: 930, s: 1.06, d: 5 }, { t: 10.42, ...HOME, d: 12 }],
+  p2: [{ t: 18.14, x: 540, y: 900, s: 1.08, d: 6 }, { t: 20.3, ...HOME, d: 14 }],
+  p3: [{ t: 32.3, x: 560, y: 940, s: 1.06, d: 4 }, { t: 33.7, ...HOME, d: 12 }],
+  p4: [{ t: 40.1, x: 600, y: 950, s: 1.04, d: 50 }, { t: 42.5, ...HOME, d: 14 }],
+  p5: [{ t: 47.5, x: 380, y: 860, s: 1.22, d: 5 }, { t: 49.66, x: 700, y: 860, s: 1.22, d: 6 }, { t: 50.3, ...HOME, d: 12 }],
+  p7: [{ t: 72.9, x: 540, y: 900, s: 1.04, d: 90 }],
 };
 
 // まとめの全体マップ：見出し＋各理由に赤い枠
@@ -323,7 +323,7 @@ const MapLayer: React.FC = () => {
   if (f < F(65.2) || f >= F(70.6)) return null;
   const ps = PANELS.filter((p) => MAPIDS.includes(p.id));
   const xs = ps.map((p) => panelXY(p)[0]), ys = ps.map((p) => panelXY(p)[1]);
-  const cx = (Math.min(...xs) + Math.max(...xs) + PW) / 2, cy = (Math.min(...ys) + Math.max(...ys) + PH) / 2, s = 0.26;
+  const cx = (Math.min(...xs) + Math.max(...xs) + PW) / 2, cy = (Math.min(...ys) + Math.max(...ys) + PH) / 2, s = 0.22;
   return (
     <>
       {["p1", "p2", "p3", "p6"].map((id, i) => {
@@ -332,8 +332,8 @@ const MapLayer: React.FC = () => {
         if (f < at) return null;
         return <div key={id} style={{ position: "absolute", left: 540 + (x - cx) * s - 6, top: 960 + (y - cy) * s - 6, width: PW * s + 12, height: PH * s + 12, border: `7px solid ${RED}`, borderRadius: 16, background: "rgba(232,85,59,0.07)", transform: `scale(${pop(f, at)})` }} />;
       })}
-      <div style={{ position: "absolute", left: 0, top: 230, width: 1080, padding: "26px 60px", background: "rgba(251,246,216,0.94)", boxSizing: "border-box" }}>
-        <Lines x={0} y={0} size={54} lines={[[65.22, "まとめると、"], [66.4, <>これから<R>株の割合</R>が増えていく中で</>], [68.24, <><R>高金利の今</R>、一部を債券に移しました</>]]} />
+      <div style={{ position: "absolute", left: 0, top: 230, width: 1080, padding: "26px 150px", background: "rgba(251,246,216,0.94)", boxSizing: "border-box" }}>
+        <Lines x={150} y={26} size={46} lines={[[65.22, "まとめると、"], [66.4, <>これから<R>株の割合</R>が増えていく中で</>], [68.24, <><R>高金利の今</R>、一部を債券に移しました</>]]} />
         <div style={{ height: 250 }} />
       </div>
     </>
@@ -353,7 +353,7 @@ const Chara: React.FC = () => {
   const outP = interpolate(f, [F(e), F(e) + 8], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
   const look = React.useContext(Look);
   return look === "marke"
-    ? <div style={{ position: "absolute", left: 640 + (1 - inP) * 460 + outP * 460, top: 1250, width: 330, height: 330 }}><GenSlot name={name} size={330} /></div>
+    ? <div style={{ position: "absolute", left: 610 + (1 - inP) * 480 + outP * 480, top: 1170, width: 320, height: 320 }}><GenSlot name={name} size={320} /></div>
     : <div style={{ position: "absolute", left: 680 + (1 - inP) * 420 + outP * 420, top: 1390, width: 400, height: 400 }}><GenSlot name={name} size={400} /></div>;
 };
 
@@ -424,17 +424,19 @@ const StepperWrap: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <div style={{ position: "absolute", left: 0, top: 0, transform: `scale(${SAFE}) translateY(${(1 - o) * 60}px)`, transformOrigin: "0 0", opacity: o }}>{children}</div>;
 };
 // インスタの右のボタン・下の文章にかからないよう、図は少し小さく（左右に余白）
-const SAFE = 0.86;
+//  リールの見えない所（1080×1920のうち）：上 約220px（名前・音源）、下 約420px（説明文）、右 約140px（いいね・コメント・シェア）
+//  → 図は 横 150〜930px ／ 縦 300〜1110px に収める（元の 60〜1020 を 0.81倍して左右150pxずつ空ける）
+const SAFE = 0.81, SAFE_X = 150 - 60 * 0.81, SAFE_Y = 300 - 300 * 0.81;
 export const NISABOND_FRAMES = F(76.9);
 export const NisaBondReel: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT }}>
     <Audio src={staticFile("nisabond-narration.wav")} />
     <SfxTrack cues={CUES} />
     <Board panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: A2.bg, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
-      {(id) => { const C = BODY[id]; const body = <div style={{ position: "absolute", inset: 0, transform: `scale(${SAFE})`, transformOrigin: "520px 300px" }}><C /></div>; return PUNCH[id] ? <Camera keys={PUNCH[id]}>{body}</Camera> : <AbsoluteFill>{body}</AbsoluteFill>; }}
+      {(id) => { const C = BODY[id]; const body = <div style={{ position: "absolute", inset: 0, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}><C /></div>; return PUNCH[id] ? <Camera keys={PUNCH[id]}>{body}</Camera> : <AbsoluteFill>{body}</AbsoluteFill>; }}
     </Board>
     <MapLayer />
-    <StepperWrap><Stepper labels={["分散", "高金利", "見える化", "株と債券"]} steps={[0, 11.8, 24.42, 52.3]} x={124 / SAFE} y={1240 / SAFE} color={RED} /></StepperWrap>
+    <StepperWrap><Stepper labels={["分散", "高金利", "見える化", "株と債券"]} steps={[0, 11.8, 24.42, 52.3]} x={150 / SAFE} y={1180 / SAFE} color={RED} /></StepperWrap>
     <Chara />
   </AbsoluteFill>
 );
