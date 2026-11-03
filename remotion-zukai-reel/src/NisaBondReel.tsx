@@ -43,6 +43,52 @@ const Img2: React.FC<{ n: string; s: number }> = ({ n, s }) => <GenSlot name={n}
 const Tag: React.FC<{ c: string; children: React.ReactNode; size?: number }> = ({ c, children, size = 30 }) => (
   <span style={{ display: "inline-block", background: c, color: "#fff", borderRadius: 999, padding: "4px 22px", ...K, fontSize: size, whiteSpace: "nowrap" }}>{children}</span>
 );
+// 「理由n」の見せ方の候補（pill＝今の赤い札）
+export type HeadKind = "pill" | "sticky" | "badge" | "tab";
+export const HeadStyle = React.createContext<HeadKind>("pill");
+const HeadAlt: React.FC<{ kind: HeadKind; n: number; at: number; title: string }> = ({ kind, n, at, title }) => {
+  const f = useCurrentFrame();
+  const A = F(at);
+  const ttl = <span style={{ ...K, fontSize: 62, color: INK, display: "inline-block" }}><TypeIn at={A + 8} step={1.5}>{title}</TypeIn></span>;
+  if (kind === "sticky") {
+    // 付箋に「理由①」。テープで貼られて、ペタッと落ちてくる
+    const k = interpolate(f - A, [0, 6, 10], [1.5, 0.95, 1], clamp), o = interpolate(f - A, [0, 3], [0, 1], clamp);
+    return (
+      <div style={{ position: "absolute", left: 60, top: 280, display: "flex", alignItems: "center", gap: 26 }}>
+        <div style={{ position: "relative", background: "#FFE58A", padding: "14px 26px 10px", transform: `rotate(-4deg) scale(${k})`, opacity: o, boxShadow: "3px 6px 12px rgba(90,70,20,0.2)", ...K, fontSize: 40, color: INK }}>
+          <div style={{ position: "absolute", left: "50%", top: -16, width: 90, height: 30, marginLeft: -45, background: "rgba(255,255,255,0.65)", transform: "rotate(4deg)" }} />
+          理由<span style={{ color: RED, fontSize: 52 }}>{["①", "②", "③", "④"][n - 1]}</span>
+        </div>
+        {ttl}
+      </div>
+    );
+  }
+  if (kind === "badge") {
+    // 大きな数字「01」＋見出しの下にマーカー線
+    const k = interpolate(f - A, [0, 5, 9], [0.3, 1.15, 1], clamp);
+    const mk = interpolate(f - A, [12, 22], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
+    return (
+      <div style={{ position: "absolute", left: 60, top: 270, display: "flex", alignItems: "flex-end", gap: 22 }}>
+        <div style={{ textAlign: "center", transform: `scale(${k})`, transformOrigin: "50% 80%" }}>
+          <div style={{ ...K, fontSize: 22, color: SUB, letterSpacing: 4 }}>理由</div>
+          <div style={{ ...K, fontSize: 96, lineHeight: 0.95, color: "#fff", WebkitTextStroke: `4px ${INK}`, textShadow: `5px 5px 0 ${CASH}` }}>{String(n).padStart(2, "0")}</div>
+        </div>
+        <span style={{ position: "relative", display: "inline-block", marginBottom: 10 }}>
+          <span style={{ position: "absolute", left: -6, bottom: 4, height: 24, width: `calc(${mk * 100}% + 12px)`, background: "rgba(255,201,60,0.7)", borderRadius: 6 }} />
+          <span style={{ position: "relative" }}>{ttl}</span>
+        </span>
+      </div>
+    );
+  }
+  // tab：ノートの横から出るインデックスのタブ
+  const p = interpolate(f - A, [0, 9], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
+  return (
+    <div style={{ position: "absolute", left: 0, top: 290, display: "flex", alignItems: "center", gap: 24 }}>
+      <div style={{ width: 210, height: 86, background: [STOCK, "#E0892B", BOND, RED][n - 1], borderRadius: "0 22px 22px 0", boxShadow: "4px 5px 0 rgba(0,0,0,0.15)", transform: `translateX(${(p - 1) * 210}px)`, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 24, boxSizing: "border-box", ...K, fontSize: 36, color: "#fff" }}>理由 {n}</div>
+      {ttl}
+    </div>
+  );
+};
 const Head: React.FC<{ n: number; at: number; title: string }> = ({ n, at, title }) => {
   const f = useCurrentFrame();
   const look = React.useContext(Look);
@@ -56,6 +102,8 @@ const Head: React.FC<{ n: number; at: number; title: string }> = ({ n, at, title
       </div>
     );
   }
+  const hs = React.useContext(HeadStyle);
+  if (hs !== "pill") return <HeadAlt kind={hs} n={n} at={at} title={title} />;
   return (
     <div style={{ position: "absolute", left: 60, top: 300, display: "flex", alignItems: "center", gap: 20 }}>
       <span style={{ background: RED, color: "#fff", borderRadius: 999, padding: "6px 28px", ...K, fontSize: 36, display: "inline-block", ...enter("slam", f, F(at) + 6) }}>理由 {n}</span>
