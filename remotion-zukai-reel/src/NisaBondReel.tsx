@@ -45,7 +45,7 @@ const Tag: React.FC<{ c: string; children: React.ReactNode; size?: number }> = (
 );
 // 「理由n」の見せ方の候補（pill＝今の赤い札）
 export type HeadKind = "pill" | "sticky" | "badge" | "tab";
-export const HeadStyle = React.createContext<HeadKind>("pill");
+export const HeadStyle = React.createContext<HeadKind>("badge"); // 本編＝大きな数字（中は透明）
 const HeadAlt: React.FC<{ kind: HeadKind; n: number; at: number; title: string }> = ({ kind, n, at, title }) => {
   const f = useCurrentFrame();
   const A = F(at);
@@ -71,7 +71,7 @@ const HeadAlt: React.FC<{ kind: HeadKind; n: number; at: number; title: string }
       <div style={{ position: "absolute", left: 60, top: 270, display: "flex", alignItems: "flex-end", gap: 22 }}>
         <div style={{ textAlign: "center", transform: `scale(${k})`, transformOrigin: "50% 80%" }}>
           <div style={{ ...K, fontSize: 22, color: SUB, letterSpacing: 4 }}>理由</div>
-          <div style={{ ...K, fontSize: 96, lineHeight: 0.95, color: "#fff", WebkitTextStroke: `4px ${INK}`, textShadow: `5px 5px 0 ${CASH}` }}>{String(n).padStart(2, "0")}</div>
+          <div style={{ ...K, fontSize: 96, lineHeight: 0.95, color: "transparent", WebkitTextStroke: `4px ${INK}` }}>{String(n).padStart(2, "0")}</div>
         </div>
         <span style={{ position: "relative", display: "inline-block", marginBottom: 10 }}>
           <span style={{ position: "absolute", left: -6, bottom: 4, height: 24, width: `calc(${mk * 100}% + 12px)`, background: "rgba(255,201,60,0.7)", borderRadius: 6 }} />
@@ -382,7 +382,7 @@ const P6: React.FC = () => {
   const ends = [-170, -90, -20, 50, 120];
   return (
     <>
-      <div style={{ position: "absolute", left: 0, top: 330, width: 1080, textAlign: React.useContext(Look) === "taichi" ? "center" : "left", paddingLeft: React.useContext(Look) === "taichi" ? 0 : 60, boxSizing: "border-box", ...K, fontSize: 58, color: INK }}><TypeIn at={F(52.0)}>株と債券を<R>両方</R>持つ理由</TypeIn></div>
+      {React.useContext(Look) === "taichi" ? <div style={{ position: "absolute", left: 0, top: 330, width: 1080, textAlign: "center", ...K, fontSize: 58, color: INK }}><TypeIn at={F(52.0)}>株と債券を<R>両方</R>持つ理由</TypeIn></div> : <Head n={4} at={52.0} title="株と債券を両方持つ理由" />}
       {/* 株：シミュレーション（点線が広がる） */}
       <div style={{ position: "absolute", left: 60, top: 470, width: 470, height: 600, background: "#fff", border: `5px solid ${INK}`, borderRadius: 24, boxSizing: "border-box", ...swoop(f, 52.3, -1) }}>
         <div style={{ position: "absolute", left: 24, top: 16, ...K, fontSize: 44, color: STOCK }}>株</div>
