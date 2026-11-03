@@ -47,10 +47,11 @@ export const TapCard: React.FC<TapCardProps> = ({ at, until = 999, src, iw, ih, 
   const fade = interpolate(f, [F(dimAt), F(dimAt) + 8], [0, 1], clamp);
   const ring = interpolate(f, [F(dimAt), F(dimAt) + 12], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
   const hx = x + hit[0] * w, hy = y + hit[1] * h, hw = hit[2] * w, hh = hit[3] * h;
-  const cx = hx + hw / 2, cy = hy + hh / 2, rx = hw / 2 + 26, ry = hh / 2 + 22;
+  const cx = hx + hw / 2, cy = hy + hh / 2, rx = hw / 2 + 34, ry = hh / 2 + 26;
   // 手描きの楕円（少しゆがませて、終わりを重ねる）
-  const N = 48, pts: string[] = [];
-  for (let i = 0; i <= N; i++) { const a = -Math.PI * 0.9 + (i / N) * Math.PI * 2.15; const wob = 1 + 0.04 * Math.sin(i * 1.7); pts.push(`${cx + Math.cos(a) * rx * wob},${cy + Math.sin(a) * ry * wob}`); }
+  // なめらかな横長の楕円（少しだけ重ねて手で囲んだ感じ。ギザギザなし）
+  const N = 160, pts: string[] = [];
+  for (let i = 0; i <= N; i++) { const t = i / N; const a = -Math.PI * 0.95 + t * Math.PI * 2.12; const g = 1 + 0.035 * t; pts.push(`${(cx + Math.cos(a) * rx * g).toFixed(1)},${(cy + Math.sin(a) * ry * g).toFixed(1)}`); }
   const LT = labelTop ?? hy + hh + 70, LL = labelLeft ?? hx;
   // 矢印：付箋のほうから押す所へ（ゆるいカーブ）
   const ax0 = LL + 60, ay0 = LT - 6, ax1 = cx - rx * 0.3, ay1 = cy + ry * 0.95;
