@@ -22,13 +22,39 @@ export const pop = (f: number, at: number) => interpolate(f - at, [0, 3, 6], [0.
 // ── 文字 ──
 export const R: React.FC<{ children: React.ReactNode }> = ({ children }) => <span style={{ ...SER, color: RED }}>{children}</span>;
 export type Line = [number, React.ReactNode];
-export const Lines: React.FC<{ x?: number; y: number; size?: number; lines: Line[]; center?: boolean; lh?: number; anim?: "ghost" | "wipe" }> = ({ x = 60, y, size = 58, lines, center, lh = 1.45, anim = "ghost" }) => {
+export const Lines: React.FC<{ x?: number; y: number; size?: number; lines: Line[]; center?: boolean; lh?: number; anim?: "ghost" | "wipe" | "type" }> = ({ x = 60, y, size = 58, lines, center, lh = 1.45, anim = "ghost" }) => {
   const f = useCurrentFrame();
   return (
     <div style={{ position: "absolute", left: center ? 0 : x, top: y, width: center ? 1080 : 1000, textAlign: center ? "center" : "left" }}>
-      {lines.map(([t, node], i) => f >= F(t - LEAD) ? <div key={i} style={{ ...K, fontSize: size, color: INK, lineHeight: lh, whiteSpace: "nowrap", ...(anim === "wipe" ? wipeIn(f, F(t - LEAD)) : ghostIn(f, F(t - LEAD))), transformOrigin: center ? "50% 50%" : "0 50%" }}>{node}</div> : <div key={i} style={{ fontSize: size, lineHeight: lh }}>&nbsp;</div>)}
+      {lines.map(([t, node], i) => f >= F(t - LEAD) ? <div key={i} style={{ ...K, fontSize: size, color: INK, lineHeight: lh, whiteSpace: "nowrap", ...(anim === "wipe" ? wipeIn(f, F(t - LEAD)) : anim === "type" ? {} : ghostIn(f, F(t - LEAD))), transformOrigin: center ? "50% 50%" : "0 50%" }}>{anim === "type" ? <TypeIn at={F(t - LEAD)}>{node}</TypeIn> : node}</div> : <div key={i} style={{ fontSize: size, lineHeight: lh }}>&nbsp;</div>)}
     </div>
   );
+};
+// 1文字ずつ、下からぼかしが取れながら立ち上がる（字幕・本文用の上質な出し方）
+//  TCtx：その文字が出始めたフレーム（R などの強調が、自分の出るタイミングを知るため）
+export const TCtx = React.createContext<{ A: number; n: number }>({ A: -1, n: 0 });
+const charStyle = (d: number): React.CSSProperties => {
+  if (d <= 0) return { opacity: 0, display: "inline-block" };
+  const p = interpolate(d, [0, 7], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
+  const b = interpolate(d, [0, 5], [8, 0], clamp);
+  return { display: "inline-block", opacity: interpolate(d, [0, 3], [0, 1], clamp), transform: `translateY(${(1 - p) * 0.42}em) scale(${0.82 + 0.18 * p})`, filter: b > 0.3 ? `blur(${b}px)` : undefined, whiteSpace: "pre" };
+};
+export const typeNode = (node: React.ReactNode, f: number, A: number, cnt: { i: number }, step: number): React.ReactNode => {
+  if (typeof node === "string" || typeof node === "number") {
+    return Array.from(String(node)).map((ch) => { const i = cnt.i++; return <span key={i} style={charStyle(f - A - i * step)}>{ch}</span>; });
+  }
+  if (Array.isArray(node)) return node.map((c, k) => <React.Fragment key={k}>{typeNode(c, f, A, cnt, step)}</React.Fragment>);
+  if (React.isValidElement(node)) {
+    const el = node as React.ReactElement<{ children?: React.ReactNode }>;
+    const start = cnt.i;
+    const kids = typeNode(el.props.children, f, A, cnt, step);
+    return <TCtx.Provider value={{ A: A + start * step, n: cnt.i - start }}>{React.cloneElement(el, {}, kids)}</TCtx.Provider>;
+  }
+  return node;
+};
+export const TypeIn: React.FC<{ at: number; step?: number; children: React.ReactNode }> = ({ at, step = 1, children }) => {
+  const f = useCurrentFrame();
+  return <TCtx.Provider value={{ A: at, n: 0 }}>{typeNode(children, f, at, { i: 0 }, step)}</TCtx.Provider>;
 };
 // 左から書き出すように出る（字幕・本文用）：9fで左→右に見えていき、少し下から上がる
 export const wipeIn = (f: number, A: number): React.CSSProperties => {
@@ -46,7 +72,7 @@ export const StepHead: React.FC<{ n: number; at: number; title: string; y?: numb
   );
 };
 // 出し方：ghost（ふわっと）／pop（ぽん）／fade／rise（下から）／drop（上から落ちて弾む）／slam（大きく叩きつけ＋揺れ）／wipe（左から）／spring（ばねで伸びる）
-export type AtMode = "ghost" | "pop" | "fade" | "rise" | "drop" | "slam" | "wipe" | "spring";
+export type AtMode = "ghost" | "pop" | "fade" | "rise" | "drop" | "slam" | "wipe" | "spring" | "type";
 export const enter = (mode: AtMode, f: number, A: number): React.CSSProperties => {
   const d = f - A;
   switch (mode) {
@@ -60,6 +86,7 @@ export const enter = (mode: AtMode, f: number, A: number): React.CSSProperties =
       return { opacity: interpolate(d, [0, 2], [0, 1], clamp), transform: `translate(${sh}px, ${sh * 0.6}px) scale(${k})` };
     }
     case "wipe": return wipeIn(f, A);
+    case "type": return {};
     case "spring": {
       const k = d <= 0 ? 0 : 1 - Math.exp(-d / 3.2) * Math.cos(d * 0.55);
       return { transform: `scale(${Math.max(0, k)})` };
@@ -73,7 +100,7 @@ export const At: React.FC<{ at: number; until?: number; x: number; y: number; ch
   if (f < A || f >= Z + 5) return null;
   const o = 1 - interpolate(f, [Z, Z + 5], [0, 1], clamp);
   const st = enter(mode, f, A);
-  return <div style={{ position: "absolute", left: x, top: y, ...st, opacity: ((st as { opacity?: number }).opacity ?? 1) * o, transformOrigin: origin }}>{children}</div>;
+  return <div style={{ position: "absolute", left: x, top: y, ...st, opacity: ((st as { opacity?: number }).opacity ?? 1) * o, transformOrigin: origin }}>{mode === "type" ? <TypeIn at={A}>{children}</TypeIn> : children}</div>;
 };
 
 // ── 図の部品 ──
