@@ -449,34 +449,53 @@ const PSum: React.FC = () => {
           </div>
         );
       })}
-      {/* ここ（横180〜860・縦960〜1075）は空けておく＝たいちさんが Edits でインスタのリンクを置く場所。
-          動画では「指がタップしに来る」＋「点線の先にフォローしてねの札」だけ出す */}
+      {/* フォロー訴求（参考④の締めの動きを、黄色ノートの色で）
+          ・横180〜860／縦960〜1075 は空けておく＝たいちさんが Edits でアカウントのステッカーを置く場所
+          ・流れ：赤い枠が描かれる → 指が入ってタップ（黄色い輪）→ 点線の先に白い札「タップして」→ 黄色い札「フォローしてね」
+          ・3つ目のチェックのあと（69.2〜）は、ステッカーの所だけ残して画面を暗くする */}
       {(() => {
         const A = F(66.2), d2 = f - A;
         if (d2 < 0) return null;
-        const LX = 780, LY = 1078; // ステッカーの下のふち（手がステッカーに隠れないように） // 押す所（リンクの右寄り）
-        const hIn = interpolate(d2, [0, 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
-        const tapD = d2 - 18;
-        const press = interpolate(tapD, [0, 3, 7], [0, 1, 0], clamp);
-        const rip = ((tapD % 45) + 45) % 45;
-        const lb = interpolate(d2, [20, 30], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.5)) });
-        const line = interpolate(d2, [16, 24], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
+        const RX = 180, RY = 960, RW = 680, RH = 115; // ステッカーの場所
+        const LX = 790, LY = 1072;                    // 指の先（ステッカーの右下のふち）
+        const frame = interpolate(d2, [0, 10], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+        const hIn = interpolate(d2, [6, 18], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
+        const tapD = d2 - 20;
+        const press = interpolate(((tapD % 40) + 40) % 40, [0, 3, 7], [0, 1, 0], clamp) * (tapD > 0 ? 1 : 0);
+        const rip = ((tapD % 40) + 40) % 40;
+        const line = interpolate(d2, [22, 30], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
+        const lb1 = interpolate(d2, [28, 38], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.6)) });
+        const lb2 = interpolate(d2, [40, 44, 48], [0, 1.12, 1], clamp);
+        const dim = interpolate(f, [F(69.2), F(69.2) + 6], [0, 1], clamp);
+        const per = 2 * (RW + RH) - 8 * 26 + 2 * Math.PI * 26;
         return (
           <>
+            {/* 暗くする（ステッカーの所だけ抜く） */}
+            {dim > 0 ? <div style={{ position: "absolute", left: RX, top: RY, width: RW, height: RH, borderRadius: 30, boxShadow: `0 0 0 3000px rgba(40,36,30,${0.5 * dim})` }} /> : null}
+            {/* 赤い枠（描かれていく） */}
+            <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
+              <rect x={RX - 8} y={RY - 8} width={RW + 16} height={RH + 16} rx={34} fill="none" stroke={RED} strokeWidth={8} style={{ strokeDasharray: `${per * frame} 9999` }} />
+            </svg>
+            {/* タップの輪 */}
             {tapD > 0 && rip < 20 ? <div style={{ position: "absolute", left: LX - 55, top: LY - 55, width: 110, height: 110, borderRadius: "50%", border: `7px solid ${CASH}`, transform: `scale(${0.4 + rip / 10})`, opacity: 1 - rip / 20 }} /> : null}
-            {/* 手（ペンで描いたような白い手） */}
-            <svg width={190} height={230} viewBox="0 0 100 120" style={{ position: "absolute", left: LX - 30 + (1 - hIn) * 300, top: LY - 10 + (1 - hIn) * 300, transform: `scale(${1 - 0.08 * press}) rotate(-12deg)`, transformOrigin: "20% 5%", filter: `drop-shadow(4px 5px 0 ${INK})`, opacity: Math.min(1, hIn * 3) }}>
+            {/* 手 */}
+            <svg width={190} height={230} viewBox="0 0 100 120" style={{ position: "absolute", left: LX - 30 + (1 - hIn) * 320, top: LY - 10 + (1 - hIn) * 320, transform: `scale(${1 - 0.08 * press}) rotate(-12deg)`, transformOrigin: "20% 5%", filter: `drop-shadow(4px 5px 0 ${INK})`, opacity: Math.min(1, hIn * 3) }}>
               <path d="M28 8 a9 9 0 0 1 18 0 V52 h3 V40 a8 8 0 0 1 16 0 V56 h2 V46 a8 8 0 0 1 16 0 V60 h1 V54 a7 7 0 0 1 14 0 V84 c0 18 -12 30 -30 30 H50 c-12 0 -20 -6 -26 -16 L6 70 a8 8 0 0 1 12 -10 l10 10 Z" fill="#fff" stroke={INK} strokeWidth={5} strokeLinejoin="round" />
               <path d="M46 52 V64 M65 56 V66 M83 60 V68" stroke={INK} strokeWidth={4} strokeLinecap="round" />
             </svg>
-            {/* 点線と札「フォローしてね」 */}
+            {/* 点線と札2枚 */}
             <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
-              <circle cx={330} cy={1092} r={13} fill={CASH} stroke={INK} strokeWidth={4} opacity={line > 0 ? 1 : 0} />
-              <line x1={330} y1={1104} x2={330} y2={1104 + 52 * line} stroke={INK} strokeWidth={6} />
+              <circle cx={320} cy={RY + RH + 14} r={13} fill={CASH} stroke={INK} strokeWidth={4} opacity={line > 0 ? 1 : 0} />
+              <line x1={320} y1={RY + RH + 26} x2={320} y2={RY + RH + 26 + 40 * line} stroke={INK} strokeWidth={6} />
             </svg>
-            <div style={{ position: "absolute", left: 120, top: 1160, transform: `scale(${lb})`, transformOrigin: "30% 0%" }}>
-              <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${INK}`, borderRadius: 22, padding: "10px 34px", ...K, fontSize: 46, color: INK, boxShadow: `6px 8px 0 ${CASH}`, whiteSpace: "nowrap" }}><span style={{ color: RED }}>タップ</span>して<span style={{ color: RED }}>フォロー</span>してね</span>
+            <div style={{ position: "absolute", left: 150, top: RY + RH + 66, transform: `scale(${lb1})`, transformOrigin: "30% 0%" }}>
+              <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${INK}`, borderRadius: 20, padding: "6px 30px", ...K, fontSize: 44, color: INK, boxShadow: `6px 8px 0 ${CASH}`, whiteSpace: "nowrap" }}>ここを<span style={{ color: RED }}>タップ</span>して</span>
             </div>
+            {lb2 > 0 ? (
+              <div style={{ position: "absolute", left: 150, top: RY + RH + 160, transform: `scale(${lb2})`, transformOrigin: "20% 50%" }}>
+                <span style={{ display: "inline-block", background: CASH, border: `6px solid ${INK}`, borderRadius: 20, padding: "8px 34px", ...K, fontSize: 50, color: INK, boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ color: RED }}>フォロー</span>してね！</span>
+              </div>
+            ) : null}
           </>
         );
       })()}
