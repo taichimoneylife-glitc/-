@@ -457,7 +457,7 @@ const PSum: React.FC = () => {
         const A = F(66.2), d2 = f - A;
         if (d2 < 0) return null;
         const RX = 180, RY = 880, RW = 680, RH = 115; // ステッカーの場所
-        const LX = 790, LY = 1050; // 指の先はステッカーより下（ステッカーは透けるので重ねない）                    // 指の先（ステッカーの右下のふち）
+        const LX = 790, LY = 1100; // 指の先はステッカーより下（ステッカーは透けるので重ねない）                    // 指の先（ステッカーの右下のふち）
         const hIn = interpolate(d2, [6, 18], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
         const tapD = d2 - 20;
         const press = interpolate(((tapD % 40) + 40) % 40, [0, 3, 7], [0, 1, 0], clamp) * (tapD > 0 ? 1 : 0);
@@ -479,14 +479,14 @@ const PSum: React.FC = () => {
             </svg>
             {/* 点線と札2枚 */}
             <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
-              <circle cx={320} cy={RY + RH + 20} r={13} fill={CASH} stroke={INK} strokeWidth={4} opacity={line > 0 ? 1 : 0} />
-              <line x1={320} y1={RY + RH + 32} x2={320} y2={RY + RH + 32 + 100 * line} stroke={INK} strokeWidth={6} />
+              <circle cx={320} cy={RY + RH + 40} r={13} fill={CASH} stroke={INK} strokeWidth={4} opacity={line > 0 ? 1 : 0} />
+              <line x1={320} y1={RY + RH + 52} x2={320} y2={RY + RH + 52 + 130 * line} stroke={INK} strokeWidth={6} />
             </svg>
-            <div style={{ position: "absolute", left: 150, top: RY + RH + 132, transform: `scale(${lb1})`, transformOrigin: "30% 0%" }}>
+            <div style={{ position: "absolute", left: 150, top: RY + RH + 182, transform: `scale(${lb1})`, transformOrigin: "30% 0%" }}>
               <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${INK}`, borderRadius: 20, padding: "6px 30px", ...K, fontSize: 44, color: INK, boxShadow: `6px 8px 0 ${CASH}`, whiteSpace: "nowrap" }}>ここを<span style={{ color: RED }}>タップ</span>して</span>
             </div>
             {lb2 > 0 ? (
-              <div style={{ position: "absolute", left: 150, top: RY + RH + 236, transform: `scale(${lb2})`, transformOrigin: "20% 50%" }}>
+              <div style={{ position: "absolute", left: 150, top: RY + RH + 286, transform: `scale(${lb2})`, transformOrigin: "20% 50%" }}>
                 <span style={{ display: "inline-block", background: RED, border: `6px solid ${INK}`, borderRadius: 20, padding: "8px 34px", ...K, fontSize: 50, color: "#fff", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}>フォローしてね！</span>
               </div>
             ) : null}
