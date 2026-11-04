@@ -486,13 +486,13 @@ const PSum: React.FC = () => {
             {/* 点線と札2枚 */}
             <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
               <circle cx={320} cy={RY + RH + 14} r={13} fill={CASH} stroke={INK} strokeWidth={4} opacity={line > 0 ? 1 : 0} />
-              <line x1={320} y1={RY + RH + 26} x2={320} y2={RY + RH + 26 + 40 * line} stroke={INK} strokeWidth={6} />
+              <line x1={320} y1={RY + RH + 26} x2={320} y2={RY + RH + 26 + 90 * line} stroke={INK} strokeWidth={6} />
             </svg>
-            <div style={{ position: "absolute", left: 150, top: RY + RH + 66, transform: `scale(${lb1})`, transformOrigin: "30% 0%" }}>
+            <div style={{ position: "absolute", left: 150, top: RY + RH + 116, transform: `scale(${lb1})`, transformOrigin: "30% 0%" }}>
               <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${INK}`, borderRadius: 20, padding: "6px 30px", ...K, fontSize: 44, color: INK, boxShadow: `6px 8px 0 ${CASH}`, whiteSpace: "nowrap" }}>ここを<span style={{ color: RED }}>タップ</span>して</span>
             </div>
             {lb2 > 0 ? (
-              <div style={{ position: "absolute", left: 150, top: RY + RH + 160, transform: `scale(${lb2})`, transformOrigin: "20% 50%" }}>
+              <div style={{ position: "absolute", left: 150, top: RY + RH + 220, transform: `scale(${lb2})`, transformOrigin: "20% 50%" }}>
                 <span style={{ display: "inline-block", background: RED, border: `6px solid ${INK}`, borderRadius: 20, padding: "8px 34px", ...K, fontSize: 50, color: "#fff", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}>フォローしてね！</span>
               </div>
             ) : null}
