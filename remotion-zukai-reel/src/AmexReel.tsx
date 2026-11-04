@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, Easing, Img, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { A2 } from "./components/kit2";
 import { FONT } from "./components/font";
 import { B, GenSlot } from "./MileLifePlan";
@@ -8,6 +8,7 @@ import { K, SER, TypeIn } from "./components/zukaiKit";
 import { Captions } from "./BourakuReel";
 import { Scribble, Checklist, ReelUI } from "./components/fx";
 import { AMEX_MOUTH } from "./amexMouth";
+import { Board, type Panel, type Stop } from "./components/board";
 
 // ════════════════════════════════════════════════════════════════════
 //  アメックスのポイント（図解パート・79秒。冒頭は実写）
@@ -270,23 +271,51 @@ const BadScene: React.FC = () => {
   );
 };
 
-// ════════ つなぎ：じゃあどう使う？（35.1〜40.2） ════════
+// ════════ つなぎ：じゃあどう使う？（35.1〜40.2）＝1万ptのコインから4枚のカードが飛び出す ════════
+const PICKS: { name: string; logos: [string, number][]; tease: string; c: string; dx: number; dy: number; rot: number }[] = [
+  { name: "ANAマイル", logos: [["ana", 40]], tease: "10,000マイル", c: BLUE, dx: -1, dy: -1, rot: -14 },
+  { name: "外資系のマイル", logos: [["singapore", 14], ["british", 15], ["qatar", 34]], tease: "8,000マイル", c: "#5B7FBF", dx: 1, dy: -1, rot: 12 },
+  { name: "ホテルのポイント", logos: [["hilton", 34], ["marriott", 44]], tease: "最大12,500pt", c: GREEN, dx: -1, dy: 1, rot: 10 },
+  { name: "カードの年会費", logos: [["amex", 50]], tease: "10,000円分", c: "#B38A12", dx: 1, dy: 1, rot: -12 },
+];
 const BridgeScene: React.FC = () => {
-  const f = useCurrentFrame();
-  const items = ["ANAマイル", "外資系のマイル", "ホテルのポイント", "カードの年会費"];
+  const f = useCurrentFrame(); const { fps } = useVideoConfig();
+  const CX = 540, CY = 820;
+  const glow = ease(f, 36.82, 0.6);
+  const coinOut = ease(f, 37.5, 0.4);
+  const q = f - F(35.9); const qk = q >= 0 ? interpolate(q, [0, 5, 9, 13], [0, -26, 6, 0], clamp) : 0;
   return (
     <>
-      <div style={{ position: "absolute", left: 0, width: 1080, top: 360, textAlign: "center", ...K, fontSize: 64, color: INK }}><TypeIn at={F(35.14)} step={1.5}>じゃあ、どう使う？</TypeIn></div>
-      <div style={{ position: "absolute", left: 0, width: 1080, top: 470, textAlign: "center", ...B, fontSize: 34, color: SUB, ...rise(f, 36.8) }}>ポイントの価値を活かせる使い方</div>
-      <div style={{ position: "absolute", left: 190, top: 570, width: 700, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 22 }}>
-        {items.map((it, i) => (
-          <div key={it} style={{ height: 210, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${[BLUE, "#5B7FBF", GREEN, GOLD][i]}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, transform: `scale(${pop(f, 37.6 + i * 0.35)})`, opacity: f >= F(37.6 + i * 0.35) ? 1 : 0 }}>
-            <div style={{ ...SER, fontSize: 64, color: [BLUE, "#5B7FBF", GREEN, "#B38A12"][i], lineHeight: 1 }}>{i + 1}</div>
-            <div style={{ ...K, fontSize: 36, color: INK }}>{it}</div>
-          </div>
-        ))}
+      <div style={{ position: "absolute", left: 0, width: 1080, top: 320, textAlign: "center", ...K, fontSize: 68, color: INK }}>
+        <TypeIn at={F(35.14)} step={1.4}>じゃあ、どう使う</TypeIn><span style={{ display: "inline-block", color: RED, opacity: q >= 0 ? 1 : 0, transform: `translateY(${qk}px) rotate(${qk * 0.6}deg)` }}>？</span>
       </div>
-      <div style={{ position: "absolute", left: 0, width: 1080, top: 1060, textAlign: "center", ...slam(f, 39.2) }}><span style={{ display: "inline-block", background: "#FFE58A", padding: "8px 30px", transform: "rotate(-2deg)", ...K, fontSize: 44, color: INK, boxShadow: "3px 6px 12px rgba(90,70,20,0.2)" }}>この4つ</span></div>
+      <div style={{ position: "absolute", left: 0, width: 1080, top: 430, textAlign: "center", ...B, fontSize: 32, color: SUB, ...rise(f, 36.82) }}>ポイントの価値を<span style={{ color: INK, background: `linear-gradient(transparent 60%, #FFE58A 60%)` }}>しっかり活かせる</span>使い方</div>
+      {/* 後ろで回る光 */}
+      <svg width={1080} height={1080} style={{ position: "absolute", left: CX - 540, top: CY - 540, opacity: glow * 0.9, transform: `rotate(${f * 0.8}deg) scale(${0.6 + 0.4 * glow})` }}>
+        {Array.from({ length: 16 }).map((_, i) => { const a = (i / 16) * Math.PI * 2, b = a + Math.PI / 32; return <path key={i} d={`M540,540 L${540 + Math.cos(a) * 540},${540 + Math.sin(a) * 540} L${540 + Math.cos(b) * 540},${540 + Math.sin(b) * 540} Z`} fill="#FFE58A" opacity={0.55} />; })}
+      </svg>
+      {/* 1万ptのコイン：光ってから4つに割れる */}
+      <div style={{ position: "absolute", left: CX - 120, top: CY - 120, width: 240, height: 240, borderRadius: "50%", background: GOLD, border: `7px solid ${INK}`, boxShadow: `0 0 ${40 * glow}px ${GOLD}, 7px 9px 0 ${INK}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: `scale(${interpolate(f - F(35.3), [0, 6, 10], [0, 1.15, 1], clamp) * (1 + 0.08 * Math.sin(f / 5) * glow) * (1 - coinOut)})`, opacity: 1 - coinOut }}>
+        <div style={{ ...SER, fontSize: 80, color: INK, lineHeight: 1 }}>1万</div><div style={{ ...K, fontSize: 30, color: INK }}>ポイント</div>
+      </div>
+      {/* 4枚のカードが飛び出して、少し回りながら着地 */}
+      {PICKS.map((p, i) => {
+        const at = 37.6 + i * 0.32;
+        const s = spring({ frame: f - F(at), fps, config: { damping: 13, stiffness: 140, mass: 0.8 } });
+        if (f < F(at)) return null;
+        const tx = CX + p.dx * 190, ty = CY + p.dy * 150;
+        const x = CX + (tx - CX) * s, y = CY + (ty - CY) * s;
+        const hl = f >= F(39.22) + i * 4 && f < F(39.22) + i * 4 + 8;
+        return (
+          <div key={p.name} style={{ position: "absolute", left: x - 175, top: y - 125, width: 350, height: 250, background: "#fff", border: `6px solid ${INK}`, borderRadius: 26, boxShadow: `7px 9px 0 ${p.c}`, transform: `rotate(${p.rot * (1 - s) + p.rot * 0.12}deg) scale(${(0.3 + 0.7 * s) * (hl ? 1.08 : 1)})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            <div style={{ position: "absolute", left: -18, top: -22, width: 56, height: 56, borderRadius: "50%", background: p.c, border: `5px solid ${INK}`, color: "#fff", ...SER, fontSize: 34, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</div>
+            <div style={{ height: 56, display: "flex", alignItems: "center", gap: 12 }}>{p.logos.map(([n, h]) => <Logo key={n} n={n} h={h} style={{ maxWidth: p.logos.length > 2 ? 92 : 150 }} />)}</div>
+            <div style={{ ...K, fontSize: 34, color: INK }}>{p.name}</div>
+            <div style={{ ...B, fontSize: 22, color: SUB }}>1万ptで <span style={{ ...SER, fontSize: 32, color: p.c }}>{p.tease}</span></div>
+          </div>
+        );
+      })}
+      {f >= F(39.22) ? <div style={{ position: "absolute", left: 0, width: 1080, top: 1150, textAlign: "center", ...slam(f, 39.22) }}><span style={{ display: "inline-block", background: RED, color: "#fff", border: `5px solid ${INK}`, padding: "6px 34px", borderRadius: 16, transform: "rotate(-3deg)", ...K, fontSize: 46, boxShadow: `5px 7px 0 ${INK}` }}>この4つ！</span></div> : null}
     </>
   );
 };
@@ -417,7 +446,7 @@ const EndScene: React.FC = () => {
   const g = interpolate(f, [F(75.6), F(75.6) + 20], [0, 1], { ...clamp, easing: OUT });
   return (
     <>
-      <div style={{ position: "absolute", left: 0, width: 1080, top: 330, textAlign: "center", ...K, fontSize: 52, color: INK }}><TypeIn at={F(73.84)} step={1.2}>同じ1万ポイントでも</TypeIn></div>
+      <div style={{ position: "absolute", left: 0, width: 1080, top: 330, textAlign: "center", ...K, fontSize: 52, color: INK }}><TypeIn at={F(75.6)} step={1.2}>同じ1万ポイントでも</TypeIn></div>
       <div style={{ position: "absolute", left: 150, top: 470, width: 780 }}>
         {([["商品券・Vポイント", "3,000円分", 0.3, RED], ["Amazon", "5,000円分", 0.5, RED], ["年会費", "10,000円分", 1, GOLD], ["ANAマイル", "10,000マイル", 1, BLUE]] as const).map(([n, v, w, c], i) => (
           <div key={n} style={{ display: "flex", alignItems: "center", gap: 16, height: 110 }}>
@@ -486,19 +515,24 @@ const CheckWrap: React.FC = () => {
   return <div style={{ position: "absolute", right: 120, top: 210, width: 380, transform: "scale(0.6)", transformOrigin: "100% 0" }}><Checklist title="おすすめ" items={CHECK} cur={cur} x={0} y={0} w={380} /></div>;
 };
 
+// 1枚の大きな地図に7ページを並べ、カメラで移る（参考②の「縮む→流れる→戻る」）
+const PANELS: Panel[] = [{ id: "bad", col: 0, row: 0 }, { id: "bridge", col: 1, row: 0 }, { id: "ana", col: 2, row: 0 }, { id: "foreign", col: 3, row: 0 }, { id: "hotel", col: 3, row: 1 }, { id: "fee", col: 2, row: 1 }, { id: "end", col: 1, row: 1 }];
+const LINKS: [string, string][] = [["bad", "bridge"], ["bridge", "ana"], ["ana", "foreign"], ["foreign", "hotel"], ["hotel", "fee"], ["fee", "end"]];
+const STOPS: Stop[] = [
+  { id: "bad", trans: 0 }, { id: "bridge", trans: 34.9, kind: "kick" }, { id: "ana", trans: 39.95, kind: "kick" },
+  { id: "foreign", trans: 45.9, kind: "fast" }, { id: "hotel", trans: 53.2, kind: "fast" }, { id: "fee", trans: 68.7, kind: "fast" },
+  { id: "__map", trans: 73.7, scale: 0.36, ids: ["ana", "foreign", "hotel", "fee"] }, { id: "end", trans: 75.3, kind: "kick" },
+];
+const PAGES: Record<string, React.FC> = { bad: BadScene, bridge: BridgeScene, ana: AnaScene, foreign: ForeignScene, hotel: HotelScene, fee: FeeScene, end: EndScene };
 export const AMEX_FRAMES = F(79.1);
 export const AmexReel: React.FC = () => (
   <AbsoluteFill style={{ fontFamily: FONT }}>
     <Paper />
     <Audio src={staticFile("amex-narration.wav")} />
     <SfxTrack cues={CUES} />
-    <Shot a={0} b={35.0}><BadScene /></Shot>
-    <Shot a={35.1} b={40.1}><BridgeScene /></Shot>
-    <Shot a={40.2} b={46.0}><AnaScene /></Shot>
-    <Shot a={46.1} b={53.35}><ForeignScene /></Shot>
-    <Shot a={53.4} b={68.8}><HotelScene /></Shot>
-    <Shot a={68.85} b={73.75}><FeeScene /></Shot>
-    <Shot a={73.8} b={80}><EndScene /></Shot>
+    <Board streaks panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: A2.bg, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
+      {(id) => { const C = PAGES[id]; return <AbsoluteFill><C /></AbsoluteFill>; }}
+    </Board>
     <CheckWrap />
     <Chara />
     <CapBand />
