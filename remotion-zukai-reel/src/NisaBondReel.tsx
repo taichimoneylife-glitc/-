@@ -457,8 +457,7 @@ const PSum: React.FC = () => {
         const A = F(66.2), d2 = f - A;
         if (d2 < 0) return null;
         const RX = 180, RY = 880, RW = 680, RH = 115; // ステッカーの場所
-        const LX = 790, LY = 992;                    // 指の先（ステッカーの右下のふち）
-        const frame = interpolate(d2, [0, 10], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+        const LX = 790, LY = 1050; // 指の先はステッカーより下（ステッカーは透けるので重ねない）                    // 指の先（ステッカーの右下のふち）
         const hIn = interpolate(d2, [6, 18], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
         const tapD = d2 - 20;
         const press = interpolate(((tapD % 40) + 40) % 40, [0, 3, 7], [0, 1, 0], clamp) * (tapD > 0 ? 1 : 0);
@@ -467,15 +466,10 @@ const PSum: React.FC = () => {
         const lb1 = interpolate(d2, [28, 38], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.6)) });
         const lb2 = interpolate(d2, [40, 44, 48], [0, 1.12, 1], clamp);
         const dim = interpolate(f, [F(69.2), F(69.2) + 6], [0, 1], clamp);
-        const per = 2 * (RW + RH) - 8 * 26 + 2 * Math.PI * 26;
         return (
           <>
             {/* 暗くする（ステッカーの所だけ抜く） */}
-            {dim > 0 ? <div style={{ position: "absolute", left: RX, top: RY, width: RW, height: RH, borderRadius: 30, boxShadow: `0 0 0 3000px rgba(40,36,30,${0.5 * dim})` }} /> : null}
-            {/* 赤い枠（描かれていく） */}
-            <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
-              <rect x={RX - 8} y={RY - 8} width={RW + 16} height={RH + 16} rx={34} fill="none" stroke={RED} strokeWidth={8} style={{ strokeDasharray: `${per * frame} 9999` }} />
-            </svg>
+            {dim > 0 ? <div style={{ position: "absolute", left: -1000, top: -1000, width: 4000, height: 4000, background: `rgba(40,36,30,${0.45 * dim})` }} /> : null}
             {/* タップの輪 */}
             {tapD > 0 && rip < 20 ? <div style={{ position: "absolute", left: LX - 55, top: LY - 55, width: 110, height: 110, borderRadius: "50%", border: `7px solid ${CASH}`, transform: `scale(${0.4 + rip / 10})`, opacity: 1 - rip / 20 }} /> : null}
             {/* 手 */}
@@ -485,14 +479,14 @@ const PSum: React.FC = () => {
             </svg>
             {/* 点線と札2枚 */}
             <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
-              <circle cx={320} cy={RY + RH + 14} r={13} fill={CASH} stroke={INK} strokeWidth={4} opacity={line > 0 ? 1 : 0} />
-              <line x1={320} y1={RY + RH + 26} x2={320} y2={RY + RH + 26 + 90 * line} stroke={INK} strokeWidth={6} />
+              <circle cx={320} cy={RY + RH + 20} r={13} fill={CASH} stroke={INK} strokeWidth={4} opacity={line > 0 ? 1 : 0} />
+              <line x1={320} y1={RY + RH + 32} x2={320} y2={RY + RH + 32 + 100 * line} stroke={INK} strokeWidth={6} />
             </svg>
-            <div style={{ position: "absolute", left: 150, top: RY + RH + 116, transform: `scale(${lb1})`, transformOrigin: "30% 0%" }}>
+            <div style={{ position: "absolute", left: 150, top: RY + RH + 132, transform: `scale(${lb1})`, transformOrigin: "30% 0%" }}>
               <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${INK}`, borderRadius: 20, padding: "6px 30px", ...K, fontSize: 44, color: INK, boxShadow: `6px 8px 0 ${CASH}`, whiteSpace: "nowrap" }}>ここを<span style={{ color: RED }}>タップ</span>して</span>
             </div>
             {lb2 > 0 ? (
-              <div style={{ position: "absolute", left: 150, top: RY + RH + 220, transform: `scale(${lb2})`, transformOrigin: "20% 50%" }}>
+              <div style={{ position: "absolute", left: 150, top: RY + RH + 236, transform: `scale(${lb2})`, transformOrigin: "20% 50%" }}>
                 <span style={{ display: "inline-block", background: RED, border: `6px solid ${INK}`, borderRadius: 20, padding: "8px 34px", ...K, fontSize: 50, color: "#fff", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}>フォローしてね！</span>
               </div>
             ) : null}
