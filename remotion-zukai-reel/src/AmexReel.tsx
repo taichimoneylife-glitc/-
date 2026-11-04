@@ -52,45 +52,221 @@ const Shot: React.FC<{ a: number; b: number; children: React.ReactNode }> = ({ a
   return <AbsoluteFill style={{ transform: `translateX(${(1 - inP) * 380 - outP * 1100}px) rotate(${(1 - inP) * 2}deg)`, opacity: Math.min(inP * 2, 1 - outP * 0.6), filter: inP < 0.8 || outP > 0.1 ? `blur(${Math.max((1 - inP) * 8, outP * 8)}px)` : undefined }}>{children}</AbsoluteFill>;
 };
 
-// ════════ 損する使い方5つ（0〜35.1） ════════
-type Bad = { at: number; name: string; sub?: string; rate: string; val: string; unit: string; logo?: React.ReactNode };
+// ════════ 損する使い方5つ（0〜35.1）：上＝5つの枠が順に埋まる／下＝1つずつ違う動きで「なぜ損か」を見せる ════════
+type Bad = { at: number; end: number; reveal: number; name: string; logo?: React.ReactNode; val: string; unit: string };
 const BADS: Bad[] = [
-  { at: 0.0, name: "年会費以外のカード支払い", sub: "旅行の代金／それ以外", rate: "1pt → 0.8円／0.5円", val: "8,000／5,000", unit: "円" },
-  { at: 7.26, name: "Amazonでポイント払い", logo: <><Logo n="amazon" h={36} style={{ marginTop: 10 }} /><span>でポイント払い</span></>, rate: "1pt → 0.5円", val: "5,000", unit: "円分" },
-  { at: 11.72, name: "カタログのアイテム", sub: "例：ビール24本＝21,000pt", rate: "商品によって", val: "5,000円以下", unit: "も" },
-  { at: 16.94, name: "楽天・Vポイント", logo: <><Logo n="rakuten_wm" h={26} /><span>・</span><Logo n="vpoint" h={40} /></>, sub: "楽天 3,000→1,400", rate: "V 1万→3,000", val: "3,000〜4,700", unit: "pt" },
-  { at: 23.38, name: "JALマイル", logo: <><Logo n="jal" h={34} /><span>マイル</span></>, sub: "ANAなら10,000マイル", rate: "2,500pt → 1,000マイル", val: "4,000", unit: "マイル" },
+  { at: 0.0, end: 7.2, reveal: 4.9, name: "年会費以外のカード支払い", val: "8,000／5,000", unit: "円" },
+  { at: 7.26, end: 11.66, reveal: 10.1, name: "Amazonでポイント払い", logo: <><Logo n="amazon" h={32} style={{ marginTop: 9 }} /><span>でポイント払い</span></>, val: "5,000", unit: "円分" },
+  { at: 11.72, end: 16.9, reveal: 15.6, name: "カタログのアイテム", val: "5,000円以下", unit: "も" },
+  { at: 16.94, end: 23.32, reveal: 21.2, name: "楽天・Vポイント", logo: <><Logo n="rakuten_wm" h={24} /><span>・</span><Logo n="vpoint" h={36} /></>, val: "3,000〜4,700", unit: "pt" },
+  { at: 23.38, end: 29.25, reveal: 26.9, name: "JALマイル", logo: <><Logo n="jal" h={32} /><span>マイル</span></>, val: "4,000", unit: "マイル" },
 ];
+const ROW_TOP = 400, ROW_H = 86, ROW_GAP = 10;
+const ease = (f: number, a: number, dur: number) => interpolate(f - F(a), [0, F(dur)], [0, 1], { ...clamp, easing: OUT });
+const num = (v: number) => Math.round(v).toLocaleString("en-US");
+
+// 下の舞台：入る＝下からポン、出る＝小さくなって上の枠へ吸い込まれる
+const Stage: React.FC<{ a: number; b: number; slot?: number; children: React.ReactNode }> = ({ a, b, slot, children }) => {
+  const f = useCurrentFrame();
+  if (f < F(a) || f > F(b) + 9) return null;
+  const i = interpolate(f - F(a), [0, 9], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.4)) });
+  const o = interpolate(f - F(b), [0, 9], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+  const ty = slot === undefined ? o * 200 : o * (ROW_TOP + slot * (ROW_H + ROW_GAP) + 40 - 1090);
+  return <AbsoluteFill style={{ opacity: Math.min(1, i * 1.5) * (1 - o), transform: `translateY(${(1 - i) * 90 + ty}px) scale(${(0.9 + 0.1 * i) * (1 - 0.7 * o)})`, transformOrigin: "540px 1090px" }}>{children}</AbsoluteFill>;
+};
+
+// ① ゲージ：旅行8,000／それ以外5,000、1万に届かない分が赤く点滅
+const HeroGauge: React.FC = () => {
+  const f = useCurrentFrame();
+  const W = 520, X = 400;
+  const g1 = ease(f, 2.82, 0.9), g2 = ease(f, 4.58, 0.9), lack = f >= F(5.74);
+  const blink = lack ? 0.55 + 0.45 * Math.sin((f - F(5.74)) / 3) : 0;
+  const bar = (top: number, label: string, p: number, rate: number, val: number) => (
+    <div style={{ position: "absolute", left: X, top, width: W }}>
+      <div style={{ ...K, fontSize: 28, color: INK, marginBottom: 6 }}>{label}<span style={{ ...B, fontSize: 22, color: SUB, marginLeft: 10 }}>1pt＝{rate}円</span></div>
+      <div style={{ position: "relative", height: 58, borderRadius: 14, border: `4px dashed ${INK}55`, boxSizing: "border-box", overflow: "hidden", background: "#fff" }}>
+        <div style={{ position: "absolute", left: W * rate * p, top: 0, bottom: 0, width: W * (1 - rate), background: `repeating-linear-gradient(45deg, ${RED}${lack ? "" : "00"} 0 10px, transparent 10px 20px)`, opacity: blink }} />
+        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: W * rate * p, background: GOLD, borderRight: p > 0 ? `4px solid ${INK}` : "none", boxSizing: "border-box" }} />
+        <div style={{ position: "absolute", left: 16, top: 6, ...SER, fontSize: 40, color: INK, opacity: p > 0.05 ? 1 : 0 }}>{num(val * p)}<span style={{ ...B, fontSize: 20 }}>円</span></div>
+      </div>
+      {lack ? <div style={{ position: "absolute", right: 8, top: 52, ...K, fontSize: 30, color: RED, transform: `scale(${pop(f, 5.74)})` }}>−{num(10000 - val)}</div> : null}
+    </div>
+  );
+  return (
+    <>
+      <div style={{ position: "absolute", left: 160, top: 975, width: 200, height: 200, borderRadius: "50%", background: GOLD, border: `6px solid ${INK}`, boxShadow: `6px 8px 0 ${INK}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: `rotate(${Math.sin(f / 14) * 4}deg)` }}>
+        <div style={{ ...SER, fontSize: 62, color: INK, lineHeight: 1 }}>1万</div><div style={{ ...K, fontSize: 26, color: INK }}>ポイント</div>
+      </div>
+      <div style={{ position: "absolute", left: X + W - 2, top: 950, height: 260, borderLeft: `4px solid ${INK}`, opacity: lack ? 1 : 0.25 }} />
+      <div style={{ position: "absolute", left: X + W - 60, top: 918, ...K, fontSize: 24, color: INK, opacity: lack ? 1 : 0.4 }}>1万円</div>
+      {bar(960, "旅行の代金", g1, 0.8, 8000)}
+      {bar(1080, "それ以外", g2, 0.5, 5000)}
+    </>
+  );
+};
+
+// ② 1万ptのチケットをハサミで半分に → 右半分が落ちる
+const HeroTicket: React.FC = () => {
+  const f = useCurrentFrame();
+  const cut = ease(f, 9.34, 0.5), fall = interpolate(f - F(9.9), [0, 22], [0, 1], { ...clamp, easing: Easing.in(Easing.quad) });
+  const L = 220, T = 960, W = 640, H = 250;
+  const ticket = (half: "l" | "r") => (
+    <div style={{ position: "absolute", left: L, top: T, width: W, height: H, clipPath: half === "l" ? `inset(0 ${W / 2}px 0 0)` : `inset(0 0 0 ${W / 2}px)`, transform: half === "r" ? `translate(${fall * 150}px, ${fall * 200}px) rotate(${fall * 22}deg)` : undefined, opacity: half === "r" ? 1 - fall : 1 }}>
+      <div style={{ position: "absolute", inset: 0, background: "#fff", border: `6px solid ${INK}`, borderRadius: 26, boxShadow: `7px 9px 0 ${GOLD}` }} />
+      <Logo n="amazon" h={46} style={{ position: "absolute", left: 34, top: 26 }} />
+      <div style={{ position: "absolute", left: 0, right: 0, top: 92, textAlign: "center", ...SER, fontSize: 104, color: INK, lineHeight: 1 }}>10,000<span style={{ ...K, fontSize: 36 }}>pt</span></div>
+      <div style={{ position: "absolute", left: -22, top: H / 2 - 22, width: 44, height: 44, borderRadius: "50%", background: A2.bg, border: `6px solid ${INK}` }} />
+      <div style={{ position: "absolute", right: -22, top: H / 2 - 22, width: 44, height: 44, borderRadius: "50%", background: A2.bg, border: `6px solid ${INK}` }} />
+    </div>
+  );
+  return (
+    <>
+      {ticket("r")}{ticket("l")}
+      {f >= F(9.34) && fall < 0.05 ? <div style={{ position: "absolute", left: L + W / 2 - 2, top: T - 20, height: (H + 40) * cut, borderLeft: `5px dashed ${RED}` }} /> : null}
+      {f >= F(9.34) && fall < 0.05 ? <div style={{ position: "absolute", left: L + W / 2 - 30, top: T - 60 + (H + 40) * cut, fontSize: 56, transform: "rotate(90deg)" }}>✂️</div> : null}
+      {f >= F(10.1) ? <div style={{ position: "absolute", left: L, width: W / 2, top: T + H + 18, textAlign: "center", ...K, fontSize: 44, color: INK, ...slam(f, 10.1) }}><span style={{ background: "#FFE58A", padding: "2px 18px" }}>5,000円分</span></div> : null}
+      {f >= F(10.3) ? <div style={{ position: "absolute", left: L + W / 2 + 40, top: T + 30, ...K, fontSize: 46, color: RED, transform: `rotate(-8deg) scale(${pop(f, 10.3)})` }}>−5,000円</div> : null}
+    </>
+  );
+};
+
+// ③ カタログが開く → ビール24本 → 値札がくるっと裏返って「5,000円以下」
+const HeroCatalog: React.FC = () => {
+  const f = useCurrentFrame();
+  const open = ease(f, 12.3, 0.7), flip = ease(f, 15.44, 0.5);
+  return (
+    <>
+      <div style={{ position: "absolute", left: 170, top: 950, width: 330, height: 280, perspective: 1200 }}>
+        <div style={{ position: "absolute", inset: 0, background: "#fff", border: `5px solid ${INK}`, borderRadius: 14, display: "grid", gridTemplateColumns: "repeat(6, 1fr)", alignContent: "center", justifyItems: "center", padding: 14, boxSizing: "border-box", rowGap: 4 }}>
+          {Array.from({ length: 24 }).map((_, i) => <div key={i} style={{ width: 30, height: 46, borderRadius: 7, background: GOLD, border: `3px solid ${INK}`, boxSizing: "border-box", position: "relative", overflow: "hidden", opacity: f >= F(12.7) + i * 0.6 ? 1 : 0, transform: `scale(${f >= F(12.7) + i * 0.6 ? 1 : 0.3})` }}><div style={{ position: "absolute", left: 0, right: 0, top: 13, height: 11, background: "#fff" }} /></div>)}
+        </div>
+        <div style={{ position: "absolute", inset: 0, background: "#E8553B", border: `5px solid ${INK}`, borderRadius: 14, transformOrigin: "0 50%", transform: `rotateY(${-170 * open}deg)`, backfaceVisibility: "hidden", display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 40, color: "#fff" }}>ギフト<br />カタログ</div>
+      </div>
+      <div style={{ position: "absolute", left: 160, top: 1240, width: 350, textAlign: "center", ...K, fontSize: 28, color: INK, opacity: open }}>ビール24本</div>
+      <div style={{ position: "absolute", left: 560, top: 980, width: 350, height: 220, perspective: 1000, opacity: f >= F(13.44) ? 1 : 0, transform: `scale(${pop(f, 13.44)})` }}>
+        <div style={{ position: "absolute", inset: 0, transformStyle: "preserve-3d", transform: `rotateX(${180 * flip}deg)` }}>
+          <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", background: "#fff", border: `5px solid ${INK}`, borderRadius: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ ...B, fontSize: 26, color: SUB }}>交換に必要</div><div style={{ ...SER, fontSize: 70, color: INK }}>21,000<span style={{ ...K, fontSize: 28 }}>pt</span></div>
+          </div>
+          <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", transform: "rotateX(180deg)", background: "#FFF2EE", border: `5px solid ${RED}`, borderRadius: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ ...B, fontSize: 26, color: SUB }}>1万ポイントあたり</div><div style={{ ...SER, fontSize: 62, color: RED }}>5,000円<span style={{ ...K, fontSize: 30 }}>以下</span></div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// ④ 交換マシン：コイン10枚が入って、少なくなって出てくる
+const Coin: React.FC<{ x: number; y: number; c?: string }> = ({ x, y, c = GOLD }) => <div style={{ position: "absolute", left: x, top: y, width: 110, height: 30, borderRadius: "50%", background: c, border: `4px solid ${INK}`, boxSizing: "border-box" }} />;
+const HeroMachine: React.FC = () => {
+  const f = useCurrentFrame();
+  const t0 = F(17.7);
+  const inN = Math.max(0, Math.min(10, Math.floor((f - t0) / 3)));
+  const shake = f > t0 && f < F(20.8) ? Math.sin(f * 1.9) * 4 : 0;
+  const outR = Math.max(0, Math.min(5, Math.floor((f - F(20.8)) / 3))), outV = Math.max(0, Math.min(3, Math.floor((f - F(21.4)) / 3)));
+  const BASE = 1200;
+  return (
+    <>
+      {Array.from({ length: 10 - inN }).map((_, i) => <Coin key={i} x={170} y={BASE - i * 20} />)}
+      <div style={{ position: "absolute", left: 160, top: BASE + 44, width: 130, textAlign: "center", ...SER, fontSize: 34, color: INK }}>{num(10000 * (10 - inN) / 10)}</div>
+      {f >= t0 && inN < 10 ? <div style={{ position: "absolute", left: 300, top: 1040, fontSize: 40, color: INK }}>➜</div> : null}
+      <div style={{ position: "absolute", left: 370, top: 990, width: 220, height: 220, background: "#fff", border: `6px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${INK}`, transform: `translateX(${shake}px)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ fontSize: 64, transform: `rotate(${(f - t0) * 6}deg)` }}>⚙️</div><div style={{ ...K, fontSize: 32, color: INK }}>交換</div>
+      </div>
+      <div style={{ position: "absolute", left: 640, top: 1070 }}><Logo n="rakuten_wm" h={24} /></div>
+      <div style={{ position: "absolute", left: 820, top: 1050 }}><Logo n="vpoint" h={52} /></div>
+      {Array.from({ length: outR }).map((_, i) => <Coin key={i} x={640} y={BASE - i * 20} c={i === 4 ? "#F2D27A" : GOLD} />)}
+      {Array.from({ length: outV }).map((_, i) => <Coin key={i} x={790} y={BASE - i * 20} />)}
+      {f >= F(21.0) ? <div style={{ position: "absolute", left: 615, top: BASE + 44, width: 160, textAlign: "center", ...SER, fontSize: 38, color: RED, transform: `scale(${pop(f, 21.0)})` }}>4,700</div> : null}
+      {f >= F(21.6) ? <div style={{ position: "absolute", left: 765, top: BASE + 44, width: 160, textAlign: "center", ...SER, fontSize: 38, color: RED, transform: `scale(${pop(f, 21.6)})` }}>3,000</div> : null}
+    </>
+  );
+};
+
+// ⑤ JAL と ANA のバー競争 → 「半分以下」
+const HeroRace: React.FC = () => {
+  const f = useCurrentFrame();
+  const W = 380, X = 420;
+  const j = ease(f, 26.24, 0.8), a = ease(f, 27.98, 0.9);
+  const plane = interpolate(f - F(24.84), [0, 30], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const row = (top: number, logo: string, h: number, p: number, max: number, c: string) => (
+    <div style={{ position: "absolute", left: 160, top, width: 770, height: 100, display: "flex", alignItems: "center" }}>
+      <div style={{ width: 250, display: "flex", justifyContent: "center" }}><Logo n={logo} h={h} /></div>
+      <div style={{ position: "relative", width: W, height: 70 }}>
+        <div style={{ position: "absolute", left: 0, top: 0, height: 70, width: W * max * p, background: c, border: p > 0 ? `4px solid ${INK}` : "none", borderRadius: 14, boxSizing: "border-box" }} />
+        <div style={{ position: "absolute", left: W * max * p + 12, top: 8, ...SER, fontSize: 42, color: c, opacity: p > 0.05 ? 1 : 0, whiteSpace: "nowrap" }}>{num(10000 * max * p)}<span style={{ ...B, fontSize: 20, color: INK }}>マイル</span></div>
+      </div>
+    </div>
+  );
+  return (
+    <>
+      {plane > 0 && plane < 1 ? <div style={{ position: "absolute", left: 120 + plane * 820, top: 930 - Math.sin(plane * Math.PI) * 30, fontSize: 64, transform: "rotate(10deg)" }}>✈️</div> : null}
+      <div style={{ position: "absolute", left: 0, width: 1080, top: 940, textAlign: "center", ...B, fontSize: 26, color: SUB }}>1万ポイントで</div>
+      {row(990, "jal", 50, j, 0.4, RED)}
+      {row(1110, "ana", 46, a, 1, BLUE)}
+      {f >= F(28.3) ? <div style={{ position: "absolute", left: 160 + 250 + W * 0.4 + 230, top: 1004, ...K, fontSize: 40, color: RED, transform: `rotate(-6deg) scale(${pop(f, 28.3)})`, whiteSpace: "nowrap" }}>← 半分以下</div> : null}
+    </>
+  );
+};
+
+// ⑥ プラス登録スイッチ：ON → OFF で全部の数字が沈む
+const HeroSwitch: React.FC = () => {
+  const f = useCurrentFrame();
+  const off = ease(f, 33.12, 0.35);
+  return (
+    <>
+      <div style={{ position: "absolute", left: 150, top: 980, width: 600, height: 170, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", padding: "0 30px", boxSizing: "border-box", gap: 20 }}>
+        <div style={{ flex: 1 }}><div style={{ ...B, fontSize: 24, color: SUB }}>メンバーシップ・リワード</div><div style={{ ...K, fontSize: 44, color: INK }}>プラス</div></div>
+        <div style={{ position: "relative", width: 150, height: 80, borderRadius: 999, background: off > 0.5 ? "#C9C2B0" : BLUE, border: `4px solid ${INK}` }}>
+          <div style={{ position: "absolute", top: 6, left: 6 + 70 * (1 - off), width: 60, height: 60, borderRadius: "50%", background: "#fff", border: `4px solid ${INK}`, boxSizing: "border-box" }} />
+        </div>
+      </div>
+      <div style={{ position: "absolute", left: 150, width: 600, top: 1160, textAlign: "center", ...K, fontSize: 32, color: off > 0.5 ? RED : BLUE }}>{off > 0.5 ? "未登録 → さらに下がる" : "登録した場合の数字"}</div>
+    </>
+  );
+};
+
 const BadScene: React.FC = () => {
   const f = useCurrentFrame(); const t = f / 30;
   let cur = -1; BADS.forEach((b, i) => { if (t >= b.at) cur = i; });
-  const plusAt = 29.3, unAt = 33.1;
+  const plusAt = 29.3, unAt = 33.12;
+  const sink = ease(f, unAt, 0.6);
+  // カメラ：ゆっくり寄る＋数字が出た瞬間に軽く押し込む
+  const kick = BADS.reduce((s, b) => { const d = f - F(b.reveal); return s + (d >= 0 && d < 14 ? Math.sin((d / 14) * Math.PI) * 0.018 : 0); }, 0);
+  const zoom = 1 + 0.02 * ((f % F(7)) / F(7)) * 0 + 0.025 * (f / F(35)) + kick;
   return (
-    <>
+    <AbsoluteFill style={{ transform: `scale(${zoom})`, transformOrigin: "540px 760px" }}>
       <Sticky at={0} tag="損する" title="使い方 5つ" c="#FFC4B5" />
-      <div style={{ position: "absolute", left: 150, top: 420, width: 780 }}>
-        <div style={{ display: "flex", justifyContent: "flex-end", ...B, fontSize: 24, color: SUB, marginBottom: 6, paddingRight: 14 }}>1万ポイントだと</div>
-        {BADS.map((b, i) => {
-          const d = f - F(b.at);
-          if (d < 0) return <div key={i} style={{ height: 132 }} />;
-          const on = i === cur && t < plusAt;
-          const inP = interpolate(d, [0, 10], [0, 1], { ...clamp, easing: OUT });
-          const vk = interpolate(d, [10, 14, 18], [0.3, 1.15, 1], clamp);
-          return (
-            <div key={i} style={{ position: "relative", height: 120, marginBottom: 12, background: on ? "#FFF6F2" : "#fff", border: `${on ? 5 : 4}px solid ${on ? RED : INK}`, borderRadius: 20, boxShadow: `5px 6px 0 ${on ? RED : INK}`, display: "flex", alignItems: "center", gap: 16, padding: "0 18px", boxSizing: "border-box", opacity: inP * (on || t >= plusAt ? 1 : 0.62), transform: `translateX(${(1 - inP) * -120}px) scale(${on ? 1.02 : 1})` }}>
-              <div style={{ width: 54, height: 54, borderRadius: "50%", background: on ? RED : INK, color: "#fff", ...K, fontSize: 30, textAlign: "center", lineHeight: "54px", flex: "none" }}>{i + 1}</div>
-              <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
-                <div style={{ ...K, fontSize: 32, color: INK, whiteSpace: "nowrap", lineHeight: 1.15, display: "flex", alignItems: "center", gap: 6, height: 42 }}>{b.logo ?? b.name}</div>
-                <div style={{ ...B, fontSize: 20, color: SUB, whiteSpace: "nowrap" }}>{b.sub ? `${b.sub}　` : ""}{b.rate}</div>
-              </div>
-              <div style={{ textAlign: "right", whiteSpace: "nowrap", transform: `scale(${vk})`, transformOrigin: "100% 50%" }}><span style={{ ...SER, fontSize: b.val.length > 6 ? 34 : 44, color: RED }}>{b.val}</span><span style={{ ...B, fontSize: 20, color: INK }}>{b.unit}</span></div>
-            </div>
-          );
-        })}
-      </div>
       {t >= plusAt ? <div style={{ position: "absolute", left: 650, top: 300, ...slam(f, plusAt) }}><span style={{ display: "inline-block", border: `5px solid ${BLUE}`, borderRadius: 14, padding: "2px 16px", ...K, fontSize: 26, color: BLUE, background: "#EEF5FF", transform: "rotate(-4deg)" }}>プラス登録の場合</span></div> : null}
-      {t >= unAt ? <div style={{ position: "absolute", left: 150, top: 1130, width: 620, ...rise(f, unAt) }}><div style={{ background: "#2B2925", color: "#fff", borderRadius: 18, padding: "12px 20px", ...K, fontSize: 27, textAlign: "center" }}>未登録だと <span style={{ color: "#FFB4A2" }}>1pt → 0.3円</span> まで下がるものも</div></div> : null}
-    </>
+      {BADS.map((b, i) => {
+        const top = ROW_TOP + i * (ROW_H + ROW_GAP);
+        const d = f - F(b.at);
+        const on = i === cur && t < plusAt;
+        const ph = interpolate(f, [F(0.2) + i * 3, F(0.2) + i * 3 + 8], [0, 1], clamp);
+        if (d < 0) return <div key={i} style={{ position: "absolute", left: 150, top, width: 780, height: ROW_H, border: `4px dashed ${INK}40`, borderRadius: 18, boxSizing: "border-box", display: "flex", alignItems: "center", paddingLeft: 18, opacity: ph, ...K, fontSize: 30, color: `${INK}55` }}>{i + 1}</div>;
+        const inP = interpolate(d, [0, 10], [0, 1], { ...clamp, easing: OUT });
+        const rv = f - F(b.reveal);
+        const vk = interpolate(rv, [0, 4, 8], [0.2, 1.2, 1], clamp);
+        return (
+          <div key={i} style={{ position: "absolute", left: 150, top, width: 780, height: ROW_H, background: on ? "#FFF6F2" : "#fff", border: `${on ? 5 : 4}px solid ${on ? RED : INK}`, borderRadius: 18, boxShadow: `5px 6px 0 ${on ? RED : INK}`, display: "flex", alignItems: "center", gap: 14, padding: "0 18px", boxSizing: "border-box", opacity: 0.2 + 0.8 * inP, transform: `scaleY(${0.6 + 0.4 * inP}) scale(${on ? 1.02 : 1})` }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: on ? RED : INK, color: "#fff", ...K, fontSize: 28, textAlign: "center", lineHeight: "48px", flex: "none" }}>{i + 1}</div>
+            <div style={{ flex: 1, minWidth: 0, overflow: "hidden", ...K, fontSize: 32, color: INK, whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6, height: 44 }}>{b.logo ?? b.name}</div>
+            <div style={{ position: "relative", textAlign: "right", whiteSpace: "nowrap" }}>
+              {rv < 0 ? <span style={{ ...SER, fontSize: 40, color: `${INK}40` }}>？</span>
+                : <span style={{ display: "inline-block", transform: `scale(${vk}) translateY(${sink * 10}px)`, transformOrigin: "100% 50%", opacity: 1 - sink * 0.45 }}><span style={{ ...SER, fontSize: b.val.length > 6 ? 34 : 42, color: RED }}>{b.val}</span><span style={{ ...B, fontSize: 20, color: INK }}>{b.unit}</span></span>}
+              {sink > 0 ? <span style={{ position: "absolute", right: -46, top: 4 + sink * 8, ...K, fontSize: 38, color: RED, opacity: sink }}>↓</span> : null}
+            </div>
+          </div>
+        );
+      })}
+      <Stage a={0.3} b={7.2} slot={0}><HeroGauge /></Stage>
+      <Stage a={7.3} b={11.66} slot={1}><HeroTicket /></Stage>
+      <Stage a={11.75} b={16.9} slot={2}><HeroCatalog /></Stage>
+      <Stage a={16.97} b={23.32} slot={3}><HeroMachine /></Stage>
+      <Stage a={23.4} b={29.25} slot={4}><HeroRace /></Stage>
+      <Stage a={29.3} b={35.2}><HeroSwitch /></Stage>
+    </AbsoluteFill>
   );
 };
 
