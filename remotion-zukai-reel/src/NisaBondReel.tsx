@@ -449,26 +449,35 @@ const PSum: React.FC = () => {
           </div>
         );
       })}
-      {/* フォローの札（ここに Edits でインスタのリンクを重ねる） */}
+      {/* ここ（横240〜840・縦960〜1070）は空けておく＝たいちさんが Edits でインスタのリンクを置く場所。
+          動画では「指がタップしに来る」＋「点線の先にフォローしてねの札」だけ出す */}
       {(() => {
-        const A = F(66.0), d2 = f - A;
+        const A = F(66.2), d2 = f - A;
         if (d2 < 0) return null;
-        const k = interpolate(d2, [0, 10], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.4)) });
-        const tap = f - F(69.6);
-        const followed = tap > 3;
+        const LX = 700, LY = 1015; // 押す所（リンクの右寄り）
+        const hIn = interpolate(d2, [0, 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
+        const tapD = d2 - 18;
+        const press = interpolate(tapD, [0, 3, 7], [0, 1, 0], clamp);
+        const rip = ((tapD % 45) + 45) % 45;
+        const lb = interpolate(d2, [20, 30], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.5)) });
+        const line = interpolate(d2, [16, 24], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
         return (
-          <div style={{ position: "absolute", left: 120, top: 960, width: 840, height: 170, background: "#fff", border: `5px solid ${INK}`, borderRadius: 30, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", gap: 22, padding: "0 28px", boxSizing: "border-box", opacity: k, transform: `translateY(${(1 - k) * 80}px)` }}>
-            <div style={{ width: 110, height: 110, borderRadius: "50%", border: `4px solid ${INK}`, overflow: "hidden", background: A2.bg, flex: "none", boxShadow: `0 0 0 5px #fff, 0 0 0 9px ${RED}` }}><GenSlot name="taichi_face_smile" size={110} /></div>
-            <div style={{ flex: 1 }}>
-              <div style={{ ...K, fontSize: 38, color: INK }}>たいち</div>
-              <div style={{ ...B, fontSize: 22, color: SUB }}>お金と保険を図解で解説</div>
+          <>
+            {tapD > 0 && rip < 20 ? <div style={{ position: "absolute", left: LX - 55, top: LY - 55, width: 110, height: 110, borderRadius: "50%", border: `7px solid ${CASH}`, transform: `scale(${0.4 + rip / 10})`, opacity: 1 - rip / 20 }} /> : null}
+            {/* 手（ペンで描いたような白い手） */}
+            <svg width={190} height={230} viewBox="0 0 100 120" style={{ position: "absolute", left: LX - 30 + (1 - hIn) * 300, top: LY - 10 + (1 - hIn) * 300, transform: `scale(${1 - 0.08 * press}) rotate(-12deg)`, transformOrigin: "20% 5%", filter: `drop-shadow(4px 5px 0 ${INK})`, opacity: Math.min(1, hIn * 3) }}>
+              <path d="M28 8 a9 9 0 0 1 18 0 V52 h3 V40 a8 8 0 0 1 16 0 V56 h2 V46 a8 8 0 0 1 16 0 V60 h1 V54 a7 7 0 0 1 14 0 V84 c0 18 -12 30 -30 30 H50 c-12 0 -20 -6 -26 -16 L6 70 a8 8 0 0 1 12 -10 l10 10 Z" fill="#fff" stroke={INK} strokeWidth={5} strokeLinejoin="round" />
+              <path d="M46 52 V64 M65 56 V66 M83 60 V68" stroke={INK} strokeWidth={4} strokeLinecap="round" />
+            </svg>
+            {/* 点線と札「フォローしてね」 */}
+            <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
+              <circle cx={330} cy={1078} r={13} fill={CASH} stroke={INK} strokeWidth={4} opacity={line > 0 ? 1 : 0} />
+              <line x1={330} y1={1090} x2={330} y2={1090 + 50 * line} stroke={INK} strokeWidth={6} />
+            </svg>
+            <div style={{ position: "absolute", left: 160, top: 1140, transform: `scale(${lb})`, transformOrigin: "35% 0%" }}>
+              <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${INK}`, borderRadius: 22, padding: "10px 34px", ...K, fontSize: 52, color: INK, boxShadow: `6px 8px 0 ${CASH}`, whiteSpace: "nowrap" }}><span style={{ color: RED }}>フォロー</span>してね</span>
             </div>
-            <div style={{ position: "relative", background: followed ? "#EFEFEF" : "#0095F6", color: followed ? INK : "#fff", borderRadius: 16, padding: "14px 30px", ...K, fontSize: 32, transform: `scale(${tap > 0 && tap < 6 ? 0.92 : 1})` }}>
-              {followed ? "フォロー中" : "フォロー"}
-              {tap > 0 && tap < 16 ? <div style={{ position: "absolute", left: "50%", top: "50%", width: 90, height: 90, marginLeft: -45, marginTop: -45, borderRadius: "50%", border: `6px solid ${CASH}`, transform: `scale(${0.4 + tap / 8})`, opacity: 1 - tap / 16 }} /> : null}
-            </div>
-            <div style={{ position: "absolute", left: 30, top: -46, background: CASH, border: `4px solid ${INK}`, borderRadius: 999, padding: "2px 22px", ...K, fontSize: 28, color: INK, transform: "rotate(-3deg)" }}>他の図解も見てね</div>
-          </div>
+          </>
         );
       })()}
       <Burst at={69.0} cy={1000} r0={380} dur={18} />
