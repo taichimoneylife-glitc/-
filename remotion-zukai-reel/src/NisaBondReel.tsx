@@ -423,13 +423,8 @@ const PSum: React.FC = () => {
   const mk = interpolate(f, [F(65.6), F(65.6) + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
   return (
     <>
-      {/* プロフィールの札 */}
-      <div style={{ position: "absolute", left: 60, top: 290, width: 960, height: 120, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", gap: 22, padding: "0 26px", boxSizing: "border-box", ...swoop(f, 65.1, -1) }}>
-        <div style={{ width: 80, height: 80, borderRadius: "50%", background: A2.bg, border: `4px solid ${INK}`, overflow: "hidden", flex: "none" }}><GenSlot name="taichi_face_smile" size={80} /></div>
-        <div><div style={{ ...K, fontSize: 34, color: INK }}>たいち</div><div style={{ ...B, fontSize: 20, color: SUB }}>積立保険を売らない保険屋さん</div></div>
-      </div>
       {/* 見出し */}
-      <div style={{ position: "absolute", left: 0, width: 1080, top: 450, textAlign: "center" }}>
+      <div style={{ position: "absolute", left: 0, width: 1080, top: 300, textAlign: "center" }}>
         <span style={{ position: "relative", display: "inline-block", ...K, fontSize: 96, color: INK }}>
           <span style={{ position: "absolute", left: -10, bottom: 8, height: 30, width: `calc(${mk * 100}% + 20px)`, background: "rgba(255,201,60,0.7)", borderRadius: 8 }} />
           <span style={{ position: "relative" }}><TypeIn at={F(65.3)} step={3}>まとめ</TypeIn></span>
@@ -442,7 +437,7 @@ const PSum: React.FC = () => {
         const ck = interpolate(d, [0, 4, 8], [0, 1.25, 1], clamp);
         const sweep = interpolate(d, [2, 12], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
         return (
-          <div key={t} style={{ position: "absolute", left: 60, top: 630 + i * 150, width: 960, height: 122, background: on ? "#F3FBF6" : "#fff", border: `5px solid ${INK}`, borderRadius: 24, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", gap: 28, padding: "0 30px", boxSizing: "border-box", opacity: inP, transform: `translateX(${(1 - inP) * -160}px) scale(${on ? interpolate(d, [0, 4, 9], [1, 1.04, 1], clamp) : 1})` }}>
+          <div key={t} style={{ position: "absolute", left: 60, top: 470 + i * 150, width: 960, height: 122, background: on ? "#F3FBF6" : "#fff", border: `5px solid ${INK}`, borderRadius: 24, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", gap: 28, padding: "0 30px", boxSizing: "border-box", opacity: inP, transform: `translateX(${(1 - inP) * -160}px) scale(${on ? interpolate(d, [0, 4, 9], [1, 1.04, 1], clamp) : 1})` }}>
             <div style={{ position: "relative", width: 64, height: 64, borderRadius: 14, border: `5px solid ${INK}`, background: on ? STOCK : "#fff", boxSizing: "border-box", flex: "none" }}>
               {on ? <svg width={64} height={64} viewBox="0 0 64 64" style={{ position: "absolute", left: -5, top: -5, transform: `scale(${ck})` }}><polyline points="14,33 27,46 50,19" fill="none" stroke="#fff" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={60} strokeDashoffset={60 * (1 - Math.min(1, d / 6))} /></svg> : null}
             </div>
@@ -454,6 +449,28 @@ const PSum: React.FC = () => {
           </div>
         );
       })}
+      {/* フォローの札（ここに Edits でインスタのリンクを重ねる） */}
+      {(() => {
+        const A = F(66.0), d2 = f - A;
+        if (d2 < 0) return null;
+        const k = interpolate(d2, [0, 10], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.4)) });
+        const tap = f - F(69.6);
+        const followed = tap > 3;
+        return (
+          <div style={{ position: "absolute", left: 120, top: 960, width: 840, height: 170, background: "#fff", border: `5px solid ${INK}`, borderRadius: 30, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", gap: 22, padding: "0 28px", boxSizing: "border-box", opacity: k, transform: `translateY(${(1 - k) * 80}px)` }}>
+            <div style={{ width: 110, height: 110, borderRadius: "50%", border: `4px solid ${INK}`, overflow: "hidden", background: A2.bg, flex: "none", boxShadow: `0 0 0 5px #fff, 0 0 0 9px ${RED}` }}><GenSlot name="taichi_face_smile" size={110} /></div>
+            <div style={{ flex: 1 }}>
+              <div style={{ ...K, fontSize: 38, color: INK }}>たいち</div>
+              <div style={{ ...B, fontSize: 22, color: SUB }}>お金と保険を図解で解説</div>
+            </div>
+            <div style={{ position: "relative", background: followed ? "#EFEFEF" : "#0095F6", color: followed ? INK : "#fff", borderRadius: 16, padding: "14px 30px", ...K, fontSize: 32, transform: `scale(${tap > 0 && tap < 6 ? 0.92 : 1})` }}>
+              {followed ? "フォロー中" : "フォロー"}
+              {tap > 0 && tap < 16 ? <div style={{ position: "absolute", left: "50%", top: "50%", width: 90, height: 90, marginLeft: -45, marginTop: -45, borderRadius: "50%", border: `6px solid ${CASH}`, transform: `scale(${0.4 + tap / 8})`, opacity: 1 - tap / 16 }} /> : null}
+            </div>
+            <div style={{ position: "absolute", left: 30, top: -46, background: CASH, border: `4px solid ${INK}`, borderRadius: 999, padding: "2px 22px", ...K, fontSize: 28, color: INK, transform: "rotate(-3deg)" }}>他の図解も見てね</div>
+          </div>
+        );
+      })()}
       <Burst at={69.0} cy={1000} r0={380} dur={18} />
     </>
   );
