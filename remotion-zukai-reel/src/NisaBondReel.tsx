@@ -449,12 +449,12 @@ const PSum: React.FC = () => {
           </div>
         );
       })}
-      {/* ここ（横240〜840・縦960〜1070）は空けておく＝たいちさんが Edits でインスタのリンクを置く場所。
+      {/* ここ（横180〜860・縦960〜1075）は空けておく＝たいちさんが Edits でインスタのリンクを置く場所。
           動画では「指がタップしに来る」＋「点線の先にフォローしてねの札」だけ出す */}
       {(() => {
         const A = F(66.2), d2 = f - A;
         if (d2 < 0) return null;
-        const LX = 700, LY = 1015; // 押す所（リンクの右寄り）
+        const LX = 780, LY = 1078; // ステッカーの下のふち（手がステッカーに隠れないように） // 押す所（リンクの右寄り）
         const hIn = interpolate(d2, [0, 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
         const tapD = d2 - 18;
         const press = interpolate(tapD, [0, 3, 7], [0, 1, 0], clamp);
@@ -471,11 +471,11 @@ const PSum: React.FC = () => {
             </svg>
             {/* 点線と札「フォローしてね」 */}
             <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
-              <circle cx={330} cy={1078} r={13} fill={CASH} stroke={INK} strokeWidth={4} opacity={line > 0 ? 1 : 0} />
-              <line x1={330} y1={1090} x2={330} y2={1090 + 50 * line} stroke={INK} strokeWidth={6} />
+              <circle cx={330} cy={1092} r={13} fill={CASH} stroke={INK} strokeWidth={4} opacity={line > 0 ? 1 : 0} />
+              <line x1={330} y1={1104} x2={330} y2={1104 + 52 * line} stroke={INK} strokeWidth={6} />
             </svg>
-            <div style={{ position: "absolute", left: 160, top: 1140, transform: `scale(${lb})`, transformOrigin: "35% 0%" }}>
-              <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${INK}`, borderRadius: 22, padding: "10px 34px", ...K, fontSize: 52, color: INK, boxShadow: `6px 8px 0 ${CASH}`, whiteSpace: "nowrap" }}><span style={{ color: RED }}>フォロー</span>してね</span>
+            <div style={{ position: "absolute", left: 120, top: 1160, transform: `scale(${lb})`, transformOrigin: "30% 0%" }}>
+              <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${INK}`, borderRadius: 22, padding: "10px 34px", ...K, fontSize: 46, color: INK, boxShadow: `6px 8px 0 ${CASH}`, whiteSpace: "nowrap" }}><span style={{ color: RED }}>タップ</span>して<span style={{ color: RED }}>フォロー</span>してね</span>
             </div>
           </>
         );
