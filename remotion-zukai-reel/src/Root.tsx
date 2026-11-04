@@ -55,6 +55,7 @@ import { Marke2Repro, MARKE2_FRAMES } from "./Marke2Repro";
 import { NisaBondReel, NisaBondReelT, NISABOND_FRAMES, NISABOND_T_FRAMES } from "./NisaBondReel";
 import { NisaBondNight, NISABOND_NIGHT_FRAMES } from "./NisaBondNight";
 import { HeadPreview } from "./HeadPreview";
+import { AmexMap, AMEXMAP_FRAMES } from "./AmexMap";
 import { CommentCtaDemo, CTA_DEMO_FRAMES } from "./components/ctaComment";
 import { Ref03Repro, REF03_FRAMES } from "./Ref03Repro";
 import { MileV2, MILE_V2_FRAMES } from "./MileV2";
@@ -74,6 +75,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="Ref03Repro" component={Ref03Repro} durationInFrames={REF03_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="CommentCtaDemo" component={CommentCtaDemo} durationInFrames={CTA_DEMO_FRAMES} fps={FPS} width={1080} height={1920} />
       {(["pill", "sticky", "badge", "tab"] as const).map((k) => <Composition key={k} id={`HeadPreview-${k}`} component={HeadPreview} defaultProps={{ kind: k }} durationInFrames={NISABOND_FRAMES} fps={FPS} width={1080} height={1920} />)}
+      <Composition id="AmexMap" component={AmexMap} durationInFrames={AMEXMAP_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="NisaBondNight" component={NisaBondNight} durationInFrames={NISABOND_NIGHT_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="NisaBondReel" component={NisaBondReel} durationInFrames={NISABOND_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="Marke2Repro" component={Marke2Repro} durationInFrames={MARKE2_FRAMES} fps={FPS} width={1080} height={1920} />
