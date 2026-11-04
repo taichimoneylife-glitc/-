@@ -192,8 +192,8 @@ export const Scribble: React.FC<{ at?: number; cx: number; cy: number; rx: numbe
     <>
       <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
         <polyline points={pts.join(" ")} fill="none" stroke={color} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" style={{ strokeDasharray: `${L * p1} 9999` }} />
-        {p2 > 0 ? <path d={`M${ax0},${ay0} Q${(ax0 + ax1) / 2 + 40},${ay0} ${ax0 + (ax1 - ax0) * p2},${ay0 + (ay1 - ay0) * p2}`} fill="none" stroke={color} strokeWidth={8} strokeLinecap="round" /> : null}
-        {p2 > 0.95 ? <g transform={`translate(${ax1},${ay1}) rotate(${(Math.atan2(ay1 - ay0, ax1 - ax0) * 180) / Math.PI})`}><polyline points="-28,-16 0,0 -28,16" fill="none" stroke={color} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" /></g> : null}
+        {note && p2 > 0 ? <path d={`M${ax0},${ay0} Q${(ax0 + ax1) / 2 + 40},${ay0} ${ax0 + (ax1 - ax0) * p2},${ay0 + (ay1 - ay0) * p2}`} fill="none" stroke={color} strokeWidth={8} strokeLinecap="round" /> : null}
+        {note && p2 > 0.95 ? <g transform={`translate(${ax1},${ay1}) rotate(${(Math.atan2(ay1 - ay0, ax1 - ax0) * 180) / Math.PI})`}><polyline points="-28,-16 0,0 -28,16" fill="none" stroke={color} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" /></g> : null}
       </svg>
       <div style={{ position: "absolute", left: nx, top: ny, ...K, fontWeight: 700, fontSize: 56, color, transform: "rotate(-6deg)", whiteSpace: "nowrap" }}>{note.slice(0, nn)}</div>
     </>

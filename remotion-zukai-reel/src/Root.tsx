@@ -58,6 +58,7 @@ import { HeadPreview } from "./HeadPreview";
 import { AmexMap, AMEXMAP_FRAMES } from "./AmexMap";
 import { AmexBars, AMEXBARS_FRAMES } from "./AmexBars";
 import { AmexTree, AMEXTREE_FRAMES } from "./AmexTree";
+import { AmexReel, AMEX_FRAMES } from "./AmexReel";
 import { FxDemo, FXDEMO_FRAMES } from "./FxDemo";
 import { CommentCtaDemo, CTA_DEMO_FRAMES } from "./components/ctaComment";
 import { Ref03Repro, REF03_FRAMES } from "./Ref03Repro";
@@ -80,6 +81,7 @@ export const RemotionRoot: React.FC = () => {
       {(["pill", "sticky", "badge", "tab"] as const).map((k) => <Composition key={k} id={`HeadPreview-${k}`} component={HeadPreview} defaultProps={{ kind: k }} durationInFrames={NISABOND_FRAMES} fps={FPS} width={1080} height={1920} />)}
       <Composition id="FxDemo" component={FxDemo} durationInFrames={FXDEMO_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="AmexTree" component={AmexTree} durationInFrames={AMEXTREE_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="AmexReel" component={AmexReel} durationInFrames={AMEX_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="AmexBars" component={AmexBars} durationInFrames={AMEXBARS_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="AmexMap" component={AmexMap} durationInFrames={AMEXMAP_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="NisaBondNight" component={NisaBondNight} durationInFrames={NISABOND_NIGHT_FRAMES} fps={FPS} width={1080} height={1920} />
