@@ -606,7 +606,7 @@ const Chara: React.FC = () => {
 // 効果音（たいちさん指定の音だけ）
 const CUES: { file: string; at: number; volume: number }[] = [
   ...[11.6, 24.2, 36.1, 45.0, 52.05, 65.0, 70.5].map((t) => ({ file: "user/u03s", at: F(t), volume: 0.24 })),
-  ...[0, 11.8, 24.42].map((t) => ({ file: "user/u03", at: F(t), volume: 0.24 })),
+  ...[11.8, 24.42].map((t) => ({ file: "user/u03", at: F(t), volume: 0.24 })), // 冒頭（0秒）の音は消した
   ...[1.6, 2.6, 5.14, 5.9].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })),
   ...[3.2, 45.4, 52.3].map((t) => ({ file: "user/u03s", at: F(t), volume: 0.22 })),
   { file: "user/u04", at: F(8.6), volume: 0.28 }, { file: "user/u05", at: F(10.6), volume: 0.28 },
