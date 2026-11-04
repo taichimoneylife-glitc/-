@@ -424,7 +424,7 @@ const PSum: React.FC = () => {
   return (
     <>
       {/* 見出し */}
-      <div style={{ position: "absolute", left: 0, width: 1080, top: 300, textAlign: "center" }}>
+      <div style={{ position: "absolute", left: 0, width: 1080, top: 200, textAlign: "center" }}>
         <span style={{ position: "relative", display: "inline-block", ...K, fontSize: 96, color: INK }}>
           <span style={{ position: "absolute", left: -10, bottom: 8, height: 30, width: `calc(${mk * 100}% + 20px)`, background: "rgba(255,201,60,0.7)", borderRadius: 8 }} />
           <span style={{ position: "relative" }}><TypeIn at={F(65.3)} step={3}>まとめ</TypeIn></span>
@@ -437,7 +437,7 @@ const PSum: React.FC = () => {
         const ck = interpolate(d, [0, 4, 8], [0, 1.25, 1], clamp);
         const sweep = interpolate(d, [2, 12], [0, 1], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) });
         return (
-          <div key={t} style={{ position: "absolute", left: 60, top: 470 + i * 150, width: 960, height: 122, background: on ? "#F3FBF6" : "#fff", border: `5px solid ${INK}`, borderRadius: 24, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", gap: 28, padding: "0 30px", boxSizing: "border-box", opacity: inP, transform: `translateX(${(1 - inP) * -160}px) scale(${on ? interpolate(d, [0, 4, 9], [1, 1.04, 1], clamp) : 1})` }}>
+          <div key={t} style={{ position: "absolute", left: 60, top: 370 + i * 150, width: 960, height: 122, background: on ? "#F3FBF6" : "#fff", border: `5px solid ${INK}`, borderRadius: 24, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", gap: 28, padding: "0 30px", boxSizing: "border-box", opacity: inP, transform: `translateX(${(1 - inP) * -160}px) scale(${on ? interpolate(d, [0, 4, 9], [1, 1.04, 1], clamp) : 1})` }}>
             <div style={{ position: "relative", width: 64, height: 64, borderRadius: 14, border: `5px solid ${INK}`, background: on ? STOCK : "#fff", boxSizing: "border-box", flex: "none" }}>
               {on ? <svg width={64} height={64} viewBox="0 0 64 64" style={{ position: "absolute", left: -5, top: -5, transform: `scale(${ck})` }}><polyline points="14,33 27,46 50,19" fill="none" stroke="#fff" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={60} strokeDashoffset={60 * (1 - Math.min(1, d / 6))} /></svg> : null}
             </div>
@@ -450,14 +450,14 @@ const PSum: React.FC = () => {
         );
       })}
       {/* フォロー訴求（参考④の締めの動きを、黄色ノートの色で）
-          ・横180〜860／縦960〜1075 は空けておく＝たいちさんが Edits でアカウントのステッカーを置く場所
+          ・横180〜860／縦880〜995 は空けておく＝たいちさんが Edits でアカウントのステッカーを置く場所
           ・流れ：赤い枠が描かれる → 指が入ってタップ（黄色い輪）→ 点線の先に白い札「タップして」→ 黄色い札「フォローしてね」
           ・3つ目のチェックのあと（69.2〜）は、ステッカーの所だけ残して画面を暗くする */}
       {(() => {
         const A = F(66.2), d2 = f - A;
         if (d2 < 0) return null;
-        const RX = 180, RY = 960, RW = 680, RH = 115; // ステッカーの場所
-        const LX = 790, LY = 1072;                    // 指の先（ステッカーの右下のふち）
+        const RX = 180, RY = 880, RW = 680, RH = 115; // ステッカーの場所
+        const LX = 790, LY = 992;                    // 指の先（ステッカーの右下のふち）
         const frame = interpolate(d2, [0, 10], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
         const hIn = interpolate(d2, [6, 18], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
         const tapD = d2 - 20;
@@ -493,7 +493,7 @@ const PSum: React.FC = () => {
             </div>
             {lb2 > 0 ? (
               <div style={{ position: "absolute", left: 150, top: RY + RH + 160, transform: `scale(${lb2})`, transformOrigin: "20% 50%" }}>
-                <span style={{ display: "inline-block", background: CASH, border: `6px solid ${INK}`, borderRadius: 20, padding: "8px 34px", ...K, fontSize: 50, color: INK, boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ color: RED }}>フォロー</span>してね！</span>
+                <span style={{ display: "inline-block", background: RED, border: `6px solid ${INK}`, borderRadius: 20, padding: "8px 34px", ...K, fontSize: 50, color: "#fff", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}>フォローしてね！</span>
               </div>
             ) : null}
           </>
