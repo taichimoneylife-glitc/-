@@ -516,7 +516,33 @@ const EndScene: React.FC = () => {
   );
 };
 
-// 女の子（ちびFP助手）：気持ちが動く所だけ。絵は1枚なので、動きと記号で気持ちを出す
+// 女の子の顔に描き足す（絵1枚＝girl_front_smile 498×884 の座標）：口パク・まばたき・困りまゆ
+const SKIN = "#FED7BB", LINE = "#4A2A1A";
+const GirlFace: React.FC<{ mouth: number; blink: boolean; worry: boolean }> = ({ mouth, blink, worry }) => (
+  <svg viewBox="0 0 498 884" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+    {mouth > 0 ? <>
+      <ellipse cx={249} cy={394} rx={38} ry={15} fill={SKIN} />
+      {mouth === 1
+        ? <path d="M232,388 Q249,384 266,388 Q262,404 249,405 Q236,404 232,388 Z" fill="#9A3F33" stroke={LINE} strokeWidth={4} strokeLinejoin="round" />
+        : <path d="M229,385 Q249,379 269,385 Q267,415 249,417 Q231,415 229,385 Z" fill="#9A3F33" stroke={LINE} strokeWidth={4} strokeLinejoin="round" />}
+      <ellipse cx={249} cy={mouth === 1 ? 401 : 410} rx={mouth === 1 ? 8 : 11} ry={mouth === 1 ? 3 : 5} fill="#F2958A" />
+    </> : null}
+    {blink ? <>
+      <ellipse cx={165} cy={316} rx={46} ry={45} fill={SKIN} />
+      <ellipse cx={334} cy={316} rx={46} ry={45} fill={SKIN} />
+      <path d="M124,318 Q165,342 206,318" fill="none" stroke={LINE} strokeWidth={6} strokeLinecap="round" />
+      <path d="M292,318 Q334,342 376,318" fill="none" stroke={LINE} strokeWidth={6} strokeLinecap="round" />
+    </> : null}
+    {worry ? <>
+      <ellipse cx={166} cy={266} rx={32} ry={10} fill={SKIN} />
+      <ellipse cx={332} cy={266} rx={32} ry={10} fill={SKIN} />
+      <path d="M142,270 L190,256" fill="none" stroke="#6B4632" strokeWidth={6} strokeLinecap="round" />
+      <path d="M308,256 L356,270" fill="none" stroke="#6B4632" strokeWidth={6} strokeLinecap="round" />
+    </> : null}
+  </svg>
+);
+
+// 女の子（ちびFP助手）：気持ちが動く所だけ。絵は1枚なので、動き＋描き足した口・目・まゆで気持ちを出す
 //  worry＝傾いてしょんぼり＋汗 ／ idea＝ぴょんと跳ねて電球 ／ think＝首をかしげて「？」 ／ talk＝声に合わせて弾む
 const APPEAR: [number, number, "worry" | "idea" | "think" | "talk"][] = [[29.3, 35.1, "worry"], [35.14, 40.2, "idea"], [60.7, 68.9, "think"], [73.84, 79.1, "talk"]];
 const Chara: React.FC = () => {
@@ -528,15 +554,17 @@ const Chara: React.FC = () => {
   const inP = interpolate(f, [F(s0) - 2, F(s0) + 9], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.6)) });
   const outP = interpolate(f, [F(e), F(e) + 8], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
   let rot = 0, ty = 0, sx = 1, sy = 1;
+  const lv = Math.max(0, Math.min(2, AMEX_MOUTH.charCodeAt(Math.min(AMEX_MOUTH.length - 1, f)) - 48));
   if (mood === "worry") { rot = -6 + Math.sin(f / 9) * 2; ty = 6; }
   if (mood === "idea") { const j = d >= 0 && d < 16 ? Math.sin((d / 16) * Math.PI) : 0; ty = -60 * j; sy = 1 + 0.05 * j; sx = 1 - 0.03 * j; }
   if (mood === "think") { rot = 7 * Math.sin(f / 14); }
-  if (mood === "talk") { const lv = AMEX_MOUTH.charCodeAt(Math.min(AMEX_MOUTH.length - 1, f)) - 48; const k = lv >= 2 ? 1 : lv === 1 ? 0.5 : 0; sy = 1 + 0.035 * k; sx = 1 - 0.015 * k; ty = -6 * k; rot = Math.sin(f / 11) * 2; }
+  if (mood === "talk") { const k = lv >= 2 ? 1 : lv === 1 ? 0.5 : 0; sy = 1 + 0.035 * k; sx = 1 - 0.015 * k; ty = -6 * k; rot = Math.sin(f / 11) * 2; }
   const W = 140, H = W * 884 / 498;
   return (
     <div style={{ position: "absolute", left: 790 + (1 - inP) * 360 + outP * 360, top: 1342 - H + Math.sin(f / 10) * 3, width: W, height: H }}>
       <div style={{ position: "absolute", inset: 0, transform: `translateY(${ty}px) rotate(${rot}deg) scale(${sx}, ${sy})`, transformOrigin: "50% 100%" }}>
         <Gen n="girl_front_smile" w={W} />
+        <GirlFace mouth={lv} blink={false} worry={mood === "worry"} />
       </div>
       {mood === "worry" ? (() => { const k = (d % 36) / 36; return <svg width={40} height={56} style={{ position: "absolute", left: W - 26, top: 18 + k * 30, opacity: d < 6 ? 0 : 1 - k * 0.8 }}><path d="M20 4 C 30 22, 36 32, 36 40 A 16 16 0 0 1 4 40 C 4 32, 10 22, 20 4 Z" fill="#8EC5F0" stroke={INK} strokeWidth={4} /></svg>; })() : null}
       {mood === "idea" && d >= 6 && f < F(37.5) ? (
