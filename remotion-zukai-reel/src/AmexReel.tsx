@@ -593,7 +593,7 @@ const SUBS: [number, string][] = [
   [73.84, "せっかく貯めたアメックスのポイント"], [75.64, "*使い方で価値がまったく変わる*から"], [77.44, "*保存*して参考にしてね"],
 ];
 const CUES: { file: string; at: number; volume: number }[] = [
-  ...[0, 7.26, 11.72, 16.94, 23.38].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.22 })),
+  ...[7.26, 11.72, 16.94, 23.38].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.22 })),
   ...[4.2, 9.9, 15.6, 21.0, 27.2].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.2 })),
   { file: "user/u04", at: F(29.3), volume: 0.26 },
   ...[35.14, 40.24, 46.14, 53.46, 68.9, 73.84].map((t) => ({ file: "user/u03s", at: F(t), volume: 0.24 })),
