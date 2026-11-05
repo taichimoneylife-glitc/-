@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, Audio, Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { A2 } from "./components/kit2";
 import { FONT } from "./components/font";
-import { B, GenSlot } from "./MileLifePlan";
+import { B } from "./MileLifePlan";
 import { SfxTrack } from "./components/sfx";
 import { K, SER, TypeIn } from "./components/zukaiKit";
 import { Captions } from "./BourakuReel";
@@ -223,7 +223,7 @@ const HeroSwitch: React.FC = () => {
     <>
       <div style={{ position: "absolute", left: 150, top: 950, width: 170, transform: `scale(${(1 - off) * pop(f, 29.4)}) rotate(${-6 * (1 - off)}deg)`, opacity: 1 - off }}><Gen n="amex_membership_phone" w={150} /></div>
       {off > 0 ? <div style={{ position: "absolute", left: 130, top: 990, transform: `scale(${pop(f, 33.2)})` }}><Gen n="amex_coins_shrink" w={210} /></div> : null}
-      <div style={{ position: "absolute", left: 340, top: 980, width: 590, height: 170, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", padding: "0 30px", boxSizing: "border-box", gap: 20 }}>
+      <div style={{ position: "absolute", left: 340, top: 980, width: 430, height: 170, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", padding: "0 30px", boxSizing: "border-box", gap: 20 }}>
         <div style={{ flex: 1 }}><div style={{ ...B, fontSize: 24, color: SUB }}>メンバーシップ・リワード</div><div style={{ ...K, fontSize: 44, color: INK }}>プラス</div></div>
         <div style={{ position: "relative", width: 150, height: 80, borderRadius: 999, background: off > 0.5 ? "#C9C2B0" : BLUE, border: `4px solid ${INK}` }}>
           <div style={{ position: "absolute", top: 6, left: 6 + 70 * (1 - off), width: 60, height: 60, borderRadius: "50%", background: "#fff", border: `4px solid ${INK}`, boxSizing: "border-box" }} />
@@ -489,18 +489,39 @@ const EndScene: React.FC = () => {
   );
 };
 
-// 太一：気持ちが動く所だけ。締めは口が動く
-const APPEAR: [number, number, string][] = [[29.3, 35.1, "taichi_worry"], [35.14, 40.2, "taichi_idea"], [60.7, 68.9, "taichi_think_chin"], [73.84, 79.1, "__talk"]];
+// 女の子（ちびFP助手）：気持ちが動く所だけ。絵は1枚なので、動きと記号で気持ちを出す
+//  worry＝傾いてしょんぼり＋汗 ／ idea＝ぴょんと跳ねて電球 ／ think＝首をかしげて「？」 ／ talk＝声に合わせて弾む
+const APPEAR: [number, number, "worry" | "idea" | "think" | "talk"][] = [[29.3, 35.1, "worry"], [35.14, 40.2, "idea"], [60.7, 68.9, "think"], [73.84, 79.1, "talk"]];
 const Chara: React.FC = () => {
   const f = useCurrentFrame();
   const a = APPEAR.find(([s0, e]) => f >= F(s0) - 2 && f < F(e) + 8);
   if (!a) return null;
-  const [s0, e, name] = a;
-  const inP = interpolate(f, [F(s0) - 2, F(s0) + 8], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.6)) });
+  const [s0, e, mood] = a;
+  const d = f - F(s0);
+  const inP = interpolate(f, [F(s0) - 2, F(s0) + 9], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.6)) });
   const outP = interpolate(f, [F(e), F(e) + 8], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
-  let img = name;
-  if (name === "__talk") { const lv = AMEX_MOUTH.charCodeAt(Math.min(AMEX_MOUTH.length - 1, f)) - 48; img = f % 84 >= 80 && lv === 0 ? "taichi_blink" : lv >= 2 ? (Math.floor(f / 2) % 3 === 0 ? "taichi_talk_mid" : "taichi_talk_open") : lv === 1 ? "taichi_talk_mid" : "taichi_talk_closed"; }
-  return <div style={{ position: "absolute", left: 770 + (1 - inP) * 380 + outP * 380, top: 1150 + Math.sin(f / 10) * 3, width: 190, height: 190 }}><GenSlot name={img} size={190} /></div>;
+  let rot = 0, ty = 0, sx = 1, sy = 1;
+  if (mood === "worry") { rot = -6 + Math.sin(f / 9) * 2; ty = 6; }
+  if (mood === "idea") { const j = d >= 0 && d < 16 ? Math.sin((d / 16) * Math.PI) : 0; ty = -60 * j; sy = 1 + 0.05 * j; sx = 1 - 0.03 * j; }
+  if (mood === "think") { rot = 7 * Math.sin(f / 14); }
+  if (mood === "talk") { const lv = AMEX_MOUTH.charCodeAt(Math.min(AMEX_MOUTH.length - 1, f)) - 48; const k = lv >= 2 ? 1 : lv === 1 ? 0.5 : 0; sy = 1 + 0.035 * k; sx = 1 - 0.015 * k; ty = -6 * k; rot = Math.sin(f / 11) * 2; }
+  const W = 140, H = W * 884 / 498;
+  return (
+    <div style={{ position: "absolute", left: 790 + (1 - inP) * 360 + outP * 360, top: 1342 - H + Math.sin(f / 10) * 3, width: W, height: H }}>
+      <div style={{ position: "absolute", inset: 0, transform: `translateY(${ty}px) rotate(${rot}deg) scale(${sx}, ${sy})`, transformOrigin: "50% 100%" }}>
+        <Gen n="girl_front_smile" w={W} />
+      </div>
+      {mood === "worry" ? (() => { const k = (d % 36) / 36; return <svg width={40} height={56} style={{ position: "absolute", left: W - 26, top: 18 + k * 30, opacity: d < 6 ? 0 : 1 - k * 0.8 }}><path d="M20 4 C 30 22, 36 32, 36 40 A 16 16 0 0 1 4 40 C 4 32, 10 22, 20 4 Z" fill="#8EC5F0" stroke={INK} strokeWidth={4} /></svg>; })() : null}
+      {mood === "idea" && d >= 6 ? (
+        <div style={{ position: "absolute", left: W / 2 - 40, top: -96, width: 80, height: 90, transform: `scale(${pop(f, s0 + 0.2)})` }}>
+          {Array.from({ length: 7 }).map((_, i) => { const an = (-150 + i * 20) * Math.PI / 180; const r1 = 44, r2 = 58 + 6 * Math.sin(f / 3 + i); return <div key={i} style={{ position: "absolute", left: 40 + Math.cos(an) * r1, top: 36 + Math.sin(an) * r1, width: r2 - r1, height: 6, borderRadius: 3, background: GOLD, transform: `rotate(${an * 180 / Math.PI}deg)`, transformOrigin: "0 50%" }} />; })}
+          <div style={{ position: "absolute", left: 16, top: 12, width: 48, height: 48, borderRadius: "50%", background: "#FFE58A", border: `4px solid ${INK}`, boxShadow: `0 0 18px ${GOLD}` }} />
+          <div style={{ position: "absolute", left: 28, top: 58, width: 24, height: 16, borderRadius: 4, background: "#C9C2B0", border: `4px solid ${INK}` }} />
+        </div>
+      ) : null}
+      {mood === "think" ? <div style={{ position: "absolute", left: W - 30, top: -30 + Math.sin(f / 6) * 6, ...K, fontSize: 64, color: RED, transform: `rotate(12deg) scale(${pop(f, s0 + 0.15)})` }}>？</div> : null}
+    </div>
+  );
 };
 
 const CapBand: React.FC = () => {
