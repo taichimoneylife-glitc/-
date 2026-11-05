@@ -563,7 +563,7 @@ const Chara: React.FC = () => {
   return (
     <div style={{ position: "absolute", left: 790 + (1 - inP) * 360 + outP * 360, top: 1342 - H + Math.sin(f / 10) * 3, width: W, height: H }}>
       <div style={{ position: "absolute", inset: 0, transform: `translateY(${ty}px) rotate(${rot}deg) scale(${sx}, ${sy})`, transformOrigin: "50% 100%" }}>
-        <Gen n="girl_front_smile" w={W} />
+        <Gen n={f % 96 >= 92 ? "girl_blink" : "girl_front_smile"} w={W} />
         <GirlFace mouth={lv} blink={false} worry={mood === "worry"} />
       </div>
       {mood === "worry" ? (() => { const k = (d % 36) / 36; return <svg width={40} height={56} style={{ position: "absolute", left: W - 26, top: 18 + k * 30, opacity: d < 6 ? 0 : 1 - k * 0.8 }}><path d="M20 4 C 30 22, 36 32, 36 40 A 16 16 0 0 1 4 40 C 4 32, 10 22, 20 4 Z" fill="#8EC5F0" stroke={INK} strokeWidth={4} /></svg>; })() : null}
