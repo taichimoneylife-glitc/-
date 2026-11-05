@@ -102,7 +102,7 @@ const HeroGauge: React.FC = () => {
         <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: W * rate * p, background: GOLD, borderRight: p > 0 ? `4px solid ${INK}` : "none", boxSizing: "border-box" }} />
         <div style={{ position: "absolute", left: 16, top: 2, ...SER, fontSize: 36, lineHeight: "48px", color: INK, opacity: p > 0.05 ? 1 : 0 }}>{num(val * p)}<span style={{ ...B, fontSize: 20 }}>円</span></div>
       </div>
-      {lack ? <div style={{ position: "absolute", right: 8, top: 52, ...K, fontSize: 30, color: RED, transform: `scale(${pop(f, 5.74)})` }}>−{num(10000 - val)}</div> : null}
+      {lack ? <div style={{ position: "absolute", right: -6, top: 30, background: "#fff", border: `3px solid ${RED}`, borderRadius: 999, padding: "0 12px", ...K, fontSize: 26, color: RED, transform: `scale(${pop(f, 5.74)})` }}>−{num(10000 - val)}</div> : null}
     </div>
   );
   return (
@@ -126,7 +126,7 @@ const HeroTicket: React.FC = () => {
   const cut = ease(f, 9.34, 0.5), fall = interpolate(f - F(9.9), [0, 22], [0, 1], { ...clamp, easing: Easing.in(Easing.quad) });
   const L = 390, T = 960, W = 540, H = 250;
   const ticket = (half: "l" | "r") => (
-    <div style={{ position: "absolute", left: L, top: T, width: W, height: H, clipPath: half === "l" ? `inset(0 ${W / 2}px 0 0)` : `inset(0 0 0 ${W / 2}px)`, transform: half === "r" ? `translate(${fall * 150}px, ${fall * 200}px) rotate(${fall * 22}deg)` : undefined, opacity: half === "r" ? 1 - fall : 1 }}>
+    <div style={{ position: "absolute", left: L, top: T, width: W, height: H, clipPath: half === "l" ? `inset(0 ${W / 2}px 0 0)` : `inset(0 0 0 ${W / 2}px)`, transform: half === "r" ? `translate(${fall * 120}px, ${fall * 110}px) rotate(${fall * 18}deg)` : undefined, opacity: half === "r" ? 1 - fall : 1 }}>
       <div style={{ position: "absolute", inset: 0, background: "#fff", border: `6px solid ${INK}`, borderRadius: 26, boxShadow: `7px 9px 0 ${GOLD}` }} />
       <Logo n="amazon" h={46} style={{ position: "absolute", left: 34, top: 26 }} />
       <div style={{ position: "absolute", left: 0, right: 0, top: 96, textAlign: "center", ...SER, fontSize: 92, color: INK, lineHeight: 1 }}>10,000<span style={{ ...K, fontSize: 36 }}>pt</span></div>
@@ -136,7 +136,7 @@ const HeroTicket: React.FC = () => {
   );
   return (
     <>
-      <div style={{ position: "absolute", left: 140, top: 975, transform: `rotate(${Math.sin(f / 12) * 3}deg) scale(${pop(f, 7.5)})` }}><Gen n="amex_shopping_box" w={230} /></div>
+      <div style={{ position: "absolute", left: 140, top: 975, transform: `rotate(${Math.sin(f / 12) * 3}deg) scale(${pop(f, 7.7)})` }}><Gen n="amex_shopping_box" w={230} /></div>
       {ticket("r")}{ticket("l")}
       {f >= F(9.34) && fall < 0.05 ? <div style={{ position: "absolute", left: L + W / 2 - 2, top: T - 20, height: (H + 40) * cut, borderLeft: `5px dashed ${RED}` }} /> : null}
       {f >= F(9.34) && fall < 0.05 ? <div style={{ position: "absolute", left: L + W / 2 - 30, top: T - 60 + (H + 40) * cut, fontSize: 56, transform: "rotate(90deg)" }}>✂️</div> : null}
@@ -221,10 +221,10 @@ const HeroSwitch: React.FC = () => {
   const off = ease(f, 33.12, 0.35);
   return (
     <>
-      <div style={{ position: "absolute", left: 150, top: 950, width: 170, transform: `scale(${(1 - off) * pop(f, 29.4)}) rotate(${-6 * (1 - off)}deg)`, opacity: 1 - off }}><Gen n="amex_membership_phone" w={150} /></div>
+      <div style={{ position: "absolute", left: 150, top: 950, width: 170, transform: `scale(${(1 - off) * pop(f, 29.6)}) rotate(${-6 * (1 - off)}deg)`, opacity: 1 - off }}><Gen n="amex_membership_phone" w={150} /></div>
       {off > 0 ? <div style={{ position: "absolute", left: 130, top: 990, transform: `scale(${pop(f, 33.2)})` }}><Gen n="amex_coins_shrink" w={210} /></div> : null}
       <div style={{ position: "absolute", left: 340, top: 980, width: 430, height: 170, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", padding: "0 30px", boxSizing: "border-box", gap: 20 }}>
-        <div style={{ flex: 1 }}><div style={{ ...B, fontSize: 24, color: SUB }}>メンバーシップ・リワード</div><div style={{ ...K, fontSize: 44, color: INK }}>プラス</div></div>
+        <div style={{ flex: 1, minWidth: 0 }}><div style={{ ...B, fontSize: 20, color: SUB, whiteSpace: "nowrap" }}>メンバーシップ・リワード</div><div style={{ ...K, fontSize: 44, color: INK }}>プラス</div></div>
         <div style={{ position: "relative", width: 150, height: 80, borderRadius: 999, background: off > 0.5 ? "#C9C2B0" : BLUE, border: `4px solid ${INK}` }}>
           <div style={{ position: "absolute", top: 6, left: 6 + 70 * (1 - off), width: 60, height: 60, borderRadius: "50%", background: "#fff", border: `4px solid ${INK}`, boxSizing: "border-box" }} />
         </div>
@@ -268,11 +268,11 @@ const BadScene: React.FC = () => {
         );
       })}
       <Stage a={0.3} b={7.2} slot={0}><HeroGauge /></Stage>
-      <Stage a={7.3} b={11.66} slot={1}><HeroTicket /></Stage>
-      <Stage a={11.75} b={16.9} slot={2}><HeroCatalog /></Stage>
-      <Stage a={16.97} b={23.32} slot={3}><HeroMachine /></Stage>
-      <Stage a={23.4} b={29.25} slot={4}><HeroRace /></Stage>
-      <Stage a={29.3} b={35.2}><HeroSwitch /></Stage>
+      <Stage a={7.6} b={11.66} slot={1}><HeroTicket /></Stage>
+      <Stage a={12.0} b={16.9} slot={2}><HeroCatalog /></Stage>
+      <Stage a={17.25} b={23.32} slot={3}><HeroMachine /></Stage>
+      <Stage a={23.68} b={29.25} slot={4}><HeroRace /></Stage>
+      <Stage a={29.55} b={35.2}><HeroSwitch /></Stage>
     </AbsoluteFill>
   );
 };
@@ -450,7 +450,7 @@ const HotelScene: React.FC = () => {
           </div>
         </div>
       ) : null}
-      {t >= 66.9 ? <div style={{ position: "absolute", left: 0, width: 1080, top: 1080, textAlign: "center", ...slam(f, 66.9) }}><span style={{ display: "inline-block", border: `6px solid ${GREEN}`, borderRadius: 14, padding: "2px 24px", ...K, fontSize: 38, color: GREEN, background: "#F2FBF6", transform: "rotate(-3deg)" }}>マリオットが高くなりやすい</span></div> : null}
+      {t >= 66.9 ? <div style={{ position: "absolute", left: 150, top: 1080, ...slam(f, 66.9) }}><span style={{ display: "inline-block", border: `6px solid ${GREEN}`, borderRadius: 14, padding: "2px 24px", ...K, fontSize: 38, color: GREEN, background: "#F2FBF6", transform: "rotate(-3deg)" }}>マリオットが高くなりやすい</span></div> : null}
     </>
   );
 };
@@ -539,7 +539,7 @@ const Chara: React.FC = () => {
         <Gen n="girl_front_smile" w={W} />
       </div>
       {mood === "worry" ? (() => { const k = (d % 36) / 36; return <svg width={40} height={56} style={{ position: "absolute", left: W - 26, top: 18 + k * 30, opacity: d < 6 ? 0 : 1 - k * 0.8 }}><path d="M20 4 C 30 22, 36 32, 36 40 A 16 16 0 0 1 4 40 C 4 32, 10 22, 20 4 Z" fill="#8EC5F0" stroke={INK} strokeWidth={4} /></svg>; })() : null}
-      {mood === "idea" && d >= 6 ? (
+      {mood === "idea" && d >= 6 && f < F(37.5) ? (
         <div style={{ position: "absolute", left: W / 2 - 40, top: -96, width: 80, height: 90, transform: `scale(${pop(f, s0 + 0.2)})` }}>
           {Array.from({ length: 7 }).map((_, i) => { const an = (-150 + i * 20) * Math.PI / 180; const r1 = 44, r2 = 58 + 6 * Math.sin(f / 3 + i); return <div key={i} style={{ position: "absolute", left: 40 + Math.cos(an) * r1, top: 36 + Math.sin(an) * r1, width: r2 - r1, height: 6, borderRadius: 3, background: GOLD, transform: `rotate(${an * 180 / Math.PI}deg)`, transformOrigin: "0 50%" }} />; })}
           <div style={{ position: "absolute", left: 16, top: 12, width: 48, height: 48, borderRadius: "50%", background: "#FFE58A", border: `4px solid ${INK}`, boxShadow: `0 0 18px ${GOLD}` }} />
