@@ -511,7 +511,7 @@ const EndScene: React.FC = () => {
         </div>
       ) : null}
       {f >= F(76.6) ? <div style={{ position: "absolute", left: 150, top: 1040, transform: `scale(${pop(f, 76.6)}) rotate(${Math.sin(f / 10) * 3}deg)` }}><Gen n="amex_two_paths" w={170} /></div> : null}
-      <ReelUI at={F(77.3)} pointSave={F(77.5)} caption="保存して参考にしてね" />
+      <ReelUI at={F(77.3)} pointSave={F(77.5)} noProfile />
     </>
   );
 };

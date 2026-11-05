@@ -201,7 +201,7 @@ export const Scribble: React.FC<{ at?: number; cx: number; cy: number; rx: numbe
 };
 
 // ── 17 リール画面：インスタのリールの見た目を重ね、保存ボタンを指す ──
-export const ReelUI: React.FC<{ at?: number; name?: string; caption?: string; pointSave?: number }> = ({ at = 0, name = "たいち｜積立保険を売らない保険屋さん", caption = "保存して見返してね", pointSave }) => {
+export const ReelUI: React.FC<{ at?: number; name?: string; caption?: string; pointSave?: number; noProfile?: boolean }> = ({ at = 0, name = "たいち｜積立保険を売らない保険屋さん", caption = "保存して見返してね", pointSave, noProfile }) => {
   const f = useCurrentFrame();
   const o = interpolate(f - at, [0, 8], [0, 1], clamp);
   const icons: [string, string][] = [["♡", "1.2万"], ["💬", "320"], ["➤", ""], ["🔖", "保存"]];
@@ -220,10 +220,10 @@ export const ReelUI: React.FC<{ at?: number; name?: string; caption?: string; po
           );
         })}
       </div>
-      <div style={{ position: "absolute", left: 40, right: 160, bottom: 220, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>
+      {noProfile ? null : <div style={{ position: "absolute", left: 40, right: 160, bottom: 220, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}><div style={{ width: 64, height: 64, borderRadius: "50%", overflow: "hidden", border: "3px solid #fff", background: A2.bg }}><GenSlot name="taichi_face_smile" size={64} /></div><span style={{ ...K, fontSize: 28 }}>{name}</span></div>
         <div style={{ ...B, fontSize: 28, marginTop: 10 }}>{caption}</div>
-      </div>
+      </div>}
       {sv > 0 ? <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><path d={`M700,1180 Q880,1150 ${960},${1920 - 380}`} fill="none" stroke={GOLD} strokeWidth={9} strokeLinecap="round" style={{ strokeDasharray: `${interpolate(sv, [0, 10], [0, 600], clamp)} 9999` }} /></svg> : null}
     </AbsoluteFill>
   );
