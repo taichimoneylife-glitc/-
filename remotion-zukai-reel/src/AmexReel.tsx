@@ -100,14 +100,18 @@ const HeroGauge: React.FC = () => {
       <div style={{ position: "relative", height: 58, borderRadius: 14, border: `4px dashed ${INK}55`, boxSizing: "border-box", overflow: "hidden", background: "#fff" }}>
         <div style={{ position: "absolute", left: W * rate * p, top: 0, bottom: 0, width: W * (1 - rate), background: `repeating-linear-gradient(45deg, ${RED}${lack ? "" : "00"} 0 10px, transparent 10px 20px)`, opacity: blink }} />
         <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: W * rate * p, background: GOLD, borderRight: p > 0 ? `4px solid ${INK}` : "none", boxSizing: "border-box" }} />
-        <div style={{ position: "absolute", left: 16, top: 6, ...SER, fontSize: 40, color: INK, opacity: p > 0.05 ? 1 : 0 }}>{num(val * p)}<span style={{ ...B, fontSize: 20 }}>円</span></div>
+        <div style={{ position: "absolute", left: 16, top: 2, ...SER, fontSize: 36, lineHeight: "48px", color: INK, opacity: p > 0.05 ? 1 : 0 }}>{num(val * p)}<span style={{ ...B, fontSize: 20 }}>円</span></div>
       </div>
       {lack ? <div style={{ position: "absolute", right: 8, top: 52, ...K, fontSize: 30, color: RED, transform: `scale(${pop(f, 5.74)})` }}>−{num(10000 - val)}</div> : null}
     </div>
   );
   return (
     <>
-      <CoinArt w={250} big="1万" small="ポイント" style={{ left: 130, top: 960, transform: `rotate(${Math.sin(f / 14) * 4}deg) scale(${pop(f, 0.4)})` }} />
+      {/* 左の絵：カード支払い → 「旅行」でスーツケース → 「それ以外」でカードに戻る */}
+      {(() => {
+        const cur = f >= F(4.58) ? ["amex_card_bill", 4.58] : f >= F(2.82) ? ["amex_travel_pay", 2.82] : ["amex_card_bill", 0.4];
+        return <div key={cur[0] as string + cur[1]} style={{ position: "absolute", left: 140, top: 975, transform: `rotate(${Math.sin(f / 14) * 3}deg) scale(${pop(f, cur[1] as number)})` }}><Gen n={cur[0] as string} w={240} /></div>;
+      })()}
       <div style={{ position: "absolute", left: X + W - 2, top: 950, height: 260, borderLeft: `4px solid ${INK}`, opacity: lack ? 1 : 0.25 }} />
       <div style={{ position: "absolute", left: X + W - 60, top: 918, ...K, fontSize: 24, color: INK, opacity: lack ? 1 : 0.4 }}>1万円</div>
       {bar(960, "旅行の代金", g1, 0.8, 8000)}
@@ -120,18 +124,19 @@ const HeroGauge: React.FC = () => {
 const HeroTicket: React.FC = () => {
   const f = useCurrentFrame();
   const cut = ease(f, 9.34, 0.5), fall = interpolate(f - F(9.9), [0, 22], [0, 1], { ...clamp, easing: Easing.in(Easing.quad) });
-  const L = 220, T = 960, W = 640, H = 250;
+  const L = 390, T = 960, W = 540, H = 250;
   const ticket = (half: "l" | "r") => (
     <div style={{ position: "absolute", left: L, top: T, width: W, height: H, clipPath: half === "l" ? `inset(0 ${W / 2}px 0 0)` : `inset(0 0 0 ${W / 2}px)`, transform: half === "r" ? `translate(${fall * 150}px, ${fall * 200}px) rotate(${fall * 22}deg)` : undefined, opacity: half === "r" ? 1 - fall : 1 }}>
       <div style={{ position: "absolute", inset: 0, background: "#fff", border: `6px solid ${INK}`, borderRadius: 26, boxShadow: `7px 9px 0 ${GOLD}` }} />
       <Logo n="amazon" h={46} style={{ position: "absolute", left: 34, top: 26 }} />
-      <div style={{ position: "absolute", left: 0, right: 0, top: 92, textAlign: "center", ...SER, fontSize: 104, color: INK, lineHeight: 1 }}>10,000<span style={{ ...K, fontSize: 36 }}>pt</span></div>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 96, textAlign: "center", ...SER, fontSize: 92, color: INK, lineHeight: 1 }}>10,000<span style={{ ...K, fontSize: 36 }}>pt</span></div>
       <div style={{ position: "absolute", left: -22, top: H / 2 - 22, width: 44, height: 44, borderRadius: "50%", background: A2.bg, border: `6px solid ${INK}` }} />
       <div style={{ position: "absolute", right: -22, top: H / 2 - 22, width: 44, height: 44, borderRadius: "50%", background: A2.bg, border: `6px solid ${INK}` }} />
     </div>
   );
   return (
     <>
+      <div style={{ position: "absolute", left: 140, top: 975, transform: `rotate(${Math.sin(f / 12) * 3}deg) scale(${pop(f, 7.5)})` }}><Gen n="amex_shopping_box" w={230} /></div>
       {ticket("r")}{ticket("l")}
       {f >= F(9.34) && fall < 0.05 ? <div style={{ position: "absolute", left: L + W / 2 - 2, top: T - 20, height: (H + 40) * cut, borderLeft: `5px dashed ${RED}` }} /> : null}
       {f >= F(9.34) && fall < 0.05 ? <div style={{ position: "absolute", left: L + W / 2 - 30, top: T - 60 + (H + 40) * cut, fontSize: 56, transform: "rotate(90deg)" }}>✂️</div> : null}
@@ -216,13 +221,15 @@ const HeroSwitch: React.FC = () => {
   const off = ease(f, 33.12, 0.35);
   return (
     <>
-      <div style={{ position: "absolute", left: 150, top: 980, width: 600, height: 170, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", padding: "0 30px", boxSizing: "border-box", gap: 20 }}>
+      <div style={{ position: "absolute", left: 150, top: 950, width: 170, transform: `scale(${(1 - off) * pop(f, 29.4)}) rotate(${-6 * (1 - off)}deg)`, opacity: 1 - off }}><Gen n="amex_membership_phone" w={150} /></div>
+      {off > 0 ? <div style={{ position: "absolute", left: 130, top: 990, transform: `scale(${pop(f, 33.2)})` }}><Gen n="amex_coins_shrink" w={210} /></div> : null}
+      <div style={{ position: "absolute", left: 340, top: 980, width: 590, height: 170, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `6px 8px 0 ${INK}`, display: "flex", alignItems: "center", padding: "0 30px", boxSizing: "border-box", gap: 20 }}>
         <div style={{ flex: 1 }}><div style={{ ...B, fontSize: 24, color: SUB }}>メンバーシップ・リワード</div><div style={{ ...K, fontSize: 44, color: INK }}>プラス</div></div>
         <div style={{ position: "relative", width: 150, height: 80, borderRadius: 999, background: off > 0.5 ? "#C9C2B0" : BLUE, border: `4px solid ${INK}` }}>
           <div style={{ position: "absolute", top: 6, left: 6 + 70 * (1 - off), width: 60, height: 60, borderRadius: "50%", background: "#fff", border: `4px solid ${INK}`, boxSizing: "border-box" }} />
         </div>
       </div>
-      <div style={{ position: "absolute", left: 150, width: 600, top: 1160, textAlign: "center", ...K, fontSize: 32, color: off > 0.5 ? RED : BLUE }}>{off > 0.5 ? "未登録 → さらに下がる" : "登録した場合の数字"}</div>
+      <div style={{ position: "absolute", left: 350, width: 400, top: 1170, textAlign: "left", ...K, fontSize: 30, color: off > 0.5 ? RED : BLUE }}>{off > 0.5 ? "未登録 → さらに下がる" : "登録した場合の数字"}</div>
     </>
   );
 };
@@ -318,7 +325,7 @@ const BridgeScene: React.FC = () => {
 };
 
 // レートの大きなカード（1,000pt → 1,000マイル など）
-const RateCard: React.FC<{ at: number; from: string; to: string; unit: string; c: string; ratio: string; top?: number; logo?: string }> = ({ at, from, to, unit, c, ratio, top = 420, logo }) => {
+const RateCard: React.FC<{ at: number; from: string; to: string; unit: string; c: string; ratio: string; top?: number; logo?: string; art?: string; artW?: number }> = ({ at, from, to, unit, c, ratio, top = 420, logo, art, artW = 150 }) => {
   const f = useCurrentFrame(); const d = f - F(at);
   if (d < 0) return null;
   const ar = interpolate(d, [6, 16], [0, 1], { ...clamp, easing: OUT });
@@ -326,6 +333,7 @@ const RateCard: React.FC<{ at: number; from: string; to: string; unit: string; c
     <div style={{ position: "absolute", left: 150, top, width: 780, height: 300, background: "#fff", border: `6px solid ${INK}`, borderRadius: 30, boxShadow: `8px 10px 0 ${c}`, ...rise(f, at) }}>
       <div style={{ position: "absolute", left: 24, top: 18, ...B, fontSize: 26, color: SUB }}>交換レート（公式）</div>
       {logo ? <Logo n={logo} h={44} style={{ position: "absolute", right: 26, top: 16 }} /> : null}
+      {art ? <div style={{ position: "absolute", right: -36, top: -26, transform: `rotate(${Math.sin(f / 12) * 5}deg) scale(${pop(f, at + 0.4)})` }}><Gen n={art} w={artW} /></div> : null}
       <div style={{ position: "absolute", left: 0, right: 0, top: 70, display: "flex", alignItems: "center", justifyContent: "center", gap: 18 }}>
         <div style={{ textAlign: "center" }}><div style={{ ...SER, fontSize: 84, color: INK, lineHeight: 1 }}>{from}</div><div style={{ ...K, fontSize: 28, color: SUB }}>ポイント</div></div>
         <svg width={120} height={60}><line x1={6} y1={30} x2={6 + 96 * ar} y2={30} stroke={c} strokeWidth={10} strokeLinecap="round" />{ar > 0.9 ? <polyline points="86,10 110,30 86,50" fill="none" stroke={c} strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" /> : null}</svg>
@@ -353,6 +361,13 @@ const AnaPlane: React.FC = () => {
   return <div style={{ position: "absolute", left: -260 + p * 1500, top: 1180 - p * 1000, transform: `scale(${0.8 + p * 0.5})`, opacity: p > 0.85 ? (1 - p) / 0.15 : 1 }}><Gen n="amex_plane_blue" w={320} /></div>;
 };
 
+const AnaJar: React.FC = () => {
+  const f = useCurrentFrame();
+  if (f < F(45.0)) return null;
+  const sh = f < F(45.0) + 14 ? Math.sin((f - F(45.0)) * 1.8) * 6 : 0;
+  return <div style={{ position: "absolute", left: 470, top: 1125, transform: `translateX(${sh}px) scale(${pop(f, 45.0)})` }}><Gen n="amex_jar_full" w={140} /></div>;
+};
+
 // ════════ おすすめ① ANAマイル（40.2〜46.1） ════════
 const AnaScene: React.FC = () => (
   <>
@@ -363,6 +378,7 @@ const AnaScene: React.FC = () => (
     <Fact at={44.98} top={884} label="年間の上限" value={<span style={{ color: RED }}>年4万マイルまで</span>} />
     <Fact at={45.4} top={1008} label="移行の参加費" value={<>年5,500円<span style={{ ...B, fontSize: 22, color: SUB }}>（プラチナは無料）</span></>} />
     <Scribble at={F(45.1)} cx={720} cy={936} rx={190} ry={52} note="" nx={0} ny={0} />
+    <AnaJar />
   </>
 );
 
@@ -374,7 +390,7 @@ const ForeignScene: React.FC = () => {
   return (
     <>
       <Sticky at={46.14} tag="おすすめ②" title="外資系マイル" c="#D9E2F5" />
-      <RateCard at={46.5} from="1,250" to="1,000" unit="マイル" c="#5B7FBF" ratio="1対0.8" top={410} />
+      <RateCard at={46.5} from="1,250" to="1,000" unit="マイル" c="#5B7FBF" ratio="1対0.8" top={410} art="amex_world_planes" artW={170} />
       <div style={{ position: "absolute", left: 150, top: 735, width: 780, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
         {AIRLINES.map((a, i) => {
           const at = 47.2 + i * 0.12;
@@ -389,8 +405,11 @@ const ForeignScene: React.FC = () => {
       </div>
       {f >= F(50.8) ? (
         <div style={{ position: "absolute", left: 150, top: 1030, width: 780, display: "flex", gap: 16, ...rise(f, 50.8) }}>
-          <div style={{ flex: 1, background: "#fff", border: `4px solid ${INK}`, borderRadius: 18, padding: "10px 0", textAlign: "center" }}><div style={{ ...B, fontSize: 22, color: SUB }}>ANA</div><div style={{ ...K, fontSize: 34, color: INK }}>年4万マイルまで</div></div>
-          <div style={{ flex: 1, background: "#EEF5FF", border: `5px solid #5B7FBF`, borderRadius: 18, padding: "10px 0", textAlign: "center", transform: `scale(${pop(f, 52.1)})`, opacity: f >= F(52.1) ? 1 : 0 }}><div style={{ ...B, fontSize: 22, color: SUB }}>外資系</div><div style={{ ...K, fontSize: 34, color: "#3D5E9E" }}>年間の上限なし</div></div>
+          <div style={{ flex: 1, height: 260, background: "#fff", border: `4px solid ${INK}`, borderRadius: 18, display: "flex", alignItems: "center", gap: 10, padding: "0 14px", boxSizing: "border-box" }}><Gen n="amex_jar_full" w={110} /><div><div style={{ ...B, fontSize: 22, color: SUB }}>ANA</div><div style={{ ...K, fontSize: 32, color: INK }}>年4万<br />マイルまで</div></div></div>
+          <div style={{ flex: 1, height: 260, overflow: "hidden", background: "#EEF5FF", border: `5px solid #5B7FBF`, borderRadius: 18, display: "flex", alignItems: "flex-end", gap: 10, padding: "0 14px", boxSizing: "border-box", transform: `scale(${pop(f, 52.1)})`, opacity: f >= F(52.1) ? 1 : 0 }}>
+            <div style={{ transform: `translateY(${(1 - ease(f, 52.1, 0.9)) * 240}px)` }}><Gen n="amex_stack_endless" w={86} /></div>
+            <div style={{ alignSelf: "center" }}><div style={{ ...B, fontSize: 22, color: SUB }}>外資系</div><div style={{ ...K, fontSize: 32, color: "#3D5E9E" }}>年間の<br />上限なし</div></div>
+          </div>
         </div>
       ) : null}
     </>
@@ -420,12 +439,13 @@ const HotelScene: React.FC = () => {
   return (
     <>
       <Sticky at={53.46} tag="おすすめ③" title="ホテル" c="#CDEBDB" />
+      {f >= F(53.6) && f < F(55.6) ? <div style={{ position: "absolute", left: 240, top: 430, opacity: interpolate(f, [F(55.0), F(55.5)], [1, 0], clamp), transform: `scale(${pop(f, 53.6) * interpolate(f, [F(55.0), F(55.5)], [1, 0.7], clamp)})` }}><Gen n="amex_hotel_luxury" w={600} /></div> : null}
       {card(150, "ヒルトン", "1,000", "1,250", "12,500", 55.3, false)}
       {card(550, "マリオット", "1,000", "990", "9,900", 58.6, true)}
       {t >= 62.98 ? (
         <div style={{ position: "absolute", left: 150, top: 930, width: 780, ...rise(f, 62.98) }}>
           <div style={{ background: "#fff", border: `4px solid ${INK}`, borderRadius: 20, padding: "14px 24px", display: "flex", alignItems: "center", gap: 16 }}>
-            <span style={{ fontSize: 44 }}>🛏️</span>
+            <Gen n="amex_bed_coins" w={130} style={{ transform: `scale(${pop(f, 63.1)})` }} />
             <div><div style={{ ...K, fontSize: 32, color: INK }}>ヒルトンは1泊に必要なポイントが<span style={{ color: RED }}>多め</span></div><div style={{ ...B, fontSize: 22, color: SUB }}>1ポイントの価値 ＝ 宿泊代 ÷ 必要なポイント</div></div>
           </div>
         </div>
@@ -439,7 +459,7 @@ const HotelScene: React.FC = () => {
 const FeeScene: React.FC = () => (
   <>
     <Sticky at={68.9} tag="おすすめ④" title="年会費" c="#FFE58A" />
-    <RateCard at={69.2} from="1" to="1" unit="円" c="#B38A12" ratio="1pt＝1円" />
+    <RateCard at={69.2} from="1" to="1" unit="円" c="#B38A12" ratio="1pt＝1円" art="amex_fee_coins" artW={130} />
     <Fact at={70.9} top={760} label="1万ポイントだと" value={<><span style={{ ...SER, fontSize: 52, color: "#B38A12" }}>10,000</span><span style={{ fontSize: 26 }}>円分</span></>} />
     <Fact at={72.5} top={884} label="年会費の負担を" value={<span style={{ color: GREEN }}>軽くできる</span>} />
     <Fact at={72.9} top={1008} label="ANA移行の参加費にも" value="1pt＝1円で使える" />
@@ -463,6 +483,7 @@ const EndScene: React.FC = () => {
         ))}
       </div>
       <div style={{ position: "absolute", left: 0, width: 1080, top: 950, textAlign: "center", ...slam(f, 76.3) }}><span style={{ display: "inline-block", background: RED, color: "#fff", border: `6px solid ${INK}`, borderRadius: 20, padding: "8px 34px", ...K, fontSize: 52, boxShadow: `6px 8px 0 ${INK}` }}>使い方で価値が変わる</span></div>
+      {f >= F(76.5) ? <div style={{ position: "absolute", left: 380, top: 1075, transform: `scale(${pop(f, 76.5)})` }}><Gen n="amex_two_paths" w={200} /></div> : null}
       <ReelUI at={F(77.3)} pointSave={F(77.5)} caption="保存して参考にしてね" />
     </>
   );
@@ -513,6 +534,13 @@ const CUES: { file: string; at: number; volume: number }[] = [
   ...[55.3, 58.6].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.2 })), { file: "user/u04", at: F(66.9), volume: 0.26 },
   { file: "user/u05", at: F(69.6), volume: 0.24 }, { file: "user/u04", at: F(76.3), volume: 0.26 }, { file: "user/u10", at: F(77.5), volume: 0.26 },
 ];
+// 「せっかく貯めた」で宝箱がポン（地図に引いている間・画面に固定）
+const Treasure: React.FC = () => {
+  const f = useCurrentFrame();
+  if (f < F(73.9) || f > F(75.6)) return null;
+  const out = interpolate(f, [F(75.2), F(75.6)], [0, 1], clamp);
+  return <div style={{ position: "absolute", left: 290, top: 620, transform: `scale(${pop(f, 73.9) * (1 - out * 0.6)}) rotate(${Math.sin(f / 6) * 3}deg)`, opacity: 1 - out, filter: "drop-shadow(0 12px 24px rgba(90,70,20,0.25))" }}><Gen n="amex_treasure_points" w={500} /></div>;
+};
 const CHECK = ["ANAマイル", "外資系のマイル", "ホテル", "年会費"];
 const CheckWrap: React.FC = () => {
   const f = useCurrentFrame(); const t = f / 30;
@@ -539,6 +567,7 @@ export const AmexReel: React.FC = () => (
     <Board streaks panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: A2.bg, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
       {(id) => { const C = PAGES[id]; return <AbsoluteFill><C /></AbsoluteFill>; }}
     </Board>
+    <Treasure />
     <CheckWrap />
     <Chara />
     <CapBand />
