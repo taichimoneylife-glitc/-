@@ -201,8 +201,21 @@ export const Scribble: React.FC<{ at?: number; cx: number; cy: number; rx: numbe
 };
 
 // ── 17 リール画面：インスタのリールの見た目を重ね、保存ボタンを指す ──
-export const ReelUI: React.FC<{ at?: number; name?: string; caption?: string; pointSave?: number; noProfile?: boolean }> = ({ at = 0, name = "たいち｜積立保険を売らない保険屋さん", caption = "保存して見返してね", pointSave, noProfile }) => {
+export const ReelUI: React.FC<{ at?: number; name?: string; caption?: string; pointSave?: number; noProfile?: boolean; arrowOnly?: boolean }> = ({ at = 0, name = "たいち｜積立保険を売らない保険屋さん", caption = "保存して見返してね", pointSave, noProfile, arrowOnly }) => {
   const f = useCurrentFrame();
+  // 矢印だけ（本物のインスタのボタンに重ねない）：右下の保存ボタンの位置へ伸びて、先に矢じり
+  if (arrowOnly) {
+    const sv = pointSave !== undefined ? f - pointSave : -1;
+    if (sv <= 0) return null;
+    const p = interpolate(sv, [0, 12], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
+    const ex = 975, ey = 1530, ang = Math.atan2(ey - 1360, ex - 1012) * 180 / Math.PI;
+    return (
+      <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0, pointerEvents: "none" }}>
+        <path d={`M945,1170 Q1012,1360 ${ex},${ey}`} fill="none" stroke={GOLD} strokeWidth={10} strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} />
+        {p > 0.97 ? <g transform={`translate(${ex},${ey}) rotate(${ang}) scale(${interpolate(sv, [11, 15, 18], [0.3, 1.25, 1], clamp)})`}><polyline points="-30,-18 0,0 -30,18" fill="none" stroke={GOLD} strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" /></g> : null}
+      </svg>
+    );
+  }
   const o = interpolate(f - at, [0, 8], [0, 1], clamp);
   const icons: [string, string][] = [["♡", "1.2万"], ["💬", "320"], ["➤", ""], ["🔖", "保存"]];
   const sv = pointSave !== undefined ? f - pointSave : -1;

@@ -383,25 +383,22 @@ const AnaScene: React.FC = () => (
 );
 
 // ════════ おすすめ② 外資系の航空会社（46.1〜53.5） ════════
-const AIRLINES = ["singapore", "cathay", "qatar", "british", "qantas", "delta", "afklm", "thai", "sas", "virgin", "emirates"];
+const AIRLINES = ["singapore", "cathay", "qatar", "british", "qantas", "delta", "afklm", "thai", "sas", "virgin"];
 const LOGO_H: Record<string, number> = { singapore: 22, cathay: 30, qatar: 54, british: 24, qantas: 24, delta: 34, afklm: 34, thai: 46, sas: 44, virgin: 40, emirates: 60 };
 const ForeignScene: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <>
       <Sticky at={46.14} tag="おすすめ②" title="外資系マイル" c="#D9E2F5" />
-      <RateCard at={46.5} from="1,250" to="1,000" unit="マイル" c="#5B7FBF" ratio="1対0.8" top={410} art="amex_world_planes" artW={170} />
-      <div style={{ position: "absolute", left: 150, top: 735, width: 780, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-        {AIRLINES.map((a, i) => {
-          const at = 47.2 + i * 0.12;
-          const off = a === "emirates";
-          return (
-            <div key={a} style={{ position: "relative", height: 82, background: "#fff", border: `3px solid ${off ? "#C9C2B0" : INK}`, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 10px", boxSizing: "border-box", transform: `scale(${pop(f, at)})`, opacity: f >= F(at) ? 1 : 0 }}>
-              <Logo n={a} h={LOGO_H[a]} style={{ maxWidth: "100%", opacity: off ? 0.35 : 1, filter: off ? "grayscale(1)" : undefined }} />
-              {off ? <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ background: "#2B2925", color: "#fff", borderRadius: 8, padding: "2px 12px", ...K, fontSize: 22, transform: "rotate(-6deg)" }}>休止中</span></div> : null}
-            </div>
-          );
-        })}
+      <RateCard at={46.5} from="1,250" to="1,000" unit="マイル" c="#5B7FBF" ratio="1対0.8" top={410} />
+      <div style={{ position: "absolute", left: 150, top: 735, width: 780, background: "#fff", border: `3px solid #E3D9BF`, borderRadius: 20, padding: "12px 18px 14px", boxSizing: "border-box", opacity: f >= F(47.1) ? 1 : 0 }}>
+        <div style={{ ...B, fontSize: 22, color: SUB, marginBottom: 4 }}>交換できる航空会社（10社）</div>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", rowGap: 4 }}>
+          {AIRLINES.map((a, i) => {
+            const at = 47.2 + i * 0.12;
+            return <div key={a} style={{ width: "25%", height: 62, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 8px", boxSizing: "border-box", transform: `scale(${pop(f, at)})`, opacity: f >= F(at) ? 1 : 0 }}><Logo n={a} h={LOGO_H[a] * 0.85} style={{ maxWidth: "100%" }} /></div>;
+          })}
+        </div>
       </div>
       {f >= F(50.8) ? (
         <div style={{ position: "absolute", left: 150, top: 1030, width: 780, display: "flex", gap: 16, ...rise(f, 50.8) }}>
@@ -501,17 +498,13 @@ const EndScene: React.FC = () => {
       })}
       {/* 締めのひとこと：「価値」だけ大きく金色 */}
       {f >= F(76.4) ? (
-        <div style={{ position: "absolute", left: 340, top: 1036, width: 440, ...slam(f, 76.4) }}>
-          <div style={{ ...K, fontSize: 34, color: INK }}>使い方で</div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-            <span style={{ ...SER, fontSize: 100, lineHeight: 1.05, color: "#B38A12", textShadow: `4px 4px 0 ${INK}` }}>価値</span>
-            <span style={{ ...K, fontSize: 40, color: INK }}>が</span>
-          </div>
-          <div style={{ ...K, fontSize: 42, color: INK }}><span style={{ color: RED }}>まったく</span>変わる</div>
+        <div style={{ position: "absolute", left: 340, top: 1050, width: 440, ...rise(f, 76.4) }}>
+          <div style={{ ...K, fontSize: 44, color: INK, lineHeight: 1.3 }}>使い方で価値が</div>
+          <div style={{ ...K, fontSize: 44, color: INK, lineHeight: 1.3 }}><span style={{ color: RED, background: "linear-gradient(transparent 62%, #FFE58A 62%)" }}>まったく変わる</span></div>
         </div>
       ) : null}
       {f >= F(76.6) ? <div style={{ position: "absolute", left: 150, top: 1040, transform: `scale(${pop(f, 76.6)}) rotate(${Math.sin(f / 10) * 3}deg)` }}><Gen n="amex_two_paths" w={170} /></div> : null}
-      <ReelUI at={F(77.3)} pointSave={F(77.5)} noProfile />
+      <ReelUI at={F(77.3)} pointSave={F(77.5)} arrowOnly />
     </>
   );
 };
