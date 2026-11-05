@@ -466,24 +466,51 @@ const FeeScene: React.FC = () => (
   </>
 );
 
-// ════════ 締め（73.8〜79） ════════
+// ════════ 締め（73.8〜79）：同じ1万ポイントでも価値がちがう＝絵＋ロゴ＋伸びる棒＋判定の印 ════════
+const ENDS: { img: string; iw: number; logo: string; lh: number; name: string; v: number; unit: string; w: number; c: string; good: boolean }[] = [
+  { img: "amex_coins_shrink", iw: 120, logo: "vpoint", lh: 34, name: "商品券・Vポイント", v: 3000, unit: "円分", w: 0.3, c: RED, good: false },
+  { img: "amex_shopping_box", iw: 118, logo: "amazon", lh: 26, name: "Amazon", v: 5000, unit: "円分", w: 0.5, c: RED, good: false },
+  { img: "amex_fee_coins", iw: 92, logo: "amex", lh: 40, name: "年会費", v: 10000, unit: "円分", w: 1, c: "#B38A12", good: true },
+  { img: "amex_plane_blue", iw: 128, logo: "ana", lh: 28, name: "ANAマイル", v: 10000, unit: "マイル", w: 1, c: BLUE, good: true },
+];
 const EndScene: React.FC = () => {
   const f = useCurrentFrame();
-  const g = interpolate(f, [F(75.6), F(75.6) + 20], [0, 1], { ...clamp, easing: OUT });
+  const BW = 400;
   return (
     <>
-      <div style={{ position: "absolute", left: 0, width: 1080, top: 330, textAlign: "center", ...K, fontSize: 52, color: INK }}><TypeIn at={F(75.6)} step={1.2}>同じ1万ポイントでも</TypeIn></div>
-      <div style={{ position: "absolute", left: 150, top: 470, width: 780 }}>
-        {([["商品券・Vポイント", "3,000円分", 0.3, RED], ["Amazon", "5,000円分", 0.5, RED], ["年会費", "10,000円分", 1, GOLD], ["ANAマイル", "10,000マイル", 1, BLUE]] as const).map(([n, v, w, c], i) => (
-          <div key={n} style={{ display: "flex", alignItems: "center", gap: 16, height: 110 }}>
-            <div style={{ width: 230, textAlign: "right", ...K, fontSize: 30, color: INK, whiteSpace: "nowrap" }}>{n}</div>
-            <div style={{ height: 70, width: 400 * w * interpolate(g - i * 0.12, [0, 0.6], [0, 1], clamp), background: c, borderRadius: 12, border: `4px solid ${INK}`, boxSizing: "border-box" }} />
-            <div style={{ ...SER, fontSize: 32, color: c, whiteSpace: "nowrap", opacity: g > 0.5 ? 1 : 0 }}>{v}</div>
-          </div>
-        ))}
+      {/* 見出し：「同じ」＋コイン＋「でも」 */}
+      <div style={{ position: "absolute", left: 0, width: 1080, top: 300, display: "flex", alignItems: "center", justifyContent: "center", gap: 14, ...rise(f, 75.55) }}>
+        <span style={{ ...K, fontSize: 52, color: INK }}>同じ</span>
+        <div style={{ position: "relative", width: 150, height: 130 }}><CoinArt w={150} big="1万" small="ポイント" style={{ left: 0, top: 0, transform: `rotate(${Math.sin(f / 8) * 6}deg)` }} /></div>
+        <span style={{ ...K, fontSize: 52, color: INK }}>でも</span>
       </div>
-      <div style={{ position: "absolute", left: 0, width: 1080, top: 950, textAlign: "center", ...slam(f, 76.3) }}><span style={{ display: "inline-block", background: RED, color: "#fff", border: `6px solid ${INK}`, borderRadius: 20, padding: "8px 34px", ...K, fontSize: 52, boxShadow: `6px 8px 0 ${INK}` }}>使い方で価値が変わる</span></div>
-      {f >= F(76.5) ? <div style={{ position: "absolute", left: 380, top: 1075, transform: `scale(${pop(f, 76.5)})` }}><Gen n="amex_two_paths" w={200} /></div> : null}
+      {ENDS.map((r, i) => {
+        const at = 75.7 + i * 0.16, top = 470 + i * 140;
+        if (f < F(at)) return null;
+        const g = ease(f, at + 0.1, 0.7);
+        const mk = f >= F(76.15) + i * 3;
+        return (
+          <div key={r.name} style={{ position: "absolute", left: 150, top, width: 780, height: 128, background: "#fff", border: `4px solid ${INK}`, borderRadius: 22, boxShadow: `5px 6px 0 ${r.good ? r.c : "#C9C2B0"}`, ...rise(f, at) }}>
+            <div style={{ position: "absolute", left: 10, top: 0, bottom: 0, width: 130, display: "flex", alignItems: "center", justifyContent: "center" }}><Gen n={r.img} w={r.iw} /></div>
+            <div style={{ position: "absolute", left: 150, top: 12, display: "flex", alignItems: "center", gap: 10, height: 40 }}><Logo n={r.logo} h={r.lh} /><span style={{ ...K, fontSize: 24, color: SUB }}>{r.name}</span></div>
+            <div style={{ position: "absolute", left: 150, top: 62, height: 46, width: BW * r.w * g, background: r.c, borderRadius: 10, border: `3px solid ${INK}`, boxSizing: "border-box" }} />
+            <div style={{ position: "absolute", left: 150 + BW * r.w * g + 12, top: 58, ...SER, fontSize: 40, color: r.c, whiteSpace: "nowrap" }}>{num(r.v * g)}<span style={{ ...B, fontSize: 20, color: INK }}>{r.unit}</span></div>
+            {mk ? <div style={{ position: "absolute", right: -18, top: -22, width: 70, height: 70, borderRadius: "50%", background: r.good ? GOLD : "#fff", border: `5px solid ${r.good ? INK : RED}`, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 40, color: r.good ? INK : RED, transform: `rotate(${r.good ? -8 : 8}deg) scale(${pop(f, 76.15 + i * 0.1)})` }}>{r.good ? "◎" : "×"}</div> : null}
+          </div>
+        );
+      })}
+      {/* 締めのひとこと：「価値」だけ大きく金色 */}
+      {f >= F(76.4) ? (
+        <div style={{ position: "absolute", left: 340, top: 1036, width: 440, ...slam(f, 76.4) }}>
+          <div style={{ ...K, fontSize: 34, color: INK }}>使い方で</div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+            <span style={{ ...SER, fontSize: 100, lineHeight: 1.05, color: "#B38A12", textShadow: `4px 4px 0 ${INK}` }}>価値</span>
+            <span style={{ ...K, fontSize: 40, color: INK }}>が</span>
+          </div>
+          <div style={{ ...K, fontSize: 42, color: INK }}><span style={{ color: RED }}>まったく</span>変わる</div>
+        </div>
+      ) : null}
+      {f >= F(76.6) ? <div style={{ position: "absolute", left: 150, top: 1040, transform: `scale(${pop(f, 76.6)}) rotate(${Math.sin(f / 10) * 3}deg)` }}><Gen n="amex_two_paths" w={170} /></div> : null}
       <ReelUI at={F(77.3)} pointSave={F(77.5)} caption="保存して参考にしてね" />
     </>
   );
