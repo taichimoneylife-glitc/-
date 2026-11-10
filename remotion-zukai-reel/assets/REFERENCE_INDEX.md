@@ -10,3 +10,4 @@
 | 参考④ | 2026-11-03 | マーケ博士「Claudeの4つのモデル」（101秒）→ **最後のプロフィールURLをタップさせる締め** | .claude/skills/zukai-reel/references/ref-04-marke-claude-models.md | src/components/tapCard.tsx（寄せすぎないよう太一のノート版に作り変えてNISA→債券の締めで使用：テープの紙・赤ペンの丸・手描き矢印・付箋）／丸ごと再現は次の段階 |
 | 参考⑤ | 2026-11-04 | 「AI編集20個、20秒で見せます」（41秒）＝**編集の演出20個**＋右上の「この動画の演出」チェックリスト | .claude/skills/zukai-reel/references/ref-05-claude-edit20.md | 部品化・再現は次の段階 |
 | 参考⑥ | 2026-11-04 | 「伝わるスライド図鑑」＝動くスライド777件の見本サイト（セミナー用）。**図解の動きの引き出し** | .claude/skills/zukai-reel/references/ref-06-slide-zukan.md | 丸ごと保存：assets/ref_slides/slidezukan/（gitignore・index.htmlを開けば動く） |
+| 参考⑦ | 2026-11-10 | 海外（フランス）「買う vs 借りる、10年後どっちが得？」（2分53秒）＝同じ条件の2人で比べる型、前提→買う→借りる→10年後→3シナリオ→思い込み崩し→まとめ | .claude/skills/zukai-reel/references/ref-07-acheter-vs-louer.md | 部品化・再現は次の段階 |
