@@ -171,3 +171,5 @@ description: >-
 - `references/image-brief.md` … 画像指示書の書き方と共通スタイル
 - `references/reel-study-yunagi.md` … 参考リール研究（実写＋パネル型）。手順もの・フック・CTA・"薄→濃予告"・チェブロン比較・アイコン列など転用可能な演出の記録
 - `references/reel-study-opus55.md` … 参考リール研究（Opus5.5＋Remotion）。**常時ズーム/ケンバーンズ**・スプリング登場・手描きマル注釈・強調プッシュインなど"動きの引き出し"。次回から採用（人物レイアウトは不採用）
+
+- **AさんBさん（比較）投稿を作るとき**：台本の前に必ず references/ref-07-acheter-vs-louer.md の10章（映像の型）と11章（流れの表・空欄テンプレ）を読む。結果が出ている人の型をまねるのが方針。
