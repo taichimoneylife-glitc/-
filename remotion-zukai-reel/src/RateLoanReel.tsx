@@ -4,7 +4,8 @@ import { FONT } from "./components/font";
 import { SfxTrack } from "./components/sfx";
 import { GenSlot } from "./MileLifePlan";
 import { Board, type Panel, type Stop } from "./components/board";
-import { F, clamp, out, K, B, SER, M, pop, yen, cnt, R, In, Sticker, Tag, Icon, type IconName, Link, Ripple, Stamp, shake, Paper2, SectionPill, Burst, Ring, Chain, Pill2, Dim } from "./components/marke";
+import { F, clamp, out, K, B, SER, M, pop, yen, cnt, R, In, Sticker, Tag, Icon, type IconName, Link, Ripple, Stamp, shake, Paper2, SectionPill, Chain, Pill2, HandCircle, CautionTape, MoneyRain, Spotlight } from "./components/marke";
+import { RL_MOUTH } from "./rlMouth";
 
 // ════════════════════════════════════════════════════════════════════
 //  住宅ローン①「金利が上がると何が起こる？」完全図解 v3（最新のマーケ博士＝参考⑨の型）
@@ -37,7 +38,6 @@ const Hook: React.FC = () => {
   return (
     <AbsoluteFill style={{ transform: shake(f, 3.6, 14) }}>
       <Paper2 />
-      <Burst at={0} cx={540} cy={820} />
       <In at={0.05} x={0} y={250} center mode="ghost"><span style={{ ...K, fontSize: 58, color: M.ink }}>住宅ローン<R>金利</R>が上がっても…</span></In>
       <In at={0.35} x={90} y={360} mode="pop">
         <Hero>
@@ -53,7 +53,7 @@ const Hook: React.FC = () => {
         </Hero>
       </In>
       <Chain at={1.62} x={540} y0={784} y1={850}><Pill2 c={M.green}>返済額が変わってない！</Pill2></Chain>
-      <Ring at={3.6} x={540} y={600} r={430} until={5.0} />
+      <CautionTape at={3.4} until={6.2} />
       <Stamp at={3.6} x={250} y={980} text="これ マジで危険" size={70} />
       <Ripple x={540} y={1030} at={3.6} n={3} />
       {/* この動画で分かる5つ（色の番号） */}
@@ -93,7 +93,7 @@ const S1: React.FC = () => (
       </span>
     </Chain>
     <Chain at={19.94} x={540} y0={1150} y1={1190}><Pill2 c={M.yellow} size={42}><span style={{ color: M.ink }}>＝ 自分に適用される金利</span></Pill2></Chain>
-    <Ring at={20.32} x={540} y={1245} r={290} c={M.green} w={7} until={21.2} />
+    <HandCircle at={20.32} x={540} y={1245} r={290} c={M.green} w={7} until={21.2} />
   </AbsoluteFill>
 );
 
@@ -137,9 +137,9 @@ const S2: React.FC = () => {
       {f >= F(26.14) ? <div style={{ position: "absolute", left: 104, top: 556, width: 5 * 141 + 4, height: 164, border: `6px dashed ${M.green}`, borderRadius: 18, opacity: interpolate(f - F(26.14), [0, 6], [0, 1], clamp) }} /> : null}
       <In at={26.4} x={110} y={1000} mode="pop"><Pill2 c={M.green} icon="🔒">5年ルール：5年間 据え置き</Pill2></In>
       <In at={29.24} x={110} y={1090} mode="pop"><Pill2 c={M.red} icon="⤒">125%ルール：1.25倍まで</Pill2></In>
-      <Ring at={29.3} x={940} y={940} r={90} until={31.8} />
+      <HandCircle at={29.3} x={940} y={940} r={90} until={31.8} />
       {/* でも：灰色に沈めて一言 */}
-      <Dim at={32.02} until={34.6} />
+      <Spotlight at={32.02} until={34.6} x={540} y={760} r={460} />
       <In at={32.02} x={0} y={640} center mode="pop"><Pill2 c="#fff" size={48}>変わらない ＝ <R>安心</R>？</Pill2></In>
       <Stamp at={33.6} x={300} y={760} text="安心ではない" size={74} />
       <Note at={30.32} until={34.58}>※5年ルール・125％ルールは、金融機関や返済方式によって適用されない場合があります</Note>
@@ -166,7 +166,7 @@ const S3: React.FC = () => {
           <span style={{ display: "inline-block", transform: `rotateY(${flip < 0.5 ? flip * 180 : (1 - flip) * 180}deg)` }}><Pill2 c={flip >= 0.5 ? M.red : "#fff"} size={32}>金利 {flip >= 0.5 ? "1.5%" : "0.5%"}</Pill2></span>
         </span>
       </In>
-      {flip >= 0.5 ? <Ring at={43.6} x={850} y={445} r={95} until={45.4} /> : null}
+      {flip >= 0.5 ? <HandCircle at={43.6} x={850} y={445} r={95} until={45.4} /> : null}
       <In at={38.22} x={90} y={520} mode="pop">
         <Hero>
           <HeroBar title="毎月の返済 約15万円の中身" icon="¥" />
@@ -184,7 +184,7 @@ const S3: React.FC = () => {
           </div>
         </Hero>
       </In>
-      <Ring at={47.2} x={300} y={720} r={170} until={48.8} />
+      <HandCircle at={47.2} x={300} y={720} r={170} until={48.8} />
       <Chain at={47.48} x={300} y0={890} y1={940}><span style={{ marginLeft: -480 }}><Pill2 c={M.red}>元金に回るお金 約4.2万円 減</Pill2></span></Chain>
       {/* 先送り：負担の箱が「今」から「後ろ」へ運ばれる */}
       {f >= F(48.82) ? (
@@ -212,6 +212,7 @@ const S4: React.FC = () => {
   return (
     <AbsoluteFill>
       <Paper2 color={BLUE_BG} grid="rgba(255,255,255,0.16)" shape="rgba(255,255,255,0.35)" margin="rgba(255,255,255,0.3)" />
+      <MoneyRain at={72.4} />
       <SectionPill at={53.86} no="04" icon="⏳">5年後どうなる？</SectionPill>
       <In at={54.3} x={0} y={400} center mode="ghost"><span style={{ ...K, fontSize: 40, color: "#fff" }}>金利 0.5% → 1.5% のまま、先送りした結果</span></In>
       <div style={{ opacity: 1 - away, transform: `translateY(${-30 * away}px)` }}>
@@ -230,7 +231,6 @@ const S4: React.FC = () => {
         <In at={65.0} until={69.4} x={100} y={1030} mode="pop"><GenSlot name="rl_bill_shock" size={250} /></In>
       </div>
       {/* 山場：放射線＋大きな数字 */}
-      <Burst at={71.84} cx={540} cy={860} c="rgba(252,224,122,0.4)" />
       <In at={69.6} x={0} y={470} center mode="ghost"><span style={{ ...K, fontSize: 46, color: "#fff" }}>金利1.5%がそのまま続けば</span></In>
       <In at={71.84} x={0} y={550} center mode="pop"><Tag c={M.yellow} size={36}>最終的に</Tag></In>
       <In at={72.2} x={360} y={630} mode="pop"><GenSlot name="rl_money_mountain" size={360} /></In>
@@ -241,7 +241,7 @@ const S4: React.FC = () => {
           </span>
         </div>
       ) : null}
-      <Ring at={74.2} x={540} y={1080} r={380} c="#FFD84D" />
+      <HandCircle at={74.2} x={540} y={1080} r={380} c="#FFD84D" />
       <Note at={56.92} light>※5,000万円・30年・金利0.5％で借りた直後に1.5％へ上がり、その後も1.5％が続く前提の試算。実際の返済額の見直し時期は、金融機関・契約内容によって異なります</Note>
     </AbsoluteFill>
   );
@@ -270,10 +270,10 @@ const S5: React.FC = () => {
       ) : null}
       <In at={76.2} x={60} y={500} mode="pop"><Pill2 c="#fff" size={30}>コップ＝<span style={{ color: M.blue }}>返済額</span></Pill2></In>
       <In at={77.86} x={60} y={860} mode="pop"><Pill2 c="#fff" size={30}>水＝<span style={{ color: M.red }}>利息</span></Pill2></In>
-      <Ring at={79.32} x={gx + gw} y={gy + 20} r={110} until={81.6} />
+      <HandCircle at={79.32} x={gx + gw} y={gy + 20} r={110} until={81.6} />
       <In at={79.32} x={780} y={420} mode="pop"><Pill2 c={M.red} size={28}>払いきれない</Pill2></In>
       <Chain at={80.3} x={gx + gw + 36} y0={gy + 300} y1={gy + 560}><span style={{ marginLeft: 330 }}><Pill2 c="#fff" size={32} icon="↪">次へ繰り越し</Pill2></span></Chain>
-      <Dim at={81.74} />
+      <Spotlight at={81.74} x={540} y={820} r={480} />
       <Stamp at={81.98} x={240} y={760} text="これが 未払利息" size={66} />
     </AbsoluteFill>
   );
@@ -296,7 +296,7 @@ const S6: React.FC = () => {
         <In key={i} at={at} x={90} y={420 + i * 150} mode="pop" style={{ opacity: 1 - 0.5 * dim }}>
           <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
             <span style={{ width: 84, height: 84, borderRadius: 16, background: c, border: `5px solid ${M.ink}`, color: "#fff", ...K, fontSize: 38, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `5px 5px 0 ${M.ink}`, flex: "none" }}>0{i + 1}</span>
-            <Sticker pad="16px 22px" style={{ width: 790 }}><span style={{ ...K, fontSize: 38 }}>{t}</span></Sticker>
+            <Sticker pad="16px 22px" style={{ width: 790, textAlign: "center" }}><span style={{ ...K, fontSize: 38 }}>{t}</span></Sticker>
           </div>
         </In>
       ))}
@@ -309,7 +309,7 @@ const S6: React.FC = () => {
           </div>
         </Hero>
       </In>
-      <Ring at={93.94} x={180} y={1000} r={80} c={M.green} />
+      <HandCircle at={93.94} x={180} y={1000} r={80} c={M.green} />
     </AbsoluteFill>
   );
 };
@@ -326,24 +326,21 @@ const Close: React.FC = () => (
   </AbsoluteFill>
 );
 
-// 右下の大きな太一（参考⑨：場面ごとにポーズを差し替え＋少し跳ねる）
-const POSES: [number, string][] = [
-  [0, "taichi_hand_cheek"], [3.08, "taichi_scared"], [8.52, "taichi_point_up"],
-  [10.24, "taichi_explain_both"], [18.18, "taichi_idea"],
-  [21.42, "taichi_think_chin"], [26.14, "taichi_ok_hand"], [32.02, "taichi_wave_no"],
-  [34.58, "taichi_explain_both"], [43.38, "taichi_notice"], [48.82, "taichi_hmm_doubt"],
-  [53.86, "taichi_think_arms"], [59.34, "taichi_surprise"], [72.68, "taichi_shock"],
-  [75.7, "taichi_worry"], [81.74, "taichi_head_hold"],
-  [82.9, "taichi_one_finger"], [90.26, "taichi_point_up"], [93.94, "taichi_ok_circle"],
-  [94.78, "taichi_lean_in"], [97.8, "taichi_wave_hi"],
-];
+// 右下の大きな太一：ずっと口パクで話す（声の大きさで口が開く）＋ときどきまばたき＋場面ごとに小さな反応マーク
+const REACT: [number, number, string][] = [[3.4, 5.6, "💦"], [18.18, 19.6, "💡"], [32.02, 34.4, "？"], [43.38, 44.8, "！"], [59.34, 61.0, "！"], [72.68, 75.0, "💦"], [81.74, 82.9, "💦"], [93.94, 94.8, "✨"]];
 const Chara: React.FC = () => {
   const f = useCurrentFrame();
-  let name = POSES[0][1], at = 0;
-  POSES.forEach(([t, n]) => { if (f >= F(t)) { name = n; at = t; } });
-  const k = interpolate(f - F(at), [0, 3, 7], [0.86, 1.05, 1], clamp);
-  const y = 1390 + Math.sin(f / 10) * 6 - interpolate(f - F(at), [0, 4, 9], [0, 24, 0], clamp);
-  return <div style={{ position: "absolute", left: 560, top: y, width: 540, height: 540, transform: `scale(${k})`, transformOrigin: "50% 100%" }}><GenSlot name={name} size={540} /></div>;
+  const lv = RL_MOUTH.charCodeAt(Math.min(RL_MOUTH.length - 1, f)) - 48;
+  const blink = f % 96 > 92 && lv === 0;
+  const name = blink ? "taichi_blink" : lv >= 2 ? (Math.floor(f / 3) % 4 ? "taichi_talk_open" : "taichi_talk_mid") : lv === 1 ? "taichi_talk_mid" : "taichi_talk_closed";
+  const bob = Math.sin(f / 10) * 5 + (lv >= 2 ? -3 : 0);
+  const re = REACT.find(([a, b]) => f >= F(a) && f < F(b));
+  return (
+    <div style={{ position: "absolute", left: 560, top: 1390 + bob, width: 540, height: 540 }}>
+      <GenSlot name={name} size={540} />
+      {re ? <div style={{ position: "absolute", left: 390, top: 20, fontSize: 90, transform: `scale(${pop(f, F(re[0]))}) rotate(${Math.sin(f / 4) * 8}deg)` }}>{re[2]}</div> : null}
+    </div>
+  );
 };
 
 const PANELS: Panel[] = [

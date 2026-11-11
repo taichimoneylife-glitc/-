@@ -243,3 +243,60 @@ export const Dim: React.FC<{ at: number; until?: number; o?: number }> = ({ at, 
   const k = interpolate(f, [F(at), F(at) + 5], [0, 1], clamp) * (1 - interpolate(f, [F(until), F(until) + 5], [0, 1], clamp));
   return k > 0 ? <AbsoluteFill style={{ background: `rgba(120,122,135,${o * k})` }} /> : null;
 };
+
+// ════════════════════════════════════════════════════════════════════
+//  自分のアレンジ（参考のまねではない動き）
+// ════════════════════════════════════════════════════════════════════
+// 手書きの丸（赤ペンでぐるっと囲む。少しはみ出して重なる）
+export const HandCircle: React.FC<{ at: number; x: number; y: number; r: number; c?: string; until?: number; w?: number; ry?: number }> = ({ at, x, y, r, c = M.red, until = 999, w = 8, ry }) => {
+  const f = useCurrentFrame();
+  if (f < F(at) || f > F(until) + 5) return null;
+  const p = interpolate(f - F(at), [0, 10], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const o = 1 - interpolate(f, [F(until), F(until) + 5], [0, 1], clamp);
+  const RX = r * 1.12, RY = ry ?? r * 0.82, N = 64;
+  const pts: string[] = [];
+  for (let i = 0; i <= N; i++) { const t = i / N; const a = -Math.PI * 0.62 + t * Math.PI * 2.18; const g = 1 + 0.06 * t + 0.015 * Math.sin(t * 17); pts.push(`${(x + Math.cos(a) * RX * g).toFixed(1)},${(y + Math.sin(a) * RY * g).toFixed(1)}`); }
+  const L = 2.25 * Math.PI * (RX + RY) / 2;
+  return <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0, opacity: o, pointerEvents: "none" }}><polyline points={pts.join(" ")} fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" style={{ strokeDasharray: `${L * p} 9999` }} /></svg>;
+};
+// 危険の黄色と黒のテープ（斜めに2本、左右から走り込んで止まる）
+export const CautionTape: React.FC<{ at: number; until?: number; text?: string }> = ({ at, until = 999, text = "危険　DANGER　危険　DANGER　危険　DANGER　危険" }) => {
+  const f = useCurrentFrame();
+  if (f < F(at) || f > F(until) + 6) return null;
+  const p = interpolate(f - F(at), [0, 8], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.4)) });
+  const o = 1 - interpolate(f, [F(until), F(until) + 6], [0, 1], clamp);
+  const drift = (f - F(at)) * 2;
+  const tape = (y: number, rot: number, dir: 1 | -1) => (
+    <div style={{ position: "absolute", left: -200, top: y, width: 1480, height: 86, transform: `translateX(${dir * (1 - p) * 1500}px) rotate(${rot}deg)`, background: `repeating-linear-gradient(-45deg, ${M.yellow} 0 34px, ${M.ink} 34px 68px)`, border: `4px solid ${M.ink}`, boxShadow: "0 8px 0 rgba(0,0,0,0.15)", overflow: "hidden" }}>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 14, height: 58, background: M.yellow, borderTop: `3px solid ${M.ink}`, borderBottom: `3px solid ${M.ink}`, ...K, fontSize: 38, lineHeight: "52px", whiteSpace: "nowrap", color: M.ink, transform: `translateX(${-drift * dir}px)` }}>{text}　{text}</div>
+    </div>
+  );
+  return <div style={{ position: "absolute", inset: 0, opacity: o, pointerEvents: "none" }}>{tape(70, -4, 1)}{tape(1330, 4, -1)}</div>;
+};
+// お札が上から降ってくる（山場の大きな金額の後ろ）
+export const MoneyRain: React.FC<{ at: number; n?: number }> = ({ at, n = 22 }) => {
+  const f = useCurrentFrame();
+  const d = f - F(at);
+  if (d < 0) return null;
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+      {Array.from({ length: n }).map((_, i) => {
+        const x = (i * 97) % 1040, delay = (i * 7) % 30, sp = 14 + (i % 5) * 3;
+        const y = -160 + (d - delay) * sp;
+        if (d < delay || y > 1950) return null;
+        const sw = Math.sin((d - delay) / 6 + i) * 30;
+        return (
+          <div key={i} style={{ position: "absolute", left: x + sw, top: y, width: 120, height: 62, borderRadius: 6, background: "#CFE8D2", border: `3px solid ${M.green}`, transform: `rotate(${(i * 37) % 60 - 30 + sw / 3}deg) scaleY(${0.6 + 0.4 * Math.abs(Math.cos((d - delay) / 7 + i))})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", border: `3px solid ${M.green}`, ...K, fontSize: 20, color: M.green, display: "flex", alignItems: "center", justifyContent: "center" }}>¥</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+// スポットライト（まわりが暗くなり、真ん中だけ明るい）
+export const Spotlight: React.FC<{ at: number; until?: number; x?: number; y?: number; r?: number }> = ({ at, until = 999, x = 540, y = 760, r = 420 }) => {
+  const f = useCurrentFrame();
+  const k = interpolate(f, [F(at), F(at) + 6], [0, 1], clamp) * (1 - interpolate(f, [F(until), F(until) + 5], [0, 1], clamp));
+  return k > 0 ? <AbsoluteFill style={{ background: `radial-gradient(circle ${r}px at ${x}px ${y}px, rgba(46,44,38,0) 0%, rgba(46,44,38,0) 60%, rgba(46,44,38,${0.72 * k}) 100%)` }} /> : null;
+};
