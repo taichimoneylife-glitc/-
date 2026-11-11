@@ -155,3 +155,88 @@ export const shake = (f: number, at: number, power = 14, dur = 12) => {
   if (f < F(at) || k <= 0) return "";
   return `translate(${Math.sin((f - F(at)) * 2.7) * power * k}px, ${Math.cos((f - F(at)) * 3.3) * power * 0.6 * k}px)`;
 };
+
+// ════════════════════════════════════════════════════════════════════
+//  最新のマーケ博士（参考⑨・2026-11）の部品
+//   ・背景＝ほぼ白の薄い紫＋うすい方眼＋灰色の小さな形（△○＋）
+//   ・上の真ん中に黒い札「アイコン｜01｜章の名前」だけ（大見出しは出さない）
+//   ・真ん中に大きな主役を1つ。下へ「線＋黄色い点」でつながる札
+//   ・山場＝黄色い放射線（くるくる回る）＋輪が広がる
+//   ・注目＝丸い輪で囲む（広がってから止まる）
+// ════════════════════════════════════════════════════════════════════
+const SHAPES: [number, number, "tri" | "cir" | "plus", number][] = [
+  [80, 420, "tri", 0], [960, 380, "cir", 1], [140, 980, "plus", 2], [930, 900, "tri", 3], [70, 1320, "cir", 4], [990, 1250, "plus", 5],
+  [500, 300, "plus", 6], [260, 640, "cir", 7], [820, 640, "tri", 8], [600, 1180, "cir", 9], [330, 1500, "tri", 10], [1000, 1600, "cir", 11],
+];
+export const Paper2: React.FC<{ color?: string; grid?: string; shape?: string }> = ({ color = "#F3F3FA", grid = "rgba(110,115,170,0.08)", shape = "rgba(120,125,160,0.35)" }) => {
+  const f = useCurrentFrame();
+  return (
+    <AbsoluteFill style={{ background: color, backgroundImage: `linear-gradient(${grid} 2px, transparent 2px), linear-gradient(90deg, ${grid} 2px, transparent 2px)`, backgroundSize: "60px 60px" }}>
+      <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
+        {SHAPES.map(([x, y, k, i]) => {
+          const dy = Math.sin(f / 30 + i) * 6;
+          return <g key={i} transform={`translate(${x} ${y + dy}) rotate(${(f / 3 + i * 40) % 360 * (k === "tri" ? 0.2 : 0)})`} stroke={shape} strokeWidth={3} fill="none">
+            {k === "tri" ? <path d="M0 -10 L9 7 L-9 7 Z" /> : k === "cir" ? <circle r={8} /> : <path d="M-9 0 H9 M0 -9 V9" />}
+          </g>;
+        })}
+      </svg>
+    </AbsoluteFill>
+  );
+};
+// 上の真ん中の黒い札（例：🔍｜01｜参考サムネを分析）
+export const SectionPill: React.FC<{ at: number; no?: string; icon?: string; children: React.ReactNode; y?: number; until?: number }> = ({ at, no, icon = "◎", children, y = 300, until = 999 }) => (
+  <In at={at} until={until} x={0} y={y} center mode="pop">
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 14, background: M.ink, color: "#fff", borderRadius: 999, padding: "10px 30px", ...B, fontSize: 34, boxShadow: "0 6px 0 rgba(22,24,31,0.25)", whiteSpace: "nowrap" }}>
+      <span style={{ fontSize: 28 }}>{icon}</span>
+      {no ? <span style={{ ...K, fontSize: 30, opacity: 0.9 }}>{no}</span> : null}
+      {no ? <span style={{ width: 2, height: 30, background: "rgba(255,255,255,0.5)" }} /> : null}
+      <span>{children}</span>
+    </span>
+  </In>
+);
+// 山場の放射線（黄色の帯が回る）
+export const Burst: React.FC<{ at: number; until?: number; c?: string; cx?: number; cy?: number }> = ({ at, until = 999, c = "rgba(255,200,61,0.42)", cx = 540, cy = 760 }) => {
+  const f = useCurrentFrame();
+  if (f < F(at) || f > F(until) + 8) return null;
+  const o = interpolate(f - F(at), [0, 6], [0, 1], clamp) * (1 - interpolate(f, [F(until), F(until) + 8], [0, 1], clamp));
+  const rot = (f - F(at)) * 0.6;
+  return (
+    <svg width={1080} height={1920} style={{ position: "absolute", inset: 0, opacity: o }}>
+      <g transform={`translate(${cx} ${cy}) rotate(${rot})`}>
+        {Array.from({ length: 16 }).map((_, i) => <path key={i} d="M0 0 L-120 -2200 L120 -2200 Z" fill={c} transform={`rotate(${i * 22.5})`} />)}
+      </g>
+    </svg>
+  );
+};
+// 注目の丸い輪（大きく広がってから止まる）
+export const Ring: React.FC<{ at: number; x: number; y: number; r: number; c?: string; until?: number; w?: number }> = ({ at, x, y, r, c = M.red, until = 999, w = 8 }) => {
+  const f = useCurrentFrame();
+  if (f < F(at) || f > F(until) + 5) return null;
+  const k = interpolate(f - F(at), [0, 5, 9], [1.8, 0.95, 1], clamp);
+  const o = interpolate(f - F(at), [0, 3], [0, 1], clamp) * (1 - interpolate(f, [F(until), F(until) + 5], [0, 1], clamp));
+  return <div style={{ position: "absolute", left: x - r, top: y - r, width: r * 2, height: r * 2, borderRadius: "50%", border: `${w}px solid ${c}`, transform: `scale(${k})`, opacity: o }} />;
+};
+// 主役から下へ「線＋黄色い点」でつながる札
+export const Chain: React.FC<{ at: number; x: number; y0: number; y1: number; children: React.ReactNode; until?: number }> = ({ at, x, y0, y1, children, until = 999 }) => {
+  const f = useCurrentFrame();
+  if (f < F(at) || f > F(until) + 6) return null;
+  const p = interpolate(f - F(at), [0, 6], [0, 1], out);
+  const o = 1 - interpolate(f, [F(until), F(until) + 6], [0, 1], clamp);
+  return (
+    <div style={{ opacity: o }}>
+      <div style={{ position: "absolute", left: x - 2, top: y0, width: 5, height: (y1 - y0) * p, background: M.ink }} />
+      {p > 0.95 ? <div style={{ position: "absolute", left: x - 10, top: y1 - 10, width: 20, height: 20, borderRadius: "50%", background: M.yellow, border: `4px solid ${M.ink}` }} /> : null}
+      {p > 0.6 ? <div style={{ position: "absolute", left: 0, width: 1080, top: y1 + 8, display: "flex", justifyContent: "center", transform: `scale(${pop(f, F(at) + 4)})` }}>{children}</div> : null}
+    </div>
+  );
+};
+// 青い札（チャットの吹き出しのような）／白い札
+export const Pill2: React.FC<{ c?: string; children: React.ReactNode; size?: number; icon?: string }> = ({ c = M.blue, children, size = 36, icon }) => (
+  <span style={{ display: "inline-flex", alignItems: "center", gap: 12, background: c, color: c === "#fff" ? M.ink : "#fff", border: `4px solid ${M.ink}`, borderRadius: 14, padding: "10px 28px", ...K, fontSize: size, boxShadow: `5px 5px 0 ${M.ink}`, whiteSpace: "nowrap" }}>{icon ? <span style={{ fontSize: size * 0.8 }}>{icon}</span> : null}{children}</span>
+);
+// 灰色に沈める（山場の一言の前）
+export const Dim: React.FC<{ at: number; until?: number; o?: number }> = ({ at, until = 999, o = 0.55 }) => {
+  const f = useCurrentFrame();
+  const k = interpolate(f, [F(at), F(at) + 5], [0, 1], clamp) * (1 - interpolate(f, [F(until), F(until) + 5], [0, 1], clamp));
+  return k > 0 ? <AbsoluteFill style={{ background: `rgba(120,122,135,${o * k})` }} /> : null;
+};

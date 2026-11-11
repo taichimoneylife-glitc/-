@@ -12,3 +12,4 @@
 | 参考⑥ | 2026-11-04 | 「伝わるスライド図鑑」＝動くスライド777件の見本サイト（セミナー用）。**図解の動きの引き出し** | .claude/skills/zukai-reel/references/ref-06-slide-zukan.md | 丸ごと保存：assets/ref_slides/slidezukan/（gitignore・index.htmlを開けば動く） |
 | 参考⑦ | 2026-11-10 | 海外（フランス）「買う vs 借りる、10年後どっちが得？」（2分53秒）＝同じ条件の2人で比べる型、前提→買う→借りる→10年後→3シナリオ→思い込み崩し→まとめ | .claude/skills/zukai-reel/references/ref-07-acheter-vs-louer.md | 見本＝src/CompareDemo.tsx。**AさんBさん投稿はこの型をまねる**（流れの表と空欄テンプレ＝メモの11章） |
 | 参考⑧ | 2026-11-11 | 海外トークリール「棒人間アニメで稼ぐYouTube」（54秒）＝本人＋テロップ自動＋図解。画面の型5つ（本人だけ／上下2分割／カード型／空の背景のフロー図／全画面の図解）を2〜4秒ごとに切り替え | .claude/skills/zukai-reel/references/ref-08-talk-split-sky.md | 先輩用キット（talk-reel-kit）の segments に部品化 |
+| 参考⑨ | 2026-11-11 | マーケ博士・最新「AIっぽい画像から抜け出す方法」（66秒）＝ほぼ白の方眼・上に黒い章札だけ・大きな主役1つ＋線と点でつながる札・輪・放射線・灰色に沈める | .claude/skills/zukai-reel/references/ref-09-marke-latest.md | 住宅ローン① v3 で使用（marke.tsx の後半） |
