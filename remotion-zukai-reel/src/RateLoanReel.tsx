@@ -16,7 +16,7 @@ import { F, clamp, out, K, B, SER, M, pop, yen, cnt, R, In, Sticker, Tag, Icon, 
 //   1.5%で同じ返済なら元金87,095・利息62,500／5年利息115.4万→355.3万／残高+239.8万／
 //   5年後の返済178,279円（+28,684円・1.25倍上限186,993円の内）／総支払+860.5万
 // ════════════════════════════════════════════════════════════════════
-const BLUE_BG = "#2F66EA";
+const BLUE_BG = "#2E9E6B"; // 山場の章の背景＝たいちさんの緑
 const Note: React.FC<{ at: number; until?: number; children: React.ReactNode; light?: boolean }> = ({ at, until = 999, children, light }) => {
   const f = useCurrentFrame();
   if (f < F(at) || f > F(until)) return null;
@@ -211,7 +211,7 @@ const S4: React.FC = () => {
   const away = interpolate(f, [F(69.4), F(69.4) + 8], [0, 1], clamp);
   return (
     <AbsoluteFill>
-      <Paper2 color={BLUE_BG} grid="rgba(255,255,255,0.12)" shape="rgba(255,255,255,0.35)" />
+      <Paper2 color={BLUE_BG} grid="rgba(255,255,255,0.16)" shape="rgba(255,255,255,0.35)" margin="rgba(255,255,255,0.3)" />
       <SectionPill at={53.86} no="04" icon="⏳">5年後どうなる？</SectionPill>
       <In at={54.3} x={0} y={400} center mode="ghost"><span style={{ ...K, fontSize: 40, color: "#fff" }}>金利 0.5% → 1.5% のまま、先送りした結果</span></In>
       <div style={{ opacity: 1 - away, transform: `translateY(${-30 * away}px)` }}>
@@ -230,7 +230,7 @@ const S4: React.FC = () => {
         <In at={65.0} until={69.4} x={100} y={1030} mode="pop"><GenSlot name="rl_bill_shock" size={250} /></In>
       </div>
       {/* 山場：放射線＋大きな数字 */}
-      <Burst at={71.84} cx={540} cy={860} c="rgba(255,216,77,0.35)" />
+      <Burst at={71.84} cx={540} cy={860} c="rgba(252,224,122,0.4)" />
       <In at={69.6} x={0} y={470} center mode="ghost"><span style={{ ...K, fontSize: 46, color: "#fff" }}>金利1.5%がそのまま続けば</span></In>
       <In at={71.84} x={0} y={550} center mode="pop"><Tag c={M.yellow} size={36}>最終的に</Tag></In>
       <In at={72.2} x={360} y={630} mode="pop"><GenSlot name="rl_money_mountain" size={360} /></In>
@@ -374,10 +374,10 @@ const CUES = [
 
 export const RATELOAN_FRAMES = F(99.4);
 export const RateLoanReel: React.FC = () => (
-  <AbsoluteFill style={{ backgroundColor: "#F3F3FA", fontFamily: FONT }}>
+  <AbsoluteFill style={{ backgroundColor: M.paper, fontFamily: FONT }}>
     <Audio src={staticFile("rl-narration.wav")} />
     <SfxTrack cues={CUES} />
-    <Board streaks panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: "#F3F3FA" }}>
+    <Board streaks panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: M.paper }}>
       {(id) => { const C = PAGES[id]; return <AbsoluteFill><C /></AbsoluteFill>; }}
     </Board>
     <Chara />

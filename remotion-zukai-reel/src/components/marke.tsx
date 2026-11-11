@@ -16,9 +16,10 @@ export const out = { ...clamp, easing: Easing.out(Easing.cubic) };
 export const K = { fontFamily: FONT_BLACK, fontWeight: 900 as const };
 export const B = { fontFamily: FONT, fontWeight: 700 as const };
 export const SER = { fontFamily: FONT_SERIF, fontWeight: 900 as const };
+// 色＝たいちさんの色（黄色いノート：kit2 の A2 と同じ）。blue は「主役の色」（緑）
 export const M = {
-  ink: "#16181F", paper: "#F1F2F6", grid: "rgba(90,100,140,0.10)", red: "#E8453C", blue: "#2F6BEA", yellow: "#FFC83D",
-  green: "#22A56A", orange: "#F28A2E", purple: "#7B5CF0", gray: "#9AA0AE", sub: "#5B6070",
+  ink: "#2E2C26", paper: "#FBF6D8", grid: "rgba(176,146,60,0.22)", red: "#E8553B", blue: "#2E9E6B", yellow: "#FCE07A",
+  green: "#2E9E6B", orange: "#EF7D57", purple: "#8C6BD9", gray: "#B8AF95", sub: "#8C8471",
 };
 export const pop = (f: number, A: number) => interpolate(f - A, [0, 3, 7], [0.3, 1.15, 1], clamp);
 export const yen = (v: number) => Math.round(v).toLocaleString("ja-JP");
@@ -168,14 +169,16 @@ const SHAPES: [number, number, "tri" | "cir" | "plus", number][] = [
   [80, 420, "tri", 0], [960, 380, "cir", 1], [140, 980, "plus", 2], [930, 900, "tri", 3], [70, 1320, "cir", 4], [990, 1250, "plus", 5],
   [500, 300, "plus", 6], [260, 640, "cir", 7], [820, 640, "tri", 8], [600, 1180, "cir", 9], [330, 1500, "tri", 10], [1000, 1600, "cir", 11],
 ];
-export const Paper2: React.FC<{ color?: string; grid?: string; shape?: string }> = ({ color = "#F3F3FA", grid = "rgba(110,115,170,0.08)", shape = "rgba(120,125,160,0.35)" }) => {
+// 背景：黄色いノート（横の罫線＋左の余白線）＋薄い色の小さな形（△○＋）
+export const Paper2: React.FC<{ color?: string; grid?: string; shape?: string; margin?: string }> = ({ color = M.paper, grid = M.grid, shape = "rgba(176,146,60,0.45)", margin = "rgba(239,125,87,0.35)" }) => {
   const f = useCurrentFrame();
   return (
-    <AbsoluteFill style={{ background: color, backgroundImage: `linear-gradient(${grid} 2px, transparent 2px), linear-gradient(90deg, ${grid} 2px, transparent 2px)`, backgroundSize: "60px 60px" }}>
+    <AbsoluteFill style={{ background: color, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${grid} 62px 64px)` }}>
+      <div style={{ position: "absolute", left: 70, top: 0, bottom: 0, width: 4, background: margin }} />
       <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
         {SHAPES.map(([x, y, k, i]) => {
           const dy = Math.sin(f / 30 + i) * 6;
-          return <g key={i} transform={`translate(${x} ${y + dy}) rotate(${(f / 3 + i * 40) % 360 * (k === "tri" ? 0.2 : 0)})`} stroke={shape} strokeWidth={3} fill="none">
+          return <g key={i} transform={`translate(${x} ${y + dy})`} stroke={shape} strokeWidth={3} fill="none">
             {k === "tri" ? <path d="M0 -10 L9 7 L-9 7 Z" /> : k === "cir" ? <circle r={8} /> : <path d="M-9 0 H9 M0 -9 V9" />}
           </g>;
         })}
