@@ -9,5 +9,3 @@ public/talk_src.*
 public/*.wav
 # 文字起こしの結果（自分の話の中身）
 public/words.json
-# 買った・ダウンロードした効果音（配布できない素材）
-public/sfx/lab/

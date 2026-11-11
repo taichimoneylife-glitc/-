@@ -21,6 +21,6 @@ export type TalkPlan = {
   emph: Emph[]; // 字幕の強調
   inserts: Insert[]; // 図解の差し込み
   punches?: number[]; // 寄る秒（空なら、強調語と図解の頭で自動）
-  sfx?: boolean; // 効果音を自動で入れるか（public/sfx に pop.wav などが必要）
+  sfx?: boolean; // 効果音を自動で入れるか（public/sfx の u02s・u03s・u05s を使う）
   grade?: boolean; // 映像を少し色補正するか
 };

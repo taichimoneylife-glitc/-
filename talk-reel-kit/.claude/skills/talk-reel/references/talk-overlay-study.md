@@ -48,7 +48,7 @@
 
 ## 効果音（686個＝出現ごと必須）
 - pop＝テロップ/パネル出現、whoosh/swipe＝スライド・転換、tick/count＝%カウント、ding/correct＝チェック・強調、sparkle＝キラッ転換、finish＝完成。
-- このキットの合成音（pop / whoosh / tick / ding / success）か、自分で用意した効果音で。**発話ごとに最低1つ**当てる密度で。
+- このキットの効果音（sfx.md の u01〜u10）だけを使う。**発話ごとに最低1つ**当てる密度で。
 
 ## このキットでの対応
 - 語同期の字幕＝`src/talk/Captions.tsx`、寄り＝`TalkReel.tsx` の Zoom、図解パネル＝`src/talk/inserts.tsx`、効果音＝`src/lib/sfx.tsx`

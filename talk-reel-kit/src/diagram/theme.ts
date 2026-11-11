@@ -1,8 +1,8 @@
 // 色の決まり（ここを変えれば全部の図解の色が変わる）
 // 比較の動画では「役の色」を全編で固定する（A＝青、B＝ピンク、共通の話＝紫）。
 export const T = {
-  paper: "#FBF6D8", // 背景の紙（薄い黄色）
-  line: "rgba(176,146,60,0.18)", // ノートの罫線
+  paper: "#FFFFFF", // 背景の紙（白）
+  line: "rgba(47,123,217,0.16)", // ノートの罫線（青）
   ink: "#2E2C26", // 文字
   sub: "#8C8471", // 小さい文字・補足
   A: "#2F7BD9", // 役A
@@ -14,4 +14,5 @@ export const T = {
   gray: "#A9A08A", // 元本・基準
   marker: "#FCE07A", // 黄色マーカー
 };
-export const shadow = "0 16px 34px rgba(90,70,20,0.13), 0 3px 0 rgba(90,70,20,0.06)";
+export const shadow = "0 16px 34px rgba(30,50,90,0.12), 0 3px 0 rgba(30,50,90,0.06)";
+export const track = "#E8EEF6"; // バー・ドーナツ・グラフの下地

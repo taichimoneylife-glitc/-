@@ -164,7 +164,7 @@ const STOPS: Stop[] = [
   { id: "p1", trans: 0 }, { id: "p2", trans: 12.4, kind: "kick" }, { id: "p3", trans: 18.2, kind: "kick" }, { id: "p4", trans: 25.2, kind: "kick" },
   { id: "p5", trans: 33.6, kind: "fast" }, { id: "p6", trans: 38.4, kind: "kick" }, { id: "p7", trans: 44.2, kind: "fast" }, { id: "p8", trans: 52.8, kind: "kick" },
 ];
-const CUES = STOPS.slice(1).map((s) => ({ file: "whoosh.wav", at: F(s.trans), volume: 0.2 }));
+const CUES = STOPS.slice(1).map((s) => ({ file: "u03s.mp3", at: F(s.trans), volume: 0.26 }));
 
 export const COMPARE_FRAMES = F(62);
 export const CompareExample: React.FC = () => (

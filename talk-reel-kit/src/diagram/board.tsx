@@ -98,7 +98,7 @@ export const Board: React.FC<{ panels: Panel[]; stops: Stop[]; links?: [string, 
           <div style={{ position: "absolute", left: -500, top: -500, width: 2080, height: 2920, transform: `rotate(${ang}deg)`, transformOrigin: "1040px 1460px", pointerEvents: "none" }}>
             {Array.from({ length: 14 }).map((_, i) => {
               const yy = 260 + ((i * 397) % 2400), len = 180 + ((i * 131) % 260), xx = ((i * 577 + f * 90) % 2600) - 300;
-              return <div key={i} style={{ position: "absolute", left: xx, top: yy, width: len * (0.6 + a), height: 4, borderRadius: 4, background: `rgba(120,95,40,${0.28 * a})` }} />;
+              return <div key={i} style={{ position: "absolute", left: xx, top: yy, width: len * (0.6 + a), height: 4, borderRadius: 4, background: `rgba(47,123,217,${0.22 * a})` }} />;
             })}
           </div>
         );
@@ -114,7 +114,7 @@ export const Stepper: React.FC<{ labels: string[]; steps: number[]; x?: number; 
   let cur = 0; steps.forEach((s, i) => { if (t >= s) cur = i + 1; });
   const W = 120;
   return (
-    <div style={{ position: "absolute", left: x, top: y, background: "#fff", border: `4px solid ${A2.ink}`, borderRadius: 22, padding: "16px 22px 10px", boxShadow: "0 6px 14px rgba(80,60,20,0.12)" }}>
+    <div style={{ position: "absolute", left: x, top: y, background: "#fff", border: `4px solid ${A2.ink}`, borderRadius: 22, padding: "16px 22px 10px", boxShadow: "0 6px 14px rgba(30,50,90,0.12)" }}>
       <div style={{ position: "relative", display: "flex", gap: 0 }}>
         <div style={{ position: "absolute", left: W / 2, top: 26, width: W * (labels.length - 1), height: 5, background: "#D8D2C2" }} />
         <div style={{ position: "absolute", left: W / 2, top: 26, width: W * Math.max(0, cur - 1) * (cur > 0 ? interpolate(f - F(steps[cur - 1] ?? 0), [0, 8], [0.8, 1], clamp) : 0), height: 5, background: color }} />

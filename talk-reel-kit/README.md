@@ -27,9 +27,9 @@ plan.ts は Claude Code に「words.json を読んで、設計表を作って pl
 | `src/talk/` | トークリール本体（TalkReel）、字幕（Captions）、上にのせる図解（inserts）、**plan.ts＝1本ごとに書きかえる所** |
 | `src/diagram/` | 図解の部品（カード・札・ハンコ・ドーナツ・棒・折れ線・±まとめ・ページ送り・スポット・引き出し線） |
 | `src/examples/` | 見本：比較動画（CompareExample）、ページ送り（BoardExample） |
-| `scripts/` | 動画をそろえる（prep_video.sh）、文字起こし（transcribe.py）、効果音を作る（gen-sfx.mjs） |
+| `scripts/` | 動画をそろえる（prep_video.sh）、文字起こし（transcribe.py） |
 | `public/fonts/` | 日本語フォント（Noto Sans JP / Noto Serif JP・SIL OFL） |
-| `public/sfx/` | 合成の効果音（pop / whoosh / tick / ding / success）。自分で用意した音を足してもOK |
+| `public/sfx/` | 効果音（u01〜u10 と単発版 u02s / u03s / u05s / u10s）。使い分けは `.claude/skills/talk-reel/references/sfx.md` |
 | `public/sample/` | お試し用のサンプル（人の形の仮の映像＋仮の文字起こし） |
 | `.claude/skills/talk-reel/` | 作り方のルールとノウハウ（流れ・字幕・図解の動き・比較動画の型・離脱対策） |
 
@@ -46,5 +46,5 @@ plan.ts は Claude Code に「words.json を読んで、設計表を作って pl
 
 ## 注意
 - 自分の動画・音声・文字起こし（talk.mp4 / words.json）は `.gitignore` 済み。リポジトリに入れない
-- ダウンロードした効果音は、配布してよいか利用規約を確認（`public/sfx/lab/` に置けば git に入らない）
+- 効果音は `public/sfx/` の音だけを使う（ほかの音は足さない）。0秒ちょうどには鳴らさない
 - 数字は必ず計算して確かめる。仮定の数字には「仮定の試算」と書く

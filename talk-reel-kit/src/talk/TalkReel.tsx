@@ -33,8 +33,8 @@ export const TalkReel: React.FC<TalkProps> = ({ plan, data }) => {
   const total = F(data.duration);
   const punches = React.useMemo(() => punchTimes(plan, data), [plan, data]);
   const cues = plan.sfx === false ? [] : [
-    ...plan.inserts.map((x) => ({ file: isFull(x) ? "whoosh.wav" : "pop.wav", at: F(x.from), volume: 0.22 })),
-    ...punches.map((t) => ({ file: "tick.wav", at: F(t), volume: 0.12 })),
+    ...plan.inserts.map((x) => ({ file: isFull(x) ? "u03s.mp3" : "u02s.mp3", at: F(x.from), volume: 0.3 })), // 図解の出現＝ポン、全画面への切り替え＝転換の音
+    ...punches.map((t) => ({ file: "u05s.mp3", at: F(t), volume: 0.16 })), // 寄る所＝軽く
   ].filter((c) => c.at > 0);
   return (
     <AbsoluteFill style={{ background: "#111", fontFamily: FONT }}>

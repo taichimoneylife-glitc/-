@@ -2,7 +2,7 @@ import React from "react";
 import { Easing, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { F, clamp, ease, rise, pop, until } from "../lib/anim";
 import { FONT, K } from "../lib/font";
-import { T, shadow } from "./theme";
+import { T, shadow, track } from "./theme";
 
 // ════════════════════════════════════════════════════════════
 //  図解の部品（全部「at＝出る秒」「end＝消える秒」で動く）
@@ -84,7 +84,7 @@ export const Door: React.FC<{ at: number; end: number; no: string; name: string;
 export const Stripe: React.FC<{ x: number; y: number; w: number; h: number; p: number; c: string }> = ({ x, y, w, h, p, c }) => {
   const f = useCurrentFrame();
   return (
-    <div style={{ position: "absolute", left: x, top: y, width: w, height: h, borderRadius: h / 2, background: "#EFE8CF", overflow: "hidden", boxShadow: "inset 0 3px 6px rgba(90,70,20,0.12)" }}>
+    <div style={{ position: "absolute", left: x, top: y, width: w, height: h, borderRadius: h / 2, background: track, overflow: "hidden", boxShadow: "inset 0 3px 6px rgba(30,50,90,0.10)" }}>
       <div style={{ width: `${p * 100}%`, height: "100%", borderRadius: h / 2, background: `repeating-linear-gradient(-45deg, ${c} 0 18px, ${c}CC 18px 36px)`, backgroundPosition: `${f * 2}px 0` }} />
     </div>
   );
@@ -98,7 +98,7 @@ export const Donut: React.FC<{ cx: number; cy: number; r?: number; w?: number; p
   return (
     <>
       <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#EFE8CF" strokeWidth={w} />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={track} strokeWidth={w} />
         {parts.map((p, i) => { const start = acc; acc += p.v; const k = (p.v / total) * ease(f, p.at, p.dur ?? 0.7); return k > 0 ? <circle key={i} cx={cx} cy={cy} r={r} fill="none" stroke={p.c} strokeWidth={w + (i ? 8 : 0)} strokeDasharray={`${L * k} ${L}`} strokeDashoffset={-L * (start / total)} transform={`rotate(-90 ${cx} ${cy})`} /> : null; })}
       </svg>
       {children ? <div style={{ position: "absolute", left: cx - r, width: r * 2, top: cy - 70, textAlign: "center" }}>{children}</div> : null}
@@ -141,7 +141,7 @@ export const LineGrow: React.FC<{ box: { x: number; y: number; w: number; h: num
     <>
       <div style={{ position: "absolute", left: box.x, top: box.y, width: box.w, height: box.h, background: "#fff", borderRadius: 30, boxShadow: shadow }} />
       <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
-        {yStep ? Array.from({ length: Math.floor(max / yStep) }).map((_, k) => { const v = (k + 1) * yStep; return <g key={v}><line x1={x0} x2={x1} y1={Y(v)} y2={Y(v)} stroke="#EFE8CF" strokeWidth={2} /><text x={x0 - 14} y={Y(v) + 8} textAnchor="end" fontSize={22} fill={T.sub} fontFamily={FONT} fontWeight={700}>{yFmt(v)}</text></g>; }) : null}
+        {yStep ? Array.from({ length: Math.floor(max / yStep) }).map((_, k) => { const v = (k + 1) * yStep; return <g key={v}><line x1={x0} x2={x1} y1={Y(v)} y2={Y(v)} stroke={track} strokeWidth={2} /><text x={x0 - 14} y={Y(v) + 8} textAnchor="end" fontSize={22} fill={T.sub} fontFamily={FONT} fontWeight={700}>{yFmt(v)}</text></g>; }) : null}
         <line x1={x0} x2={x1} y1={y0} y2={y0} stroke={T.ink} strokeWidth={4} />
         {xLabels.map(([i, s]) => <text key={i} x={X(i)} y={y0 + 40} textAnchor="middle" fontSize={24} fill={T.sub} fontFamily={FONT} fontWeight={700}>{s}</text>)}
         {mA > 0 ? <polygon points={[...pts(mi, val), ...pts(mi, base).reverse()].join(" ")} fill={`${T.gold}38`} /> : null}

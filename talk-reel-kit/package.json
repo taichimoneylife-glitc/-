@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "remotion studio",
     "render": "remotion render TalkReel out/talk.mp4",
-    "typecheck": "tsc --noEmit -p .",
-    "sfx": "node scripts/gen-sfx.mjs"
+    "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
     "@remotion/cli": "4.0.526",
