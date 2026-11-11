@@ -3,7 +3,8 @@ import { AbsoluteFill, Audio, Easing, interpolate, staticFile, useCurrentFrame }
 import { FONT } from "./components/font";
 import { SfxTrack } from "./components/sfx";
 import { GenSlot } from "./MileLifePlan";
-import { Board, type Panel, type Stop } from "./components/board";
+import { Board, Stepper, type Panel, type Stop } from "./components/board";
+import { Captions } from "./BourakuReel";
 import { F, clamp, out, K, B, SER, M, pop, yen, cnt, R, In, Sticker, Tag, Icon, type IconName, Link, Ripple, Stamp, shake, Paper2, SectionPill, Chain, Pill2, HandCircle, CautionTape, MoneyRain, Spotlight } from "./components/marke";
 import { RL_MOUTH } from "./rlMouth";
 
@@ -336,9 +337,9 @@ const Chara: React.FC = () => {
   const bob = Math.sin(f / 10) * 5 + (lv >= 2 ? -3 : 0);
   const re = REACT.find(([a, b]) => f >= F(a) && f < F(b));
   return (
-    <div style={{ position: "absolute", left: 560, top: 1390 + bob, width: 540, height: 540 }}>
-      <GenSlot name={name} size={540} />
-      {re ? <div style={{ position: "absolute", left: 390, top: 20, fontSize: 90, transform: `scale(${pop(f, F(re[0]))}) rotate(${Math.sin(f / 4) * 8}deg)` }}>{re[2]}</div> : null}
+    <div style={{ position: "absolute", left: 800, top: 1095 + bob, width: 250, height: 250 }}>
+      <GenSlot name={name} size={250} />
+      {re ? <div style={{ position: "absolute", left: 170, top: -10, fontSize: 60, transform: `scale(${pop(f, F(re[0]))}) rotate(${Math.sin(f / 4) * 8}deg)` }}>{re[2]}</div> : null}
     </div>
   );
 };
@@ -369,14 +370,40 @@ const CUES = [
   s("u02s", 96.38, 0.2), s("u07", 97.8, 0.26),
 ];
 
+// 字幕（話した言葉どおり・*黄色マーカー* !赤!）
+const SUBS: [number, string][] = [
+  [0, "住宅ローン金利が上がっても"], [1.62, "*返済額*が変わっていない人"], [3.08, "これ!マジで危険!です"], [4.24, "今回は 金利が上がると"], [5.68, "住宅ローンに*何が起こるのか*"], [7.38, "分かりやすく解説します"], [8.52, "対策は次の動画で話します"],
+  [10.24, "まず 変動金利が"], [11.24, "どうやって上がるのか"], [12.16, "日銀が*政策金利*を上げる"], [13.94, "すると銀行の*短期プライムレート*などが上がって"], [16.58, "住宅ローンの*基準金利*も上がります"], [18.18, "そこから*優遇幅*を引いたものが"], [19.94, "自分に*適用される金利*です"],
+  [21.42, "ただ 金利が上がっても"], [22.94, "返済額は!すぐ上がるとは限りません!"], [24.72, "*5年ルール*で返済額は5年間据え置き"], [27.26, "さらに5年後に見直すときも"], [28.72, "それまでの*1.25倍*まで"], [30.32, "これが*125%ルール*です"], [32.02, "でも返済額が変わらないから"], [33.6, "!安心ではありません!"],
+  [34.58, "例えば*5,000万円*を30年"], [36.62, "金利*0.5%*で借りると"], [38.22, "毎月の返済は約15万円"], [40.22, "そのうち*元金*に回るのは"], [41.64, "約12万9,000円"], [42.96, "でも金利*1.5%*になると"], [45.08, "同じ約15万円でも"], [46.38, "元金に回るのは"], [47.2, "!約8万7,000円!まで減ります"], [48.82, "つまり 返済額が変わっていないだけで"], [51.04, "金利上昇の負担を"], [52.08, "!後ろに先送り!しているだけなんです"],
+  [53.86, "では その負担を先送りした結果"], [55.96, "*5年後*どうなるのか"], [56.92, "5年で払う利息は"], [57.98, "約115万円から!約355万円!"], [60.68, "さらにローン残高も"], [61.96, "!約240万円!多く残ります"], [63.88, "そして5年後の返済額は"], [65.44, "約15万円から約17万8,000円に"], [67.98, "月!約2万9,000円!アップ"], [69.38, "金利1.5%がそのまま続けば"], [71.84, "最終的には"], [72.68, "!約861万円!支払いが増える計算です"],
+  [75.7, "さらに金利が上がると"], [77.12, "返済額より*利息*の方が多くなって"], [79.32, "払いきれなかった利息が"], [80.54, "!繰り越される!こともあります"], [81.74, "これが*未払利息*"],
+  [82.9, "まとめると 金利が上がっても"], [84.56, "返済額はすぐ上がらないことがあります"], [86.56, "でも 負担がなくなったわけではなくて"], [88.62, "!後ろに先送り!されているだけ"], [90.26, "だからまずは 自分の住宅ローンが"], [92.0, "どのような*契約内容*なのか"], [93.66, "必ず確認してください"],
+  [94.78, "では 金利が上がっている今"], [96.38, "どう対策すればいいのか"], [97.8, "*次の動画*で解説します"],
+];
+// 右上の進み具合（小さく）。まとめからは出さない
+const STEP_S = 0.6;
+const StepperWrap: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const f = useCurrentFrame();
+  const o = interpolate(f, [F(10.0), F(10.0) + 6], [0, 1], clamp) * interpolate(f, [F(82.6), F(82.6) + 6], [1, 0], clamp);
+  return o > 0 ? <div style={{ position: "absolute", left: 0, top: 0, transform: `scale(${STEP_S}) translateY(${(1 - o) * -60}px)`, transformOrigin: "0 0", opacity: o }}>{children}</div> : null;
+};
+// インスタのボタン（右）・説明文（下）・名前（上）にかからないよう、図は少し小さく（債券リールと同じ）
+const SAFE = 0.9, SAFE_X = 540 - 540 * SAFE, SAFE_Y = 300 - 280 * SAFE;
 export const RATELOAN_FRAMES = F(99.4);
 export const RateLoanReel: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: M.paper, fontFamily: FONT }}>
     <Audio src={staticFile("rl-narration.wav")} />
     <SfxTrack cues={CUES} />
-    <Board streaks panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: M.paper }}>
-      {(id) => { const C = PAGES[id]; return <AbsoluteFill><C /></AbsoluteFill>; }}
-    </Board>
+    <AbsoluteFill style={{ background: M.paper, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)` }} />
+    <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1920, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}>
+      <Board streaks panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: M.paper }}>
+        {(id) => { const C = PAGES[id]; return <AbsoluteFill><C /></AbsoluteFill>; }}
+      </Board>
+    </div>
+    <StepperWrap><Stepper labels={["仕組み", "5年ルール", "中身", "5年後", "未払利息"]} steps={[10.24, 21.42, 34.58, 53.86, 75.7]} x={600 / STEP_S} y={196 / STEP_S} color={M.red} /></StepperWrap>
+    <div style={{ position: "absolute", left: 0, right: 0, top: 1300, bottom: 0, background: `linear-gradient(${M.paper}00, ${M.paper} 50px)` }} />
     <Chara />
+    <Captions subs={SUBS} end={99.0} maxW={740} size={0.78} kcol={{ g: M.red, r: M.red }} top={1352} swap />
   </AbsoluteFill>
 );
