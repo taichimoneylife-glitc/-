@@ -6,6 +6,7 @@ description: 人が話しているトーク動画（縦のリール）に、語�
 # トークリール自動編集（Remotion）
 
 ## まず読むもの
+- `references/screen-types.md` … **画面の型5つ（本人だけ／上下2分割／カード型／空の背景のフロー図／文字だけの締め）**と切り替え方（毎回）
 - `references/workflow.md` … 全体の流れ・設計表・確認チェックリスト（毎回）
 - `references/captions.md` … 字幕のルール
 - `references/diagram-motion.md` … 図解の動き（人気の図解リールの分析）
@@ -16,8 +17,8 @@ description: 人が話しているトーク動画（縦のリール）に、語�
 ## 1本の作り方（トークリール）
 1. 動画を受け取る → `bash scripts/prep_video.sh 元の動画.mov`（public/talk.mp4 ができる）
 2. 文字起こし → `python3 scripts/transcribe.py public/talk.mp4`（public/words.json）。固有名詞・数字のまちがいは words.json の `w` を直す
-3. 話を読んで **設計表** を作る（workflow.md の表）。どこで寄るか、どこに図解を出すか、どの言葉を強調するか
-4. `src/talk/plan.ts` を書きかえる（video / words / emph / inserts）
+3. 話を読んで **設計表** を作る（workflow.md の表）。2〜4秒ごとに画面の型を変える／どこに図解を出すか／どの言葉を強調するか
+4. `src/talk/plan.ts` を書きかえる（video / words / segments / inserts / emph）。上半分に出す画面・画像があれば public/ に置く
 5. 確認：`npx remotion still TalkReel out/check.png --frame=数字`（静止画で重なりを見る）
 6. 書き出し：`npx remotion render TalkReel out/talk.mp4`
 7. チェックリストで通しで確認 →「場所＋変更内容」で1つずつ直す

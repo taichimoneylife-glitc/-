@@ -25,9 +25,9 @@ export const makeChunks = (words: Word[], maxChars = 14, gap = 0.35): Chunk[] =>
 };
 const clean = (s: string) => s.replace(/[。、]/g, "").replace(/[,.]$/, "");
 
-export const Captions: React.FC<{ words: Word[]; emph: Emph[]; top?: number; size?: number; hi?: string }> = ({ words, emph, top = 1250, size = 66, hi = "#7B5CF0" }) => {
+export const Captions: React.FC<{ words: Word[]; emph: Emph[]; top?: number; size?: number; hi?: string; look?: "clean" | "box"; light?: boolean }> = ({ words, emph, top = 1250, size = 66, hi = "#7B5CF0", look = "box", light = false }) => {
   const f = useCurrentFrame(); const t = f / 30;
-  const chunks = React.useMemo(() => makeChunks(words), [words]);
+  const chunks = React.useMemo(() => (look === "clean" ? makeChunks(words, 10, 0.3) : makeChunks(words)), [words, look]);
   const c = chunks.find((x, i) => t >= x.s - 0.08 && t < (chunks[i + 1]?.s ?? x.e + 0.6) - 0.02 && t < x.e + 0.8);
   if (!c) return null;
   const fadeIn = interpolate(t, [c.s - 0.08, c.s + 0.04], [0, 1], clamp);
@@ -40,6 +40,12 @@ export const Captions: React.FC<{ words: Word[]; emph: Emph[]; top?: number; siz
         const em = emph.find((x) => txt.includes(x.match) || (x.match.includes(txt) && txt.length >= 2));
         const d = f - Math.round((w.s - 0.05) * 30);
         const base: React.CSSProperties = { ...K, fontSize: size, lineHeight: 1.28, padding: "0 10px", borderRadius: 14, display: "inline-block", transform: on ? `scale(${interpolate(d, [0, 3, 6], [0.86, 1.07, 1], clamp)})` : undefined, opacity: on ? 1 : 0.35 };
+        if (look === "clean") {
+          // clean：短く・白・やわらかい影。言葉は話した順に1つずつ出る（まだの言葉は出さない）
+          if (!on) return null;
+          if (em?.marker) return <span key={i} style={{ ...base, fontSize: size * 0.9, color: "#111", background: "linear-gradient(transparent 14%, #FCE07A 14%, #FCE07A 90%, transparent 90%)" }}>{txt}</span>;
+          return <span key={i} style={{ ...base, fontSize: size * 0.9, padding: "0 4px", color: em?.color ?? (light ? "#2E2C26" : "#fff"), textShadow: light ? "none" : "0 3px 12px rgba(0,0,0,0.55), 0 0 2px rgba(0,0,0,0.6)" }}>{txt}</span>;
+        }
         if (em?.marker) return <span key={i} style={{ ...base, color: "#2E2C26", background: "linear-gradient(transparent 12%, #FCE07A 12%, #FCE07A 92%, transparent 92%)" }}>{txt}</span>;
         if (cur) return <span key={i} style={{ ...base, color: "#fff", background: em?.color ?? hi, boxShadow: "0 6px 16px rgba(0,0,0,0.25)" }}>{txt}</span>;
         return <span key={i} style={{ ...base, color: em?.color ?? "#fff", WebkitTextStroke: "10px rgba(20,18,30,0.92)", paintOrder: "stroke fill", textShadow: "0 4px 10px rgba(0,0,0,0.35)" }}>{txt}</span>;

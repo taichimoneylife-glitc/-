@@ -110,6 +110,14 @@ const CompareIns: React.FC<{ from: number; to: number; title: string; a: { name:
   );
 };
 
+// 本人の胸の前に大きな数字（緑の極太・光る・カウントアップ）
+const BigNum: React.FC<{ from: number; to: number; value: number; pre?: string; unit?: string; color?: string }> = ({ from, to, value, pre = "", unit = "", color = "#3BE36B" }) => {
+  const f = useCurrentFrame();
+  const o = Math.min(interpolate(f, [F(from), F(from) + 4], [0, 1], clamp), interpolate(f, [F(to) - 5, F(to)], [1, 0], clamp));
+  const k = interpolate(f - F(from), [0, 4, 9], [1.35, 0.96, 1], clamp);
+  return <div style={{ position: "absolute", left: 0, right: 0, top: 1010, textAlign: "center", opacity: o, transform: `scale(${k})`, ...K, fontSize: 190, color, lineHeight: 1, textShadow: `0 0 30px ${color}88, 0 8px 24px rgba(0,0,0,0.45)` }}>{pre}{num(count(f, from, value, 0.6))}<span style={{ fontSize: 90 }}>{unit}</span></div>;
+};
+
 export const InsertLayer: React.FC<{ inserts: Insert[] }> = ({ inserts }) => {
   const f = useCurrentFrame();
   return (
@@ -125,6 +133,7 @@ export const InsertLayer: React.FC<{ inserts: Insert[] }> = ({ inserts }) => {
           case "check": return <CheckIns key={i} {...k} {...it.props} />;
           case "compare": return <CompareIns key={i} {...k} {...it.props} />;
           case "stamp": return <Stamp key={i} at={it.from} end={it.to} text={it.props.text} style={{ left: 560, top: 820 }} />;
+          case "bignum": return <BigNum key={i} {...k} {...it.props} />;
         }
       })}
     </>
