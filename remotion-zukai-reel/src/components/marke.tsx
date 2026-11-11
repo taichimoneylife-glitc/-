@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Easing, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { FONT, FONT_BLACK, FONT_SERIF } from "./font";
 
 // ════════════════════════════════════════════════════════════════════
@@ -274,7 +274,7 @@ export const CautionTape: React.FC<{ at: number; until?: number; text?: string }
   return <div style={{ position: "absolute", inset: 0, opacity: o, pointerEvents: "none" }}>{tape(70, -4, 1)}{tape(1330, 4, -1)}</div>;
 };
 // お札が上から降ってくる（山場の大きな金額の後ろ）
-export const MoneyRain: React.FC<{ at: number; n?: number }> = ({ at, n = 22 }) => {
+export const MoneyRain: React.FC<{ at: number; n?: number; img?: string }> = ({ at, n = 22, img }) => {
   const f = useCurrentFrame();
   const d = f - F(at);
   if (d < 0) return null;
@@ -285,6 +285,7 @@ export const MoneyRain: React.FC<{ at: number; n?: number }> = ({ at, n = 22 }) 
         const y = -160 + (d - delay) * sp;
         if (d < delay || y > 1950) return null;
         const sw = Math.sin((d - delay) / 6 + i) * 30;
+        if (img) return <Img key={i} src={staticFile(`gen/${img}.png`)} style={{ position: "absolute", left: x + sw, top: y, width: 140, transform: `rotate(${(i * 37) % 60 - 30 + sw / 3}deg)` }} />;
         return (
           <div key={i} style={{ position: "absolute", left: x + sw, top: y, width: 120, height: 62, borderRadius: 6, background: "#CFE8D2", border: `3px solid ${M.green}`, transform: `rotate(${(i * 37) % 60 - 30 + sw / 3}deg) scaleY(${0.6 + 0.4 * Math.abs(Math.cos((d - delay) / 7 + i))})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{ width: 36, height: 36, borderRadius: "50%", border: `3px solid ${M.green}`, ...K, fontSize: 20, color: M.green, display: "flex", alignItems: "center", justifyContent: "center" }}>¥</div>

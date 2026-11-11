@@ -137,12 +137,14 @@ const S2: React.FC = () => {
       </In>
       {f >= F(26.14) ? <div style={{ position: "absolute", left: 104, top: 556, width: 5 * 141 + 4, height: 164, border: `6px dashed ${M.green}`, borderRadius: 18, opacity: interpolate(f - F(26.14), [0, 6], [0, 1], clamp) }} /> : null}
       <In at={26.4} x={110} y={1000} mode="pop"><Pill2 c={M.green} icon="🔒">5年ルール：5年間 据え置き</Pill2></In>
+      <In at={26.6} until={31.9} x={800} y={950} mode="pop"><GenSlot name="rl_wallet_lock" size={190} /></In>
       <In at={29.24} x={110} y={1090} mode="pop"><Pill2 c={M.red} icon="⤒">125%ルール：1.25倍まで</Pill2></In>
       <HandCircle at={29.3} x={940} y={940} r={90} until={31.8} />
       {/* でも：灰色に沈めて一言 */}
-      <Spotlight at={32.02} until={34.6} x={540} y={760} r={460} />
-      <In at={32.02} x={0} y={640} center mode="pop"><Pill2 c="#fff" size={48}>変わらない ＝ <R>安心</R>？</Pill2></In>
-      <Stamp at={33.6} x={300} y={760} text="安心ではない" size={74} />
+      <Spotlight at={32.02} until={34.6} x={540} y={740} r={500} />
+      <In at={32.02} x={370} y={470} mode="pop"><GenSlot name="rl_sofa_relax" size={340} /></In>
+      <In at={32.3} x={0} y={830} center mode="pop"><Pill2 c="#fff" size={48}>変わらない ＝ <R>安心</R>？</Pill2></In>
+      <Stamp at={33.6} x={300} y={930} text="安心ではない" size={74} />
       <Note at={30.32} until={34.58}>※5年ルール・125％ルールは、金融機関や返済方式によって適用されない場合があります</Note>
     </AbsoluteFill>
   );
@@ -191,12 +193,13 @@ const S3: React.FC = () => {
       {f >= F(48.82) ? (
         <>
           <Link at={48.9} pts={[[130, 1230], [930, 1230]]} w={6} dur={0.4} arrow />
+          <In at={49.3} x={80} y={1000} mode="pop"><GenSlot name="rl_push_box_back" size={210} /></In>
           <div style={{ position: "absolute", left: 100, top: 1248, ...K, fontSize: 30 }}>今</div>
           <div style={{ position: "absolute", left: 870, top: 1248, ...K, fontSize: 30, color: M.red }}>後ろ</div>
           <div style={{ position: "absolute", left: 130 + box * 640, top: 1110 }}><Pill2 c={M.red}>負担</Pill2></div>
         </>
       ) : null}
-      <In at={52.08} x={0} y={1040} center mode="pop"><Pill2 c={M.yellow} size={34}><span style={{ color: M.ink }}>後ろに先送りしてるだけ</span></Pill2></In>
+      <In at={52.08} x={330} y={1040} mode="pop"><Pill2 c={M.yellow} size={34}><span style={{ color: M.ink }}>後ろに先送りしてるだけ</span></Pill2></In>
     </AbsoluteFill>
   );
 };
@@ -213,7 +216,7 @@ const S4: React.FC = () => {
   return (
     <AbsoluteFill>
       <Paper2 color={BLUE_BG} grid="rgba(255,255,255,0.16)" shape="rgba(255,255,255,0.35)" margin="rgba(255,255,255,0.3)" />
-      <MoneyRain at={72.4} />
+      <MoneyRain at={72.4} img="rl_money_stack" />
       <SectionPill at={53.86} no="04" icon="⏳">5年後どうなる？</SectionPill>
       <In at={54.3} x={0} y={400} center mode="ghost"><span style={{ ...K, fontSize: 40, color: "#fff" }}>金利 0.5% → 1.5% のまま、先送りした結果</span></In>
       <div style={{ opacity: 1 - away, transform: `translateY(${-30 * away}px)` }}>
@@ -274,6 +277,7 @@ const S5: React.FC = () => {
       <HandCircle at={79.32} x={gx + gw} y={gy + 20} r={110} until={81.6} />
       <In at={79.32} x={780} y={420} mode="pop"><Pill2 c={M.red} size={28}>払いきれない</Pill2></In>
       <Chain at={80.3} x={gx + gw + 36} y0={gy + 300} y1={gy + 560}><span style={{ marginLeft: 330 }}><Pill2 c="#fff" size={32} icon="↪">次へ繰り越し</Pill2></span></Chain>
+      <In at={80.7} x={770} y={720} mode="pop"><GenSlot name="rl_snowball" size={230} /></In>
       <Spotlight at={81.74} x={540} y={820} r={480} />
       <Stamp at={81.98} x={240} y={760} text="これが 未払利息" size={66} />
     </AbsoluteFill>
