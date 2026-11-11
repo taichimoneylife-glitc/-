@@ -44,7 +44,7 @@ const Hook: React.FC = () => {
         <Hero>
           <HeroBar title="毎月の返済額" icon="¥" />
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, padding: "30px 0 26px" }}>
-            <GenSlot name="rl_couple_relax" size={250} />
+            <GenSlot name={f >= F(3.08) ? "rl_house_cloud" : "rl_couple_relax"} size={250} />
             <div>
               <div style={{ ...B, fontSize: 28, color: M.sub }}>金利 0.5% → <R>1.5%</R></div>
               <div style={{ ...SER, fontSize: 96, lineHeight: 1.1 }}>15<span style={{ ...K, fontSize: 40 }}>万円</span></div>
@@ -86,6 +86,9 @@ const S1: React.FC = () => (
         </div>
       </Hero>
     </In>
+    <In at={14.1} x={40} y={700} mode="pop"><GenSlot name="rl_bank" size={140} /></In>
+    <In at={16.7} x={890} y={840} mode="pop"><GenSlot name="rl_loan_papers" size={150} /></In>
+    <In at={19.0} x={880} y={990} mode="pop"><GenSlot name="rl_discount_tag" size={140} /></In>
     <Chain at={13.94} x={540} y0={700} y1={760}><Pill2 c={M.blue} icon="🏦">銀行の短期プライムレートなど ↑</Pill2></Chain>
     <Chain at={16.58} x={540} y0={850} y1={910}><Pill2 c={M.orange} icon="🏠">住宅ローンの基準金利 ↑</Pill2></Chain>
     <Chain at={18.18} x={540} y0={1000} y1={1060}>
@@ -137,7 +140,9 @@ const S2: React.FC = () => {
       </In>
       {f >= F(26.14) ? <div style={{ position: "absolute", left: 104, top: 556, width: 5 * 141 + 4, height: 164, border: `6px dashed ${M.green}`, borderRadius: 18, opacity: interpolate(f - F(26.14), [0, 6], [0, 1], clamp) }} /> : null}
       <In at={26.4} x={110} y={1000} mode="pop"><Pill2 c={M.green} icon="🔒">5年ルール：5年間 据え置き</Pill2></In>
-      <In at={26.6} until={31.9} x={800} y={950} mode="pop"><GenSlot name="rl_wallet_lock" size={190} /></In>
+      <In at={26.6} until={29.1} x={800} y={950} mode="pop"><GenSlot name="rl_wallet_lock" size={190} /></In>
+      <In at={29.3} until={31.9} x={800} y={940} mode="pop"><GenSlot name="rl_balloon_ceiling" size={190} /></In>
+      <In at={24.8} until={26.5} x={820} y={980} mode="pop"><GenSlot name="rl_calendar_stack" size={170} /></In>
       <In at={29.24} x={110} y={1090} mode="pop"><Pill2 c={M.red} icon="⤒">125%ルール：1.25倍まで</Pill2></In>
       <HandCircle at={29.3} x={940} y={940} r={90} until={31.8} />
       {/* でも：灰色に沈めて一言 */}
@@ -188,6 +193,8 @@ const S3: React.FC = () => {
         </Hero>
       </In>
       <HandCircle at={47.2} x={300} y={720} r={170} until={48.8} />
+      <In at={40.9} until={43.3} x={790} y={880} mode="pop"><GenSlot name="rl_bricks_house" size={170} /></In>
+      <In at={43.4} until={48.8} x={790} y={870} mode="pop"><GenSlot name="rl_coin_monster" size={180} /></In>
       <Chain at={47.48} x={300} y0={890} y1={940}><span style={{ marginLeft: -480 }}><Pill2 c={M.red}>元金に回るお金 約4.2万円 減</Pill2></span></Chain>
       {/* 先送り：負担の箱が「今」から「後ろ」へ運ばれる */}
       {f >= F(48.82) ? (
@@ -218,6 +225,7 @@ const S4: React.FC = () => {
       <Paper2 color={BLUE_BG} grid="rgba(255,255,255,0.16)" shape="rgba(255,255,255,0.35)" margin="rgba(255,255,255,0.3)" />
       <MoneyRain at={72.4} img="rl_money_stack" />
       <SectionPill at={53.86} no="04" icon="⏳">5年後どうなる？</SectionPill>
+      <In at={55.3} x={870} y={150} mode="pop"><GenSlot name="rl_hourglass" size={140} /></In>
       <In at={54.3} x={0} y={400} center mode="ghost"><span style={{ ...K, fontSize: 40, color: "#fff" }}>金利 0.5% → 1.5% のまま、先送りした結果</span></In>
       <div style={{ opacity: 1 - away, transform: `translateY(${-30 * away}px)` }}>
         {ROWS4.map(([at, ic, label, val], i) => (
@@ -232,6 +240,7 @@ const S4: React.FC = () => {
         ))}
         <In at={60.2} x={760} y={470} mode="pop"><Tag c={M.yellow} size={28}>約3倍</Tag></In>
         <Stamp at={67.98} until={69.4} x={500} y={1050} text="月+2.9万円" size={58} c="#FFD84D" />
+        <In at={62.0} until={64.9} x={100} y={1030} mode="pop"><GenSlot name="rl_heavy_backpack" size={250} /></In>
         <In at={65.0} until={69.4} x={100} y={1030} mode="pop"><GenSlot name="rl_bill_shock" size={250} /></In>
       </div>
       {/* 山場：放射線＋大きな数字 */}
@@ -278,6 +287,7 @@ const S5: React.FC = () => {
       <In at={79.32} x={780} y={420} mode="pop"><Pill2 c={M.red} size={28}>払いきれない</Pill2></In>
       <Chain at={80.3} x={gx + gw + 36} y0={gy + 300} y1={gy + 560}><span style={{ marginLeft: 330 }}><Pill2 c="#fff" size={32} icon="↪">次へ繰り越し</Pill2></span></Chain>
       <In at={80.7} x={770} y={720} mode="pop"><GenSlot name="rl_snowball" size={230} /></In>
+      <In at={79.4} x={80} y={1040} mode="pop"><GenSlot name="rl_glass_overflow" size={200} /></In>
       <Spotlight at={81.74} x={540} y={820} r={480} />
       <Stamp at={81.98} x={240} y={760} text="これが 未払利息" size={66} />
     </AbsoluteFill>
