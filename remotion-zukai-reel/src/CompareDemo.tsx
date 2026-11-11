@@ -2,316 +2,435 @@ import React from "react";
 import { AbsoluteFill, Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { A2 } from "./components/kit2";
 import { FONT } from "./components/font";
-import { B } from "./MileLifePlan";
-import { K, SER } from "./components/zukaiKit";
+import { K } from "./components/zukaiKit";
 import { SfxTrack } from "./components/sfx";
 import { Board, type Panel, type Stop } from "./components/board";
 
 // ════════════════════════════════════════════════════════════════════
-//  比較動画の見本（参考⑦の見せ方＋マーケ博士のページ送り・黄色ノート版）
-//  仮テーマ：同じ年収の2人／毎月3万円を NISA で積み立てる（太一）vs 貯金（助手）→ 10年後
-//  数字：3万円×120か月＝360万円／年5%（月複利）で約466万円／差 約106万円（仮定の試算）
-//  ルール：役の色を全編で固定（太一＝青・助手＝ピンク・中立＝紫）／1語ずつ強調の字幕／数字はカウントアップ
+//  比較動画の見本 v2（参考⑦の「密度」と「カード」を黄色ノートで）
+//  仮テーマ：毎月3万円を10年　太一＝NISA（年5%と仮定） vs 助手＝貯金
+//  数字（月複利で計算）：元本360万／年3%≈419万／年5%≈466万／年7%≈519万
+//  型：1〜2秒ごとに画面のどこかが変わる／カード＝アイコン＋小見出し＋大きな数字／役の色は固定
 // ════════════════════════════════════════════════════════════════════
 const F = (t: number) => Math.round(t * 30);
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const OUT = Easing.bezier(0.16, 1, 0.3, 1);
-const INK = A2.ink, SUB = A2.sub;
-const CA = "#2F7BD9", CB = "#E5679A", CN = "#7B5CF0", RED = "#E8553B", GOLD = "#E9B82E", GREEN = "#2E9E6B";
-const yen = (v: number) => Math.round(v).toLocaleString("ja-JP");
+const INK = A2.ink, SUB = "#8C8471";
+const CA = "#2F7BD9", CB = "#E5679A", CN = "#7B5CF0", RED = "#E8553B", GOLD = "#E3A51C", GREEN = "#2E9E6B", PRIN = "#A9A08A";
+const man = (v: number) => Math.round(v).toLocaleString("ja-JP");
+const fv = (rate: number, months: number) => { const i = rate / 12; return i === 0 ? 3 * months : (3 * ((1 + i) ** months - 1)) / i; };
 
-// ── 小さな部品 ─────────────────────────────────────────
 const ease = (f: number, at: number, dur = 0.5) => interpolate(f - F(at), [0, F(dur)], [0, 1], { ...clamp, easing: OUT });
-const rise = (f: number, at: number): React.CSSProperties => { const d = f - F(at); return { opacity: interpolate(d, [0, 6], [0, 1], clamp), transform: `translateY(${interpolate(d, [0, 9], [26, 0], { ...clamp, easing: OUT })}px) scale(${interpolate(d, [0, 9], [0.96, 1], { ...clamp, easing: OUT })})` }; };
-const pop = (f: number, at: number) => interpolate(f - F(at), [0, 4, 8], [0.3, 1.12, 1], clamp);
+const rise = (f: number, at: number): React.CSSProperties => { const d = f - F(at); return { opacity: interpolate(d, [0, 6], [0, 1], clamp), transform: `translateY(${interpolate(d, [0, 10], [30, 0], { ...clamp, easing: OUT })}px) scale(${interpolate(d, [0, 10], [0.94, 1], { ...clamp, easing: OUT })})` }; };
+const pop = (f: number, at: number) => interpolate(f - F(at), [0, 4, 8], [0.3, 1.1, 1], clamp);
 const count = (f: number, at: number, to: number, dur = 0.5, from = 0) => from + (to - from) * ease(f, at, dur);
+const until = (f: number, t: number) => interpolate(f, [F(t) - 6, F(t)], [1, 0], clamp);
+const shadow = "0 16px 34px rgba(90,70,20,0.13), 0 3px 0 rgba(90,70,20,0.06)";
 
-const Gen: React.FC<{ n: string; h: number; style?: React.CSSProperties }> = ({ n, h, style }) => <Img src={staticFile(`gen/${n}.png`)} style={{ height: h, width: "auto", display: "block", ...style }} />;
+// ── 部品 ─────────────────────────────────────────
+const Gen: React.FC<{ n: string; h: number }> = ({ n, h }) => <Img src={staticFile(`gen/${n}.png`)} style={{ height: h, width: "auto", display: "block" }} />;
 
-// 章の札＋大見出し
-const Head: React.FC<{ at: number; pill: string; title: string; c: string }> = ({ at, pill, title, c }) => {
+const Head: React.FC<{ at: number; end?: number; pill: string; title: React.ReactNode; c: string }> = ({ at, end = 999, pill, title, c }) => {
   const f = useCurrentFrame();
-  const o = interpolate(f - F(at), [0, 8], [0, 1], clamp);
+  if (f < F(at) || f > F(end)) return null;
+  const o = Math.min(interpolate(f - F(at), [0, 8], [0, 1], clamp), until(f, end));
   return (
-    <div style={{ position: "absolute", left: 0, right: 0, top: 180, textAlign: "center", opacity: o, filter: o < 1 ? `blur(${(1 - o) * 6}px)` : undefined }}>
-      <span style={{ display: "inline-block", border: `4px solid ${c}`, color: c, background: "#fff", borderRadius: 999, padding: "4px 26px", ...K, fontSize: 30 }}>{pill}</span>
-      <div style={{ ...K, fontSize: 68, color: INK, marginTop: 18, letterSpacing: 1 }}>{title}</div>
+    <div style={{ position: "absolute", left: 0, right: 0, top: 190, textAlign: "center", opacity: o, filter: o < 1 ? `blur(${(1 - o) * 8}px)` : undefined }}>
+      <span style={{ display: "inline-block", background: `${c}1C`, border: `2.5px solid ${c}`, color: c, borderRadius: 999, padding: "3px 20px", ...K, fontSize: 24, letterSpacing: 1 }}>{pill}</span>
+      <div style={{ ...K, fontSize: 64, color: INK, marginTop: 14, letterSpacing: 1 }}>{title}</div>
     </div>
   );
 };
 
-// 顔の丸（太一は顔の絵、助手は全身の絵の上の方を切り抜く）
-const Face: React.FC<{ who: "A" | "B"; size: number }> = ({ who, size }) => (
-  <div style={{ width: size, height: size, borderRadius: "50%", overflow: "hidden", border: `6px solid ${who === "A" ? CA : CB}`, background: "#fff", position: "relative", flex: "none" }}>
+const Dot: React.FC<{ c: string; g: string; s?: number }> = ({ c, g, s = 62 }) => (
+  <div style={{ width: s, height: s, borderRadius: "50%", background: `${c}1E`, border: `2.5px solid ${c}55`, color: c, ...K, fontSize: s * 0.46, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>{g}</div>
+);
+
+// カード：アイコン＋小見出し＋大きな数字
+const Card: React.FC<{ at: number; x: number; y: number; w: number; h?: number; c: string; g?: string; label: string; children: React.ReactNode; big?: number; end?: number; hot?: boolean }> = ({ at, x, y, w, h = 136, c, g, label, children, big = 54, end = 999, hot }) => {
+  const f = useCurrentFrame();
+  if (f < F(at) || f > F(end)) return null;
+  return (
+    <div style={{ position: "absolute", left: x, top: y, width: w, height: h, boxSizing: "border-box", background: hot ? `linear-gradient(180deg, #fff, ${c}14)` : "#fff", borderRadius: 26, border: `3px solid ${hot ? c : `${c}40`}`, boxShadow: hot ? `${shadow}, 0 0 0 8px ${c}18` : shadow, display: "flex", alignItems: "center", gap: 18, padding: "0 24px", ...rise(f, at), opacity: (rise(f, at).opacity as number) * until(f, end) }}>
+      {g ? <Dot c={c} g={g} /> : null}
+      <div style={{ minWidth: 0 }}>
+        <div style={{ ...K, fontSize: 22, color: SUB, letterSpacing: 1, whiteSpace: "nowrap" }}>{label}</div>
+        <div style={{ ...K, fontSize: big, color: c, lineHeight: 1.08, whiteSpace: "nowrap" }}>{children}</div>
+      </div>
+    </div>
+  );
+};
+
+const Chip: React.FC<{ at: number; c: string; children: React.ReactNode; style?: React.CSSProperties; solid?: boolean; fs?: number }> = ({ at, c, children, style, solid, fs = 30 }) => {
+  const f = useCurrentFrame();
+  if (f < F(at)) return null;
+  return <div style={{ position: "absolute", transform: `scale(${pop(f, at)})`, ...style }}><span style={{ display: "inline-block", whiteSpace: "nowrap", background: solid ? c : "#fff", color: solid ? "#fff" : c, border: `3px solid ${c}`, borderRadius: 999, padding: "6px 22px", ...K, fontSize: fs, boxShadow: shadow }}>{children}</span></div>;
+};
+
+const Face: React.FC<{ who: "A" | "B"; size: number; style?: React.CSSProperties }> = ({ who, size, style }) => (
+  <div style={{ width: size, height: size, borderRadius: "50%", overflow: "hidden", border: `${Math.max(3, size / 22)}px solid ${who === "A" ? CA : CB}`, background: "#fff", position: "relative", flex: "none", boxShadow: shadow, ...style }}>
     {who === "A"
       ? <Img src={staticFile("gen/taichi_face_smile.png")} style={{ position: "absolute", width: "112%", left: "-6%", top: "2%" }} />
       : <Img src={staticFile("gen/girl_front_smile.png")} style={{ position: "absolute", width: "150%", left: "-25%", top: "-4%" }} />}
   </div>
 );
 
-// キャラ（全身）：出るときにポンと跳ねる＋ゆっくり上下
-const Chara: React.FC<{ n: string; at: number; h: number; style?: React.CSSProperties; flip?: boolean }> = ({ n, at, h, style, flip }) => {
+// 全身キャラ：ポンと出て、ゆっくり揺れる。swap で途中からポーズを変える
+const Chara: React.FC<{ n: string; at: number; h: number; x: number; y: number; end?: number; swap?: [number, string][] }> = ({ n, at, h, x, y, end = 999, swap = [] }) => {
   const f = useCurrentFrame(); const { fps } = useVideoConfig();
-  if (f < F(at)) return null;
+  if (f < F(at) || f > F(end)) return null;
+  let name = n, last = at;
+  swap.forEach(([t, p]) => { if (f >= F(t)) { name = p; last = t; } });
   const s = spring({ frame: f - F(at), fps, config: { damping: 11, stiffness: 170, mass: 0.7 } });
-  return <div style={{ position: "absolute", transform: `translateY(${(1 - s) * 60 + Math.sin(f / 12) * 4}px) scale(${0.7 + 0.3 * s}) ${flip ? "scaleX(-1)" : ""}`, opacity: Math.min(1, s * 2), transformOrigin: "50% 100%", ...style }}><Gen n={n} h={h} /></div>;
+  const hop = last !== at ? interpolate(f - F(last), [0, 4, 9], [0, -26, 0], clamp) : 0;
+  return (
+    <div style={{ position: "absolute", left: x, top: y, transform: `translateX(-50%) translateY(${(1 - s) * 60 + hop + Math.sin(f / 13) * 4}px) scale(${0.7 + 0.3 * s})`, transformOrigin: "50% 100%", opacity: Math.min(1, s * 2) * until(f, end) }}>
+      <div style={{ position: "absolute", left: "10%", right: "10%", bottom: -10, height: 26, borderRadius: "50%", background: "rgba(90,70,20,0.14)" }} />
+      <Gen n={name} h={h} />
+    </div>
+  );
 };
 
-// ハンコ（斜めにドン）
-const Stamp: React.FC<{ at: number; text: string; c?: string; style?: React.CSSProperties }> = ({ at, text, c = RED, style }) => {
-  const f = useCurrentFrame();
-  const d = f - F(at);
-  if (d < 0) return null;
+const Stamp: React.FC<{ at: number; text: string; c?: string; style?: React.CSSProperties; fs?: number; end?: number }> = ({ at, text, c = RED, style, fs = 54, end = 999 }) => {
+  const f = useCurrentFrame(); const d = f - F(at);
+  if (d < 0 || f > F(end)) return null;
   const k = interpolate(d, [0, 4, 7], [2.2, 0.92, 1], { ...clamp, easing: Easing.in(Easing.quad) });
   const sh = d >= 4 && d < 12 ? Math.sin(d * 2.6) * (12 - d) * 1.2 : 0;
-  return <div style={{ position: "absolute", opacity: interpolate(d, [0, 2], [0, 1], clamp), transform: `translateX(${sh}px) rotate(-8deg) scale(${k})`, ...style }}><span style={{ display: "inline-block", border: `7px solid ${c}`, color: c, background: "rgba(255,255,255,0.92)", borderRadius: 16, padding: "6px 30px", ...K, fontSize: 54, whiteSpace: "nowrap" }}>{text}</span></div>;
+  return <div style={{ position: "absolute", opacity: interpolate(d, [0, 2], [0, 1], clamp), transform: `translateX(${sh}px) rotate(-7deg) scale(${k})`, ...style }}><span style={{ display: "inline-block", border: `7px solid ${c}`, color: c, background: "rgba(255,255,255,0.94)", borderRadius: 16, padding: "4px 28px", ...K, fontSize: fs, whiteSpace: "nowrap" }}>{text}</span></div>;
 };
 
-// ── 1語ずつ強調の字幕 ─────────────────────────────────────────
+// 章の扉（番号＋名前＋キャラが手を振る）→ ぼかして消える
+const Door: React.FC<{ at: number; end: number; no: string; who: "A" | "B"; name: string; pose: string; h: number }> = ({ at, end, no, who, name, pose, h }) => {
+  const f = useCurrentFrame();
+  if (f > F(end)) return null;
+  const o = until(f, end); const c = who === "A" ? CA : CB;
+  return (
+    <div style={{ position: "absolute", inset: 0, opacity: o, filter: o < 1 ? `blur(${(1 - o) * 10}px)` : undefined }}>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 380, textAlign: "center", ...rise(f, at) }}>
+        <div style={{ display: "inline-flex", width: 120, height: 120, borderRadius: "50%", background: c, color: "#fff", ...K, fontSize: 70, alignItems: "center", justifyContent: "center", boxShadow: `0 0 0 12px ${c}26` }}>{no}</div>
+        <div style={{ ...K, fontSize: 100, color: c, marginTop: 10, letterSpacing: 4 }}>{name}</div>
+      </div>
+      <Chara n={pose} at={at + 0.25} h={h} x={540} y={1180 - h} />
+    </div>
+  );
+};
+
+// しま模様の進みバー
+const Stripe: React.FC<{ x: number; y: number; w: number; h: number; p: number; c: string; f: number }> = ({ x, y, w, h, p, c, f }) => (
+  <div style={{ position: "absolute", left: x, top: y, width: w, height: h, borderRadius: h / 2, background: "#EFE8CF", overflow: "hidden", boxShadow: "inset 0 3px 6px rgba(90,70,20,0.12)" }}>
+    <div style={{ width: `${p * 100}%`, height: "100%", borderRadius: h / 2, background: `repeating-linear-gradient(-45deg, ${c} 0 18px, ${c}CC 18px 36px)`, backgroundPosition: `${f * 2}px 0` }} />
+  </div>
+);
+
+// ── 字幕：今の言葉に色の箱 ─────────────────────────────────────────
 type Cap = { t: number; w: string[]; c: string; step?: number };
 const Captions: React.FC<{ caps: Cap[]; end: number }> = ({ caps, end }) => {
   const f = useCurrentFrame(); const t = f / 30;
   let idx = -1; caps.forEach((c, i) => { if (t >= c.t) idx = i; });
   if (idx < 0 || t > end) return null;
-  const c = caps[idx]; const step = c.step ?? 0.42;
+  const c = caps[idx]; const step = c.step ?? 0.36;
   const nextT = idx + 1 < caps.length ? caps[idx + 1].t : end;
-  const fadeOut = interpolate(t, [nextT - 0.12, nextT], [1, 0], clamp);
   const shown = Math.min(c.w.length, Math.floor((t - c.t) / step) + 1);
   return (
-    <div style={{ position: "absolute", left: 140, right: 140, top: 1290, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px 6px", opacity: fadeOut }}>
+    <div style={{ position: "absolute", left: 150, right: 150, top: 1290, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px 4px", opacity: interpolate(t, [nextT - 0.1, nextT], [1, 0], clamp) }}>
       {c.w.slice(0, shown).map((w, i) => {
-        const cur = i === shown - 1 && t - c.t < c.w.length * step + 0.25;
+        const cur = i === shown - 1;
         const d = f - F(c.t + i * step);
-        return <span key={i} style={{ ...K, fontSize: 52, lineHeight: 1.25, padding: "2px 12px", borderRadius: 14, color: cur ? "#fff" : INK, background: cur ? c.c : "transparent", transform: `scale(${interpolate(d, [0, 3, 6], [0.8, 1.08, 1], clamp)})`, display: "inline-block" }}>{w}</span>;
+        return <span key={i} style={{ ...K, fontSize: 46, lineHeight: 1.3, padding: "0 10px", borderRadius: 12, color: cur ? "#fff" : INK, background: cur ? c.c : "transparent", transform: `scale(${interpolate(d, [0, 3, 6], [0.8, 1.06, 1], clamp)})`, display: "inline-block" }}>{w}</span>;
       })}
     </div>
   );
 };
 
-// ── ページ1：同じ年収の2人 ─────────────────────────────────────────
+// ════════ P1 つかみ ════════
 const P1: React.FC = () => {
   const f = useCurrentFrame(); const t = f / 30;
-  const q = t >= 4.8;
   return (
     <>
-      <div style={{ position: "absolute", left: 0, right: 0, top: 230, textAlign: "center", ...K, fontSize: 84, color: INK }}>
-        {q ? <span style={{ display: "inline-block", ...rise(f, 4.8) }}>10年後、<span style={{ color: RED }}>どうなる？</span></span> : <span style={{ display: "inline-block", ...rise(f, 0.3) }}>同じ年収の<span style={{ background: "linear-gradient(transparent 60%, #FCE07A 60%)" }}>2人</span></span>}
+      <div style={{ position: "absolute", left: 0, right: 0, top: 210, textAlign: "center", ...K, color: INK }}>
+        <div style={{ fontSize: 76, ...rise(f, 0.2) }}>同じ<span style={{ color: GOLD }}>3万円</span>でも</div>
+        {t >= 3.4 ? <div style={{ fontSize: 76, marginTop: 6, ...rise(f, 3.4) }}>10年後、<span style={{ background: "linear-gradient(transparent 58%, #FCE07A 58%)" }}>差はいくら？</span></div> : null}
       </div>
-      {(["A", "B"] as const).map((w, i) => {
-        const at = 0.6 + i * 0.25; const c = w === "A" ? CA : CB;
-        const tag = w === "A" ? "NISAで積み立て" : "貯金";
-        return (
-          <div key={w} style={{ position: "absolute", left: i === 0 ? 110 : 570, top: 420, width: 400, height: 640, background: "#fff", border: `6px solid ${c}`, borderRadius: 36, boxShadow: `8px 10px 0 ${c}`, ...rise(f, at) }}>
-            <div style={{ position: "absolute", left: 0, right: 0, bottom: 120, display: "flex", justifyContent: "center" }}><Gen n={w === "A" ? "taichi_front_smile" : "girl_front_smile"} h={420} /></div>
-            {t >= (w === "A" ? 2.4 : 3.8) ? <div style={{ position: "absolute", left: 0, right: 0, bottom: 34, textAlign: "center", transform: `scale(${pop(f, w === "A" ? 2.4 : 3.8)})` }}><span style={{ background: c, color: "#fff", borderRadius: 999, padding: "8px 26px", ...K, fontSize: 34 }}>{tag}</span></div> : null}
-          </div>
-        );
-      })}
-      <div style={{ position: "absolute", left: 470, top: 680, width: 140, height: 140, borderRadius: "50%", background: CN, border: `6px solid ${INK}`, color: "#fff", ...K, fontSize: 56, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${pop(f, 1.3)}) rotate(${Math.sin(f / 9) * 4}deg)`, opacity: t >= 1.3 ? 1 : 0 }}>VS</div>
+      <div style={{ position: "absolute", left: 539, top: 520, width: 0, height: 620, borderLeft: `4px dashed ${SUB}66`, opacity: ease(f, 0.8) }} />
+      <Chara n="taichi_front_smile" at={0.6} h={560} x={300} y={560} swap={[[1.6, "taichi_point_right"], [5.0, "taichi_question"]]} />
+      <Chara n="girl_front_smile" at={0.9} h={560} x={790} y={560} />
+      <Chip at={1.6} c={CA} solid style={{ left: 170, top: 500 }}>NISAで積立</Chip>
+      <Chip at={2.5} c={CB} solid style={{ left: 700, top: 500 }}>貯金</Chip>
+      {[[300, 4.4], [790, 4.6]].map(([x, at], i) => t >= at ? <div key={i} style={{ position: "absolute", left: x - 40, top: 610, width: 80, height: 80, borderRadius: "50%", background: CN, color: "#fff", ...K, fontSize: 52, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${pop(f, at)}) translateY(${Math.sin(f / 7 + i) * 6}px)`, boxShadow: shadow }}>?</div> : null)}
     </>
   );
 };
 
-// ── ページ2：条件はまったく同じ（2枚のカード＋「＝」） ─────────────────
-const ROWS: { at: number; label: string; to: number; fmt: (v: number) => string }[] = [
-  { at: 8.0, label: "年齢", to: 30, fmt: (v) => `${Math.round(v)}歳` },
-  { at: 8.9, label: "手取り", to: 30, fmt: (v) => `月${Math.round(v)}万円` },
-  { at: 10.8, label: "貯金", to: 100, fmt: (v) => `${Math.round(v)}万円` },
+// ════════ P2 前提（同じ条件を＝でつなぐ） ════════
+const ROWS = [
+  { at: 7.0, g: "人", la: "年齢", lb: "年齢", v: "30歳" },
+  { at: 8.4, g: "¥", la: "手取り", lb: "手取り", v: "月30万円" },
+  { at: 9.8, g: "↓", la: "毎月 NISAへ", lb: "毎月 貯金へ", v: "3万円" },
 ];
 const P2: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <>
-      <Head at={6.2} pill="前提" title="条件はまったく同じ" c={CN} />
-      {(["A", "B"] as const).map((w, i) => {
-        const c = w === "A" ? CA : CB;
-        return (
-          <div key={w} style={{ position: "absolute", left: i === 0 ? 100 : 580, top: 420, width: 400, height: 720, background: "#fff", border: `6px solid ${c}`, borderRadius: 36, boxShadow: `8px 10px 0 ${c}`, ...rise(f, 6.6 + i * 0.2) }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 34 }}>
-              <Face who={w} size={170} />
-              <span style={{ marginTop: 14, background: c, color: "#fff", borderRadius: 999, padding: "4px 24px", ...K, fontSize: 32 }}>{w === "A" ? "太一" : "助手"}</span>
-            </div>
-            {ROWS.map((r, k) => f >= F(r.at) ? (
-              <div key={r.label} style={{ position: "absolute", left: 36, right: 36, top: 330 + k * 120, ...rise(f, r.at) }}>
-                <div style={{ ...B, fontSize: 26, color: SUB }}>{r.label}</div>
-                <div style={{ ...K, fontSize: 52, color: INK }}>{r.fmt(count(f, r.at, r.to, 0.45, r.to * 0.85))}</div>
-              </div>
-            ) : null)}
-          </div>
-        );
-      })}
-      {ROWS.map((r, k) => f >= F(r.at + 0.25) ? <div key={k} style={{ position: "absolute", left: 510, top: 385 + 330 + k * 120, width: 60, height: 60, borderRadius: "50%", background: CN, color: "#fff", ...K, fontSize: 40, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${pop(f, r.at + 0.25)})` }}>＝</div> : null)}
-    </>
-  );
-};
-
-// ── 章の扉＋メーター（毎月3万円） ─────────────────────────────────────
-const Meter: React.FC<{ at: number; c: string; label: string; sub: string }> = ({ at, c, label, sub }) => {
-  const f = useCurrentFrame();
-  const p = ease(f, at, 0.9);
-  const R = 230, cx = 540, cy = 860, L = Math.PI * R;
-  return (
-    <>
-      <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0, opacity: f >= F(at) ? 1 : 0 }}>
-        <path d={`M${cx - R},${cy} A${R},${R} 0 0 1 ${cx + R},${cy}`} fill="none" stroke="#EDE6CC" strokeWidth={44} strokeLinecap="round" />
-        <path d={`M${cx - R},${cy} A${R},${R} 0 0 1 ${cx + R},${cy}`} fill="none" stroke={c} strokeWidth={44} strokeLinecap="round" strokeDasharray={`${L * p * 0.62} 9999`} />
-      </svg>
-      {f >= F(at) ? <div style={{ position: "absolute", left: 0, right: 0, top: cy - 150, textAlign: "center" }}>
-        <div style={{ ...SER, fontSize: 120, color: INK, lineHeight: 1 }}>{yen(count(f, at, 3, 0.9))}<span style={{ ...K, fontSize: 52 }}>万円</span></div>
-        <div style={{ ...B, fontSize: 32, color: SUB, marginTop: 6 }}>{label}</div>
-      </div> : null}
-      {f >= F(at + 1.4) ? <div style={{ position: "absolute", left: 0, right: 0, top: cy + 70, textAlign: "center", transform: `scale(${pop(f, at + 1.4)})` }}><span style={{ display: "inline-block", border: `5px solid ${c}`, background: "#fff", color: c, borderRadius: 999, padding: "8px 30px", ...K, fontSize: 36 }}>{sub}</span></div> : null}
-    </>
-  );
-};
-const Chapter: React.FC<{ at: number; no: string; who: "A" | "B"; pose: string; title: string; meterAt: number; label: string; sub: string; poseH?: number }> = ({ at, no, who, pose, title, meterAt, label, sub, poseH = 360 }) => {
-  const f = useCurrentFrame();
-  const c = who === "A" ? CA : CB;
-  const door = f < F(meterAt - 0.3);
-  const doorOut = interpolate(f, [F(meterAt - 0.5), F(meterAt - 0.2)], [1, 0], clamp);
-  return (
-    <>
-      {door ? <div style={{ position: "absolute", inset: 0, opacity: doorOut, filter: doorOut < 1 ? `blur(${(1 - doorOut) * 8}px)` : undefined }}>
-        <div style={{ position: "absolute", left: 0, right: 0, top: 420, textAlign: "center", ...rise(f, at) }}>
-          <div style={{ display: "inline-flex", width: 130, height: 130, borderRadius: "50%", background: c, color: "#fff", ...SER, fontSize: 80, alignItems: "center", justifyContent: "center" }}>{no}</div>
-          <div style={{ ...K, fontSize: 96, color: c, marginTop: 14 }}>{who === "A" ? "太一" : "助手"}</div>
+      <Head at={6.2} pill="前提" title="2人の条件" c={CN} />
+      {(["A", "B"] as const).map((w, i) => (
+        <div key={w} style={{ position: "absolute", left: i === 0 ? 205 : 665, top: 360, display: "flex", alignItems: "center", gap: 12, ...rise(f, 6.5 + i * 0.15) }}>
+          <Face who={w} size={92} /><span style={{ ...K, fontSize: 36, color: w === "A" ? CA : CB }}>{w === "A" ? "太一" : "助手"}</span>
         </div>
-        <Chara n={pose} at={at + 0.3} h={poseH} style={{ left: 540 - poseH * 0.36, top: 780 }} />
-      </div> : null}
-      {!door ? <Head at={meterAt - 0.3} pill={`${no}・${who === "A" ? "太一" : "助手"}`} title={title} c={c} /> : null}
-      <Meter at={meterAt} c={c} label={label} sub={sub} />
+      ))}
+      {ROWS.map((r, k) => (
+        <React.Fragment key={k}>
+          <Card at={r.at} x={100} y={500 + k * 170} w={400} c={CA} g={r.g} label={r.la}>{r.v}</Card>
+          <Card at={r.at + 0.15} x={580} y={500 + k * 170} w={400} c={CB} g={r.g} label={r.lb}>{r.v}</Card>
+          {f >= F(r.at + 0.45) ? <div style={{ position: "absolute", left: 512, top: 540 + k * 170, width: 56, height: 56, borderRadius: "50%", background: CN, color: "#fff", ...K, fontSize: 38, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${pop(f, r.at + 0.45)})`, boxShadow: shadow }}>＝</div> : null}
+        </React.Fragment>
+      ))}
+      <Chip at={11.4} c={CN} solid style={{ left: 250, top: 1040 }} fs={34}>違うのは「置き場所」だけ</Chip>
     </>
   );
 };
-const P3: React.FC = () => <Chapter at={14.2} no="1" who="A" pose="taichi_wave_hi" title="毎月3万円をNISAで" meterAt={16.0} label="毎月の積立" sub="年5%で運用（仮定）" />;
-const P4: React.FC = () => <Chapter at={20.2} no="2" who="B" pose="girl_front_smile" title="毎月3万円を貯金" meterAt={22.0} label="毎月の貯金" sub="金利はほぼ0%" poseH={380} />;
 
-// ── 早送り（カレンダー） ─────────────────────────────────────────
+// ════════ P3 元本の計算（式が組み上がる） ════════
+const P3: React.FC = () => {
+  const f = useCurrentFrame();
+  const parts: [number, string][] = [[13.4, "3万円"], [14.2, "12か月"], [15.0, "10年"]];
+  return (
+    <>
+      <Head at={12.8} pill="前提" title="10年で入れるお金" c={CN} />
+      {parts.map(([at, s], i) => (
+        <React.Fragment key={i}>
+          {i > 0 && f >= F(at - 0.15) ? <div style={{ position: "absolute", left: 0, right: 0, top: 432 + i * 120 - 56, textAlign: "center", ...K, fontSize: 40, color: SUB, opacity: ease(f, at - 0.15, 0.2) }}>×</div> : null}
+          <Chip at={at} c={INK} style={{ left: 0, right: 0, top: 410 + i * 120, textAlign: "center" }} fs={40}>{s}</Chip>
+        </React.Fragment>
+      ))}
+      <div style={{ position: "absolute", left: 300, right: 300, top: 760, height: 5, borderRadius: 3, background: INK, transform: `scaleX(${ease(f, 15.7, 0.4)})` }} />
+      <Card at={16.0} x={240} y={800} w={600} h={170} c={CN} g="¥" label="2人とも 入れたお金" big={80} hot>{man(count(f, 16.0, 360, 0.6))}<span style={{ fontSize: 40 }}>万円</span></Card>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 1010, display: "flex", justifyContent: "center", gap: 30 }}>
+        {(["A", "B"] as const).map((w, i) => f >= F(17.0 + i * 0.2) ? <div key={w} style={{ transform: `scale(${pop(f, 17.0 + i * 0.2)})` }}><Face who={w} size={96} /></div> : null)}
+      </div>
+    </>
+  );
+};
+
+// ════════ P4 助手＝貯金 ════════
+const P4: React.FC = () => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [F(20.6), F(22.6)], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  return (
+    <>
+      <Door at={18.6} end={20.2} no="1" who="B" name="貯金" pose="girl_front_smile" h={520} />
+      <Head at={20.2} pill="1・助手" title="貯金の10年" c={CB} />
+      {f >= F(20.4) ? <>
+        <div style={{ position: "absolute", left: 120, top: 390, ...K, fontSize: 24, color: SUB, opacity: ease(f, 20.4) }}>口座の残高</div>
+        <Stripe x={120} y={430} w={840} h={64} p={p} c={CB} f={f} />
+        <div style={{ position: "absolute", left: 120, top: 504, width: 840, display: "flex", justifyContent: "space-between", ...K, fontSize: 22, color: SUB }}>{["0年", "5年", "10年"].map((s) => <span key={s}>{s}</span>)}</div>
+        <div style={{ position: "absolute", left: 120 + 840 * p - 70, top: 400 - 66, width: 140, textAlign: "center", ...K, fontSize: 30, color: CB }}>{man(360 * p)}万</div>
+      </> : null}
+      <Card at={21.4} x={100} y={600} w={400} c={CB} g="¥" label="入れたお金">360<span style={{ fontSize: 30 }}>万円</span></Card>
+      <Card at={22.6} x={580} y={600} w={400} c={SUB} g="%" label="利息で増えた分">ほぼ<span style={{ fontSize: 60 }}>0</span></Card>
+      <Card at={23.8} x={100} y={780} w={880} h={190} c={CB} label="10年後の貯金" big={96} hot>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 24 }}>{man(count(f, 23.8, 360, 0.6))}<span style={{ fontSize: 44 }}>万円</span><Face who="B" size={100} /></span>
+      </Card>
+      <Chip at={24.6} c={GREEN} style={{ left: 340, top: 1010 }}>元本は 1円も減らない</Chip>
+    </>
+  );
+};
+
+// ════════ P5 太一＝NISA（線が伸びる） ════════
 const P5: React.FC = () => {
   const f = useCurrentFrame();
-  const yr = Math.max(1, Math.min(10, Math.floor(interpolate(f, [F(26.4), F(28.0)], [1, 10.99], clamp))));
+  const x0 = 200, x1 = 920, y0 = 930, y1 = 470, M = 500;
+  const X = (m: number) => x0 + ((x1 - x0) * m) / 120; const Y = (v: number) => y0 - ((y0 - y1) * v) / M;
+  const mP = 120 * interpolate(f, [F(28.0), F(28.8)], [0, 1], clamp);
+  const mA = 120 * interpolate(f, [F(29.2), F(32.2)], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const path = (m: number, r: number) => { let d = ""; for (let k = 0; k <= m; k += 2) d += `${k ? "L" : "M"}${X(k)},${Y(fv(r, k))} `; return d; };
+  const show = f >= F(27.4);
   return (
     <>
-      <Head at={26.2} pill="早送り" title="10年後へ" c={CN} />
-      {Array.from({ length: 9 }).map((_, i) => { const y = 500 + ((i * 97) % 600); const x = ((i * 233 + f * 70) % 1400) - 300; return <div key={i} style={{ position: "absolute", left: x, top: y, width: 160 + (i % 3) * 80, height: 6, borderRadius: 3, background: "rgba(123,92,240,0.25)" }} />; })}
-      <div style={{ position: "absolute", left: 340, top: 520, width: 400, height: 440, background: "#fff", border: `6px solid ${INK}`, borderRadius: 30, boxShadow: `8px 10px 0 ${CN}`, overflow: "hidden", ...rise(f, 26.3) }}>
-        <div style={{ height: 110, background: CN, color: "#fff", ...K, fontSize: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>年目</div>
-        <div style={{ ...SER, fontSize: 230, color: INK, textAlign: "center", lineHeight: "320px", transform: `translateY(${(f % 3) * (yr < 10 ? 4 : 0)}px)` }}>{yr}</div>
-      </div>
-      <div style={{ position: "absolute", left: 0, right: 0, top: 1010, textAlign: "center", ...K, fontSize: 64, color: CN, opacity: yr >= 10 ? 1 : 0.3 }}>▶▶ ＋10年</div>
+      <Door at={25.6} end={27.2} no="2" who="A" name="NISA" pose="taichi_wave_hi" h={520} />
+      <Head at={27.2} pill="2・太一" title="NISAの10年" c={CA} />
+      {show ? <div style={{ position: "absolute", left: 110, top: 400, width: 860, height: 620, background: "#fff", borderRadius: 30, boxShadow: shadow, ...rise(f, 27.4) }} /> : null}
+      {show ? <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0, opacity: ease(f, 27.6) }}>
+        {[100, 200, 300, 400, 500].map((v) => <g key={v}><line x1={x0} x2={x1} y1={Y(v)} y2={Y(v)} stroke="#EFE8CF" strokeWidth={2} /><text x={x0 - 14} y={Y(v) + 8} textAnchor="end" fontSize={22} fill={SUB} fontFamily={FONT} fontWeight={700}>{v}万</text></g>)}
+        <line x1={x0} x2={x1} y1={y0} y2={y0} stroke={INK} strokeWidth={4} />
+        {[0, 5, 10].map((y) => <text key={y} x={X(y * 12)} y={y0 + 40} textAnchor="middle" fontSize={24} fill={SUB} fontFamily={FONT} fontWeight={700}>{y}年</text>)}
+        {mP > 0 ? <path d={path(mP, 0)} fill="none" stroke={PRIN} strokeWidth={6} strokeDasharray="14 12" strokeLinecap="round" /> : null}
+        {mA > 0 ? (() => { const ks: number[] = []; for (let k = 0; k <= mA; k += 2) ks.push(k); const pts = [...ks.map((k) => `${X(k)},${Y(fv(0.05, k))}`), ...ks.slice().reverse().map((k) => `${X(k)},${Y(fv(0, k))}`)]; return <polygon points={pts.join(" ")} fill={`${GOLD}38`} />; })() : null}
+        {mA > 0 ? <path d={path(mA, 0.05)} fill="none" stroke={CA} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" /> : null}
+      </svg> : null}
+      {f >= F(28.8) ? <div style={{ position: "absolute", left: X(120) - 150, top: Y(360) + 14, ...K, fontSize: 24, color: PRIN, opacity: ease(f, 28.8) }}>入れたお金 360万</div> : null}
+      {mA > 0 ? (() => { const m = Math.floor(mA / 2) * 2; return (
+        <div style={{ position: "absolute", left: X(m), top: Y(fv(0.05, m)), transform: "translate(-50%, -50%)" }}>
+          <Face who="A" size={70} />
+          <div style={{ position: "absolute", left: "50%", bottom: 84, transform: "translateX(-50%)", whiteSpace: "nowrap", background: CA, color: "#fff", borderRadius: 999, padding: "4px 16px", ...K, fontSize: 30 }}>{man(fv(0.05, m))}万円</div>
+        </div>); })() : null}
+      <Chip at={30.6} c={GOLD} style={{ left: 260, top: 560 }} fs={28}>この差が「運用で増えた分」</Chip>
+      <Chip at={32.6} c={SUB} style={{ left: 250, top: 1050 }} fs={26}>年5%で運用できた場合（仮定の試算）</Chip>
     </>
   );
 };
 
-// ── 10年後の資産（2本の棒＋点線＋差のハンコ） ─────────────────────────
+// ════════ P6 中身（ドーナツが2色に割れる） ════════
 const P6: React.FC = () => {
   const f = useCurrentFrame();
-  const base = 1040, H = 520, MAX = 466;
-  const bar = (x: number, who: "A" | "B", v: number, at: number, label: string) => {
-    const c = who === "A" ? CA : CB; const p = ease(f, at, 0.9);
-    const h = H * (v / MAX) * p;
-    return (
-      <>
-        {f >= F(at) ? <div style={{ position: "absolute", left: x, top: base - h, width: 260, height: h, background: c, border: `5px solid ${INK}`, borderBottom: "none", borderRadius: "20px 20px 0 0" }} /> : null}
-        {f >= F(at) ? <div style={{ position: "absolute", left: x - 40, width: 340, top: base - h - 96, textAlign: "center", ...SER, fontSize: 64, color: c }}>{yen(count(f, at, v, 0.9))}<span style={{ ...K, fontSize: 30 }}>万円</span></div> : null}
-        <div style={{ position: "absolute", left: x - 30, width: 320, top: base + 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, opacity: f >= F(at - 0.3) ? 1 : 0 }}>
-          <Face who={who} size={110} />
-          <span style={{ ...K, fontSize: 30, color: INK }}>{label}</span>
-        </div>
-      </>
-    );
-  };
-  const lineY = base - H * (360 / MAX);
+  const cx = 540, cy = 640, R = 190, L = 2 * Math.PI * R;
+  const pa = (360 / 466) * ease(f, 34.6, 0.8), pb = (106 / 466) * ease(f, 36.0, 0.6);
   return (
     <>
-      <Head at={29.2} pill="10年後" title="資産はいくら？" c={CN} />
-      <div style={{ position: "absolute", left: 120, right: 120, top: base, height: 5, background: INK, borderRadius: 3 }} />
-      {bar(640, "B", 360, 29.6, "貯金")}
-      {f >= F(31.2) ? <div style={{ position: "absolute", left: 120, right: 120, top: lineY, borderTop: `5px dashed ${CB}`, opacity: ease(f, 31.2, 0.4) }} /> : null}
-      {bar(180, "A", 466, 31.8, "NISA")}
-      {f >= F(34.0) ? (() => { const top = base - H, bot = lineY; return <div style={{ position: "absolute", left: 460, top, height: bot - top, width: 40, borderRight: `6px solid ${RED}`, borderTop: `6px solid ${RED}`, borderBottom: `6px solid ${RED}`, borderRadius: "0 12px 12px 0", opacity: ease(f, 34.0, 0.3) }} />; })() : null}
-      <Stamp at={34.6} text="差は約106万円！" style={{ left: 470, top: 410 }} />
+      <Head at={34.0} pill="2・太一" title="466万円の中身" c={CA} />
+      <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0, opacity: ease(f, 34.2) }}>
+        <circle cx={cx} cy={cy} r={R} fill="none" stroke="#EFE8CF" strokeWidth={70} />
+        <circle cx={cx} cy={cy} r={R} fill="none" stroke={PRIN} strokeWidth={70} strokeDasharray={`${L * pa} ${L}`} transform={`rotate(-90 ${cx} ${cy})`} />
+        {pb > 0 ? <circle cx={cx} cy={cy} r={R} fill="none" stroke={GOLD} strokeWidth={78} strokeDasharray={`${L * pb} ${L}`} strokeDashoffset={-L * (360 / 466)} transform={`rotate(-90 ${cx} ${cy})`} /> : null}
+      </svg>
+      <div style={{ position: "absolute", left: 0, right: 0, top: cy - 62, textAlign: "center", opacity: ease(f, 34.4) }}>
+        <div style={{ ...K, fontSize: 84, color: CA, lineHeight: 1 }}>466<span style={{ fontSize: 38 }}>万円</span></div>
+        <div style={{ ...K, fontSize: 24, color: SUB, marginTop: 6 }}>10年後</div>
+      </div>
+      <Card at={35.0} x={100} y={890} w={400} c={PRIN} g="¥" label="入れたお金">360<span style={{ fontSize: 30 }}>万円</span></Card>
+      <Card at={36.2} x={580} y={890} w={400} c={GOLD} g="↑" label="運用で増えた分" hot>+{man(count(f, 36.2, 106, 0.6))}<span style={{ fontSize: 30 }}>万円</span></Card>
+      <Chip at={37.4} c={GREEN} solid style={{ left: 330, top: 1060 }} fs={30}>NISAなので 税金0円</Chip>
     </>
   );
 };
 
-// ── まとめ（＋−の2列） ─────────────────────────────────────────
-const LIST: { who: "A" | "B"; at: number; plus: boolean; text: string }[] = [
-  { who: "A", at: 38.6, plus: true, text: "増える可能性" },
-  { who: "A", at: 40.3, plus: false, text: "値下がりもある" },
-  { who: "B", at: 42.0, plus: true, text: "減らない" },
-  { who: "B", at: 42.9, plus: false, text: "増えない" },
-];
+// ════════ P7 結果（2枚のカード＋差） ════════
 const P7: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <>
-      <Head at={38.2} pill="まとめ" title="NISA vs 貯金" c={CN} />
+      <Head at={38.8} pill="10年後" title="2人の差" c={CN} />
+      <Card at={39.4} x={100} y={400} w={640} h={170} c={CA} label="太一｜NISA" big={84} hot><span style={{ display: "inline-flex", alignItems: "center", gap: 20 }}><Face who="A" size={86} />{man(count(f, 39.4, 466, 0.6))}<span style={{ fontSize: 38 }}>万円</span></span></Card>
+      <Card at={40.4} x={100} y={610} w={640} h={170} c={CB} label="助手｜貯金" big={84}><span style={{ display: "inline-flex", alignItems: "center", gap: 20 }}><Face who="B" size={86} />{man(count(f, 40.4, 360, 0.6))}<span style={{ fontSize: 38 }}>万円</span></span></Card>
+      {f >= F(41.4) ? <div style={{ position: "absolute", left: 770, top: 485, width: 46, height: 210, borderRight: `6px solid ${RED}`, borderTop: `6px solid ${RED}`, borderBottom: `6px solid ${RED}`, borderRadius: "0 14px 14px 0", transformOrigin: "left center", transform: `scaleX(${ease(f, 41.4, 0.3)})` }} /> : null}
+      {f >= F(41.8) ? <div style={{ position: "absolute", left: 836, top: 540, width: 150, textAlign: "center", ...K, color: RED, transform: `scale(${pop(f, 41.8)})` }}><div style={{ fontSize: 24 }}>差</div><div style={{ fontSize: 50, lineHeight: 1 }}>+{man(count(f, 41.8, 106, 0.5))}</div><div style={{ fontSize: 26 }}>万円</div></div> : null}
+      <Chara n="taichi_guts" at={42.6} h={300} x={330} y={830} />
+      <Chara n="girl_front_smile" at={42.9} h={300} x={760} y={830} />
+      <Stamp at={43.2} text="同じ3万円なのに" style={{ left: 260, top: 1110 }} fs={44} />
+    </>
+  );
+};
+
+// ════════ P8 でも待って（シナリオの棒） ════════
+const SCN = [
+  { at: 46.6, label: "年3%", v: fv(0.03, 120) },
+  { at: 47.4, label: "年5%", v: fv(0.05, 120) },
+  { at: 48.2, label: "年7%", v: fv(0.07, 120) },
+];
+const P8: React.FC = () => {
+  const f = useCurrentFrame();
+  const x0 = 260, W = 640, MAXV = 560; const XV = (v: number) => x0 + (W * v) / MAXV;
+  return (
+    <>
+      <Stamp at={44.6} text="ちょっと待って！" style={{ left: 250, top: 560 }} end={46.0} />
+      <Chara n="taichi_stop_hand" at={44.9} h={360} x={540} y={720} end={46.0} />
+      {f < F(46.0) ? null : <>
+        <Head at={46.0} pill="注意" title="毎年5%とは限らない" c={RED} />
+        {SCN.map((s, i) => { const y = 430 + i * 150; const p = ease(f, s.at, 0.7); return f >= F(s.at) ? (
+          <React.Fragment key={i}>
+            <div style={{ position: "absolute", left: 100, top: y + 16, width: 150, ...K, fontSize: 36, color: INK, ...rise(f, s.at) }}>{s.label}</div>
+            <div style={{ position: "absolute", left: x0, top: y, height: 84, width: (XV(s.v) - x0) * p, borderRadius: 18, background: `linear-gradient(90deg, ${CA}AA, ${CA})`, boxShadow: shadow }} />
+            <div style={{ position: "absolute", left: x0 + 18, top: y + 16, ...K, fontSize: 40, color: "#fff" }}>{man(s.v * p)}万</div>
+          </React.Fragment>) : null; })}
+        {f >= F(49.0) ? <>
+          <div style={{ position: "absolute", left: 100, top: 880, width: 150, ...K, fontSize: 30, color: RED, ...rise(f, 49.0) }}>悪い年が<br />続くと</div>
+          <div style={{ position: "absolute", left: x0, top: 880, height: 84, width: (XV(300) - x0) * ease(f, 49.0, 0.7), borderRadius: 18, background: `repeating-linear-gradient(-45deg, ${RED}55 0 14px, ${RED}22 14px 28px)`, border: `3px dashed ${RED}` }} />
+          <div style={{ position: "absolute", left: x0 + 18, top: 896, ...K, fontSize: 40, color: RED, opacity: ease(f, 49.4) }}>？</div>
+        </> : null}
+        {f >= F(50.0) ? <>
+          <div style={{ position: "absolute", left: XV(360), top: 410, height: 590, borderLeft: `5px dashed ${CB}`, transformOrigin: "top", transform: `scaleY(${ease(f, 50.0, 0.5)})` }} />
+          <Chip at={50.3} c={CB} style={{ left: XV(360) - 110, top: 350 }} fs={26}>貯金 360万円</Chip>
+        </> : null}
+        <Stamp at={51.2} text="保証はない" style={{ left: 560, top: 1050 }} fs={46} />
+      </>}
+    </>
+  );
+};
+
+// ════════ P9 まとめ（＋−の2列＋チェック） ════════
+const LIST: { who: "A" | "B"; at: number; plus: boolean; text: string }[] = [
+  { who: "A", at: 54.0, plus: true, text: "増える可能性" },
+  { who: "A", at: 54.9, plus: false, text: "値下がりもある" },
+  { who: "B", at: 56.0, plus: true, text: "減らない" },
+  { who: "B", at: 56.9, plus: false, text: "ほぼ増えない" },
+];
+const P9: React.FC = () => {
+  const f = useCurrentFrame();
+  return (
+    <>
+      <Head at={53.2} pill="まとめ" title="NISA vs 貯金" c={CN} />
       {(["A", "B"] as const).map((w, i) => {
         const c = w === "A" ? CA : CB;
         return (
-          <div key={w} style={{ position: "absolute", left: i === 0 ? 100 : 580, top: 420, width: 400, height: 460, background: "#fff", border: `6px solid ${c}`, borderRadius: 36, boxShadow: `8px 10px 0 ${c}`, ...rise(f, 38.3 + i * 0.2) }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 24 }}>
-              <Face who={w} size={130} />
-              <span style={{ marginTop: 10, ...K, fontSize: 40, color: c }}>{w === "A" ? "NISA" : "貯金"}</span>
+          <div key={w} style={{ position: "absolute", left: i === 0 ? 100 : 580, top: 400, width: 400, height: 430, background: "#fff", borderRadius: 30, border: `3px solid ${c}40`, boxShadow: shadow, ...rise(f, 53.5 + i * 0.2) }}>
+            <div style={{ height: 120, borderRadius: "27px 27px 0 0", background: `${c}16`, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
+              <Face who={w} size={84} /><span style={{ ...K, fontSize: 44, color: c }}>{w === "A" ? "NISA" : "貯金"}</span>
             </div>
             {LIST.filter((l) => l.who === w).map((l, k) => f >= F(l.at) ? (
-              <div key={k} style={{ position: "absolute", left: 30, right: 20, top: 270 + k * 86, display: "flex", alignItems: "center", gap: 14, ...rise(f, l.at) }}>
+              <div key={k} style={{ position: "absolute", left: 28, right: 16, top: 160 + k * 120, display: "flex", alignItems: "center", gap: 14, ...rise(f, l.at) }}>
                 <span style={{ width: 54, height: 54, borderRadius: "50%", background: l.plus ? GREEN : RED, color: "#fff", ...K, fontSize: 40, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>{l.plus ? "＋" : "−"}</span>
-                <span style={{ ...K, fontSize: 38, color: INK, whiteSpace: "nowrap" }}>{l.text}</span>
+                <span style={{ ...K, fontSize: 36, color: INK, whiteSpace: "nowrap" }}>{l.text}</span>
               </div>
             ) : null)}
           </div>
         );
       })}
-      {f >= F(44.0) ? <div style={{ position: "absolute", left: 100, right: 250, top: 940, display: "flex", alignItems: "center", justifyContent: "center", gap: 18, background: "#fff", border: `5px solid ${GOLD}`, borderRadius: 24, padding: "18px 0", ...rise(f, 44.0) }}>
-        <span style={{ width: 56, height: 56, borderRadius: 12, border: `5px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 44, color: GREEN }}>{f >= F(44.8) ? "✓" : ""}</span>
-        <span style={{ ...K, fontSize: 34, color: INK }}>長く続けるなら、比べる価値あり</span>
+      {f >= F(58.0) ? <div style={{ position: "absolute", left: 100, right: 100, top: 880, background: "#fff", borderRadius: 26, border: `3px solid ${GOLD}`, boxShadow: `${shadow}, 0 0 0 8px ${GOLD}22`, padding: "22px 28px", display: "flex", alignItems: "center", gap: 20, ...rise(f, 58.0) }}>
+        <span style={{ width: 60, height: 60, borderRadius: 14, border: `5px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 46, color: GREEN, flex: "none" }}>{f >= F(59.4) ? "✓" : ""}</span>
+        <div style={{ ...K, fontSize: 36, color: INK, lineHeight: 1.35 }}>すぐ使うお金は <span style={{ color: CB }}>貯金</span><br />10年使わないお金は <span style={{ color: CA }}>NISA</span></div>
       </div> : null}
-      <Chara n="taichi_thumbs_up" at={44.8} h={230} style={{ left: 840, top: 920 }} />
+      <Chara n="taichi_ok_hand" at={59.6} h={220} x={880} y={1060} />
     </>
   );
 };
 
 // ── 全体 ─────────────────────────────────────────
-const PANELS: Panel[] = [1, 2, 3, 4, 5, 6, 7].map((n, i) => ({ id: `p${n}`, col: i, row: 0 }));
-const LINKS: [string, string][] = [["p1", "p2"], ["p2", "p3"], ["p3", "p4"], ["p4", "p5"], ["p5", "p6"], ["p6", "p7"]];
+const IDS = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"];
+const PANELS: Panel[] = IDS.map((id, i) => ({ id, col: i, row: 0 }));
+const LINKS: [string, string][] = IDS.slice(1).map((id, i) => [IDS[i], id]);
 const STOPS: Stop[] = [
-  { id: "p1", trans: 0 }, { id: "p2", trans: 5.9, kind: "kick" }, { id: "p3", trans: 13.9, kind: "kick" }, { id: "p4", trans: 19.9, kind: "fast" },
-  { id: "p5", trans: 25.9, kind: "fast" }, { id: "p6", trans: 28.9, kind: "kick" }, { id: "p7", trans: 37.9, kind: "fast" },
+  { id: "p1", trans: 0 }, { id: "p2", trans: 5.8, kind: "kick" }, { id: "p3", trans: 12.4, kind: "fast" }, { id: "p4", trans: 18.2, kind: "kick" },
+  { id: "p5", trans: 25.2, kind: "kick" }, { id: "p6", trans: 33.6, kind: "fast" }, { id: "p7", trans: 38.4, kind: "kick" }, { id: "p8", trans: 44.2, kind: "fast" }, { id: "p9", trans: 52.8, kind: "kick" },
 ];
-const PAGES: Record<string, React.FC> = { p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7 };
+const PAGES: Record<string, React.FC> = { p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8, p9: P9 };
 const CAPS: Cap[] = [
-  { t: 0.3, w: ["同じ", "年収の", "2人"], c: CN }, { t: 2.0, w: ["1人は", "NISAで", "積み立て"], c: CA }, { t: 3.5, w: ["もう1人は", "貯金"], c: CB }, { t: 4.8, w: ["10年後、", "どうなる？"], c: RED },
-  { t: 6.4, w: ["条件は", "まったく", "同じ"], c: CN }, { t: 8.0, w: ["30歳、", "手取りは", "月30万円"], c: CN }, { t: 10.6, w: ["貯金は", "100万円"], c: CN },
-  { t: 14.3, w: ["1人目、", "太一は"], c: CA }, { t: 16.0, w: ["毎月", "3万円を", "NISAで"], c: CA }, { t: 17.8, w: ["年5%で", "運用できたと", "仮定します"], c: CA },
-  { t: 20.3, w: ["2人目、", "助手は"], c: CB }, { t: 22.0, w: ["毎月", "3万円を", "貯金"], c: CB }, { t: 23.8, w: ["金利は", "ほぼ", "ゼロ"], c: CB },
-  { t: 26.4, w: ["10年", "早送り！"], c: CN },
-  { t: 29.6, w: ["貯金は", "10年で", "360万円"], c: CB }, { t: 31.8, w: ["NISAは", "約466万円"], c: CA }, { t: 34.0, w: ["その差、", "約106万円"], c: RED },
-  { t: 38.4, w: ["NISAは", "増える", "可能性"], c: CA }, { t: 40.1, w: ["でも", "値下がりも", "ある"], c: CA }, { t: 41.8, w: ["貯金は", "減らない", "けど増えない"], c: CB }, { t: 43.8, w: ["長く", "続けるなら", "比べる価値あり"], c: CN },
+  { t: 0.3, w: ["同じ", "3万円でも"], c: GOLD }, { t: 1.6, w: ["1人は", "NISAで", "積み立て"], c: CA }, { t: 2.5, w: ["もう1人は", "貯金"], c: CB }, { t: 3.4, w: ["10年後、", "差は", "いくら？"], c: RED },
+  { t: 6.3, w: ["2人の", "条件は"], c: CN }, { t: 7.0, w: ["30歳"], c: CN }, { t: 8.4, w: ["手取りは", "月30万円"], c: CN }, { t: 9.8, w: ["毎月", "3万円ずつ"], c: CN }, { t: 11.4, w: ["違うのは", "置き場所", "だけ"], c: CN },
+  { t: 13.0, w: ["3万円", "×", "12か月", "×", "10年"], c: CN, step: 0.42 }, { t: 16.0, w: ["入れるお金は", "2人とも", "360万円"], c: CN },
+  { t: 18.8, w: ["まずは", "助手の", "貯金"], c: CB }, { t: 20.6, w: ["10年", "コツコツ", "貯めると"], c: CB }, { t: 22.6, w: ["利息は", "ほぼゼロ"], c: CB }, { t: 23.8, w: ["10年後", "360万円"], c: CB }, { t: 24.6, w: ["でも", "1円も", "減らない"], c: GREEN },
+  { t: 25.8, w: ["次は", "太一の", "NISA"], c: CA }, { t: 28.0, w: ["点線が", "入れたお金"], c: CA }, { t: 29.2, w: ["年5%で", "増えていくと"], c: CA }, { t: 30.6, w: ["この差が", "運用で", "増えた分"], c: GOLD },
+  { t: 34.2, w: ["466万円の", "中身は"], c: CA }, { t: 35.0, w: ["入れたお金", "360万円"], c: CA }, { t: 36.2, w: ["増えた分", "106万円"], c: GOLD }, { t: 37.4, w: ["NISAだから", "税金は", "かからない"], c: GREEN },
+  { t: 39.2, w: ["10年後"], c: CN }, { t: 39.4, w: ["NISAは", "466万円"], c: CA }, { t: 40.4, w: ["貯金は", "360万円"], c: CB }, { t: 41.6, w: ["差は", "約106万円"], c: RED }, { t: 43.2, w: ["同じ", "3万円", "なのに"], c: RED },
+  { t: 44.6, w: ["でも", "ちょっと", "待って"], c: RED }, { t: 46.2, w: ["毎年", "5%とは", "限らない"], c: RED }, { t: 46.6, w: ["年3%なら", "約419万円"], c: CA }, { t: 48.2, w: ["年7%なら", "約519万円"], c: CA }, { t: 49.0, w: ["悪い年が", "続けば"], c: RED }, { t: 50.0, w: ["貯金を", "下回る", "ことも"], c: CB }, { t: 51.2, w: ["増える", "保証は", "ない"], c: RED },
+  { t: 53.4, w: ["まとめると"], c: CN }, { t: 54.0, w: ["NISAは", "増える", "可能性"], c: CA }, { t: 54.9, w: ["でも", "値下がりも", "ある"], c: CA }, { t: 56.0, w: ["貯金は", "減らない"], c: CB }, { t: 56.9, w: ["でも", "ほぼ", "増えない"], c: CB },
+  { t: 58.0, w: ["すぐ使う", "お金は", "貯金"], c: CB }, { t: 59.2, w: ["使わない", "お金は", "NISA"], c: CA },
 ];
-const CUES: { file: string; at: number; volume: number }[] = [
-  { file: "user/u02s", at: F(1.3), volume: 0.2 },
-  ...[5.9, 13.9, 19.9, 25.9, 28.9, 37.9].map((t) => ({ file: "user/u03s", at: F(t), volume: 0.22 })),
-  ...[8.0, 8.9, 10.8].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.16 })),
-  ...[16.0, 22.0].map((t) => ({ file: "user/u05s", at: F(t), volume: 0.2 })),
-  { file: "user/u05", at: F(29.6), volume: 0.2 }, { file: "user/u05", at: F(31.8), volume: 0.22 }, { file: "user/u04", at: F(34.6), volume: 0.26 },
-  ...[38.6, 40.3, 42.0, 42.9].map((t) => ({ file: "user/u02s", at: F(t), volume: 0.16 })), { file: "user/u10", at: F(44.8), volume: 0.24 },
+const s = (file: string, t: number, volume = 0.18) => ({ file: `user/${file}`, at: F(t), volume });
+const CUES = [
+  s("u02s", 1.6), s("u02s", 2.5), s("u02s", 4.4, 0.14),
+  ...STOPS.slice(1).map((st) => s("u03s", st.trans, 0.22)),
+  ...ROWS.map((r) => s("u02s", r.at + 0.45, 0.14)), s("u02s", 11.4),
+  s("u02s", 13.4, 0.14), s("u02s", 14.2, 0.14), s("u02s", 15.0, 0.14), s("u05", 16.0, 0.2),
+  s("u05s", 20.6), s("u02s", 22.6, 0.14), s("u05", 23.8, 0.2),
+  s("u05s", 29.2), s("u02s", 30.6, 0.14),
+  s("u05s", 34.6), s("u05", 36.2, 0.2), s("u02s", 37.4, 0.14),
+  s("u05", 39.4, 0.2), s("u05", 40.4, 0.2), s("u04", 43.2, 0.24),
+  s("u04", 44.6, 0.26), ...SCN.map((x) => s("u05s", x.at, 0.16)), s("u04", 51.2, 0.24),
+  ...LIST.map((l) => s("u02s", l.at, 0.14)), s("u10", 59.4, 0.24),
 ];
 const Note: React.FC = () => {
-  const f = useCurrentFrame(); const t = f / 30;
-  if (t < 29 || t > 38) return null;
-  return <div style={{ position: "absolute", left: 150, right: 150, top: 1248, textAlign: "center", ...B, fontSize: 21, color: SUB }}>※毎月3万円・10年。NISAは年5%（月複利）で運用できた場合の仮定の試算</div>;
+  const t = useCurrentFrame() / 30;
+  if (t < 27 || t > 52.6) return null;
+  return <div style={{ position: "absolute", left: 150, right: 150, top: 1240, textAlign: "center", ...K, fontSize: 20, color: SUB, opacity: 0.85 }}>※毎月3万円・10年・月複利で計算した仮定の試算です</div>;
 };
 
-export const COMPAREDEMO_FRAMES = F(46.5);
+export const COMPAREDEMO_FRAMES = F(62);
 export const CompareDemo: React.FC = () => (
   <AbsoluteFill style={{ fontFamily: FONT, background: A2.bg }}>
     <SfxTrack cues={CUES} />
-    <Board streaks panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: A2.bg, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
+    <Board streaks panels={PANELS} stops={STOPS} links={LINKS} paper={{ background: A2.bg, backgroundImage: "radial-gradient(circle at 50% 38%, rgba(255,255,255,0.7), rgba(255,255,255,0) 58%), repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.18) 62px 64px)" }}>
       {(id) => { const C = PAGES[id]; return <AbsoluteFill><C /></AbsoluteFill>; }}
     </Board>
     <Note />
-    <Captions caps={CAPS} end={46.2} />
+    <Captions caps={CAPS} end={61.8} />
   </AbsoluteFill>
 );
