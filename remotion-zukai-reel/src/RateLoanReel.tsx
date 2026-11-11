@@ -149,10 +149,10 @@ const Hook: React.FC = () => {
       <Pic at={0.4} until={3.3} n="rl_couple_relax" x={240} y={500} s={600} />
       <Pic at={3.34} n="rl_house_cloud" x={240} y={500} s={600} />
       <Stamp at={3.64} x={250} y={760} text="マジで危険" color={RED} size={92} rot={-6} />
-      <Ghost at={4.68} until={9.3} style={{ left: 0, top: 1110, width: 1080, textAlign: "center" }}>
-        <span style={{ ...BOXS, display: "inline-block", fontSize: 44 }}>金利が上がると、住宅ローンに{c(RED, "何が起こる？")}</span>
+      <Ghost at={4.68} until={9.3} style={{ left: 90, top: 1110 }}>
+        <span style={{ ...BOXS, display: "inline-block", fontSize: 44 }}>金利が上がると{c(RED, "何が起こる？")}</span>
       </Ghost>
-      <Ghost at={9.4} style={{ left: 0, top: 1110, width: 1080, textAlign: "center" }}>
+      <Ghost at={9.4} style={{ left: 90, top: 1120 }}>
         <span style={{ display: "inline-block", background: INK, color: "#fff", borderRadius: 999, padding: "8px 30px", ...B, fontSize: 34 }}>対策は 次の動画で</span>
       </Ghost>
     </>
@@ -161,33 +161,30 @@ const Hook: React.FC = () => {
 
 // ════════ ① 金利が上がる仕組み（11.28–23.56）：上から下へつながる流れ＋カメラが下へ ════════
 const S1: React.FC = () => {
-  const keys: CamKey[] = [{ t: 0, x: 540, y: 960, s: 1, d: 1 }, { t: 17.9, x: 540, y: 1260, s: 1, d: 8 }, { t: 21.9, x: 540, y: 1500, s: 1.04, d: 8 }];
+  const f = useCurrentFrame();
   const node = (at: number, y: number, img: string, title: React.ReactNode, sub: React.ReactNode) => (
-    <Ghost at={at} style={{ left: 120, top: y, width: 840, display: "flex", alignItems: "center", gap: 26 }}>
-      <GenSlot name={img} size={200} />
-      <div style={{ ...BOXS, textAlign: "left", flex: 1, padding: "16px 26px" }}><div style={{ ...K, fontSize: 42 }}>{title}</div><div style={{ ...B, fontSize: 30, color: SUB, marginTop: 4 }}>{sub}</div></div>
+    <Ghost at={at} style={{ left: 110, top: y, width: 860, display: "flex", alignItems: "center", gap: 22 }}>
+      <GenSlot name={img} size={150} />
+      <div style={{ ...BOXS, textAlign: "left", flex: 1, padding: "12px 24px" }}><div style={{ ...K, fontSize: 38 }}>{title}</div><div style={{ ...B, fontSize: 26, color: SUB, marginTop: 2 }}>{sub}</div></div>
     </Ghost>
   );
   return (
-    <Camera keys={keys}>
+    <>
       <Head at={11.28} no="1" crumb="変動金利">金利が上がる{r("仕組み")}</Head>
-      {node(13.4, 470, "rl_central_bank", <>日銀が{c(RED, "政策金利")}を上げる</>, "金融政策")}
-      <Arrow at={15.2} x={540} y={690} len={60} />
-      {node(15.34, 790, "rl_bank", <>銀行の{c(RED, "短期プライムレート")}などが上がる</>, "銀行が決める金利")}
-      <Arrow at={17.9} x={540} y={1010} len={60} />
-      {node(18.08, 1110, "rl_loan_papers", <>住宅ローンの{c(RED, "基準金利")}も上がる</>, "変動金利の元になる金利")}
-      <Arrow at={19.9} x={540} y={1330} len={60} />
+      {node(13.4, 440, "rl_central_bank", <>日銀が{c(RED, "政策金利")}を上げる</>, "金融政策")}
+      <Arrow at={15.2} x={540} y={600} len={40} />
+      {node(15.34, 660, "rl_bank", <>銀行の{c(RED, "短期プライムレート")}などが上がる</>, "銀行が決める金利")}
+      <Arrow at={17.9} x={540} y={820} len={40} />
+      {node(18.08, 880, "rl_loan_papers", <>住宅ローンの{c(RED, "基準金利")}も上がる</>, "変動金利の元になる金利")}
       {/* 基準金利 − 優遇幅 ＝ 自分の金利 */}
-      <Ghost at={20.5} style={{ left: 90, top: 1430, width: 900, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
-        <span style={{ ...BOXS, fontSize: 38, ...K }}>基準金利</span>
-        <span style={{ ...K, fontSize: 60, color: INK }}>−</span>
-        <span style={{ ...BOXS, fontSize: 38, ...K, display: "inline-flex", alignItems: "center", gap: 8 }}><GenSlot name="rl_discount_tag" size={70} />優遇幅</span>
+      <Ghost at={20.5} style={{ left: 90, top: 1060, width: 900, display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
+        <span style={{ ...BOXS, fontSize: 34, ...K, padding: "8px 20px" }}>基準金利</span>
+        <span style={{ ...K, fontSize: 52, color: INK }}>−</span>
+        <span style={{ ...BOXS, fontSize: 34, ...K, padding: "4px 18px", display: "inline-flex", alignItems: "center", gap: 8 }}><GenSlot name="rl_discount_tag" size={60} />優遇幅</span>
+        {f >= F(21.96) ? <><span style={{ ...K, fontSize: 52, color: INK }}>＝</span><span style={{ display: "inline-block", background: YEL, border: `5px solid ${INK}`, borderRadius: 16, padding: "8px 22px", ...K, fontSize: 38, color: INK, boxShadow: `0 6px 0 ${INK}`, transform: `scale(${pop(f, F(21.96))})` }}>{r("自分の金利")}</span></> : null}
       </Ghost>
-      <Arrow at={21.7} x={540} y={1560} len={50} col={RED} />
-      <Ghost at={21.96} style={{ left: 0, top: 1650, width: 1080, textAlign: "center" }}>
-        <span style={{ display: "inline-block", background: YEL, border: `6px solid ${INK}`, borderRadius: 20, padding: "12px 40px", ...K, fontSize: 56, color: INK, boxShadow: `0 8px 0 ${INK}` }}>自分に{r("適用される金利")}</span>
-      </Ghost>
-    </Camera>
+      <Spot at={21.96} rect={[90, 1040, 900, 120]} dim={0.45} />
+    </>
   );
 };
 
@@ -217,11 +214,11 @@ const S2: React.FC = () => {
       {/* 5年間 据え置き の囲み */}
       {f >= F(28.6) ? <div style={{ position: "absolute", left: x0 - 14, top: base - H - 30, width: 5 * (w + gap) + 10, height: H + 30, border: `5px dashed ${GREEN}`, borderRadius: 18, opacity: interpolate(f - F(28.6), [0, 6], [0, 1], clamp) }} /> : null}
       <Ghost at={28.78} style={{ left: x0, top: base - H - 110 }}><span style={{ display: "inline-flex", alignItems: "center", gap: 10, background: GREEN, color: "#fff", borderRadius: 999, padding: "6px 24px", ...K, fontSize: 36 }}>5年間 据え置き</span></Ghost>
-      <Pic at={29.0} until={35.1} n="rl_wallet_lock" x={830} y={480} s={170} />
+      <Pic at={29.0} until={32.3} n="rl_wallet_lock" x={600} y={430} s={170} />
       {/* 1.25倍の天井 */}
       {f >= F(31.9) ? <div style={{ position: "absolute", left: x0 + 5 * (w + gap) - 30, width: w + 80, top: capY, borderTop: `6px dashed ${RED}`, opacity: interpolate(f - F(31.9), [0, 6], [0, 1], clamp) }} /> : null}
       <Ghost at={32.16} style={{ left: 760, top: capY - 120 }}><span style={{ ...BOXS, display: "inline-block", fontSize: 34, borderColor: RED }}>それまでの{"\n"}{c(RED, "1.25倍")}まで</span></Ghost>
-      <Pic at={32.4} until={35.1} n="rl_balloon_ceiling" x={830} y={480} s={170} />
+      <Pic at={32.4} until={35.1} n="rl_balloon_ceiling" x={430} y={430} s={170} />
       <Stamp at={33.76} x={300} y={1080} text="125%ルール" color={RED} size={64} rot={-4} />
       {/* でも安心ではない（画面を暗くして一言） */}
       <Spot at={35.22} rect={[160, 470, 760, 420]} dim={0.7} color={RED} />
@@ -237,7 +234,7 @@ const S2: React.FC = () => {
 // ════════ ③ 返済額の中身が変わる（38.04–59.32） ════════
 const S3: React.FC = () => {
   const f = useCurrentFrame();
-  const base = 1060, H = 470, T = 149595;
+  const base = 1060, H = 400, T = 149595;
   return (
     <>
       <Head at={38.04} no="3" crumb="同じ返済額でも">返済額の{r("中身")}が変わる</Head>
@@ -251,9 +248,9 @@ const S3: React.FC = () => {
       <Ghost at={49.52} until={53.6} style={{ left: 440, top: 640 }}><span style={{ ...K, fontSize: 70, color: INK }}>＝</span></Ghost>
       <Box at={52.2} until={53.6} to={[540, 1170]} size={40}>元金に回るお金が{c(RED, "約4.2万円")}減る</Box>
       {/* つまり：負担を後ろに先送り */}
-      <Ghost at={53.72} style={{ left: 0, top: 1130, width: 1080, display: "flex", justifyContent: "center", alignItems: "center", gap: 18 }}>
-        <GenSlot name="rl_push_box_back" size={150} />
-        <span style={{ ...BOXS, fontSize: 40, background: YEL }}>負担を{r("後ろに先送り")}しているだけ</span>
+      <Ghost at={53.72} style={{ left: 70, top: 1140, display: "flex", alignItems: "center", gap: 14 }}>
+        <GenSlot name="rl_push_box_back" size={130} />
+        <span style={{ ...BOXS, fontSize: 36, background: YEL }}>負担を{r("後ろに先送り")}しているだけ</span>
       </Ghost>
     </>
   );
@@ -332,7 +329,7 @@ const S6: React.FC = () => {
   const rows: [number, React.ReactNode][] = [[92.0, <>返済額は{c(BLUE, "すぐ上がらない")}ことがある</>], [95.18, <>でも負担は{c(RED, "消えていない")}</>], [97.36, <>{r("後ろに先送り")}されているだけ</>]];
   return (
     <>
-      <Head at={92.6} no="6" crumb="まとめ">返済額が変わらない＝安心ではない</Head>
+      <Head at={92.6} no="6" crumb="まとめ">変わらない≠{r("安心")}</Head>
       {rows.map(([at, t], i) => (
         <Ghost key={i} at={at} style={{ left: 110, top: 470 + i * 120, display: "flex", alignItems: "center", gap: 18 }}>
           <span style={{ width: 56, height: 56, borderRadius: "50%", background: INK, color: "#fff", ...K, fontSize: 32, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>{i + 1}</span>
@@ -363,7 +360,7 @@ const Close: React.FC = () => (
 );
 
 // 端の太一（感情の所だけ・場面ごとに表情を差し替え）
-const SIDE: [number, number, string][] = [[3.34, 11.0, "taichi_scared"], [35.4, 38.0, "taichi_wave_no"], [53.72, 59.0, "taichi_notice"], [80.2, 83.2, "taichi_shock"], [99.3, 104.2, "taichi_point_up"]];
+const SIDE: [number, number, string][] = [[3.34, 11.0, "taichi_scared"], [35.4, 38.0, "taichi_wave_no"], [99.3, 104.2, "taichi_point_up"]];
 const Side: React.FC = () => {
   const f = useCurrentFrame();
   const cur = SIDE.find(([a, b]) => f >= F(a) && f < F(b));
