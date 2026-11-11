@@ -71,7 +71,7 @@ const Face: React.FC<{ who: "A" | "B"; size: number; style?: React.CSSProperties
   <div style={{ width: size, height: size, borderRadius: "50%", overflow: "hidden", border: `${Math.max(3, size / 22)}px solid ${who === "A" ? CA : CB}`, background: "#fff", position: "relative", flex: "none", boxShadow: shadow, ...style }}>
     {who === "A"
       ? <Img src={staticFile("gen/taichi_face_smile.png")} style={{ position: "absolute", width: "112%", left: "-6%", top: "2%" }} />
-      : <Img src={staticFile("gen/girl_front_smile.png")} style={{ position: "absolute", width: "150%", left: "-25%", top: "-4%" }} />}
+      : <Img src={staticFile("gen/girl_front_smile.png")} style={{ position: "absolute", width: "128%", left: "-14%", top: "-30%" }} />}
   </div>
 );
 
