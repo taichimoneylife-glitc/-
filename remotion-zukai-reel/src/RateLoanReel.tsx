@@ -262,15 +262,15 @@ const S5: React.FC = () => {
       {f >= F(76.0) ? (
         <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0, opacity: interpolate(f - F(76.0), [0, 6], [0, 1], clamp) }}>
           <defs><clipPath id="glass2"><path d={`M${gx} ${gy} L${gx + gw} ${gy} L${gx + gw - 40} ${gy + gh} L${gx + 40} ${gy + gh} Z`} /></clipPath></defs>
-          <rect x={gx - 10} y={gy + gh * (1 - lv)} width={gw + 20} height={gh * lv + 10} fill="#F06A62" clipPath="url(#glass2)" />
+          <rect x={gx - 10} y={gy + gh * (1 - lv)} width={gw + 20} height={gh * lv + 10} fill="#6EC6EA" clipPath="url(#glass2)" />
           <path d={`M${gx} ${gy + gh * (1 - lv)} q ${gw / 4} ${Math.sin(f / 4) * 12} ${gw / 2} 0 t ${gw / 2} 0`} fill="none" stroke="#fff" strokeWidth={5} opacity={0.6} clipPath="url(#glass2)" />
           <path d={`M${gx} ${gy} L${gx + 40} ${gy + gh} L${gx + gw - 40} ${gy + gh} L${gx + gw} ${gy}`} fill="none" stroke={M.ink} strokeWidth={9} strokeLinejoin="round" />
-          {overflow ? <path d={`M${gx + gw} ${gy} q 30 10 34 ${60 + Math.min(220, (f - F(79.3)) * 12)}`} fill="none" stroke="#F06A62" strokeWidth={16} strokeLinecap="round" /> : null}
-          {overflow ? Array.from({ length: 5 }).map((_, i) => { const d = (f - F(79.3) - i * 5) % 30; return d > 0 ? <circle key={i} cx={gx + gw + 36} cy={gy + 80 + d * 18} r={10} fill="#F06A62" opacity={1 - d / 30} /> : null; }) : null}
+          {overflow ? <path d={`M${gx + gw} ${gy} q 30 10 34 ${60 + Math.min(220, (f - F(79.3)) * 12)}`} fill="none" stroke="#6EC6EA" strokeWidth={16} strokeLinecap="round" /> : null}
+          {overflow ? Array.from({ length: 5 }).map((_, i) => { const d = (f - F(79.3) - i * 5) % 30; return d > 0 ? <circle key={i} cx={gx + gw + 36} cy={gy + 80 + d * 18} r={10} fill="#6EC6EA" opacity={1 - d / 30} /> : null; }) : null}
         </svg>
       ) : null}
       <In at={76.2} x={60} y={500} mode="pop"><Pill2 c="#fff" size={30}>コップ＝<span style={{ color: M.blue }}>返済額</span></Pill2></In>
-      <In at={77.86} x={60} y={860} mode="pop"><Pill2 c="#fff" size={30}>水＝<span style={{ color: M.red }}>利息</span></Pill2></In>
+      <In at={77.86} x={60} y={860} mode="pop"><Pill2 c="#fff" size={30}>水＝<span style={{ color: "#2A9FD0" }}>利息</span></Pill2></In>
       <HandCircle at={79.32} x={gx + gw} y={gy + 20} r={110} until={81.6} />
       <In at={79.32} x={780} y={420} mode="pop"><Pill2 c={M.red} size={28}>払いきれない</Pill2></In>
       <Chain at={80.3} x={gx + gw + 36} y0={gy + 300} y1={gy + 560}><span style={{ marginLeft: 330 }}><Pill2 c="#fff" size={32} icon="↪">次へ繰り越し</Pill2></span></Chain>
