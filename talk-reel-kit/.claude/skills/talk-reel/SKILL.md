@@ -1,6 +1,6 @@
 ---
 name: talk-reel
-description: 自分が話しているトーク動画（縦のリール）に、語同期の字幕・寄り（ズーム）・図解・効果音を自動で入れて仕上げる。図解だけの比較動画（Aさん vs Bさん）や、ページ送りの図解動画も作れる。「トークリールを編集して」「字幕を入れて」「図解を入れて」「比較動画を作って」と言われたら使う。
+description: 人が話しているトーク動画（縦のリール）に、語同期の字幕（テロップ）を自動で入れ、ところどころに図解・寄り（ズーム）・効果音を足して仕上げる。「トークリールを編集して」「テロップを入れて」「字幕を入れて」「図解を入れて」と言われたら使う。
 ---
 
 # トークリール自動編集（Remotion）
@@ -9,7 +9,6 @@ description: 自分が話しているトーク動画（縦のリール）に、�
 - `references/workflow.md` … 全体の流れ・設計表・確認チェックリスト（毎回）
 - `references/captions.md` … 字幕のルール
 - `references/diagram-motion.md` … 図解の動き（人気の図解リールの分析）
-- `references/compare-format.md` … Aさん vs Bさんの比較動画の型（比較を作る時は必ず）
 - `references/retention.md` … 2秒・8秒・15秒の離脱対策（冒頭を作る時は必ず）
 - `references/talk-overlay-study.md` … 実写＋図解の編集の研究
 - `references/sfx.md` … 効果音の一覧と使い分け（効果音を入れる時は必ず）
@@ -23,9 +22,8 @@ description: 自分が話しているトーク動画（縦のリール）に、�
 6. 書き出し：`npx remotion render TalkReel out/talk.mp4`
 7. チェックリストで通しで確認 →「場所＋変更内容」で1つずつ直す
 
-## 図解だけの動画
-- 比較（Aさん vs Bさん）：`src/examples/CompareExample.tsx` をコピーして中身を変える
-- 順番のある話（STEP1〜3）：`src/examples/BoardExample.tsx`（1枚の地図の上をカメラが移動する型）
+## 図解の部品（plan.ts の inserts で足りない時に、新しい図解を作る材料）
+- 動きの見本（おまけ）：`src/examples/BoardExample.tsx`（ページ送り・スポット・引き出し線）
 - 部品：`src/diagram/parts.tsx`（Head / Card / Chip / Stamp / Door / Stripe / Donut / HBars / LineGrow / PlusMinus / CheckLine / Badge / Bounce）、`src/diagram/board.tsx`（Board / Stepper）、`src/diagram/cam.tsx`（Camera / Spot / Callout / SpeedLines）
 
 ## 守ること

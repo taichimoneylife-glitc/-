@@ -3,7 +3,7 @@ import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 import { F, clamp, count, num, pop, rise } from "../lib/anim";
 import { K } from "../lib/font";
 import { T, shadow } from "../diagram/theme";
-import { Badge, Chip, Stamp } from "../diagram/parts";
+import { Chip, Stamp } from "../diagram/parts";
 import type { Insert } from "./types";
 
 // ════════════════════════════════════════════════════════════
@@ -90,19 +90,18 @@ const CheckIns: React.FC<{ from: number; to: number; title: string; items: strin
   );
 };
 
-// 全画面：A と B の比較（紙の背景で映像をかくす → 2枚のカード → 差のカッコ）
+// 全画面：2つの数字を比べる（紙の背景で映像をかくす → 2枚のカード → 差のカッコ）
 const CompareIns: React.FC<{ from: number; to: number; title: string; a: { name: string; value: number; unit?: string }; b: { name: string; value: number; unit?: string }; diffLabel?: string }> = ({ from, to, title, a, b, diffLabel = "差" }) => {
   const f = useCurrentFrame();
   const o = Math.min(interpolate(f, [F(from), F(from) + 7], [0, 1], clamp), interpolate(f, [F(to) - 7, F(to)], [1, 0], clamp));
   const sc = interpolate(f, [F(from), F(from) + 9], [1.06, 1], clamp);
-  const rows = [{ ...a, c: T.A, at: from + 0.5, badge: "A" }, { ...b, c: T.B, at: from + 1.3, badge: "B" }];
+  const rows = [{ ...a, c: T.A, at: from + 0.5 }, { ...b, c: T.B, at: from + 1.3 }];
   const diff = Math.abs(a.value - b.value);
   return (
     <AbsoluteFill style={{ opacity: o, transform: `scale(${sc})`, filter: o < 1 ? `blur(${(1 - o) * 8}px)` : undefined, background: T.paper, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${T.line} 62px 64px)` }}>
       <div style={{ position: "absolute", left: 0, right: 0, top: 240, textAlign: "center", ...K, fontSize: 64, color: T.ink }}>{title}</div>
       {rows.map((r, i) => f >= F(r.at) ? (
         <div key={i} style={{ position: "absolute", left: 100, top: 420 + i * 220, width: 640, height: 180, boxSizing: "border-box", background: "#fff", borderRadius: 26, border: `3px solid ${r.c}55`, boxShadow: shadow, display: "flex", alignItems: "center", gap: 22, padding: "0 28px", ...rise(f, r.at) }}>
-          <Badge c={r.c} text={r.badge} size={86} />
           <div><div style={{ ...K, fontSize: 26, color: T.sub }}>{r.name}</div><div style={{ ...K, fontSize: 84, color: r.c, lineHeight: 1 }}>{num(count(f, r.at, r.value, 0.6))}<span style={{ fontSize: 38 }}>{r.unit}</span></div></div>
         </div>) : null)}
       {f >= F(from + 2.1) ? <div style={{ position: "absolute", left: 770, top: 510, width: 46, height: 220, borderRight: `6px solid ${T.red}`, borderTop: `6px solid ${T.red}`, borderBottom: `6px solid ${T.red}`, borderRadius: "0 14px 14px 0", transformOrigin: "left center", transform: `scaleX(${interpolate(f, [F(from + 2.1), F(from + 2.4)], [0, 1], clamp)})` }} /> : null}

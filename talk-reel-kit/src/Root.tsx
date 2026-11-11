@@ -4,7 +4,6 @@ import "./lib/font";
 import { TalkReel, type TalkProps } from "./talk/TalkReel";
 import { PLAN } from "./talk/plan";
 import type { Words } from "./talk/types";
-import { CompareExample, COMPARE_FRAMES } from "./examples/CompareExample";
 import { BoardExample, BOARD_FRAMES } from "./examples/BoardExample";
 
 const FPS = 30;
@@ -26,8 +25,7 @@ export const RemotionRoot: React.FC = () => (
         return { durationInFrames: Math.max(30, Math.ceil(data.duration * FPS)), props: { ...props, data } };
       }}
     />
-    {/* 図解だけの動画の見本（Aさん Bさんの比較・ページ送り） */}
-    <Composition id="CompareExample" component={CompareExample} fps={FPS} width={1080} height={1920} durationInFrames={COMPARE_FRAMES} />
+    {/* おまけ：図解だけの見本（ページ送り・スポット・引き出し線の動き） */}
     <Composition id="BoardExample" component={BoardExample} fps={FPS} width={1080} height={1920} durationInFrames={BOARD_FRAMES} />
   </>
 );

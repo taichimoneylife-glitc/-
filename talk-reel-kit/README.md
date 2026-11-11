@@ -1,7 +1,7 @@
 # トークリール自動編集キット（Claude Code ＋ Remotion）
 
 自分が話している縦のトーク動画に、**語同期の字幕・寄り（ズーム）・図解・効果音**を自動で入れて仕上げるキットです。
-図解だけの動画（**Aさん vs Bさんの比較**、STEP1〜3のページ送り）も作れます。
+話した所に字幕を自動で入れて、ところどころに図解を出すのがメインです。
 
 Claude Code にこのフォルダを開いてもらい、「この動画をトークリールに編集して」と頼むのが基本の使い方です。
 作り方は `.claude/skills/talk-reel/` に入っているので、Claude Code が自動で読みます。
@@ -10,7 +10,7 @@ Claude Code にこのフォルダを開いてもらい、「この動画をト�
 1. Node.js（18以上）と ffmpeg、Python 3 を入れる
 2. このフォルダで `npm install`
 3. 文字起こし用：`pip install faster-whisper`
-4. お試し：`npx remotion studio` → 左の TalkReel / CompareExample / BoardExample を再生
+4. お試し：`npx remotion studio` → 左の TalkReel を再生（BoardExample は図解の動きのおまけの見本）
 
 ## 1本の作り方
 ```bash
@@ -26,12 +26,12 @@ plan.ts は Claude Code に「words.json を読んで、設計表を作って pl
 |---|---|
 | `src/talk/` | トークリール本体（TalkReel）、字幕（Captions）、上にのせる図解（inserts）、**plan.ts＝1本ごとに書きかえる所** |
 | `src/diagram/` | 図解の部品（カード・札・ハンコ・ドーナツ・棒・折れ線・±まとめ・ページ送り・スポット・引き出し線） |
-| `src/examples/` | 見本：比較動画（CompareExample）、ページ送り（BoardExample） |
+| `src/examples/` | おまけ：図解の動きの見本（BoardExample＝ページ送り・スポット・引き出し線） |
 | `scripts/` | 動画をそろえる（prep_video.sh）、文字起こし（transcribe.py） |
 | `public/fonts/` | 日本語フォント（Noto Sans JP / Noto Serif JP・SIL OFL） |
 | `public/sfx/` | 効果音（u01〜u10 と単発版 u02s / u03s / u05s / u10s）。使い分けは `.claude/skills/talk-reel/references/sfx.md` |
 | `public/sample/` | お試し用のサンプル（人の形の仮の映像＋仮の文字起こし） |
-| `.claude/skills/talk-reel/` | 作り方のルールとノウハウ（流れ・字幕・図解の動き・比較動画の型・離脱対策） |
+| `.claude/skills/talk-reel/` | 作り方のルールとノウハウ（流れ・字幕・図解の動き・効果音・離脱対策） |
 
 ## 図解の種類（plan.ts の inserts）
 | type | 見せ方 | 置き場所 |
@@ -41,7 +41,7 @@ plan.ts は Claude Code に「words.json を読んで、設計表を作って pl
 | number | 大きな数字がカウントアップ | 頭の上 |
 | flow | A → B → C の流れ | 頭の上 |
 | check | チェックリストに✓が入る | 頭の上 |
-| compare | Aさん vs Bさんの数字の比較 | 全画面（紙の背景） |
+| compare | 2つの数字を比べる（例：見直した／そのまま） | 全画面（白い紙の背景） |
 | stamp | 斜めのハンコ | 顔の横 |
 
 ## 注意
