@@ -34,13 +34,13 @@ const StepsIns: React.FC<{ from: number; to: number; title: string; items: strin
   const f = useCurrentFrame();
   return (
     <Wrap from={from} to={to} style={{ top: 150 }}>
-      <div style={{ textAlign: "center" }}><span style={{ background: T.ink, color: "#fff", borderRadius: 999, padding: "10px 32px", ...K, fontSize: 40 }}>{title}</span></div>
+      <div style={{ textAlign: "center" }}><span style={{ background: T.ink, color: "#fff", borderRadius: 999, padding: "12px 38px", ...K, fontSize: 50 }}>{title}</span></div>
       <div style={{ display: "flex", justifyContent: "center", gap: 18, marginTop: 26 }}>
         {items.map((it, i) => { const at = from + 0.3 + i * gap; return f >= F(at) ? (
-          <div key={i} style={{ ...card, width: Math.min(300, 920 / items.length - 18), padding: "18px 10px", textAlign: "center", transform: `scale(${pop(f, at)})` }}>
-            <div style={{ margin: "0 auto 8px", width: 54, height: 54, borderRadius: "50%", background: T.N, color: "#fff", ...K, fontSize: 30, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</div>
-            <div style={{ ...K, fontSize: 38, color: T.ink, lineHeight: 1.2 }}>{it}</div>
-          </div>) : <div key={i} style={{ width: Math.min(300, 920 / items.length - 18) }} />; })}
+          <div key={i} style={{ ...card, width: Math.min(310, 960 / items.length - 18), padding: "24px 10px", textAlign: "center", transform: `scale(${pop(f, at)})` }}>
+            <div style={{ margin: "0 auto 8px", width: 66, height: 66, borderRadius: "50%", background: T.N, color: "#fff", ...K, fontSize: 38, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</div>
+            <div style={{ ...K, fontSize: 54, color: T.ink, lineHeight: 1.2 }}>{it}</div>
+          </div>) : <div key={i} style={{ width: Math.min(310, 960 / items.length - 18) }} />; })}
       </div>
     </Wrap>
   );
@@ -99,13 +99,13 @@ const CompareIns: React.FC<{ from: number; to: number; title: string; a: { name:
   const diff = Math.abs(a.value - b.value);
   return (
     <AbsoluteFill style={{ opacity: o, transform: `scale(${sc})`, filter: o < 1 ? `blur(${(1 - o) * 8}px)` : undefined, background: T.paper, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${T.line} 62px 64px)` }}>
-      <div style={{ position: "absolute", left: 0, right: 0, top: 240, textAlign: "center", ...K, fontSize: 64, color: T.ink }}>{title}</div>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 330, textAlign: "center", ...K, fontSize: 84, color: T.ink }}>{title}</div>
       {rows.map((r, i) => f >= F(r.at) ? (
-        <div key={i} style={{ position: "absolute", left: 100, top: 420 + i * 220, width: 640, height: 180, boxSizing: "border-box", background: "#fff", borderRadius: 26, border: `3px solid ${r.c}55`, boxShadow: shadow, display: "flex", alignItems: "center", gap: 22, padding: "0 28px", ...rise(f, r.at) }}>
-          <div><div style={{ ...K, fontSize: 26, color: T.sub }}>{r.name}</div><div style={{ ...K, fontSize: 84, color: r.c, lineHeight: 1 }}>{num(count(f, r.at, r.value, 0.6))}<span style={{ fontSize: 38 }}>{r.unit}</span></div></div>
+        <div key={i} style={{ position: "absolute", left: 70, top: 540 + i * 270, width: 720, height: 230, boxSizing: "border-box", background: "#fff", borderRadius: 26, border: `3px solid ${r.c}55`, boxShadow: shadow, display: "flex", alignItems: "center", gap: 22, padding: "0 28px", ...rise(f, r.at) }}>
+          <div><div style={{ ...K, fontSize: 36, color: T.sub }}>{r.name}</div><div style={{ ...K, fontSize: 124, color: r.c, lineHeight: 1 }}>{num(count(f, r.at, r.value, 0.6))}<span style={{ fontSize: 54 }}>{r.unit}</span></div></div>
         </div>) : null)}
-      {f >= F(from + 2.1) ? <div style={{ position: "absolute", left: 770, top: 510, width: 46, height: 220, borderRight: `6px solid ${T.red}`, borderTop: `6px solid ${T.red}`, borderBottom: `6px solid ${T.red}`, borderRadius: "0 14px 14px 0", transformOrigin: "left center", transform: `scaleX(${interpolate(f, [F(from + 2.1), F(from + 2.4)], [0, 1], clamp)})` }} /> : null}
-      {f >= F(from + 2.4) ? <div style={{ position: "absolute", left: 830, top: 560, width: 170, textAlign: "center", ...K, color: T.red, transform: `scale(${pop(f, from + 2.4)})` }}><div style={{ fontSize: 26 }}>{diffLabel}</div><div style={{ fontSize: 54, lineHeight: 1 }}>{num(count(f, from + 2.4, diff, 0.5))}</div><div style={{ fontSize: 26 }}>{a.unit ?? b.unit}</div></div> : null}
+      {f >= F(from + 2.1) ? <div style={{ position: "absolute", left: 810, top: 655, width: 50, height: 270, borderRight: `6px solid ${T.red}`, borderTop: `6px solid ${T.red}`, borderBottom: `6px solid ${T.red}`, borderRadius: "0 14px 14px 0", transformOrigin: "left center", transform: `scaleX(${interpolate(f, [F(from + 2.1), F(from + 2.4)], [0, 1], clamp)})` }} /> : null}
+      {f >= F(from + 2.4) ? <div style={{ position: "absolute", left: 868, top: 690, width: 200, textAlign: "center", ...K, color: T.red, transform: `scale(${pop(f, from + 2.4)})` }}><div style={{ fontSize: 34 }}>{diffLabel}</div><div style={{ fontSize: 84, lineHeight: 1 }}>{num(count(f, from + 2.4, diff, 0.5))}</div><div style={{ fontSize: 34 }}>{a.unit ?? b.unit}</div></div> : null}
     </AbsoluteFill>
   );
 };

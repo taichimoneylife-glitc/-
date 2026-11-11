@@ -85,7 +85,7 @@ const Sky: React.FC<{ seg: Extract<Segment, { mode: "sky" }> }> = ({ seg }) => {
       <AbsoluteFill style={{ background: "radial-gradient(60% 18% at 50% 50%, rgba(255,255,255,0.95), rgba(255,255,255,0))" }} />
       <div style={{ position: "absolute", left: 0, right: 0, top: 0, transform: `translateY(${-cam}px)` }}>
         {/* 一番上のノードの上にも線（ここから続いている感じ） */}
-        <div style={{ position: "absolute", left: 539, top: 960 - 230, width: 3, height: 150, background: "#3A3A44", opacity: interpolate(f, [F(seg.from), F(seg.from) + 8], [0, 1], clamp) }} />
+        <div style={{ position: "absolute", left: 539, top: 960 - 230, width: 4, height: 150, background: "#3A3A44", opacity: interpolate(f, [F(seg.from), F(seg.from) + 8], [0, 1], clamp) }} />
         {seg.nodes.map((n, i) => {
           const y = 960 + i * GAP;
           const show = t >= n.t - 0.05;
@@ -97,16 +97,16 @@ const Sky: React.FC<{ seg: Extract<Segment, { mode: "sky" }> }> = ({ seg }) => {
           const fade = i < cur ? 0.45 : 1;
           return (
             <React.Fragment key={i}>
-              {i > 0 ? <div style={{ position: "absolute", left: 539, top: y - GAP + 60, width: 3, height: (GAP - 120) * line, background: "#3A3A44" }} /> : null}
+              {i > 0 ? <div style={{ position: "absolute", left: 539, top: y - GAP + 70, width: 4, height: (GAP - 120) * line, background: "#3A3A44" }} /> : null}
               {show ? (
-                <div style={{ position: "absolute", left: 60, right: 60, top: y - 40, textAlign: "center", ...K, fontSize: 62, color: "#18181F", opacity: fade, letterSpacing: 1 }}>
+                <div style={{ position: "absolute", left: 60, right: 60, top: y - 56, textAlign: "center", ...K, fontSize: 86, color: "#18181F", opacity: fade, letterSpacing: 1 }}>
                   {chars.map((c, j) => {
                     const o = Math.max(0, Math.min(1, rev - j));
                     const inMark = mi >= 0 && j >= mi && j < mi + n.mark!.length;
                     return <span key={j} style={{ opacity: 0.15 + 0.85 * o, position: "relative", color: inMark ? "#18181F" : undefined }}>
                       {c}
-                      {inMark && j === mi ? <svg width={n.mark!.length * 64} height={26} style={{ position: "absolute", left: 0, top: 70, overflow: "visible" }}>
-                        <path d={`M2 14 Q ${n.mark!.length * 16} 4 ${n.mark!.length * 32} 13 T ${n.mark!.length * 62} 10`} fill="none" stroke="#E5484D" strokeWidth={5} strokeLinecap="round" strokeDasharray={n.mark!.length * 70} strokeDashoffset={n.mark!.length * 70 * (1 - markP)} />
+                      {inMark && j === mi ? <svg width={n.mark!.length * 88} height={30} style={{ position: "absolute", left: 0, top: 100, overflow: "visible" }}>
+                        <path d={`M2 14 Q ${n.mark!.length * 22} 4 ${n.mark!.length * 44} 13 T ${n.mark!.length * 86} 10`} fill="none" stroke="#E5484D" strokeWidth={8} strokeLinecap="round" strokeDasharray={n.mark!.length * 70} strokeDashoffset={n.mark!.length * 70 * (1 - markP)} />
                       </svg> : null}
                     </span>;
                   })}
@@ -127,8 +127,9 @@ const End: React.FC<{ seg: Extract<Segment, { mode: "end" }> }> = ({ seg }) => {
   const l = seg.lines[Math.max(0, cur)];
   const k = interpolate(f - F(l.t), [0, 4, 8], [0.9, 1.04, 1], clamp);
   return (
-    <AbsoluteFill style={{ background: seg.dark ? "#050507" : "#E9E8E3", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      {cur >= 0 ? <div style={{ ...K, fontSize: 84, lineHeight: 1.15, textAlign: "center", color: seg.dark ? "#fff" : "#111", transform: `scale(${k})`, padding: "0 70px", whiteSpace: "pre-line" }}>{l.text}</div> : null}
+    <AbsoluteFill style={{ background: seg.dark ? "#101522" : "#FFFFFF", backgroundImage: seg.dark ? undefined : "repeating-linear-gradient(transparent 0 62px, rgba(47,123,217,0.16) 62px 64px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+      {cur >= 0 ? <div style={{ ...K, fontSize: 100, lineHeight: 1.2, textAlign: "center", color: seg.dark ? "#fff" : "#1F2430", transform: `scale(${k})`, padding: "0 40px", whiteSpace: "pre-line" }}>{l.text}</div> : null}
+      {cur >= 0 ? <div style={{ marginTop: 40, height: 14, borderRadius: 7, background: seg.dark ? "#FFB23D" : "#2F7BD9", width: 420 * interpolate(f - F(l.t), [4, 14], [0, 1], clamp) }} /> : null}
     </AbsoluteFill>
   );
 };
