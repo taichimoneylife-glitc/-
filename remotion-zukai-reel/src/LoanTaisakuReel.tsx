@@ -1,6 +1,8 @@
 import React from "react";
 import { AbsoluteFill, Img, Series, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { TapCard } from "./components/tapCard";
+import { BounceText } from "./components/fx";
+import { TypeIn, wipeIn } from "./components/zukaiKit";
 import { FONT } from "./components/font";
 import { GenSlot } from "./MileLifePlan";
 import { F, clamp, out, K, B, SER, M, pop, yen, cnt, R, In, Sticker, Tag, Stamp, Paper2, SectionPill, Chain, Pill2, HandCircle, Spotlight } from "./components/marke";
@@ -34,7 +36,7 @@ const P0: React.FC = () => (
     <Paper2 />
     <In at={0.1} x={0} y={250} center mode="ghost"><span style={{ ...K, fontSize: 56 }}><R>変動金利</R>で借りている人へ</span></In>
     {([["rl_bill_shock", "もう上がった人", M.red, 0.5, 90], ["r2_worry_calendar", "これから上がる人", M.orange, 0.9, 560]] as const).map(([img, label, c, at, x]) => (
-      <In key={img} at={at} x={x} y={360} mode="pop">
+      <In key={img} at={at} x={x} y={360} mode="throw" from={x < 300 ? "l" : "r"}>
         <Hero w={430} style={{ boxShadow: `8px 8px 0 ${c}` }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "18px 0 20px" }}>
             <GenSlot name={img} size={300} />
@@ -46,7 +48,7 @@ const P0: React.FC = () => (
     <In at={1.6} x={0} y={870} center mode="pop"><Tag c={M.yellow} size={34}>どちらも</Tag></In>
     <In at={2.0} x={0} y={950} center mode="pop">
       <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 24, boxShadow: `10px 10px 0 ${M.ink}`, padding: "14px 44px" }}>
-        <span style={{ ...K, fontSize: 64 }}>金利が上がったときの<R>対策</R></span>
+        <span style={{ display: "inline-flex" }}><BounceText text="金利が上がったときの" at={F(2.0)} size={64} stroke={false} /><BounceText text="対策" at={F(2.0) + 20} size={64} color={M.red} stroke={false} /></span>
       </span>
     </In>
     <HandCircle at={2.8} x={540} y={1010} r={430} c={M.red} w={7} ry={110} />
@@ -58,7 +60,7 @@ const P1: React.FC = () => (
   <AbsoluteFill>
     <Paper2 />
     <SectionPill c={M.green} at={0.1} no="01" icon="✓">まずやること</SectionPill>
-    <In at={0.5} x={90} y={410} mode="pop">
+    <In at={0.5} x={90} y={410} mode="throw" from="l" rot={-6}>
       <Hero>
         <HeroBar title="固定費の見直し" icon="①" />
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-around", padding: "14px 20px 6px" }}>
@@ -69,7 +71,7 @@ const P1: React.FC = () => (
         <div style={{ textAlign: "center", padding: "6px 0 18px" }}><Pill2 c={M.yellow} size={34}><span style={{ color: M.ink }}>→ 家計に<R>余力</R>をつくる</span></Pill2></div>
       </Hero>
     </In>
-    <In at={1.8} x={90} y={860} mode="pop">
+    <In at={1.8} x={90} y={860} mode="throw" from="r" rot={6}>
       <Hero>
         <HeroBar title="資産形成" icon="②" />
         <div style={{ display: "flex", alignItems: "center", gap: 20, padding: "16px 26px 20px" }}>
@@ -96,12 +98,12 @@ const P1b: React.FC = () => {
       <Paper2 />
       <SectionPill c={M.green} at={0.1} no="01" icon="✓">まずやること</SectionPill>
       <In at={0.4} x={0} y={410} center mode="ghost"><span style={{ ...K, fontSize: 48 }}>運用というと…</span></In>
-      <In at={0.8} x={70} y={510} mode="pop">
+      <In at={0.8} x={70} y={510} mode="throw" from="l">
         <div style={{ opacity: 1 - 0.55 * dim, filter: `grayscale(${dim})` }}>
           <Hero w={440}><HeroBar title="株" icon="📈" bg={M.sub} /><div style={{ display: "flex", justifyContent: "center", padding: "16px 0" }}><GenSlot name="r2_stock_chart" size={300} /></div><div style={{ textAlign: "center", ...K, fontSize: 32, paddingBottom: 18 }}>イメージが強い</div></Hero>
         </div>
       </In>
-      <In at={1.4} x={570} y={510} mode="pop">
+      <In at={1.4} x={570} y={510} mode="throw" from="r">
         <Hero w={440} style={{ boxShadow: `10px 10px 0 ${M.yellow}`, transform: `scale(${1 + 0.06 * dim})` }}><HeroBar title="債券" icon="📜" bg={M.green} /><div style={{ display: "flex", justifyContent: "center", padding: "16px 0" }}><GenSlot name="r2_bond_certificate" size={300} /></div><div style={{ textAlign: "center", ...K, fontSize: 32, paddingBottom: 18 }}><R>今こそ</R>選択肢に</div></Hero>
       </In>
       <In at={2.4} x={0} y={1010} center mode="pop">
@@ -117,9 +119,9 @@ const P1b: React.FC = () => {
 const P2: React.FC = () => (
   <AbsoluteFill>
     <Paper2 />
-    <In at={0.1} x={0} y={330} center mode="pop"><span style={{ display: "inline-block", background: M.green, color: "#fff", borderRadius: 18, padding: "12px 40px", ...K, fontSize: 70, transform: "rotate(-2deg)", boxShadow: `6px 6px 0 ${M.ink}` }}>ここから<span style={{ color: M.yellow }}>本題</span></span></In>
+    <In at={0.1} x={0} y={330} center mode="pop"><span style={{ display: "inline-block", background: M.green, color: "#fff", borderRadius: 18, padding: "12px 40px", ...K, fontSize: 70, transform: "rotate(-2deg)", boxShadow: `6px 6px 0 ${M.ink}` }}><span style={{ display: "inline-flex" }}><BounceText text="ここから" at={F(0.15)} size={70} color="#fff" stroke={false} /><BounceText text="本題" at={F(0.15) + 10} size={70} color={M.yellow} stroke={false} /></span></span></In>
     {([["r2_house_return_coins", "繰上げ返済", M.orange, 0.7, 90], ["rl_bank", "借り換え", M.green, 1.1, 560]] as const).map(([img, l, c, at, x]) => (
-      <In key={l} at={at} x={x} y={520} mode="pop">
+      <In key={l} at={at} x={x} y={520} mode="throw" from={x < 300 ? "l" : "r"}>
         <Hero w={430} style={{ boxShadow: `8px 8px 0 ${c}` }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "20px 0 24px" }}>
             <GenSlot name={img} size={300} />
@@ -146,7 +148,7 @@ const RateSteps: React.FC<{ at: number }> = ({ at }) => {
         const w = W / 3;
         return on ? (
           <g key={i} style={{ opacity: interpolate(f - F(a), [0, 5], [0, 1], clamp) }}>
-            <rect x={x0 + i * w + 6} y={yOf(r)} width={w - 12} height={y0 + H - yOf(r)} rx={8} fill={i === 0 ? "#E3EFE8" : i === 1 ? "#FCE6C9" : "#F9D2CB"} stroke={M.ink} strokeWidth={4} />
+            <rect x={x0 + i * w + 6} y={y0 + H - (y0 + H - yOf(r)) * interpolate(f - F(a), [0, 9], [0, 1], out)} width={w - 12} height={(y0 + H - yOf(r)) * interpolate(f - F(a), [0, 9], [0, 1], out)} rx={8} fill={i === 0 ? "#E3EFE8" : i === 1 ? "#FCE6C9" : "#F9D2CB"} stroke={M.ink} strokeWidth={4} />
             <text x={x0 + i * w + w / 2} y={yOf(r) - 12} textAnchor="middle" style={{ ...K, fontSize: 34, fill: i === 2 ? M.red : M.ink }}>{r}%</text>
             <text x={x0 + i * w + w / 2} y={y0 + H + 40} textAnchor="middle" style={{ ...B, fontSize: 26, fill: M.sub }}>{l}</text>
           </g>
@@ -177,12 +179,12 @@ const P3: React.FC = () => {
             {([
               ["5年後の毎月の返済", <><span style={{ ...B, fontSize: 24 }}>11.9万 → </span><span style={{ ...SER, fontSize: 44, color: M.green }}>10.9万</span></>, <span style={{ ...B, fontSize: 28 }}>変わらない</span>],
               ["返済期間", <span style={{ ...B, fontSize: 28 }}>変わらない</span>, <span style={{ ...SER, fontSize: 40 }}>約3年8か月短く</span>],
-              ["20年間の利息", <span style={{ ...SER, fontSize: 48, color: M.red }}>約92万円減</span>, <span style={{ ...SER, fontSize: 40 }}>約143万円減</span>],
+              ["20年間の利息", <span style={{ ...SER, fontSize: 48, color: M.red }}>約{yen(cnt(f, 3.4, 92, 0.7))}万円減</span>, <span style={{ ...SER, fontSize: 40 }}>約143万円減</span>],
             ] as [string, React.ReactNode, React.ReactNode][]).map(([h, a, b], i) => (
               <React.Fragment key={h}>
                 <div style={{ borderTop: `3px solid ${M.ink}`, padding: "14px 16px", fontSize: 28, display: "flex", alignItems: "center" }}>{h}</div>
-                <div style={{ borderTop: `3px solid ${M.ink}`, borderLeft: `3px solid ${M.ink}`, background: "#F2FAF5", display: "flex", alignItems: "center", justifyContent: "center", opacity: f >= F(2.4 + i * 0.5) ? 1 : 0 }}>{a}</div>
-                <div style={{ borderTop: `3px solid ${M.ink}`, borderLeft: `3px solid ${M.ink}`, display: "flex", alignItems: "center", justifyContent: "center", opacity: f >= F(2.6 + i * 0.5) ? 1 : 0 }}>{b}</div>
+                <div style={{ borderTop: `3px solid ${M.ink}`, borderLeft: `3px solid ${M.ink}`, background: "#F2FAF5", display: "flex", alignItems: "center", justifyContent: "center", ...(f >= F(2.4 + i * 0.5) ? wipeIn(f, F(2.4 + i * 0.5)) : { opacity: 0 }) }}>{a}</div>
+                <div style={{ borderTop: `3px solid ${M.ink}`, borderLeft: `3px solid ${M.ink}`, display: "flex", alignItems: "center", justifyContent: "center", ...(f >= F(2.6 + i * 0.5) ? wipeIn(f, F(2.6 + i * 0.5)) : { opacity: 0 }) }}>{b}</div>
               </React.Fragment>
             ))}
           </div>
@@ -213,9 +215,9 @@ const P4: React.FC = () => {
       {ROWS3.map(([img, label, main, sub], i) => {
         const at = 0.7 + i * 0.5;
         return (
-          <In key={label} at={at} x={60} y={450 + i * 138} mode="pop">
+          <In key={label} at={at} x={60} y={450 + i * 138} mode="throw" from="r" rot={3}>
             <div style={{ width: 960, height: 126, background: "#fff", border: `5px solid ${M.ink}`, borderRadius: 18, boxShadow: `6px 6px 0 ${M.ink}`, display: "flex", alignItems: "center", gap: 14, padding: "0 18px", boxSizing: "border-box" }}>
-              <span style={{ width: 52, height: 52, borderRadius: 10, border: `5px solid ${M.ink}`, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 40, color: M.red, flex: "none" }}>{f >= F(at + 0.3) ? "✓" : ""}</span>
+              <span style={{ width: 52, height: 52, borderRadius: 10, border: `5px solid ${M.ink}`, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 40, color: M.red, flex: "none" }}>{f >= F(at + 0.3) ? <svg width={40} height={40} viewBox="0 0 40 40"><path d="M6 21 L16 31 L35 8" fill="none" stroke={M.red} strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - interpolate(f - F(at + 0.3), [0, 6], [0, 1], clamp)} /></svg> : null}</span>
               <GenSlot name={img} size={110} />
               <div style={{ flex: 1 }}>
                 <div style={{ ...K, fontSize: 25, color: M.sub }}>{label}</div>
@@ -240,8 +242,8 @@ const P5: React.FC = () => {
       <Paper2 />
       <SectionPill c={M.green} at={0.1} no="03" icon="🏦">借り換え</SectionPill>
       <In at={0.3} x={0} y={390} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `5px solid ${M.ink}`, borderRadius: 16, padding: "8px 28px", ...K, fontSize: 44 }}>「金利が安い」<R>だけで決めない</R></span></In>
-      <In at={0.6} x={290} y={500} mode="pop"><GenSlot name="r2_balance_scale" size={500} /></In>
-      <In at={1.0} x={40} y={600} mode="pop">
+      <In at={0.6} x={290} y={500} mode="pop"><div style={{ transform: `rotate(${interpolate(f, [F(2.6), F(3.0), F(3.3), F(3.5)], [0, -6, -3.5, -4.5], clamp)}deg)`, transformOrigin: "50% 85%" }}><GenSlot name="r2_balance_scale" size={500} /></div></In>
+      <In at={1.0} x={40} y={600} mode="throw" from="u" rot={-8}>
         <div style={{ width: 330, transform: `scale(${grow})`, transformOrigin: "50% 100%" }}>
           <Sticker pad="14px 16px" style={{ textAlign: "center", border: `5px solid ${M.green}` }}>
             <div style={{ ...K, fontSize: 30, color: M.green }}>得する分</div>
@@ -249,7 +251,7 @@ const P5: React.FC = () => {
           </Sticker>
         </div>
       </In>
-      <In at={1.5} x={710} y={600} mode="pop">
+      <In at={1.5} x={710} y={600} mode="throw" from="u" rot={8}>
         <div style={{ width: 330 }}>
           <Sticker pad="14px 16px" style={{ textAlign: "center", border: `5px solid ${M.red}` }}>
             <div style={{ ...K, fontSize: 30, color: M.red }}>かかる分</div>
@@ -287,8 +289,8 @@ const P5b: React.FC = () => {
       <Paper2 />
       <SectionPill c={M.green} at={0.1} no="03" icon="🧾">借り換えの諸費用</SectionPill>
       <In at={0.3} x={0} y={380} center mode="ghost"><span style={{ ...K, fontSize: 42 }}>諸費用は <R>銀行ごとに決まり方が違う</R></span></In>
-      <In at={0.5} x={60} y={450} mode="pop">
-        <div style={{ width: 960, background: "#FFFDF6", border: `5px solid ${M.ink}`, borderRadius: 8, boxShadow: `8px 8px 0 ${M.ink}`, padding: "10px 26px 14px", boxSizing: "border-box", clipPath: "polygon(0 0,100% 0,100% 100%,97% 98%,94% 100%,91% 98%,88% 100%,85% 98%,82% 100%,79% 98%,76% 100%,73% 98%,70% 100%,67% 98%,64% 100%,61% 98%,58% 100%,55% 98%,52% 100%,49% 98%,46% 100%,43% 98%,40% 100%,37% 98%,34% 100%,31% 98%,28% 100%,25% 98%,22% 100%,19% 98%,16% 100%,13% 98%,10% 100%,7% 98%,4% 100%,0 98%)" }}>
+      <In at={0.5} x={60} y={450} mode="rise">
+        <div style={{ clipPath: `inset(0 0 ${(1 - interpolate(f, [F(0.5), F(3.0)], [0, 1], clamp)) * 100}% 0)` }}><div style={{ width: 960, background: "#FFFDF6", border: `5px solid ${M.ink}`, borderRadius: 8, boxShadow: `8px 8px 0 ${M.ink}`, padding: "10px 26px 14px", boxSizing: "border-box", clipPath: "polygon(0 0,100% 0,100% 100%,97% 98%,94% 100%,91% 98%,88% 100%,85% 98%,82% 100%,79% 98%,76% 100%,73% 98%,70% 100%,67% 98%,64% 100%,61% 98%,58% 100%,55% 98%,52% 100%,49% 98%,46% 100%,43% 98%,40% 100%,37% 98%,34% 100%,31% 98%,28% 100%,25% 98%,22% 100%,19% 98%,16% 100%,13% 98%,10% 100%,7% 98%,4% 100%,0 98%)" }}>
           <div style={{ display: "grid", gridTemplateColumns: "310px 1fr", rowGap: 4, ...K }}>
             <div style={{ fontSize: 24, color: M.sub, padding: "4px 0" }}>項目</div><div style={{ fontSize: 24, color: M.sub, padding: "4px 0" }}>決まり方</div>
             {FEES.map(([k, v, n], i) => f >= F(0.8 + i * 0.3) ? (
@@ -304,8 +306,9 @@ const P5b: React.FC = () => {
           <div style={{ borderTop: `4px double ${M.ink}`, marginTop: 6, paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", ...K, fontSize: 32 }}>
             <span>合計</span><span style={{ color: M.red }}>銀行・借入額・物件で変わる</span>
           </div>
-        </div>
+        </div></div>
       </In>
+      <Stamp at={3.0} x={640} y={1010} text="要見積もり" size={44} />
       <In at={3.2} x={60} y={1160} mode="pop"><Pill2 c={M.yellow} size={34}><span style={{ color: M.ink }}>だから <R>見積もり</R>を取って確認</span></Pill2></In>
     </AbsoluteFill>
   );
@@ -359,7 +362,7 @@ const P6: React.FC = () => (
     <In at={0.6} x={240} y={560} mode="pop"><GenSlot name="r2_bank_counter" size={600} /></In>
     <In at={1.2} x={60} y={470} mode="pop" rot={-6}>
       <div style={{ position: "relative", background: "#fff", border: `5px solid ${M.ink}`, borderRadius: 26, padding: "16px 28px", boxShadow: `6px 6px 0 ${M.ink}` }}>
-        <span style={{ ...K, fontSize: 44 }}>金利を<R>下げられませんか？</R></span>
+        <span style={{ ...K, fontSize: 44 }}><TypeIn at={F(1.35)} step={2}>金利を下げられませんか？</TypeIn></span>
         <div style={{ position: "absolute", left: 120, bottom: -30, width: 0, height: 0, borderLeft: "18px solid transparent", borderRight: "18px solid transparent", borderTop: `30px solid ${M.ink}` }} />
       </div>
     </In>
@@ -421,6 +424,12 @@ const P8: React.FC = () => {
   );
 };
 
+const PageIn: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [0, 9], [0, 1], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 3) });
+  const k = interpolate(f, [9, 14], [1.012, 1], clamp);
+  return <AbsoluteFill style={{ transform: `translateY(${(1 - p) * 220}px) scale(${(0.94 + 0.06 * p) * (f >= 9 ? k : 1)})`, opacity: Math.min(1, p * 2), transformOrigin: "50% 40%" }}>{children}</AbsoluteFill>;
+};
 const PAGES: React.FC[] = [P0, P1, P1b, P2, P3, P4, P5, P5b, P5c, P6, P7, P8];
 export const LOAN_TAISAKU_STILL_FRAMES = F(PAGE) * PAGES.length;
 const SAFE = 0.9, SAFE_X = 540 - 540 * SAFE, SAFE_Y = 300 - 280 * SAFE;
@@ -429,7 +438,7 @@ export const LoanTaisakuStills: React.FC = () => (
     <AbsoluteFill style={{ background: M.paper, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)` }} />
     <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1920, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}>
       <Series>
-        {PAGES.map((P, i) => <Series.Sequence key={i} durationInFrames={F(PAGE)}><P /></Series.Sequence>)}
+        {PAGES.map((P, i) => <Series.Sequence key={i} durationInFrames={F(PAGE)}><PageIn><P /></PageIn></Series.Sequence>)}
       </Series>
     </div>
     {/* 字幕と太一が入る場所（目安） */}
