@@ -107,6 +107,7 @@ const P1b: React.FC = () => {
         <span style={{ display: "inline-block", background: M.yellow, border: `6px solid ${M.ink}`, borderRadius: 22, boxShadow: `8px 8px 0 ${M.ink}`, padding: "14px 36px", ...K, fontSize: 46 }}>金利が上がっている今は<R>債券</R>もおすすめ</span>
       </In>
       <HandCircle at={2.6} x={790} y={735} r={240} ry={275} c={M.red} w={8} />
+      <Note at={2.4}>※満期まで持つ前提</Note>
     </AbsoluteFill>
   );
 };
@@ -162,38 +163,44 @@ const P3: React.FC = () => {
       <In at={0.3} x={70} y={390} mode="pop"><Tag c={M.red} size={26}>仮定の試算</Tag></In>
       <In at={0.4} x={70} y={450} mode="pop">
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, width: 440 }}>
-          {["残高3,500万円", "残り35年", "変動金利", "5年・125%ルールあり", "300万円を返済額軽減型で"].map((t) => <span key={t} style={{ background: "#fff", border: `3px solid ${M.ink}`, borderRadius: 10, padding: "4px 12px", ...B, fontSize: 24 }}>{t}</span>)}
+          {["残高3,500万円", "残り35年", "変動金利", "5年・125%ルールあり", "300万円を繰上げ"].map((t) => <span key={t} style={{ background: "#fff", border: `3px solid ${M.ink}`, borderRadius: 10, padding: "4px 12px", ...B, fontSize: 24 }}>{t}</span>)}
         </div>
       </In>
       <In at={0.8} x={540} y={400} mode="pop"><div><div style={{ ...B, fontSize: 24, color: M.sub, marginLeft: 40 }}>金利がこう上がったら</div><RateSteps at={0.9} /></div></In>
-      <In at={2.0} x={0} y={690} center mode="ghost"><span style={{ ...K, fontSize: 36 }}>5年後の毎月の返済 <span style={{ ...B, fontSize: 24, color: M.sub }}>（5年ルールで見直し）</span></span></In>
-      <In at={2.2} x={70} y={760} mode="pop">
-        <Hero w={430} style={{ boxShadow: `8px 8px 0 ${M.gray}` }}><HeroBar title="繰上げなし" icon="—" bg={M.sub} /><div style={{ textAlign: "center", padding: "14px 0 18px" }}><span style={{ ...SER, fontSize: 84 }}>11.9</span><span style={{ ...K, fontSize: 34 }}>万円</span></div></Hero>
-      </In>
-      <In at={2.4} x={0} y={835} center mode="pop"><span style={{ ...K, fontSize: 48, color: M.red }}>VS</span></In>
-      <In at={2.6} x={580} y={760} mode="pop">
-        <Hero w={430} style={{ boxShadow: `8px 8px 0 ${M.green}` }}><HeroBar title="300万円繰上げ" icon="↩" bg={M.green} /><div style={{ textAlign: "center", padding: "14px 0 18px" }}><span style={{ ...SER, fontSize: 84, color: M.green }}>10.9</span><span style={{ ...K, fontSize: 34 }}>万円</span></div></Hero>
-      </In>
-      <Chain at={3.0} x={795} y0={990} y1={1030}><span style={{ marginLeft: 0 }}><Pill2 c={M.yellow} size={34}><span style={{ color: M.ink }}>月 約<R>1万円</R>軽く</span></Pill2></span></Chain>
-      {f >= F(3.6) ? (
-        <div style={{ position: "absolute", left: 60, top: 1100, transform: `scale(${pop(f, F(3.6))})`, transformOrigin: "0 50%" }}>
-          <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 22, boxShadow: `10px 10px 0 ${M.ink}`, padding: "4px 34px" }}>
-            <span style={{ ...K, fontSize: 34 }}>20年間の支払利息 </span><span style={{ ...SER, fontSize: 76, color: M.red, lineHeight: 1.1 }}>約{yen(cnt(f, 3.6, 92, 0.8))}万円</span><span style={{ ...K, fontSize: 40 }}>減</span>
-          </span>
+      <In at={2.0} x={60} y={690} mode="pop">
+        <div style={{ width: 960, background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 20, boxShadow: `8px 8px 0 ${M.ink}`, overflow: "hidden" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "300px 1fr 1fr", ...K, fontSize: 28 }}>
+            <div style={{ background: M.ink }} />
+            <div style={{ background: M.green, color: "#fff", textAlign: "center", padding: "10px 0" }}>返済額軽減型</div>
+            <div style={{ background: M.sub, color: "#fff", textAlign: "center", padding: "10px 0" }}>期間短縮型</div>
+            {([
+              ["5年後の毎月の返済", <><span style={{ ...B, fontSize: 24 }}>11.9万 → </span><span style={{ ...SER, fontSize: 44, color: M.green }}>10.9万</span></>, <span style={{ ...B, fontSize: 28 }}>変わらない</span>],
+              ["返済期間", <span style={{ ...B, fontSize: 28 }}>変わらない</span>, <span style={{ ...SER, fontSize: 40 }}>約3年8か月短く</span>],
+              ["20年間の利息", <span style={{ ...SER, fontSize: 48, color: M.red }}>約92万円減</span>, <span style={{ ...SER, fontSize: 40 }}>約143万円減</span>],
+            ] as [string, React.ReactNode, React.ReactNode][]).map(([h, a, b], i) => (
+              <React.Fragment key={h}>
+                <div style={{ borderTop: `3px solid ${M.ink}`, padding: "14px 16px", fontSize: 28, display: "flex", alignItems: "center" }}>{h}</div>
+                <div style={{ borderTop: `3px solid ${M.ink}`, borderLeft: `3px solid ${M.ink}`, background: "#F2FAF5", display: "flex", alignItems: "center", justifyContent: "center", opacity: f >= F(2.4 + i * 0.5) ? 1 : 0 }}>{a}</div>
+                <div style={{ borderTop: `3px solid ${M.ink}`, borderLeft: `3px solid ${M.ink}`, display: "flex", alignItems: "center", justifyContent: "center", opacity: f >= F(2.6 + i * 0.5) ? 1 : 0 }}>{b}</div>
+              </React.Fragment>
+            ))}
+          </div>
         </div>
-      ) : null}
-      <Note at={0.3}>※金利が2年半後に1.7%、5年後に2.2%へ上がり、今すぐ300万円を繰上げた場合の試算。繰上げる時期や金利の動きで効果は変わります</Note>
+      </In>
+      <In at={2.2} x={360} y={640} mode="pop"><Tag c={M.yellow} size={24}>台本の例</Tag></In>
+      <In at={3.8} x={60} y={1080} mode="pop"><Pill2 c={M.yellow} size={34}><span style={{ color: M.ink }}>5年後 月 約<R>1万円</R>軽く・20年で約<R>92万円</R>減</span></Pill2></In>
+      <Note at={0.3}>※仮定の試算：金利が2年半後に1.7%、5年後に2.2%へ上がり、今すぐ300万円を繰上げた場合。時期や金利の動きで効果は変わります</Note>
     </AbsoluteFill>
   );
 };
 
 // ════════ ③ 繰上げる前に確認（デメリット） ════════
 const ROWS3: [string, string, React.ReactNode, React.ReactNode][] = [
+  ["rl_hourglass", "住宅ローン控除", <>残高が減ると<R>控除も減る</R></>, <>期間短縮型で通算10年未満になると控除なし</>],
+  ["rl_wallet_lock", "手元に残すお金", <>返したお金は<R>戻ってこない</R></>, null],
+  ["r2_umbrella_couple", "団信", <>もしもの時に消えるローンを<R>先に自分で払う</R></>, null],
+  ["r2_family_future", "年齢・これからのお金", <>教育費・老後資金は大丈夫？</>, null],
   ["r2_stock_chart", "資産運用の機会", <>返したお金は<R>運用に回せない</R></>, null],
-  ["rl_wallet_lock", "手元のお金", <>返したお金は<R>戻ってこない</R></>, null],
-  ["r2_umbrella_couple", "団信", <>もしもの時に消えるローンを<R>先に自分で払う</R></>, <>期間を短くすると団信の期間も短く</>],
-  ["rl_hourglass", "住宅ローン控除", <>残高が減ると<R>控除も減る</R></>, <>期間を短くして通算10年未満なら控除なし</>],
-  ["r2_family_future", "年齢・これからの出費", <>教育費・老後資金は大丈夫？</>, null],
 ];
 const P4: React.FC = () => {
   const f = useCurrentFrame();
@@ -257,7 +264,87 @@ const P5: React.FC = () => {
           </div>
         </Hero>
       </In>
-      <In at={3.6} x={60} y={1180} mode="pop"><Pill2 c={M.yellow} size={36}><span style={{ color: M.ink }}>全部含めて <R>本当にプラス？</R></span></Pill2></In>
+    </AbsoluteFill>
+  );
+};
+
+
+// ════════ ⑥-2 諸費用の決まり方（レシート）：合計の金額は出さない ════════
+const FEES: [string, string, string][] = [
+  ["事務手数料", "借入額の○％ または 定額", "差がいちばん大きい"],
+  ["保証料", "0円 または 借入額で決まる", "手数料と型がセット"],
+  ["抵当権の登記（新）", "借入額 × 0.4％", "税金・どこでも同じ"],
+  ["抵当権の登記（抹消）", "土地・建物 各1,000円", "税金・どこでも同じ"],
+  ["印紙", "借入額で決まる", "電子契約なら0円"],
+  ["司法書士", "見積もり", "事務所で違う"],
+  ["今のローンの完済手数料", "0円〜", "今の銀行と契約しだい"],
+];
+const P5b: React.FC = () => {
+  const f = useCurrentFrame();
+  return (
+    <AbsoluteFill>
+      <Paper2 />
+      <SectionPill at={0.1} no="03" icon="🧾">借り換えの諸費用</SectionPill>
+      <In at={0.3} x={0} y={380} center mode="ghost"><span style={{ ...K, fontSize: 42 }}>諸費用は <R>銀行ごとに決まり方が違う</R></span></In>
+      <In at={0.5} x={60} y={450} mode="pop">
+        <div style={{ width: 960, background: "#FFFDF6", border: `5px solid ${M.ink}`, borderRadius: 8, boxShadow: `8px 8px 0 ${M.ink}`, padding: "10px 26px 14px", boxSizing: "border-box", clipPath: "polygon(0 0,100% 0,100% 100%,97% 98%,94% 100%,91% 98%,88% 100%,85% 98%,82% 100%,79% 98%,76% 100%,73% 98%,70% 100%,67% 98%,64% 100%,61% 98%,58% 100%,55% 98%,52% 100%,49% 98%,46% 100%,43% 98%,40% 100%,37% 98%,34% 100%,31% 98%,28% 100%,25% 98%,22% 100%,19% 98%,16% 100%,13% 98%,10% 100%,7% 98%,4% 100%,0 98%)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "310px 1fr", rowGap: 4, ...K }}>
+            <div style={{ fontSize: 24, color: M.sub, padding: "4px 0" }}>項目</div><div style={{ fontSize: 24, color: M.sub, padding: "4px 0" }}>決まり方</div>
+            {FEES.map(([k, v, n], i) => f >= F(0.8 + i * 0.3) ? (
+              <React.Fragment key={k}>
+                <div style={{ borderTop: `3px dashed ${M.gray}`, padding: "7px 0", fontSize: 27 }}>{k}</div>
+                <div style={{ borderTop: `3px dashed ${M.gray}`, padding: "5px 0", display: "flex", alignItems: "baseline", gap: 14 }}>
+                  <div style={{ fontSize: 27, color: i === 0 ? M.red : M.ink }}>{v}</div>
+                  <div style={{ ...B, fontSize: 19, color: M.sub }}>{n}</div>
+                </div>
+              </React.Fragment>
+            ) : <React.Fragment key={k}><div style={{ height: 50 }} /><div /></React.Fragment>)}
+          </div>
+          <div style={{ borderTop: `4px double ${M.ink}`, marginTop: 6, paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", ...K, fontSize: 32 }}>
+            <span>合計</span><span style={{ color: M.red }}>銀行・借入額・物件で変わる</span>
+          </div>
+        </div>
+      </In>
+      <In at={3.2} x={60} y={1160} mode="pop"><Pill2 c={M.yellow} size={34}><span style={{ color: M.ink }}>だから <R>見積もり</R>を取って確認</span></Pill2></In>
+    </AbsoluteFill>
+  );
+};
+
+// ════════ ⑥-3 本当にプラス？（引き算）：諸費用は空欄の見積もり ════════
+const P5c: React.FC = () => {
+  const f = useCurrentFrame();
+  const Eq: React.FC<{ at: number; label: string; v: number; big?: boolean }> = ({ at, label, v, big }) => (
+    <In at={at} x={60} y={0} mode="pop" style={{ position: "relative", left: 0, top: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ width: 380, background: "#fff", border: `5px solid ${M.green}`, borderRadius: 16, padding: "10px 14px", textAlign: "center" }}>
+          <div style={{ ...B, fontSize: 22, color: M.sub }}>{label}</div>
+          <div style={{ ...K, fontSize: 24 }}>減る利息</div>
+          <div style={{ ...SER, fontSize: big ? 64 : 52, color: M.green, lineHeight: 1.1 }}>約{yen(cnt(f, at, v, 0.6))}万円</div>
+        </div>
+        <span style={{ ...K, fontSize: 56 }}>−</span>
+        <div style={{ width: 230, height: 140, border: `5px dashed ${M.red}`, borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#FFF6F3" }}>
+          <div style={{ ...K, fontSize: 26, color: M.red }}>見積もりの</div><div style={{ ...K, fontSize: 30, color: M.red }}>諸費用</div>
+        </div>
+        <span style={{ ...K, fontSize: 56 }}>＝</span>
+        <span style={{ ...K, fontSize: 40 }}>＋？</span>
+      </div>
+    </In>
+  );
+  return (
+    <AbsoluteFill>
+      <Paper2 />
+      <SectionPill at={0.1} no="03" icon="＝">本当にプラス？</SectionPill>
+      <In at={0.3} x={60} y={390} mode="pop"><span style={{ ...B, fontSize: 26, color: M.sub }}>たとえば 残り3,000万円・25年なら</span></In>
+      <div style={{ position: "absolute", left: 0, top: 450 }}><Eq at={0.6} label="金利 1.5% → 1.0%（0.5%差）" v={208} big /></div>
+      <div style={{ position: "absolute", left: 0, top: 650 }}><Eq at={1.6} label="金利 1.5% → 1.2%（0.3%差）" v={125} /></div>
+      <In at={2.6} x={60} y={860} mode="pop"><Pill2 c={M.yellow} size={36}><span style={{ color: M.ink }}>金利の差が小さいと <R>費用で消える</R>ことも</span></Pill2></In>
+      <In at={3.0} x={60} y={960} mode="pop">
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <GenSlot name="r2_umbrella_couple" size={130} />
+          <Sticker pad="12px 20px"><span style={{ ...K, fontSize: 32 }}>団信は<R>入り直し</R>＝審査がある</span></Sticker>
+        </div>
+      </In>
+      <Note at={0.6}>※金利が今のまま続いた場合の試算</Note>
     </AbsoluteFill>
   );
 };
@@ -326,7 +413,7 @@ const P8: React.FC = () => {
   );
 };
 
-const PAGES: React.FC[] = [P0, P1, P1b, P2, P3, P4, P5, P6, P7, P8];
+const PAGES: React.FC[] = [P0, P1, P1b, P2, P3, P4, P5, P5b, P5c, P6, P7, P8];
 export const LOAN_TAISAKU_STILL_FRAMES = F(PAGE) * PAGES.length;
 const SAFE = 0.9, SAFE_X = 540 - 540 * SAFE, SAFE_Y = 300 - 280 * SAFE;
 export const LoanTaisakuStills: React.FC = () => (
