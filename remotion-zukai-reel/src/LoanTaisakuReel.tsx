@@ -419,7 +419,9 @@ const P8: React.FC = () => {
       <div style={{ position: "absolute", inset: -60, opacity: 0.25 * interpolate(f, [F(0.3), F(0.8)], [0, 1], clamp), filter: "blur(12px)" }}><Img src={staticFile("cta_nisabond/site.webp")} style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
       <In at={0.05} until={2.6} x={0} y={300} center mode="ghost"><span style={{ ...K, fontSize: 50 }}>自分の場合は<R>どうしたらいい？</R></span></In>
       <TapCard at={0.3} until={2.6} src="cta_nisabond/igprofile.jpg" iw={1178} ih={915} x={90} y={380} w={900} hit={[0.03, 0.9, 0.52, 0.085]} dimAt={0.8} tapAt={1.5} label={<>プロフの<span style={{ color: M.red }}>リンク</span>から</>} labelAt={1.2} />
-      <TapCard at={2.7} src="cta_nisabond/links.jpg" iw={1179} ih={525} x={90} y={420} w={900} hit={[0.02, 0.03, 0.96, 0.3]} dimAt={2.9} tapAt={3.4} label={<><span style={{ color: "#06C755" }}>公式LINE</span>を追加して</>} labelAt={3.1} labelTop={900} labelLeft={150} />
+      <TapCard at={2.7} until={4.0} src="cta_nisabond/links.jpg" iw={1179} ih={525} x={90} y={420} w={900} hit={[0.02, 0.03, 0.96, 0.3]} dimAt={2.9} tapAt={3.4} label={<><span style={{ color: "#06C755" }}>公式LINE</span>を追加して</>} labelAt={3.1} labelTop={900} labelLeft={150} />
+      {/* 公式LINEのリッチメニュー：前回は「情報まとめ」→ 今回は「面談予約」 */}
+      <TapCard at={4.05} src="cta_nisabond/site.webp" iw={2000} ih={1349} x={90} y={400} w={900} hit={[0.665, 0.03, 0.315, 0.47]} dimAt={4.25} tapAt={4.7} label={<>個別相談は<span style={{ color: M.red }}>ここ</span>から！</>} labelAt={4.4} labelTop={1050} labelLeft={110} call={<>リッチメニューの「面談予約」</>} callAt={4.95} rot={1} />
     </AbsoluteFill>
   );
 };
