@@ -1,5 +1,6 @@
 import React from "react";
-import { AbsoluteFill, Series, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Img, Series, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { TapCard } from "./components/tapCard";
 import { FONT } from "./components/font";
 import { GenSlot } from "./MileLifePlan";
 import { F, clamp, out, K, B, SER, M, pop, yen, cnt, R, In, Sticker, Tag, Stamp, Paper2, SectionPill, Chain, Pill2, HandCircle, Spotlight } from "./components/marke";
@@ -390,25 +391,16 @@ const P7: React.FC = () => (
   </AbsoluteFill>
 );
 
-// ════════ ⑦ CTA：公式LINE ════════
+// ════════ ⑦ CTA：NISA→債券リールの締めと同じ（実際のプロフ → リンク一覧 → 公式LINE を指でタップ） ════════
 const P8: React.FC = () => {
   const f = useCurrentFrame();
-  const tap = f >= F(2.4) ? Math.abs(Math.sin((f - F(2.4)) / 6)) : 0;
   return (
     <AbsoluteFill>
       <Paper2 />
-      <In at={0.1} x={0} y={330} center mode="ghost"><span style={{ ...K, fontSize: 52 }}>自分の場合は<R>どうしたらいい？</R></span></In>
-      <In at={0.6} x={330} y={440} mode="pop"><GenSlot name="r2_smartphone_chat" size={420} /></In>
-      <In at={1.4} x={0} y={900} center mode="pop">
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 16, background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 24, boxShadow: `10px 10px 0 ${M.green}`, padding: "14px 34px" }}>
-          <span style={{ ...B, fontSize: 36 }}>プロフィールから</span>
-          <span style={{ background: "#06C755", color: "#fff", borderRadius: 14, padding: "6px 22px", ...K, fontSize: 44 }}>公式LINE</span>
-          <span style={{ ...B, fontSize: 36 }}>を追加</span>
-        </span>
-      </In>
-      {f >= F(2.4) ? <div style={{ position: "absolute", left: 700, top: 960 + tap * 18, fontSize: 90, transform: "rotate(-20deg)" }}>👆</div> : null}
-      <In at={2.0} x={0} y={1080} center mode="pop"><Pill2 c={M.yellow} size={34}><span style={{ color: M.ink }}>ご希望があれば お申し込みください</span></Pill2></In>
-      <Spotlight at={2.4} x={540} y={940} r={460} />
+      <div style={{ position: "absolute", inset: -60, opacity: 0.25 * interpolate(f, [F(0.3), F(0.8)], [0, 1], clamp), filter: "blur(12px)" }}><Img src={staticFile("cta_nisabond/site.webp")} style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
+      <In at={0.05} until={2.6} x={0} y={300} center mode="ghost"><span style={{ ...K, fontSize: 50 }}>自分の場合は<R>どうしたらいい？</R></span></In>
+      <TapCard at={0.3} until={2.6} src="cta_nisabond/igprofile.jpg" iw={1178} ih={915} x={90} y={380} w={900} hit={[0.03, 0.9, 0.52, 0.085]} dimAt={0.8} tapAt={1.5} label={<>プロフの<span style={{ color: M.red }}>リンク</span>から</>} labelAt={1.2} />
+      <TapCard at={2.7} src="cta_nisabond/links.jpg" iw={1179} ih={525} x={90} y={420} w={900} hit={[0.02, 0.03, 0.96, 0.3]} dimAt={2.9} tapAt={3.4} label={<><span style={{ color: "#06C755" }}>公式LINE</span>を追加して</>} labelAt={3.1} labelTop={900} labelLeft={150} />
     </AbsoluteFill>
   );
 };
