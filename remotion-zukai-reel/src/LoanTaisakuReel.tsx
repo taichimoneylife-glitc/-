@@ -16,7 +16,7 @@ const PAGE = 6;
 const Hero: React.FC<{ w?: number; h?: number; bg?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ w = 900, h, bg = "#fff", children, style }) => (
   <div style={{ width: w, height: h, background: bg, border: `6px solid ${M.ink}`, borderRadius: 22, boxShadow: `10px 10px 0 ${M.green}`, boxSizing: "border-box", position: "relative", overflow: "hidden", ...style }}>{children}</div>
 );
-const HeroBar: React.FC<{ title: React.ReactNode; icon?: string; bg?: string }> = ({ title, icon = "▤", bg = M.ink }) => (
+const HeroBar: React.FC<{ title: React.ReactNode; icon?: string; bg?: string }> = ({ title, icon = "▤", bg = M.green }) => (
   <div style={{ background: bg, color: "#fff", padding: "10px 22px", ...B, fontSize: 28, display: "flex", alignItems: "center", gap: 10 }}><span>{icon}</span>{title}</div>
 );
 const Note: React.FC<{ at: number; children: React.ReactNode }> = ({ at, children }) => {
@@ -57,7 +57,7 @@ const P0: React.FC = () => (
 const P1: React.FC = () => (
   <AbsoluteFill>
     <Paper2 />
-    <SectionPill at={0.1} no="01" icon="✓">まずやること</SectionPill>
+    <SectionPill c={M.green} at={0.1} no="01" icon="✓">まずやること</SectionPill>
     <In at={0.5} x={90} y={410} mode="pop">
       <Hero>
         <HeroBar title="固定費の見直し" icon="①" />
@@ -94,11 +94,11 @@ const P1b: React.FC = () => {
   return (
     <AbsoluteFill>
       <Paper2 />
-      <SectionPill at={0.1} no="01" icon="✓">まずやること</SectionPill>
+      <SectionPill c={M.green} at={0.1} no="01" icon="✓">まずやること</SectionPill>
       <In at={0.4} x={0} y={410} center mode="ghost"><span style={{ ...K, fontSize: 48 }}>運用というと…</span></In>
       <In at={0.8} x={70} y={510} mode="pop">
         <div style={{ opacity: 1 - 0.55 * dim, filter: `grayscale(${dim})` }}>
-          <Hero w={440}><HeroBar title="株" icon="📈" /><div style={{ display: "flex", justifyContent: "center", padding: "16px 0" }}><GenSlot name="r2_stock_chart" size={300} /></div><div style={{ textAlign: "center", ...K, fontSize: 32, paddingBottom: 18 }}>イメージが強い</div></Hero>
+          <Hero w={440}><HeroBar title="株" icon="📈" bg={M.sub} /><div style={{ display: "flex", justifyContent: "center", padding: "16px 0" }}><GenSlot name="r2_stock_chart" size={300} /></div><div style={{ textAlign: "center", ...K, fontSize: 32, paddingBottom: 18 }}>イメージが強い</div></Hero>
         </div>
       </In>
       <In at={1.4} x={570} y={510} mode="pop">
@@ -117,7 +117,7 @@ const P1b: React.FC = () => {
 const P2: React.FC = () => (
   <AbsoluteFill>
     <Paper2 />
-    <In at={0.1} x={0} y={330} center mode="pop"><span style={{ display: "inline-block", background: M.ink, color: "#fff", borderRadius: 18, padding: "12px 40px", ...K, fontSize: 70, transform: "rotate(-2deg)" }}>ここから<span style={{ color: M.yellow }}>本題</span></span></In>
+    <In at={0.1} x={0} y={330} center mode="pop"><span style={{ display: "inline-block", background: M.green, color: "#fff", borderRadius: 18, padding: "12px 40px", ...K, fontSize: 70, transform: "rotate(-2deg)", boxShadow: `6px 6px 0 ${M.ink}` }}>ここから<span style={{ color: M.yellow }}>本題</span></span></In>
     {([["r2_house_return_coins", "繰上げ返済", M.orange, 0.7, 90], ["rl_bank", "借り換え", M.green, 1.1, 560]] as const).map(([img, l, c, at, x]) => (
       <In key={l} at={at} x={x} y={520} mode="pop">
         <Hero w={430} style={{ boxShadow: `8px 8px 0 ${c}` }}>
@@ -160,7 +160,7 @@ const P3: React.FC = () => {
   return (
     <AbsoluteFill>
       <Paper2 />
-      <SectionPill at={0.1} no="02" icon="🏠">繰上げ返済</SectionPill>
+      <SectionPill c={M.green} at={0.1} no="02" icon="🏠">繰上げ返済</SectionPill>
       <In at={0.3} x={70} y={390} mode="pop"><Tag c={M.red} size={26}>仮定の試算</Tag></In>
       <In at={0.4} x={70} y={450} mode="pop">
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, width: 440 }}>
@@ -208,7 +208,7 @@ const P4: React.FC = () => {
   return (
     <AbsoluteFill>
       <Paper2 />
-      <SectionPill at={0.1} no="02" icon="⚠">繰上げる前に確認</SectionPill>
+      <SectionPill c={M.green} at={0.1} no="02" icon="⚠">繰上げる前に確認</SectionPill>
       <In at={0.3} x={0} y={380} center mode="ghost"><span style={{ ...K, fontSize: 42 }}>でも <R>デメリット</R> もある</span></In>
       {ROWS3.map(([img, label, main, sub], i) => {
         const at = 0.7 + i * 0.5;
@@ -238,7 +238,7 @@ const P5: React.FC = () => {
   return (
     <AbsoluteFill>
       <Paper2 />
-      <SectionPill at={0.1} no="03" icon="🏦">借り換え</SectionPill>
+      <SectionPill c={M.green} at={0.1} no="03" icon="🏦">借り換え</SectionPill>
       <In at={0.3} x={0} y={390} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `5px solid ${M.ink}`, borderRadius: 16, padding: "8px 28px", ...K, fontSize: 44 }}>「金利が安い」<R>だけで決めない</R></span></In>
       <In at={0.6} x={290} y={500} mode="pop"><GenSlot name="r2_balance_scale" size={500} /></In>
       <In at={1.0} x={40} y={600} mode="pop">
@@ -285,7 +285,7 @@ const P5b: React.FC = () => {
   return (
     <AbsoluteFill>
       <Paper2 />
-      <SectionPill at={0.1} no="03" icon="🧾">借り換えの諸費用</SectionPill>
+      <SectionPill c={M.green} at={0.1} no="03" icon="🧾">借り換えの諸費用</SectionPill>
       <In at={0.3} x={0} y={380} center mode="ghost"><span style={{ ...K, fontSize: 42 }}>諸費用は <R>銀行ごとに決まり方が違う</R></span></In>
       <In at={0.5} x={60} y={450} mode="pop">
         <div style={{ width: 960, background: "#FFFDF6", border: `5px solid ${M.ink}`, borderRadius: 8, boxShadow: `8px 8px 0 ${M.ink}`, padding: "10px 26px 14px", boxSizing: "border-box", clipPath: "polygon(0 0,100% 0,100% 100%,97% 98%,94% 100%,91% 98%,88% 100%,85% 98%,82% 100%,79% 98%,76% 100%,73% 98%,70% 100%,67% 98%,64% 100%,61% 98%,58% 100%,55% 98%,52% 100%,49% 98%,46% 100%,43% 98%,40% 100%,37% 98%,34% 100%,31% 98%,28% 100%,25% 98%,22% 100%,19% 98%,16% 100%,13% 98%,10% 100%,7% 98%,4% 100%,0 98%)" }}>
@@ -334,7 +334,7 @@ const P5c: React.FC = () => {
   return (
     <AbsoluteFill>
       <Paper2 />
-      <SectionPill at={0.1} no="03" icon="＝">本当にプラス？</SectionPill>
+      <SectionPill c={M.green} at={0.1} no="03" icon="＝">本当にプラス？</SectionPill>
       <In at={0.3} x={60} y={390} mode="pop"><span style={{ ...B, fontSize: 26, color: M.sub }}>たとえば 残り3,000万円・25年なら</span></In>
       <div style={{ position: "absolute", left: 0, top: 450 }}><Eq at={0.6} label="金利 1.5% → 1.0%（0.5%差）" v={208} big /></div>
       <div style={{ position: "absolute", left: 0, top: 650 }}><Eq at={1.6} label="金利 1.5% → 1.2%（0.3%差）" v={125} /></div>
@@ -354,7 +354,7 @@ const P5c: React.FC = () => {
 const P6: React.FC = () => (
   <AbsoluteFill>
     <Paper2 />
-    <SectionPill at={0.1} no="03" icon="💬">金利交渉</SectionPill>
+    <SectionPill c={M.green} at={0.1} no="03" icon="💬">金利交渉</SectionPill>
     <In at={0.3} x={0} y={390} center mode="pop"><Tag c={M.red} size={34}>意外と知られていない</Tag></In>
     <In at={0.6} x={240} y={560} mode="pop"><GenSlot name="r2_bank_counter" size={600} /></In>
     <In at={1.2} x={60} y={470} mode="pop" rot={-6}>
@@ -369,25 +369,41 @@ const P6: React.FC = () => (
 );
 
 // ════════ ⑥ まとめ ════════
-const Box: React.FC<{ c: string; children: React.ReactNode; w?: number }> = ({ c, children, w = 410 }) => (
-  <div style={{ width: w, background: "#fff", border: `5px solid ${M.ink}`, borderRadius: 18, boxShadow: `6px 6px 0 ${c}`, padding: "16px 0", textAlign: "center", ...K, fontSize: 40 }}>{children}</div>
+const Leaf: React.FC<{ c: string; children: React.ReactNode; sub?: React.ReactNode; w?: number }> = ({ c, children, sub, w = 380 }) => (
+  <div style={{ width: w, background: "#fff", border: `5px solid ${M.ink}`, borderLeft: `14px solid ${c}`, borderRadius: 14, boxShadow: `5px 5px 0 ${M.ink}`, padding: "10px 16px", boxSizing: "border-box" }}>
+    <div style={{ ...K, fontSize: 36 }}>{children}</div>
+    {sub ? <div style={{ ...B, fontSize: 21, color: M.sub }}>{sub}</div> : null}
+  </div>
 );
+const TreeLine: React.FC<{ at: number; d: string; c: string }> = ({ at, d, c }) => {
+  const f = useCurrentFrame();
+  const p = interpolate(f, [F(at), F(at) + 9], [0, 1], out);
+  return <path d={d} fill="none" stroke={c} strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} />;
+};
 const P7: React.FC = () => (
   <AbsoluteFill>
     <Paper2 />
-    <SectionPill at={0.1} icon="✓">まとめ</SectionPill>
-    <In at={0.4} x={0} y={390} center mode="pop"><Tag c={M.green} size={30}><span style={{ color: "#fff" }}>まずやる</span></Tag></In>
-    <In at={0.6} x={90} y={460} mode="pop"><Box c={M.green}>固定費の見直し</Box></In>
-    <In at={0.7} x={0} y={470} center mode="pop"><span style={{ ...K, fontSize: 56 }}>＋</span></In>
-    <In at={0.8} x={580} y={460} mode="pop"><Box c={M.green}>資産形成</Box></In>
-    <In at={1.2} x={0} y={590} center mode="pop"><span style={{ ...K, fontSize: 60, color: M.sub }}>↓</span></In>
-    <In at={1.4} x={0} y={680} center mode="pop"><Tag c={M.orange} size={30}><span style={{ color: "#fff" }}>そのうえで検討</span></Tag></In>
-    <In at={1.6} x={90} y={750} mode="pop"><Box c={M.orange}>繰上げ返済</Box></In>
-    <In at={1.8} x={580} y={750} mode="pop"><Box c={M.orange}>借り換え</Box></In>
-    <In at={2.2} x={0} y={880} center mode="pop"><span style={{ ...K, fontSize: 60, color: M.sub }}>↓</span></In>
-    <In at={2.4} x={0} y={970} center mode="pop"><Pill2 c={M.yellow} size={40}><span style={{ color: M.ink }}>メリット・デメリットを見て判断</span></Pill2></In>
-    <In at={3.0} x={70} y={1060} mode="pop"><GenSlot name="r2_signpost" size={200} /></In>
-    <In at={3.2} x={290} y={1100} mode="pop"><span style={{ ...K, fontSize: 40, lineHeight: 1.3 }}>住宅ローンは<br /><R>家庭ごとに戦略が変わる</R></span></In>
+    <SectionPill c={M.green} at={0.1} icon="✓">まとめ</SectionPill>
+    <svg width={1080} height={1400} style={{ position: "absolute", left: 0, top: 0 }}>
+      <TreeLine at={0.5} d="M540 470 L540 500 L280 500 L280 535" c={M.ink} />
+      <TreeLine at={0.5} d="M540 500 L800 500 L800 535" c={M.ink} />
+      <TreeLine at={0.9} d="M130 625 L130 700 L170 700" c={M.green} />
+      <TreeLine at={1.1} d="M130 700 L130 830 L170 830" c={M.green} />
+      <TreeLine at={1.7} d="M650 625 L650 700 L690 700" c={M.orange} />
+      <TreeLine at={1.9} d="M650 700 L650 830 L690 830" c={M.orange} />
+      <TreeLine at={2.4} d="M360 900 L360 950 L540 950 L540 985" c={M.ink} />
+      <TreeLine at={2.4} d="M880 900 L880 950 L540 950" c={M.ink} />
+    </svg>
+    <In at={0.3} x={0} y={385} center mode="pop"><span style={{ display: "inline-block", background: M.yellow, border: `5px solid ${M.ink}`, borderRadius: 16, padding: "6px 30px", ...K, fontSize: 40 }}>金利が上がったときの対策</span></In>
+    <In at={0.7} x={100} y={535} mode="pop"><span style={{ display: "inline-flex", alignItems: "center", gap: 10, background: M.green, color: "#fff", border: `5px solid ${M.ink}`, borderRadius: 999, padding: "8px 30px", ...K, fontSize: 38, boxShadow: `5px 5px 0 ${M.ink}` }}>① まずやる</span></In>
+    <In at={0.9} x={170} y={655} mode="pop"><Leaf c={M.green}>固定費の見直し</Leaf></In>
+    <In at={1.1} x={170} y={785} mode="pop"><Leaf c={M.green} sub="長期・積立・分散／債券も">資産形成</Leaf></In>
+    <In at={1.5} x={600} y={535} mode="pop"><span style={{ display: "inline-flex", alignItems: "center", gap: 10, background: M.orange, color: "#fff", border: `5px solid ${M.ink}`, borderRadius: 999, padding: "8px 30px", ...K, fontSize: 38, boxShadow: `5px 5px 0 ${M.ink}` }}>② そのうえで検討</span></In>
+    <In at={1.7} x={690} y={655} mode="pop"><Leaf c={M.orange} w={340}>繰上げ返済</Leaf></In>
+    <In at={1.9} x={690} y={785} mode="pop"><Leaf c={M.orange} w={340} sub="前に金利交渉も">借り換え</Leaf></In>
+    <In at={2.6} x={0} y={985} center mode="pop"><Pill2 c={M.yellow} size={40}><span style={{ color: M.ink }}>メリット・デメリットを見て判断</span></Pill2></In>
+    <In at={3.0} x={70} y={1070} mode="pop"><GenSlot name="r2_signpost" size={170} /></In>
+    <In at={3.2} x={260} y={1100} mode="pop"><span style={{ ...K, fontSize: 40, lineHeight: 1.3 }}>住宅ローンは<br /><R>家庭ごとに戦略が変わる</R></span></In>
   </AbsoluteFill>
 );
 

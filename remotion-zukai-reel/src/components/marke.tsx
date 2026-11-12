@@ -187,9 +187,9 @@ export const Paper2: React.FC<{ color?: string; grid?: string; shape?: string; m
   );
 };
 // 上の真ん中の黒い札（例：🔍｜01｜参考サムネを分析）
-export const SectionPill: React.FC<{ at: number; no?: string; icon?: string; children: React.ReactNode; y?: number; until?: number }> = ({ at, no, icon = "◎", children, y = 300, until = 999 }) => (
+export const SectionPill: React.FC<{ at: number; no?: string; icon?: string; children: React.ReactNode; y?: number; until?: number; c?: string }> = ({ at, no, icon = "◎", children, y = 300, until = 999, c = M.ink }) => (
   <In at={at} until={until} x={0} y={y} center mode="pop">
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 14, background: M.ink, color: "#fff", borderRadius: 999, padding: "10px 30px", ...B, fontSize: 34, boxShadow: "0 6px 0 rgba(22,24,31,0.25)", whiteSpace: "nowrap" }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 14, background: c, color: "#fff", borderRadius: 999, padding: "10px 30px", ...B, fontSize: 34, boxShadow: "0 6px 0 rgba(22,24,31,0.25)", whiteSpace: "nowrap" }}>
       <span style={{ fontSize: 28 }}>{icon}</span>
       {no ? <span style={{ ...K, fontSize: 30, opacity: 0.9 }}>{no}</span> : null}
       {no ? <span style={{ width: 2, height: 30, background: "rgba(255,255,255,0.5)" }} /> : null}
