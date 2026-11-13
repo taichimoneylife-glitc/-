@@ -65,6 +65,27 @@ def main(src, out):
     for s, e, prof in moves:
         rep.append(f"  {(s+1)/30:.2f}s〜{(e+1)/30:.2f}s: " + " ".join(f"{x:+d},{y:+d}" for x, y in prof))
 
+    # ズーム（拡大・縮小）：ずれが小さいのに画面が大きく変わるフレームで、前のフレームを何倍にすると一番合うかを探す
+    def zoom(p, q):
+        best, bs = 1e18, 1.0
+        P = Image.fromarray(p.astype(np.uint8))
+        for s in np.arange(0.86, 1.161, 0.01):
+            w2, h2 = int(W * s), int(H * s)
+            z = np.asarray(P.resize((w2, h2)), dtype=np.float32)
+            if s >= 1:
+                y0, x0 = (h2 - H) // 2, (w2 - W) // 2; z = z[y0:y0 + H, x0:x0 + W]; ref = q
+            else:
+                y0, x0 = (H - h2) // 2, (W - w2) // 2; ref = q[y0:y0 + h2, x0:x0 + w2]
+            e = ((z - ref) ** 2).mean()
+            if e < best: best, bs = e, s
+        return bs
+    zs = []
+    for k in range(n - 1):
+        if d[k] > 2.0 and abs(sh[k][0]) < 12 and abs(sh[k][1]) < 12:
+            s = zoom(v[k], v[k + 1])
+            if abs(s - 1) >= 0.02: zs.append((k + 1, s))
+    rep.append("ズーム（秒:倍率/フレーム。1より大きい＝寄る）: " + " ".join(f"{k/30:.2f}:{s:.2f}" for k, s in zs))
+
     # 30枚/秒の絵
     def strip(t0, t1, name):
         fr = [k for k in range(int(t0 * 30), min(n, int(t1 * 30)))]

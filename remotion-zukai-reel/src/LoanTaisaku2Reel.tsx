@@ -36,28 +36,92 @@ const Check: React.FC<{ at: number }> = ({ at }) => {
   </span>;
 };
 
-// ════════ 1 冒頭（0–6.62） ════════
-const P1: React.FC = () => (
-  <AbsoluteFill>
-    <Paper2 />
-    <In at={0.05} x={0} y={250} center mode="pop"><span style={{ display: "inline-flex", gap: 14, alignItems: "center" }}><span style={{ ...K, fontSize: 58 }}>住宅ローン</span><span style={{ background: M.red, color: "#fff", borderRadius: 12, padding: "4px 18px", ...K, fontSize: 40 }}>変動金利</span></span></In>
-    {([["rl_bill_shock", "もう上がった人", M.red, 2.4, 90], ["r2_worry_calendar", "これから上がる人", M.orange, 4.14, 560]] as const).map(([img, label, c, at, x]) => (
-      <In key={img} at={at} x={x} y={370} mode="throw" from={x < 300 ? "l" : "r"}>
-        <Hero w={430} sh={c}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "18px 0 20px" }}>
-            <GenSlot name={img} size={290} />
-            <span style={{ ...K, fontSize: 38, color: c, marginTop: 6 }}>{label}</span>
+// ════════ 1 冒頭（0–6.62）：参考⑪の型＝銀行アプリの「金利変更のお知らせ」を再現 → 寄る → 横にシュッ → 引いて赤い枠と線 ════════
+// 動きの数字は marke-motion-grammar.md（入り＝毎フレーム約半分になる急ブレーキ、寄り8f、横のシュッ8f、引き6f、赤枠3f、線5f）
+type CamK = { t: number; cx: number; cy: number; s: number; d: number };
+const CAM: CamK[] = [{ t: 0, cx: 540, cy: 860, s: 1, d: 1 }, { t: 0.78, cx: 540, cy: 700, s: 1.75, d: 8 }, { t: 2.04, cx: 540, cy: 905, s: 1.75, d: 8 }, { t: 3.2, cx: 540, cy: 860, s: 1, d: 6 }];
+const camAt = (f: number) => {
+  let c = { cx: CAM[0].cx, cy: CAM[0].cy, s: CAM[0].s }, v = 0;
+  for (let i = 1; i < CAM.length; i++) {
+    const k = CAM[i], a0 = F(k.t);
+    if (f < a0) break;
+    const p = interpolate(f, [a0, a0 + k.d], [0, 1], { ...clamp, easing: (x) => 1 - Math.pow(1 - x, 3) });
+    const p1 = interpolate(f - 1, [a0, a0 + k.d], [0, 1], { ...clamp, easing: (x) => 1 - Math.pow(1 - x, 3) });
+    const prev = { ...c };
+    c = { cx: prev.cx + (k.cx - prev.cx) * p, cy: prev.cy + (k.cy - prev.cy) * p, s: prev.s + (k.s - prev.s) * p };
+    v = Math.abs((k.cy - prev.cy) * (p - p1)) + Math.abs((k.s - prev.s) * (p - p1)) * 500;
+  }
+  return { ...c, v };
+};
+const stepN = (f: number, at: number, to: number, dur: number, from: number) => cnt(F(at) + Math.floor((f - F(at)) / 3) * 3, at, to, dur, from); // 3fごとに段で上がる
+const Row: React.FC<{ label: string; from: string; to: React.ReactNode; boxAt: number; y: number }> = ({ label, from, to, boxAt, y }) => {
+  const f = useCurrentFrame();
+  const bx = interpolate(f, [F(boxAt), F(boxAt) + 3], [0, 1], clamp);
+  return (
+    <div style={{ position: "absolute", left: 30, right: 30, top: y, height: 150, background: "#F6F7FA", borderRadius: 18, padding: "16px 22px", boxSizing: "border-box" }}>
+      <div style={{ ...B, fontSize: 24, color: M.sub }}>{label}</div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}><span style={{ ...B, fontSize: 30, color: M.sub }}>{from} →</span>{to}</div>
+      {bx > 0 ? <div style={{ position: "absolute", inset: -8, border: `6px solid ${M.red}`, borderRadius: 22, clipPath: `inset(0 ${(1 - bx) * 100}% 0 0)` }} /> : null}
+    </div>
+  );
+};
+const CHIPS: [string, string][] = [["固定費", G], ["資産形成", G], ["繰上げ返済", M.orange], ["借り換え", M.orange]];
+const P1: React.FC = () => {
+  const f = useCurrentFrame();
+  const c = camAt(f);
+  // スマホの入り：下から、毎フレーム約半分になる急ブレーキ（8f）＋速さに合わせたブレ
+  const LAND = [600, 300, 150, 76, 38, 18, 8, 3, 0];
+  const iy = LAND[Math.min(LAND.length - 1, f)];
+  const iv = f < LAND.length - 1 ? LAND[f] - LAND[f + 1] : 0;
+  // 4.8秒：スマホが上へ抜ける（ため4f → 加速）
+  const ex = f < F(4.62) ? 0 : (() => { const k = f - F(4.62); const T = [6, 18, 30, 42, -48, -228, -488, -808, -1188, -1700]; return T[Math.min(T.length - 1, k)]; })();
+  const exV = f >= F(4.62) + 4 ? Math.min(60, (f - F(4.62) - 3) * 12) : 0;
+  const rate = f >= F(1.35) ? stepN(f, 1.35, 1.7, 0.4, 1.2) : 1.2;
+  const pay = f >= F(2.4) ? stepN(f, 2.4, 119028, 0.6, 102096) : 102096;
+  const blur = Math.min(14, (iv + c.v) / 18) + exV / 4;
+  const sc = 540 - c.cx * c.s, sy = 860 - c.cy * c.s;
+  const lineP = interpolate(f, [F(3.4), F(3.4) + 5], [0, 1], clamp);
+  return (
+    <AbsoluteFill>
+      <Paper2 />
+      <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1920, transform: `translate(${sc}px, ${sy + iy + ex}px) scale(${c.s})`, transformOrigin: "0 0", filter: blur > 0.5 ? `blur(${blur}px)` : undefined }}>
+        {/* スマホ（架空の銀行アプリ。実在の名前・ロゴは出さない） */}
+        <div style={{ position: "absolute", left: 230, top: 330, width: 620, height: 1060, background: "#fff", border: `14px solid ${M.ink}`, borderRadius: 64, boxShadow: `14px 14px 0 rgba(0,0,0,0.12)`, overflow: "hidden" }}>
+          <div style={{ position: "absolute", left: "50%", top: 14, width: 170, height: 34, marginLeft: -85, background: M.ink, borderRadius: 20 }} />
+          <div style={{ position: "absolute", left: 0, right: 0, top: 70, padding: "0 30px", display: "flex", alignItems: "center", gap: 10, ...K, fontSize: 30 }}><span>🏠</span>住宅ローン<span style={{ marginLeft: "auto", ...B, fontSize: 22, color: M.sub }}>〇〇銀行</span></div>
+          <div style={{ position: "absolute", left: 30, right: 30, top: 140, background: "#FFF3F0", border: `3px solid ${M.red}`, borderRadius: 16, padding: "12px 18px", ...K, fontSize: 28, color: M.red, transform: `translateY(${interpolate(f, [F(0.35), F(0.35) + 6], [-160, 0], { ...clamp, easing: (x) => 1 - Math.pow(1 - x, 3) })}px)`, opacity: f >= F(0.35) ? 1 : 0 }}>🔔【重要】適用金利変更のお知らせ</div>
+          <Row label="適用金利（変動）" from="1.2%" y={300} boxAt={1.6} to={<span style={{ ...SER, fontSize: 64, color: f >= F(1.35) ? M.red : M.ink }}>{rate.toFixed(1)}%</span>} />
+          <Row label="毎月の返済額" from="102,096円" y={500} boxAt={2.7} to={<span style={{ ...SER, fontSize: 56, color: f >= F(2.4) ? M.red : M.ink }}>{yen(pay)}円</span>} />
+          <div style={{ position: "absolute", left: 30, right: 30, top: 700, ...B, fontSize: 22, color: M.gray }}>※イメージ（例：残高3,500万円・35年）</div>
+          {/* 2つの赤枠をつなぐカギ型の線 */}
+          <svg width={620} height={1060} style={{ position: "absolute", left: 0, top: 0, overflow: "visible" }}>
+            <path d="M560 380 L600 380 L600 580 L560 580" fill="none" stroke={M.red} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - lineP} />
+          </svg>
+        </div>
+        {f >= F(3.55) ? <div style={{ position: "absolute", left: 0, right: 0, top: 1100, textAlign: "center", transform: `scale(${pop(f, F(3.55))})` }}><span style={{ display: "inline-block", background: M.red, color: "#fff", border: `5px solid ${M.ink}`, borderRadius: 16, padding: "10px 30px", ...K, fontSize: 46, boxShadow: `6px 6px 0 ${M.ink}` }}>返済額、もう上がってない？</span></div> : null}
+        {f >= F(3.78) ? <div style={{ position: "absolute", left: 40, top: 860, transform: `scale(${pop(f, F(3.78))}) rotate(-6deg)` }}><GenSlot name="r2_worry_calendar" size={230} /><div style={{ ...K, fontSize: 30, background: "#fff", border: `4px solid ${M.ink}`, borderRadius: 12, padding: "4px 12px", marginTop: -10 }}>これから上がる人も</div></div> : null}
+      </div>
+      {/* 4.8秒〜：タイトル＋4つの札がバラバラに落ちて1列にそろう */}
+      {f >= F(4.8) ? (
+        <>
+          <div style={{ position: "absolute", left: 0, right: 0, top: 430, textAlign: "center" }}>
+            <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 24, boxShadow: `10px 10px 0 ${G}`, padding: "14px 36px" }}>
+              <span style={{ display: "inline-flex" }}><BounceText text="金利が上がったときの" at={F(4.8)} size={62} stroke={false} /><BounceText text="対策" at={F(4.8) + 18} size={62} color={M.red} stroke={false} /></span>
+            </span>
           </div>
-        </Hero>
-      </In>
-    ))}
-    <In at={4.8} x={0} y={900} center mode="pop">
-      <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 24, boxShadow: `10px 10px 0 ${M.ink}`, padding: "14px 40px" }}>
-        <span style={{ display: "inline-flex" }}><BounceText text="金利が上がったときの" at={F(4.8)} size={62} stroke={false} /><BounceText text="対策" at={F(4.8) + 18} size={62} color={M.red} stroke={false} /></span>
-      </span>
-    </In>
-  </AbsoluteFill>
-);
+          {CHIPS.map(([t, col], i) => {
+            const at = F(5.15) + i * 3;
+            const fall = interpolate(f, [at, at + 7], [-900, 0], { ...clamp, easing: (x) => 1 - Math.pow(1 - x, 3) });
+            const align = interpolate(f, [F(5.95), F(5.95) + 7], [0, 1], { ...clamp, easing: (x) => 1 - Math.pow(1 - x, 3) });
+            const rx = [-30, 40, -20, 30][i], ry = [40, -20, 60, 10][i], rr = [-14, 10, -8, 16][i];
+            const x = 70 + i * 240;
+            return f >= at ? <div key={t} style={{ position: "absolute", left: x + rx * (1 - align), top: 640 + ry * (1 - align) + fall, transform: `rotate(${rr * (1 - align)}deg)`, width: 220, textAlign: "center", background: "#fff", border: `5px solid ${M.ink}`, borderTop: `16px solid ${col}`, borderRadius: 14, boxShadow: `5px 5px 0 ${M.ink}`, padding: "16px 0", ...K, fontSize: 34 }}><div style={{ ...K, fontSize: 22, color: col }}>0{i + 1}</div>{t}</div> : null;
+          })}
+        </>
+      ) : null}
+    </AbsoluteFill>
+  );
+};
 
 // ════════ 2 まずやる（6.62–10.04） ════════
 const P2: React.FC = () => (
@@ -189,7 +253,7 @@ const P7: React.FC = () => {
       {f >= F(4.78) ? (
         <div style={{ position: "absolute", left: 0, right: 0, top: 920, textAlign: "center", transform: `scale(${pop(f, F(4.78))})` }}>
           <span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 24, boxShadow: `10px 10px 0 ${M.ink}`, padding: "8px 36px" }}>
-            <span style={{ ...K, fontSize: 38 }}>20年間の支払利息 </span><span style={{ ...SER, fontSize: 104, color: M.red, lineHeight: 1.1 }}>約{yen(cnt(f, 6.52, 154, 0.7))}万円</span><span style={{ ...K, fontSize: 44 }}>減</span>
+            <span style={{ ...K, fontSize: 38 }}>20年間の支払利息 </span><span style={{ ...SER, fontSize: 104, color: M.red, lineHeight: 1.1 }}>約{yen(stepN(f, 6.52, 154, 0.7, 0))}万円</span><span style={{ ...K, fontSize: 44 }}>減</span>
           </span>
         </div>
       ) : null}
@@ -203,7 +267,7 @@ const P7: React.FC = () => {
 const P8: React.FC = () => {
   const f = useCurrentFrame();
   const big = interpolate(f, [F(4.78), F(5.3)], [0, 1], out);
-  const v = f >= F(9.78) ? cnt(f, 9.78, 1327, 1.3, 500) : 500;
+  const v = f >= F(9.78) ? stepN(f, 9.78, 1327, 1.3, 500) : 500;
   return (
     <AbsoluteFill>
       <Paper2 />
@@ -407,12 +471,23 @@ const P15: React.FC = () => {
   );
 };
 
-// ── ページの入り：下からグッと上がって止まる ──
-const PageIn: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// ── ページの切り替え（marke-motion-grammar.md の数字）──
+// 出る：最後の10f＝ため4f（+6,+18,+30,+42）→ 加速6f（-48,-228,-488,-808,-1188,-1700）＋ブレ。章の頭でない時は「ため」なし
+// 入る：最初の8f＝+762 → 438,252,144,78,42,18,6,0（毎フレーム約0.58倍）＋ブレ
+const EXIT_C = [6, 18, 30, 42, -48, -228, -488, -808, -1188, -1700];
+const EXIT_S = [0, 0, 0, 0, -48, -228, -488, -808, -1188, -1700];
+const ENTER = [762, 438, 252, 144, 78, 42, 18, 6, 0];
+const PageMove: React.FC<{ dur: number; chapterNext: boolean; first: boolean; children: React.ReactNode }> = ({ dur, chapterNext, first, children }) => {
   const f = useCurrentFrame();
-  const p = interpolate(f, [0, 9], [0, 1], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 3) });
-  return <AbsoluteFill style={{ transform: `translateY(${(1 - p) * 220}px) scale(${0.94 + 0.06 * p})`, opacity: Math.min(1, p * 2), transformOrigin: "50% 40%" }}>{children}</AbsoluteFill>;
+  let y = 0, v = 0;
+  if (!first && f < ENTER.length) { y = ENTER[f]; v = f + 1 < ENTER.length ? ENTER[f] - ENTER[f + 1] : 0; }
+  const ex = chapterNext ? EXIT_C : EXIT_S;
+  const k = f - (dur - ex.length);
+  if (k >= 0 && dur > 30) { y = ex[k]; v = Math.abs(ex[k] - (ex[k - 1] ?? 0)); }
+  const blur = v > 40 ? Math.min(18, v / 22) : 0;
+  return <AbsoluteFill style={{ transform: `translateY(${y}px)`, filter: blur ? `blur(${blur}px)` : undefined }}>{children}</AbsoluteFill>;
 };
+const CHAPTER = new Set([1, 3, 5, 7, 10, 11, 12, 13, 14]); // 次のページが章の頭（まずやる・本題・繰上げの例・500万円の使い方・繰上げ前の確認・借り換え・交渉・まとめ・CTA）
 export const RL2_PAGES: [number, React.FC][] = [[0, P1], [6.62, P2], [10.04, P3], [15.5, P4], [17.92, P5], [19.96, P6], [23.02, P7], [30.88, P8], [42.9, P9], [47.26, P10], [53.18, P11], [63.1, P12], [73.62, P13], [81.34, P14], [91.6, P15]];
 export const LOANTAISAKU2_FRAMES = F(98.3);
 
@@ -442,8 +517,8 @@ const SUBS: [number, string][] = [
 
 const s = (file: string, t: number, volume = 0.22) => ({ file: `user/${file}`, at: F(t), volume });
 const CUES = [
-  ...RL2_PAGES.slice(1).map(([t]) => s("u03s", t, 0.24)),
-  s("u02s", 0.78, 0.16), s("u02s", 2.4, 0.2), s("u02s", 4.14, 0.2), s("u05", 4.8, 0.24),
+  ...RL2_PAGES.slice(1).map(([t]) => s("u03s", t - 0.42, 0.24)),
+  s("u02s", 0.35, 0.18), s("u03s", 0.78, 0.2), s("u05s", 1.6, 0.24), s("u03s", 2.04, 0.22), s("u05s", 2.7, 0.24), s("u03s", 3.2, 0.18), s("u04", 3.55, 0.28), s("u02s", 3.78, 0.18), s("u05", 4.8, 0.24), ...[0, 1, 2, 3].map((i) => s("u02s", 5.15 + i * 0.1, 0.14)), s("u05s", 5.95, 0.2),
   s("u02s", 6.98, 0.18), s("u02s", 7.94, 0.18), s("u04", 9.0, 0.3),
   s("u02s", 10.74, 0.16), s("u02s", 11.26, 0.16), s("u02s", 11.58, 0.16), s("u06", 13.98, 0.22),
   s("u02s", 16.76, 0.18), s("u02s", 17.5, 0.18), s("u04", 19.12, 0.32),
@@ -465,8 +540,10 @@ export const LoanTaisaku2Reel: React.FC = () => (
     <AbsoluteFill style={{ background: M.paper, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)` }} />
     <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1920, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}>
       {RL2_PAGES.map(([t, P], i) => {
-        const end = i + 1 < RL2_PAGES.length ? RL2_PAGES[i + 1][0] : 98.3;
-        return <Sequence key={i} from={F(t)} durationInFrames={F(end) - F(t)}><PageIn><P /></PageIn></Sequence>;
+        const st = i === 0 ? 0 : t - 0.12;
+        const end = i + 1 < RL2_PAGES.length ? RL2_PAGES[i + 1][0] - 0.12 : 98.3;
+        const dur = F(end) - F(st);
+        return <Sequence key={i} from={F(st)} durationInFrames={dur}><PageMove dur={dur} first={i === 0} chapterNext={CHAPTER.has(i + 1) && i + 1 < RL2_PAGES.length}><P /></PageMove></Sequence>;
       })}
     </div>
     <div style={{ position: "absolute", left: 0, right: 0, top: 1300, bottom: 0, background: `linear-gradient(${M.paper}00, ${M.paper} 50px)` }} />
