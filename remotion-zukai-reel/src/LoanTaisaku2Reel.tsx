@@ -387,30 +387,37 @@ const P12: React.FC = () => {
       <Paper2 />
       <SectionPill c={G} at={0.1} no="03" icon="🏦">借り換え</SectionPill>
       <In at={3.8} x={0} y={380} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `5px solid ${M.ink}`, borderRadius: 16, padding: "8px 28px", ...K, fontSize: 42 }}>「金利が低い」<R>だけで決めない</R></span></In>
-      <In at={0.6} x={240} y={520} mode="pop"><div style={{ transform: `rotate(${tilt}deg)`, transformOrigin: "50% 80%" }}><GenSlot name="r2_balance_scale" size={600} /></div></In>
-      <In at={0.9} x={60} y={480} mode="pop"><span style={{ ...K, fontSize: 30, color: G }}>得する側</span></In>
-      <In at={0.9} x={860} y={480} mode="pop"><span style={{ ...K, fontSize: 30, color: M.red }}>かかる側</span></In>
+      <In at={0.6} x={280} y={650} mode="pop"><div style={{ transform: `rotate(${tilt}deg)`, transformOrigin: "50% 80%" }}><GenSlot name="r2_balance_scale" size={520} /></div></In>
+      <In at={0.9} x={60} y={716} mode="pop"><span style={{ ...K, fontSize: 28, color: G }}>得する側</span></In>
+      <In at={0.9} x={870} y={716} mode="pop"><span style={{ ...K, fontSize: 28, color: M.red }}>かかる側</span></In>
       {WEIGHTS.map(([t, s, at]) => {
         const n = cnt2[s]++;
         if (f < F(at)) return null;
         const drop = interpolate(f, [F(at), F(at) + 8], [-300, 0], { ...clamp, easing: (x) => 1 - Math.pow(1 - x, 3) });
         const x = s === "l" ? 40 : 700;
-        return <div key={t} style={{ position: "absolute", left: x, top: 820 - n * 82 + drop, width: 340, textAlign: "center" }}><span style={{ display: "inline-block", background: s === "l" ? "#E3F4EA" : "#FDE7E2", border: `5px solid ${s === "l" ? G : M.red}`, borderRadius: 14, padding: "8px 18px", ...K, fontSize: 34, boxShadow: `4px 4px 0 ${M.ink}` }}>{t}</span></div>;
+        return <div key={t} style={{ position: "absolute", left: x, top: 920 - n * 78 + drop, width: 340, textAlign: "center" }}><span style={{ display: "inline-block", background: s === "l" ? "#E3F4EA" : "#FDE7E2", border: `5px solid ${s === "l" ? G : M.red}`, borderRadius: 14, padding: "6px 18px", ...K, fontSize: 32, boxShadow: `4px 4px 0 ${M.ink}` }}>{t}</span></div>;
       })}
-      {/* 諸費用とは：「諸費用」と言った所で、中身の札が出る */}
-      <In at={5.8} until={8.9} x={560} y={462} mode="throw" from="r" rot={5}>
-        <div style={{ width: 470, background: "#fff", border: `5px solid ${M.red}`, borderRadius: 16, boxShadow: `6px 6px 0 ${M.ink}`, overflow: "hidden" }}>
-          <div style={{ background: M.red, color: "#fff", padding: "6px 16px", ...K, fontSize: 26 }}>🧾 かかることがある諸費用（例）</div>
-          <div style={{ padding: "8px 16px 10px" }}>
-            {(["事務手数料・保証料", "登記費用（登録免許税・司法書士）", "印紙税", "今のローンの完済手数料"] as const).map((t, i) => (
-              <div key={t} style={{ ...B, fontSize: 23, lineHeight: 1.45, opacity: f >= F(6.0 + i * 0.12) ? 1 : 0 }}>・{t}</div>
-            ))}
-            <div style={{ ...B, fontSize: 19, color: M.sub, marginTop: 2, whiteSpace: "nowrap", opacity: f >= F(6.6) ? 1 : 0 }}>など ※銀行・契約により、かからない費用もあり</div>
+      {/* 諸費用：「諸費用」と言った所で、中身の札（左）と、事務手数料の例（右）が出る */}
+      <In at={5.8} x={70} y={455} mode="throw" from="r" rot={4}>
+        <div style={{ width: 940, background: "#fff", border: `5px solid ${M.red}`, borderRadius: 16, boxShadow: `6px 6px 0 ${M.ink}`, overflow: "hidden" }}>
+          <div style={{ background: M.red, color: "#fff", padding: "5px 16px", ...K, fontSize: 25 }}>🧾 かかることがある諸費用（例）</div>
+          <div style={{ display: "flex", gap: 14, padding: "8px 16px 6px" }}>
+            <div style={{ flex: "none", width: 420 }}>
+              {(["事務手数料・保証料", "登記費用（登録免許税・司法書士）", "印紙税", "今のローンの完済手数料"] as const).map((t, i) => (
+                <div key={t} style={{ ...B, fontSize: 22, lineHeight: 1.42, opacity: f >= F(6.0 + i * 0.12) ? 1 : 0 }}>・{t}</div>
+              ))}
+            </div>
+            <div style={{ flex: 1, background: "#FFF6F3", border: `3px dashed ${M.red}`, borderRadius: 12, padding: "6px 12px", textAlign: "center", opacity: f >= F(6.9) ? 1 : 0, transform: f >= F(6.9) ? `scale(${pop(f, F(6.9))})` : undefined }}>
+              <div style={{ ...B, fontSize: 21, color: M.sub }}>例：残り<b style={{ color: M.ink }}>4,000万円</b>を借り換え</div>
+              <div style={{ ...K, fontSize: 22 }}>事務手数料（定率型 <R>2.2%</R>）なら</div>
+              <div><span style={{ ...SER, fontSize: 58, color: M.red, lineHeight: 1.1 }}>約{yen(f >= F(7.3) ? stepN(f, 7.3, 88, 0.5, 0) : 0)}</span><span style={{ ...K, fontSize: 28 }}>万円</span></div>
+            </div>
           </div>
+          <div style={{ ...B, fontSize: 18, color: M.sub, padding: "0 16px 6px", opacity: f >= F(6.6) ? 1 : 0 }}>など ※定額型（数万円）の銀行もあります。銀行・契約により、かからない費用もあります</div>
         </div>
       </In>
-      <In at={9.6} x={60} y={1090} mode="pop"><Pill2 c={M.yellow} size={38}><span style={{ color: M.ink }}>全部含めて <R>本当にプラス？</R></span></Pill2></In>
-      <Note at={5.8} top={1190}>※諸費用（事務手数料・保証料・登記・印紙など）は、銀行・借入額・物件で変わります。見積もりで確認を</Note>
+      <In at={9.6} x={60} y={1185} mode="pop"><Pill2 c={M.yellow} size={36}><span style={{ color: M.ink }}>全部含めて <R>本当にプラス？</R></span></Pill2></In>
+      <Note at={5.8} top={1262}>※諸費用は、銀行・借入額・物件で変わります。見積もりで確認を</Note>
     </AbsoluteFill>
   );
 };
