@@ -222,7 +222,7 @@ const P8: React.FC = () => {
             <Bar title={<span>債券（米国債）</span>} icon="📜" />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 0 0" }}><GenSlot name="r2_us_flag" size={120} /><GenSlot name="r2_us_bond" size={170} /></div>
             <div style={{ textAlign: "center", ...K, fontSize: 32, opacity: f >= F(6.66) ? 1 : 0 }}>年5％で20年間</div>
-            <div style={{ textAlign: "center", padding: "0 0 14px" }}><span style={{ ...K, fontSize: 26 }}>500万円 → </span><span style={{ ...SER, fontSize: 60, color: G, lineHeight: 1.1 }}>約{yen(v)}</span><span style={{ ...K, fontSize: 30 }}>万円</span></div>
+            <div style={{ textAlign: "center", padding: "0 0 14px" }}><span style={{ ...K, fontSize: 26 }}>500万円 → </span>{f >= F(9.78) ? <><span style={{ ...SER, fontSize: 60, color: G, lineHeight: 1.1 }}>約{yen(v)}</span><span style={{ ...K, fontSize: 30 }}>万円</span></> : <span style={{ ...SER, fontSize: 60, color: M.gray, lineHeight: 1.1 }}>？</span>}</div>
           </Hero>
         </div>
       </In>
