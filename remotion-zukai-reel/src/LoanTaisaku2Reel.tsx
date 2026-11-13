@@ -112,7 +112,7 @@ const P1: React.FC = () => {
           {CHIPS.map(([t, col], i) => {
             const at = F(5.15) + i * 3;
             const fall = interpolate(f, [at, at + 7], [-900, 0], { ...clamp, easing: (x) => 1 - Math.pow(1 - x, 3) });
-            const align = interpolate(f, [F(5.95), F(5.95) + 7], [0, 1], { ...clamp, easing: (x) => 1 - Math.pow(1 - x, 3) });
+            const align = interpolate(f, [F(5.55), F(5.55) + 7], [0, 1], { ...clamp, easing: (x) => 1 - Math.pow(1 - x, 3) });
             const rx = [-30, 40, -20, 30][i], ry = [40, -20, 60, 10][i], rr = [-14, 10, -8, 16][i];
             const x = 70 + i * 240;
             return f >= at ? <div key={t} style={{ position: "absolute", left: x + rx * (1 - align), top: 640 + ry * (1 - align) + fall, transform: `rotate(${rr * (1 - align)}deg)`, width: 220, textAlign: "center", background: "#fff", border: `5px solid ${M.ink}`, borderTop: `16px solid ${col}`, borderRadius: 14, boxShadow: `5px 5px 0 ${M.ink}`, padding: "16px 0", ...K, fontSize: 34 }}><div style={{ ...K, fontSize: 22, color: col }}>0{i + 1}</div>{t}</div> : null;
@@ -537,7 +537,7 @@ const SUBS: [number, string][] = [
 const s = (file: string, t: number, volume = 0.22) => ({ file: `user/${file}`, at: F(t), volume });
 const CUES = [
   ...RL2_PAGES.slice(1).map(([t]) => s("u03s", t - 0.42, 0.24)),
-  s("u02s", 0.35, 0.18), s("u03s", 0.78, 0.2), s("u05s", 1.6, 0.24), s("u03s", 2.04, 0.22), s("u05s", 2.7, 0.24), s("u03s", 3.2, 0.18), s("u04", 3.55, 0.28), s("u02s", 3.78, 0.18), s("u05", 4.8, 0.24), ...[0, 1, 2, 3].map((i) => s("u02s", 5.15 + i * 0.1, 0.14)), s("u05s", 5.95, 0.2),
+  s("u02s", 0.35, 0.18), s("u03s", 0.78, 0.2), s("u05s", 1.6, 0.24), s("u03s", 2.04, 0.22), s("u05s", 2.7, 0.24), s("u03s", 3.2, 0.18), s("u04", 3.55, 0.28), s("u02s", 3.78, 0.18), s("u05", 4.8, 0.24), ...[0, 1, 2, 3].map((i) => s("u02s", 5.15 + i * 0.1, 0.14)), s("u05s", 5.55, 0.2),
   s("u02s", 6.98, 0.18), s("u02s", 7.94, 0.18), s("u04", 9.0, 0.3),
   s("u02s", 10.74, 0.16), s("u02s", 11.26, 0.16), s("u02s", 11.58, 0.16), s("u06", 13.98, 0.22),
   s("u02s", 16.76, 0.18), s("u02s", 17.5, 0.18), s("u04", 19.12, 0.32),
