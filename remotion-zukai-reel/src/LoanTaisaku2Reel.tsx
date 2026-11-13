@@ -353,7 +353,7 @@ const P10: React.FC = () => {
 const ROWS: [string, string, React.ReactNode, number][] = [
   ["rl_hourglass", "住宅ローン控除", <>残高が減ると<R>控除も減る</R></>, 1.78],
   ["rl_wallet_lock", "手元に残すお金", <>返したお金は<R>戻ってこない</R></>, 2.78],
-  ["r2_umbrella_couple", "団信（団体信用生命保険）", <>もしもの時に消えるローンを<R>先に自分で払う</R></>, 4.22],
+  ["r2_umbrella_couple", "団信（団体信用生命保険）", <>返済が早く終わる分、<R>保障も早く終わる</R></>, 4.22],
   ["r2_worry_calendar", "年齢", <>完済の時期・老後とのバランス</>, 4.82],
   ["r2_family_future", "今後必要になるお金", <>教育費・老後資金は大丈夫？</>, 5.32],
 ];
@@ -485,7 +485,7 @@ const PageMove: React.FC<{ dur: number; chapterNext: boolean; first: boolean; ch
   const k = f - (dur - ex.length);
   if (k >= 0 && dur > 30) { y = ex[k]; v = Math.abs(ex[k] - (ex[k - 1] ?? 0)); }
   const blur = v > 40 ? Math.min(18, v / 22) : 0;
-  return <AbsoluteFill style={{ transform: `translateY(${y}px)`, filter: blur ? `blur(${blur}px)` : undefined }}>{children}</AbsoluteFill>;
+  return <AbsoluteFill style={{ transform: `translateY(${y}px)`, filter: blur ? `blur(${blur}px)` : undefined }}>{first ? children : <Sequence from={-4} layout="none">{children}</Sequence>}</AbsoluteFill>; // 中身を4f先に出して、着地した時にはもう見えているように
 };
 const CHAPTER = new Set([1, 3, 5, 7, 10, 11, 12, 13, 14]); // 次のページが章の頭（まずやる・本題・繰上げの例・500万円の使い方・繰上げ前の確認・借り換え・交渉・まとめ・CTA）
 export const RL2_PAGES: [number, React.FC][] = [[0, P1], [6.62, P2], [10.04, P3], [15.5, P4], [17.92, P5], [19.96, P6], [23.02, P7], [30.88, P8], [42.9, P9], [47.26, P10], [53.18, P11], [63.1, P12], [73.62, P13], [81.34, P14], [91.6, P15]];
