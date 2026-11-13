@@ -400,11 +400,12 @@ const P12: React.FC = () => {
       {/* 諸費用とは：「諸費用」と言った所で、中身の札が出る */}
       <In at={5.8} until={8.9} x={560} y={462} mode="throw" from="r" rot={5}>
         <div style={{ width: 470, background: "#fff", border: `5px solid ${M.red}`, borderRadius: 16, boxShadow: `6px 6px 0 ${M.ink}`, overflow: "hidden" }}>
-          <div style={{ background: M.red, color: "#fff", padding: "6px 16px", ...K, fontSize: 26 }}>🧾 諸費用とは</div>
+          <div style={{ background: M.red, color: "#fff", padding: "6px 16px", ...K, fontSize: 26 }}>🧾 かかることがある諸費用（例）</div>
           <div style={{ padding: "8px 16px 10px" }}>
             {(["事務手数料・保証料", "登記費用（登録免許税・司法書士）", "印紙税", "今のローンの完済手数料"] as const).map((t, i) => (
               <div key={t} style={{ ...B, fontSize: 23, lineHeight: 1.45, opacity: f >= F(6.0 + i * 0.12) ? 1 : 0 }}>・{t}</div>
             ))}
+            <div style={{ ...B, fontSize: 19, color: M.sub, marginTop: 2, whiteSpace: "nowrap", opacity: f >= F(6.6) ? 1 : 0 }}>など ※銀行・契約により、かからない費用もあり</div>
           </div>
         </div>
       </In>
