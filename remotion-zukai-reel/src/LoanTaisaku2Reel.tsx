@@ -397,6 +397,17 @@ const P12: React.FC = () => {
         const x = s === "l" ? 40 : 700;
         return <div key={t} style={{ position: "absolute", left: x, top: 820 - n * 82 + drop, width: 340, textAlign: "center" }}><span style={{ display: "inline-block", background: s === "l" ? "#E3F4EA" : "#FDE7E2", border: `5px solid ${s === "l" ? G : M.red}`, borderRadius: 14, padding: "8px 18px", ...K, fontSize: 34, boxShadow: `4px 4px 0 ${M.ink}` }}>{t}</span></div>;
       })}
+      {/* 諸費用とは：「諸費用」と言った所で、中身の札が出る */}
+      <In at={5.8} until={8.9} x={560} y={462} mode="throw" from="r" rot={5}>
+        <div style={{ width: 470, background: "#fff", border: `5px solid ${M.red}`, borderRadius: 16, boxShadow: `6px 6px 0 ${M.ink}`, overflow: "hidden" }}>
+          <div style={{ background: M.red, color: "#fff", padding: "6px 16px", ...K, fontSize: 26 }}>🧾 諸費用とは</div>
+          <div style={{ padding: "8px 16px 10px" }}>
+            {(["事務手数料・保証料", "登記費用（登録免許税・司法書士）", "印紙税", "今のローンの完済手数料"] as const).map((t, i) => (
+              <div key={t} style={{ ...B, fontSize: 23, lineHeight: 1.45, opacity: f >= F(6.0 + i * 0.12) ? 1 : 0 }}>・{t}</div>
+            ))}
+          </div>
+        </div>
+      </In>
       <In at={9.6} x={60} y={1090} mode="pop"><Pill2 c={M.yellow} size={38}><span style={{ color: M.ink }}>全部含めて <R>本当にプラス？</R></span></Pill2></In>
       <Note at={5.8} top={1190}>※諸費用（事務手数料・保証料・登記・印紙など）は、銀行・借入額・物件で変わります。見積もりで確認を</Note>
     </AbsoluteFill>
