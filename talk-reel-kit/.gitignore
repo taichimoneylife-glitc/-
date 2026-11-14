@@ -1,0 +1,11 @@
+node_modules/
+out/
+.remotion/
+*.log
+.DS_Store
+# 自分のトーク動画・音声（個人の素材。リポジトリに入れない）
+public/talk.mp4
+public/talk_src.*
+public/*.wav
+# 文字起こしの結果（自分の話の中身）
+public/words.json

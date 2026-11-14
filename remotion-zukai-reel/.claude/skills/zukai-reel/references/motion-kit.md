@@ -1,0 +1,93 @@
+# 図解リール モーションキット（プロ感の演出・使い回し用）
+
+> 太一さんの年収の壁リールで確立した「プロっぽく見せる」演出の保存版。
+> 実装の本体は `src/KabeReel.tsx` にある（コミット済み）。新しいリールでは
+> これらをコピペ流用する。将来は `src/components/zukaiMotion.tsx` に切り出して
+> import 共通化してもよい。配色トークンは各リールの `C`（palette）に合わせる。
+
+採用の指針：**音声に全部同期**（whisperで文字起こし→語の秒数×30fpsで配置）。
+
+## ★セーフゾーン＝上下に余白（上すぎ・下すぎ 両方NG）★確定・絶対保存
+Instagramリールは**上下ともにUIで隠れる**。タイトルや重要要素を端ギリギリに置かない。
+- **上すぎNG（新ルール）**：上部に 時刻／「リール・友達」切替バー／戻る・カメラ がかぶり、
+  **タイトルが隠れる・見えない**。→ **各ページの内容は上から少し下げてスタート**する。
+  実装例：ページ全体を `translateY(+90px)` 程度ずらす（`TOP_SAFE=90` を `InfureReel.tsx` に実装済み）。
+  目安＝**最上部の見出しは y≳180 から**（＝生の y90 直打ちは上すぎ）。
+- **下すぎNG（既出）**：下キャプション帯・右いいね欄にかぶる。重要要素は **y≤1470**、
+  下段は中央寄せ、※注釈など最下段は **y≈1500〜1640** に収める（それ以下は危険）。
+- まとめ：**重要コンテンツは y≈180〜1470 の帯**に置く。上下端は捨て代。
+
+---
+
+## 1. パルス（解説中の枠を大きく小さく反復）★太一さんお気に入り・今後ガンガン使う
+今"解説している"要素（ツリーの枝など）を呼吸させて注目させる。参考動画と同じ型。
+```tsx
+const f = useCurrentFrame();
+const pulse = 1 + (Math.sin(f / 7) * 0.5 + 0.5) * 0.07;   // 1.00〜1.07・約0.5秒周期
+const glow  = 0.12 + (Math.sin(f / 7) * 0.5 + 0.5) * 0.22; // 影の濃さも脈動
+// active な要素だけに適用：
+style={{ transform: `scale(${pulse})`, transformOrigin: "center",
+  boxShadow: `0 8px 22px ${color}${Math.round(glow*255).toString(16).padStart(2,"0")}` }}
+```
+強さ=0.07/速さ=/7 はお好みで（もっと大きく→0.10、ゆっくり→/10）。
+
+## 2. 背景の奥行き（BackgroundFX）
+ベタ塗り卒業。やわらかいradialグラデ＋ゆらぐぼかしブロブ3つ＋控えめドットグリッド。
+`radial-gradient(...)` ＋ `filter:"blur(90px)"` のブロブを `Math.sin(f/spd)` でドリフト。
+ドットは `backgroundImage: radial-gradient(dot)` ＋ `maskImage` で中央だけ出す。
+
+## 3. 数字カウントアップ＋着地パンチ（NumCount）
+```tsx
+const p = interpolate(f,[delay,delay+16],[0,1],{extrapolateLeft:"clamp",extrapolateRight:"clamp"});
+const v = Math.round(to*(1-Math.pow(1-p,3)));        // easeOutCubic
+const punch = interpolate(f,[delay+13,delay+17,delay+23],[1,1.14,1],{clamp}); // 着地でプクッ
+// <NumCount to={130} delay={..}/>万  ＋ 直後にマーカー(MarkNum)を引く
+```
+
+## 4. マーカー強調（MarkNum / Hi）★丸囲みより太一さんはコレ（いつものやつ）
+数字や語の裏を、下からスッとマーカーで引く（`scaleX` を 0→1）。
+```tsx
+<span style={{position:"relative",...}}>{children}
+  <span style={{position:"absolute",left:0,right:0,bottom:8,height:"32%",
+    background:color,opacity:0.34,transform:`scaleX(${p})`,transformOrigin:"left center"}}/>
+</span>
+```
+
+## 5. シーン切替（Beat）＝1枚に詰め込まない
+情報量が多い所（山場など）は、ナレに合わせて**1トピック1画面でパッと切替**。
+`<Beat from={localFrame} dur={..}>` が中で `opacity` フェードイン/アウト。
+各Beatは画面中央にゆったり配置＝文字被りゼロ。
+
+## 6. ページ/シーン切替の統一演出
+- 横スライドイン：`enterX = interpolate(f,[0,12],[80,0])` を content に `translateX`。
+- セクション抜け：ツリーを上へ `translateY(0→-660)`＋fade（例：山場→メリット）。
+- 次ページは下から：`enterY = interpolate(f,[0,14],[90,0])`。
+- `SlideIn` ラッパ（横から）も用意。
+
+## 7. 山場の「ため→パッ」（Pap＋Burst）
+重要数字の直前に一瞬タメて、パッと弾けさせる＋リングが広がる。
+```tsx
+// Pap: 小さく出て(0.8)タメ→強オーバーシュートで弾ける（spring damping:9）
+// Burst: リングが scale0.25→1.5・opacity0.55→0 で消える
+<Burst delay={16} color={C.red} style={{left:540, top:652}} />
+<Pap delay={14}> <span>130万</span> </Pap>
+```
+
+## 8. キャラ登場モーション（GenImg dir）
+方向スライドイン＋弾み（`useSp` damping:11＝低めで軽く弾む）。
+`dir="left|right|up"` で入ってくる向きを指定（例：傘から出る=left／財布=right／納付書=up）。
+
+## 9. 効果音（SfxTrack）※必ず `references/sfx-library.md` から選ぶ
+★鉄則：効果音は**マニュアル `sfx-library.md` のパレットからのみ選ぶ**。自前合成は作らない。
+低音ダダン系（合成音 dadan/thud/coin/bell/whoosh2 等）は**ユーザーNG・不使用**。
+`src/components/sfx.tsx` の `SfxTrack` に `{file, at(frame), volume}`（＋`gain`）を渡す。
+使い分け（中音を主役・高音はキメ1回／1シーン2〜4個／音量0.3〜0.46）：
+- 出現=`user/u02s`・`user/u05`（中）／転換=`user/u03`・強めは`user/u07`（中）
+- カウント=`user/u06`（短）／数字の特大キメ=`user/u04`・`user/u08`（高・各シーン1回）
+- 結論帯=`user/u10`／ラスト締め=`finish`（低）or `user/u07`。`up6` は数少ない中音で普段使い可。
+GanReel.tsx / ToushiReel.tsx のキュー配列が実例。
+
+---
+
+### まだ足していない“あと一段”
+- **BGM**（曲が決まり次第）＝一番効く残りレバー。`<Audio volume={0.08〜0.12}>` でナレの下に敷く。

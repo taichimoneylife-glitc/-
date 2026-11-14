@@ -1,0 +1,44 @@
+node_modules/
+out/
+.remotion/
+*.log
+.DS_Store
+.claude/settings.local.json
+
+# 個人の実写テスト素材（リポジトリに入れない）
+public/talktest.mp4
+
+public/mile-narration.wav
+public/bouraku-narration.wav
+public/nencho-narration.wav
+public/nencho_cta/
+# 参考リールの音（再現の練習用。リポジトリに入れない）
+public/marke-ref-audio.wav
+# 証券会社の公式ページの画面（描き直しの元。リポジトリに入れない）
+assets/ref_screens/
+# たいちさんの口座の画面（口座番号が映るため、リポジトリに入れない）
+assets/user_screens/
+public/sbi-narration.wav
+# たいちさんの口座の実際の画面（口座番号は塗りつぶし済み。リポジトリに入れない）
+public/sbi_screens/
+public/rakuten-narration.wav
+# 楽天証券の公式ページの画面（リポジトリに入れない）
+public/rakuten_screens/
+# 証券会社のロゴ（リポジトリに入れない）
+public/logos/
+# 冒頭の音源（たいちさんの画面収録から。リポジトリに入れない）
+public/sfx/user/intro.mp3
+public/marke2-ref-audio.wav
+public/nisabond-narration.wav
+
+# 参考動画の元ファイル（他の人の動画。リポジトリに入れない）
+assets/ref_videos/
+public/ref3-audio.wav
+public/nisabond-full.wav
+# たいちさんの実際のスライド・プロフ画面（個人の素材。リポジトリに入れない）
+public/cta_nisabond/
+public/amex-narration.wav
+assets/ref_slides/
+public/rl-narration.wav
+public/rl2-narration.wav
+public/car1-narration.mp3

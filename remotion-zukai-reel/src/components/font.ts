@@ -1,0 +1,42 @@
+import { staticFile, delayRender, continueRender } from "remotion";
+
+// 丸ゴシック（M PLUS Rounded 1c）をメインに、Noto Sans JP をフォールバックで同梱。
+// レンダー環境では Google Fonts 取得が失敗するため、public/fonts の woff2 を @font-face で使う。
+// メインは Noto Sans JP（ユーザー指定「丸ゴシックではなく前のやつ」）。丸ゴシックは同梱だけ残す。
+export const FONT = "Noto Sans JP, sans-serif";
+export const FONT_ROUND = "M PLUS Rounded 1c";
+// 極太（900）＝ステッカー図解スタイル専用の別名ファミリー（他リールの見た目に影響させない）
+export const FONT_BLACK = "Noto Sans JP Black";
+// 明朝の極太（キーワード・大きい数字を赤の明朝で出す用）
+export const FONT_SERIF = "Noto Serif JP Black";
+
+const face = (family: string, weight: number, file: string) =>
+  new FontFace(family, `url(${staticFile(`fonts/${file}`)}) format('woff2')`, { weight: String(weight), style: "normal", display: "swap" });
+
+const faces = [
+  // 丸ゴシック（メイン）
+  face("M PLUS Rounded 1c", 700, "m-plus-rounded-1c-japanese-700-normal.woff2"),
+  face("M PLUS Rounded 1c", 800, "m-plus-rounded-1c-japanese-800-normal.woff2"),
+  face("M PLUS Rounded 1c", 700, "m-plus-rounded-1c-latin-700-normal.woff2"),
+  face("M PLUS Rounded 1c", 800, "m-plus-rounded-1c-latin-800-normal.woff2"),
+  // Noto（フォールバック）
+  face("Noto Sans JP", 400, "noto-sans-jp-japanese-400-normal.woff2"),
+  face("Noto Sans JP", 700, "noto-sans-jp-japanese-700-normal.woff2"),
+  face("Noto Sans JP", 400, "noto-sans-jp-latin-400-normal.woff2"),
+  face("Noto Sans JP", 700, "noto-sans-jp-latin-700-normal.woff2"),
+  // 極太（ステッカー図解用・別名）
+  face("Noto Sans JP Black", 900, "noto-sans-jp-japanese-900-normal.woff2"),
+  face("Noto Sans JP Black", 900, "noto-sans-jp-latin-900-normal.woff2"),
+  face("Noto Serif JP Black", 900, "noto-serif-jp-japanese-900-normal.woff2"),
+  face("Noto Serif JP Black", 900, "noto-serif-jp-latin-900-normal.woff2"),
+];
+
+if (typeof document !== "undefined") {
+  const handle = delayRender("load-fonts");
+  Promise.all(faces.map((f) => f.load().then((loaded) => document.fonts.add(loaded))))
+    .then(() => continueRender(handle))
+    .catch((e) => {
+      console.warn("font load failed", e);
+      continueRender(handle);
+    });
+}
