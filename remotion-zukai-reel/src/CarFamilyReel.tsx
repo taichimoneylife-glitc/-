@@ -606,16 +606,6 @@ const P18: React.FC = () => {
   );
 };
 
-// ════════ 22 社長の1カット（撮影待ちの仮の画面） ════════
-const P19: React.FC = () => (
-  <AbsoluteFill style={{ background: "#3A372F" }}>
-    <div style={{ position: "absolute", left: 90, right: 90, top: 560, border: `6px dashed ${M.yellow}`, borderRadius: 30, padding: "40px 40px", textAlign: "center", color: "#fff" }}>
-      <div style={{ ...K, fontSize: 44, color: M.yellow }}>🎥 社長カット（撮影後に差し替え）</div>
-      <div style={{ ...K, fontSize: 42, lineHeight: 1.5, marginTop: 24 }}>「僕は車は乗れればいい派。<br />だから身の丈に合った車にして、<br />浮いた分は積み立てに回してます」</div>
-    </div>
-  </AbsoluteFill>
-);
-
 // ── ページの切り替え（marke-motion-grammar.md の数字：住宅ローン②と同じ）──
 const EXIT_C = [6, 18, 30, 42, -48, -228, -488, -808, -1188, -1700];
 const EXIT_S = [0, 0, 0, 0, -48, -228, -488, -808, -1188, -1700];
@@ -630,10 +620,10 @@ const PageMove: React.FC<{ dur: number; chapterNext: boolean; first: boolean; la
   const blur = v > 40 ? Math.min(18, v / 22) : 0;
   return <AbsoluteFill style={{ transform: `translateY(${y}px)`, filter: blur ? `blur(${blur}px)` : undefined }}>{first ? children : <Sequence from={-4} layout="none">{children}</Sequence>}</AbsoluteFill>;
 };
-export const CAR1_END = 112.2, CAR1_BOSS = 5.0;
+export const CAR1_END = 112.2;
 export const CAR1_PAGES: [number, React.FC][] = [[0, P1], [5.92, P2], [12.24, P3], [17.84, P4], [24.8, P5], [31.2, P6], [37.28, P7], [41.92, P7b], [45.38, P8], [48.66, P8b], [55.66, P9], [63.78, P10], [68.56, P11], [71.96, P12], [76.88, P13], [81.48, P14], [87.32, P15], [92.06, P16], [97.06, P17], [101.68, P17b], [109.5, P18]];
 const CHAPTER = new Set([2, 5, 8, 15, 18]); // 次のページが章の頭（A家・B家・5年後・10年後・まとめ）
-export const CARFAMILY_FRAMES = F(CAR1_END + CAR1_BOSS);
+export const CARFAMILY_FRAMES = F(CAR1_END);
 
 // 字幕（AIの読み間違いは直した字で・!A家の言葉! *B家の言葉* ~全体~）
 const SUBS: [number, string][] = [
@@ -700,7 +690,6 @@ export const CarFamilyReel: React.FC = () => (
         return <Sequence key={i} from={F(st)} durationInFrames={dur}><PageMove dur={dur} first={i === 0} last={last} chapterNext={CHAPTER.has(i + 1)}><P /></PageMove></Sequence>;
       })}
     </div>
-    <Sequence from={F(CAR1_END)}><P19 /></Sequence>
     <Sequence durationInFrames={F(CAR1_END)}>
       <div style={{ position: "absolute", left: 0, right: 0, top: 1300, bottom: 0, background: `linear-gradient(${M.paper}00, ${M.paper} 50px)` }} />
       <Captions subs={SUBS} end={CAR1_END} maxW={740} size={0.78} kcol={{ g: G, r: A, b: M.red }} top={1352} swap />
