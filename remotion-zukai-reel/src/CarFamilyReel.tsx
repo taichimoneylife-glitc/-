@@ -10,7 +10,7 @@ import { CAR3_MOUTH } from "./car3Mouth";
 import { F, clamp, out, K, B, SER, M, pop, yen, cnt, R, In, Tag, Stamp, Paper2, SectionPill, Pill2, HandCircle, Dim, shake } from "./components/marke";
 
 // ════════════════════════════════════════════════════════════════════
-//  家族シリーズ①「車編」：お金が残る家族と、残らない家族（たいちさんの声 public/car3-narration.wav 113.3秒・1.1倍・間を詰めた版。時刻はWで置きかえ）
+//  家族シリーズ①「車編」：お金が残る家族と、残らない家族（声 public/car7-narration.wav 123.0秒・録ったままの速さ）
 //  型＝参考⑦（同じ条件の2人・部品が1〜2秒ごとに足される・人ごとに色を固定）＋これまでの演出（ノート背景・シュッと切り替え・段で上がる数字・ハンコ・手書きの丸）
 //  色：A家＝オレンジ／B家＝緑（最後まで固定）
 //  数字（計算で確認済み・仮定の試算）：
@@ -31,12 +31,7 @@ const Note: React.FC<{ at: number; children: React.ReactNode; top?: number }> = 
   return <div style={{ position: "absolute", left: 60, width: 720, top, ...B, fontSize: 22, lineHeight: 1.45, color: M.sub, opacity: interpolate(f - F(at), [0, 6], [0, 1], clamp) }}>{children}</div>;
 };
 const stepN = (f: number, at: number, to: number, dur: number, from: number) => (f < F(at) ? from : cnt(F(at) + Math.floor((f - F(at)) / 3) * 3, at, to, dur, from)); // 3fごとに段で上がる
-// 時間の置きかえ：台本の時刻はAI音声(car2)で決めた → たいちさんの声(car3-narration.wav・1.1倍)の時刻へ、言葉の頭どうしを線でつなぐ
-const WARP: [number, number][] = [[0,0.0],[1.5,1.38],[2.34,2.52],[3.76,4.15],[5.92,6.53],[7.62,8.17],[9.1,9.63],[10.36,11.12],[11.2,11.98],[12.24,13.29],[13.94,14.81],[14.74,15.67],[15.26,16.42],[16.32,17.35],[17.84,19.25],[19.56,22.16],[21.22,23.8],[23.94,26.33],[24.8,27.31],[27.1,29.31],[28.34,30.55],[29.88,32.29],[31.2,33.53],[32.84,35.38],[35.3,38.36],[37.28,40.71],[38.9,42.25],[40.16,43.43],[41.92,45.22],[43.74,46.8],[45.38,48.87],[47.14,50.23],[48.66,51.89],[49.84,53.19],[52.84,56.21],[53.54,57.28],[55.66,59.2],[56.74,60.35],[59.66,63.49],[61.48,65.51],[63.78,68.06],[66.04,70.8],[68.56,74.18],[71.96,77.86],[74.5,80.55],[76.88,83.2],[78.68,85.1],[81.48,87.71],[83.12,89.37],[84.84,91.47],[87.32,94.02],[88.7,95.34],[90.56,97.12],[92.06,98.99],[93.34,100.47],[94.76,101.65],[97.06,104.43],[98.98,106.68],[100.28,107.94],[101.68,109.93],[103.9,112.39],[105.38,114.01],[107.34,116.09],[109.5,118.54],[110.36,119.4],[112.2,121.53]];
-const W = (t: number) => {
-  for (let i = 1; i < WARP.length; i++) if (t <= WARP[i][0]) { const [a0, b0] = WARP[i - 1], [a1, b1] = WARP[i]; return b0 + ((t - a0) / (a1 - a0)) * (b1 - b0); }
-  return t + (WARP[WARP.length - 1][1] - WARP[WARP.length - 1][0]);
-};
+const W = (t: number) => t; // 今の音声の時刻をそのまま使う
 const Head: React.FC<{ at: number; c: string; pill: string; icon?: string; children?: React.ReactNode }> = ({ at, c, pill, icon = "●", children }) => (
   <>
     <SectionPill c={c} at={at} icon={icon}>{pill}</SectionPill>
@@ -84,45 +79,45 @@ const Line: React.FC<{ at: number; children: React.ReactNode }> = ({ at, childre
   return <div style={{ ...K, fontSize: 32, lineHeight: 1.5, ...(f >= F(at) ? wipeIn(f, F(at)) : { opacity: 0 }) }}>{children}</div>;
 };
 
-// ════════ 1 冒頭（0–5.92）：同じ2家族のカード → VS → 将来どうなる？ → 車の選び方 ════════
+// ════════ 1 冒頭（0–5.14）：同じ2家族のカード → VS → 将来どうなる？ → 車の買い方 ════════
 const P1: React.FC = () => {
   const f = useCurrentFrame();
   const LAND = [600, 300, 150, 76, 38, 18, 8, 3, 0]; // 入り＝毎フレーム約半分になる急ブレーキ
   const land = (at: number) => { const k = f - F(at); return k < 0 ? 2000 : LAND[Math.min(LAND.length - 1, k)]; };
-  const up = interpolate(f, [F(W(3.62)), F(W(3.62)) + 8], [0, 1], out);
+  const up = interpolate(f, [F(3.8), F(3.8) + 8], [0, 1], out);
   return (
     <AbsoluteFill>
       <Paper2 />
       <div style={{ position: "absolute", left: 0, right: 0, top: 270, textAlign: "center", lineHeight: 1.1 }}>
         <span style={{ display: "inline-flex" }}><BounceText text="お金が残る" at={0} size={86} color={G} stroke={false} step={1} /><BounceText text="家族と" at={5} size={86} stroke={false} step={1} /></span><br />
-        <span style={{ display: "inline-flex" }}><BounceText text="残らない" at={F(W(1.5))} size={86} color={A} stroke={false} step={1} /><BounceText text="家族" at={F(W(1.5)) + 5} size={86} stroke={false} step={1} /></span>
+        <span style={{ display: "inline-flex" }}><BounceText text="残らない" at={F(1.32)} size={86} color={A} stroke={false} step={1} /><BounceText text="家族" at={F(1.32) + 5} size={86} stroke={false} step={1} /></span>
       </div>
       <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1920, transform: `translateY(${-60 * up}px) scale(${1 - 0.12 * up})`, transformOrigin: "540px 500px" }}>
         <div style={{ position: "absolute", left: 590, top: 520 + land(0) }}><Fam who="B" img="car_b_family_2" size={300} w={430} title="B家" /></div>
-        <div style={{ position: "absolute", left: 60, top: 520 + land(W(1.5)) }}><Fam who="A" img="car_a_family_2" size={300} w={430} title="A家" /></div>
-        <In at={W(1.75)} x={0} y={700} center mode="pop"><span style={{ display: "inline-block", background: M.red, color: "#fff", border: `5px solid ${M.ink}`, borderRadius: 999, width: 110, height: 110, lineHeight: "100px", textAlign: "center", ...K, fontSize: 54, boxShadow: `5px 5px 0 ${M.ink}` }}>VS</span></In>
-        <In at={W(2.34)} x={0} y={940} center mode="pop"><span style={{ display: "inline-block", background: M.yellow, border: `5px solid ${M.ink}`, borderRadius: 16, padding: "6px 30px", ...K, fontSize: 50, boxShadow: `5px 5px 0 ${M.ink}` }}>将来 どうなる？</span></In>
+        <div style={{ position: "absolute", left: 60, top: 520 + land(1.32) }}><Fam who="A" img="car_a_family_2" size={300} w={430} title="A家" /></div>
+        <In at={1.6} x={0} y={700} center mode="pop"><span style={{ display: "inline-block", background: M.red, color: "#fff", border: `5px solid ${M.ink}`, borderRadius: 999, width: 110, height: 110, lineHeight: "100px", textAlign: "center", ...K, fontSize: 54, boxShadow: `5px 5px 0 ${M.ink}` }}>VS</span></In>
+        <In at={2.48} x={0} y={940} center mode="pop"><span style={{ display: "inline-block", background: M.yellow, border: `5px solid ${M.ink}`, borderRadius: 16, padding: "6px 30px", ...K, fontSize: 50, boxShadow: `5px 5px 0 ${M.ink}` }}>将来 どうなる？</span></In>
       </div>
-      <In at={W(3.76)} x={70} y={960} mode="throw" from="d" rot={-4}><GenSlot name="car_two_roads" size={330} /></In>
-      {f >= F(W(4.0)) ? <div style={{ position: "absolute", left: 420, top: 1040 }}>
+      <In at={3.94} x={70} y={960} mode="throw" from="d" rot={-4}><GenSlot name="car_two_roads" size={330} /></In>
+      {f >= F(4.0) ? <div style={{ position: "absolute", left: 420, top: 1040 }}>
         <Tag c={M.yellow} size={30}>家族シリーズ</Tag>
-        <div style={{ marginTop: 12, display: "inline-flex" }}><BounceText text="車の選び方" at={F(W(4.4))} size={84} stroke={false} /></div>
+        <div style={{ marginTop: 12, display: "inline-flex" }}><BounceText text="車の買い方" at={F(4.28)} size={84} stroke={false} /></div>
       </div> : null}
     </AbsoluteFill>
   );
 };
 
-// ════════ 2 前提（5.92–12.24）：プロフィールに1行ずつ足される ════════
+// ════════ 2 前提（5.14–10.76）：プロフィールに1行ずつ足される ════════
 const P2: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 5.92, a = (t: number) => W(t) - W(S);
+  const S = 5.14, a = (t: number) => t - S;
   const prof = (who: "A" | "B", x: number, at: number) => (
     <In at={at} x={x} y={470} mode="throw" from={who === "A" ? "l" : "r"} rot={who === "A" ? -6 : 6}>
       <Fam who={who} img={`car_${who.toLowerCase()}_family_2`} size={220} w={450}>
         <div style={{ width: 380, marginTop: 6 }}>
-          <Line at={a(8.12)}>👫 夫婦 27歳</Line>
-          <Line at={a(9.1)}>👶 子ども 2歳・1人</Line>
-          <Line at={a(10.36)}>💴 世帯年収 <span style={{ ...SER, fontSize: 44, color: who === "A" ? A : G }}>{yen(stepN(f, a(11.1), 600, 0.45, 0))}</span>万円</Line>
+          <Line at={a(7.02)}>👫 夫婦 27歳</Line>
+          <Line at={a(8.32)}>👶 子ども 2歳・1人</Line>
+          <Line at={a(9.4)}>💴 世帯年収 <span style={{ ...SER, fontSize: 44, color: who === "A" ? A : G }}>{yen(stepN(f, a(10.0), 600, 0.4, 0))}</span>万円</Line>
         </div>
       </Fam>
     </In>
@@ -131,41 +126,41 @@ const P2: React.FC = () => {
     <AbsoluteFill>
       <Paper2 />
       <Head at={0.05} c={M.ink} pill="前提" icon="📋">同じ収入の<R c={M.red}>2組の家族</R></Head>
-      {prof("A", 60, 0.75)}
-      {prof("B", 570, 1.0)}
-      <In at={a(11.7)} x={0} y={790} center mode="pop"><span style={{ ...K, fontSize: 90, color: M.red }}>＝</span></In>
-      <Stamp at={a(11.75)} x={330} y={1120} text="条件は同じ" size={70} rot={-6} />
+      {prof("A", 60, 0.5)}
+      {prof("B", 570, 0.75)}
+      <In at={a(10.3)} x={0} y={790} center mode="pop"><span style={{ ...K, fontSize: 90, color: M.red }}>＝</span></In>
+      <Stamp at={a(10.35)} x={330} y={1120} text="条件は同じ" size={70} rot={-6} />
     </AbsoluteFill>
   );
 };
 
-// ════════ 3 A家の車（12.24–17.84）：600万円・残クレ・5年 → メーターが月7.1万円まで回る ════════
+// ════════ 3 A家の車（10.76–15.96）：600万円・残クレ・5年 → メーターが月7.1万円まで回る ════════
 const P3: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 12.24, a = (t: number) => W(t) - W(S);
-  const v = stepN(f, a(16.6), 71053, 0.9, 0);
+  const S = 10.76, a = (t: number) => t - S;
+  const v = stepN(f, a(15.1), 71053, 0.7, 0);
   return (
     <AbsoluteFill>
       <Paper2 />
       <Head at={0.05} c={A} pill="A家の車" icon="🚗" />
       <In at={0.2} x={40} y={360} mode="throw" from="l" rot={-6}><GenSlot name="car_a_minivan" size={470} /></In>
-      <In at={a(12.9)} x={560} y={400} mode="pop" rot={4}><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${A}`, borderRadius: 18, padding: "6px 24px", boxShadow: `6px 6px 0 ${M.ink}` }}><span style={{ ...K, fontSize: 34 }}>約</span><span style={{ ...SER, fontSize: 96, color: A }}>600</span><span style={{ ...K, fontSize: 40 }}>万円</span></span></In>
-      <In at={a(13.94)} x={590} y={560} mode="pop"><Chip c={A}>大きなミニバン</Chip></In>
-      <Stamp at={a(14.74)} x={600} y={650} text="残クレ" size={86} c={A} rot={-8} />
-      <In at={a(15.26)} x={630} y={790} mode="pop"><Chip c={A} size={40}>5年契約</Chip></In>
-      <In at={a(16.2)} x={280} y={860} mode="rise"><Meter v={v} c={A} /></In>
-      <HandCircle at={a(17.5)} x={540} y={1162} r={250} ry={70} c={M.red} />
-      <Note at={a(16.2)} top={1262}>※例：金利5.5%・5年（60回）・最後に残す額（残価）300万円で試算</Note>
+      <In at={a(11.58)} x={560} y={400} mode="pop" rot={4}><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${A}`, borderRadius: 18, padding: "6px 24px", boxShadow: `6px 6px 0 ${M.ink}` }}><span style={{ ...K, fontSize: 34 }}>約</span><span style={{ ...SER, fontSize: 96, color: A }}>600</span><span style={{ ...K, fontSize: 40 }}>万円</span></span></In>
+      <In at={a(12.56)} x={590} y={560} mode="pop"><Chip c={A}>大きなミニバン</Chip></In>
+      <Stamp at={a(13.38)} x={600} y={650} text="残クレ" size={86} c={A} rot={-8} />
+      <In at={a(13.88)} x={630} y={790} mode="pop"><Chip c={A} size={40}>5年契約</Chip></In>
+      <In at={a(14.6)} x={280} y={860} mode="rise"><Meter v={v} c={A} /></In>
+      <HandCircle at={a(15.7)} x={540} y={1162} r={250} ry={70} c={M.red} />
+      <Note at={a(14.6)} top={1262}>※例：金利5.5%・5年（60回）・頭金なしで試算</Note>
     </AbsoluteFill>
   );
 };
 
-// ════════ 4 月々が安い理由（17.84–24.80）：600万円の棒が割れる → 残した300万円にも利息 ════════
+// ════════ 4 残価設定50%（15.96–22.36）：600万円の棒が割れる → 残した300万円にも利息 ════════
 const P4: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 17.84, a = (t: number) => W(t) - W(S);
-  const split = interpolate(f, [F(a(18.96)), F(a(18.96)) + 9], [0, 1], out);
-  const intA = interpolate(f, [F(a(23.94)), F(a(23.94)) + 12], [0, 1], out);
+  const S = 15.96, a = (t: number) => t - S;
+  const split = interpolate(f, [F(a(17.36)), F(a(17.36)) + 9], [0, 1], out);
+  const intA = interpolate(f, [F(a(21.36)), F(a(21.36)) + 12], [0, 1], out);
   const BW = 900, gap = 30 * split;
   const part = (x: number, w: number, bg: string, label: React.ReactNode, sub: React.ReactNode, hatch?: boolean) => (
     <div style={{ position: "absolute", left: x, top: 0, width: w, height: 190, background: hatch ? `repeating-linear-gradient(-45deg, #fff 0 16px, #FBE3D8 16px 32px)` : bg, border: `6px solid ${M.ink}`, borderRadius: 16, boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: `6px 6px 0 ${M.ink}` }}>
@@ -187,9 +182,9 @@ const P4: React.FC = () => {
           )}
         </div>
       </In>
-      {f >= F(a(18.96)) ? <div style={{ position: "absolute", left: 90 + BW / 2 + 15, top: 800, width: BW / 2 - 15, textAlign: "center", ...K, fontSize: 30, opacity: split }}>5年後に<R c={A}>返すか・払うか</R></div> : null}
-      <HandCircle at={a(22.12)} x={765} y={675} r={220} ry={130} c={M.red} />
-      {f >= F(a(23.94)) ? (
+      {f >= F(a(17.36)) ? <div style={{ position: "absolute", left: 90 + BW / 2 + 15, top: 800, width: BW / 2 - 15, textAlign: "center", ...K, fontSize: 30, opacity: split }}>5年後に<R c={A}>返すか・払うか</R></div> : null}
+      <HandCircle at={a(19.32)} x={765} y={675} r={220} ry={130} c={M.red} />
+      {f >= F(a(21.36)) ? (
         <>
           {[0, 1].map((i) => (
             <div key={i} style={{ position: "absolute", left: 90 + i * (BW / 2 + 15), width: BW / 2 - 15, top: 500 + (1 - intA) * -200, opacity: intA, textAlign: "center" }}>
@@ -198,44 +193,32 @@ const P4: React.FC = () => {
           ))}
         </>
       ) : null}
-      <In at={a(22.12)} x={0} y={880} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 22, padding: "14px 34px", boxShadow: `8px 8px 0 ${M.red}`, ...K, fontSize: 48, lineHeight: 1.35, textAlign: "center" }}>残した<R c={A}>300万円</R>にも<br /><R>5年間ずっと利息</R>がかかる</span></In>
-      <In at={a(24.2)} x={0} y={1100} center mode="pop"><Pill2 c={M.yellow} size={36}><span style={{ color: M.ink }}>5年の利息 約<R>126万円</R>（うち残価分 約83万円）</span></Pill2></In>
-      <Note at={a(24.2)} top={1200}>※例：600万円・金利5.5%・5年・残価300万円で試算</Note>
+      <In at={a(19.32)} x={0} y={880} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 22, padding: "14px 34px", boxShadow: `8px 8px 0 ${M.red}`, ...K, fontSize: 48, lineHeight: 1.35, textAlign: "center" }}>残した<R c={A}>300万円</R>にも<br /><R>5年間ずっと利息</R>がかかる</span></In>
+      <In at={a(21.7)} x={0} y={1100} center mode="pop"><Pill2 c={M.yellow} size={36}><span style={{ color: M.ink }}>5年の利息 約<R>126万円</R>（うち残価分 約83万円）</span></Pill2></In>
+      <Note at={a(21.7)} top={1200}>※例：600万円・金利5.5%・5年・残価300万円で試算</Note>
     </AbsoluteFill>
   );
 };
 
-// ════════ 5 自分のものではない（24.80–31.20）→「月々払えるなら大丈夫」 ════════
+// ════════ 5「月々払えるから大丈夫」（22.36–25.14） ════════
 const P5: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 24.8, a = (t: number) => W(t) - W(S);
-  const gray = interpolate(f, [F(a(29.88)), F(a(29.88)) + 10], [0, 1], clamp);
+  const S = 22.36, a = (t: number) => t - S;
+  const gray = interpolate(f, [F(a(23.68)), F(a(23.68)) + 10], [0, 1], clamp);
   return (
     <AbsoluteFill>
       <Paper2 />
-      <Head at={0.05} c={A} pill="A家" icon="📄">払い終わるまで…</Head>
-      <In at={0.4} x={50} y={450} mode="throw" from="l" rot={-6}><GenSlot name="car_paper_owner" size={340} /></In>
-      <In at={a(25.6)} x={420} y={470} mode="throw" from="r" rot={5}>
-        <div style={{ width: 590, background: "#fff", border: `5px solid ${M.ink}`, borderRadius: 16, boxShadow: `6px 6px 0 ${M.ink}`, overflow: "hidden" }}>
-          <div style={{ background: M.sub, color: "#fff", padding: "6px 18px", ...K, fontSize: 26 }}>車の書類（イメージ）</div>
-          <div style={{ padding: "12px 20px", ...K, fontSize: 32, lineHeight: 1.6 }}>
-            <div>所有者：<R c={M.red}>販売店・信販会社など</R></div>
-            <div>使用者：<R c={A}>A家</R></div>
-          </div>
-        </div>
-      </In>
-      <HandCircle at={a(27.1)} x={720} y={598} r={260} ry={42} c={M.red} />
-      <Stamp at={a(27.4)} x={470} y={700} text="自分のものではない" size={52} rot={-5} />
+      <Head at={0.05} c={A} pill="A家" icon="🚗" />
       <div style={{ filter: `grayscale(${gray})`, opacity: 1 - 0.25 * gray }}>
-        <In at={a(28.34)} x={60} y={830} mode="pop"><GenSlot name="car_a_happy_drive" size={420} /></In>
-        <In at={a(28.4)} x={480} y={880} mode="pop" rot={4}><Bubble tail="l" w={560} size={42}><TypeIn at={F(a(28.4))} step={2}>月々払えるなら<br />大丈夫！</TypeIn></Bubble></In>
+        <In at={0.1} x={40} y={560} mode="pop"><GenSlot name="car_a_happy_drive" size={520} /></In>
+        <In at={0.2} x={470} y={400} mode="pop" rot={4}><Bubble tail="b" w={560} size={46}><TypeIn at={F(0.2)} step={2}>月々払えるから<br />大丈夫！</TypeIn></Bubble></In>
       </div>
-      <In at={a(30.4)} x={520} y={1100} mode="ghost"><span style={{ ...K, fontSize: 40, color: M.sub }}>…と、思っていました</span></In>
+      <In at={a(24.28)} x={520} y={1120} mode="ghost"><span style={{ ...K, fontSize: 40, color: M.sub }}>…と、思っていました</span></In>
     </AbsoluteFill>
   );
 };
 
-// ── 毎月出せる額の棒（A家は全部が車／B家は車のローン＋先に積立） ──
+// ── 毎月出せる額の棒（A家は全部が車／B家は車のローン＋積立投資） ──
 const MonthRows: React.FC<{ aAt: number; bAt: number; splitAt?: number }> = ({ aAt, bAt, splitAt }) => {
   const f = useCurrentFrame();
   const sp = splitAt === undefined ? 0 : interpolate(f, [F(splitAt), F(splitAt) + 9], [0, 1], out);
@@ -252,7 +235,7 @@ const MonthRows: React.FC<{ aAt: number; bAt: number; splitAt?: number }> = ({ a
             ) : (
               <>
                 <div style={{ position: "absolute", left: 0, top: 0, width: wl - 12 * sp, height: 150, background: G, border: `6px solid ${M.ink}`, borderRadius: 16, boxShadow: `6px 6px 0 ${M.ink}`, boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#fff" }}><span style={{ ...K, fontSize: 24 }}>車のローン</span><span style={{ ...SER, fontSize: 54 }}>2.8<span style={{ ...K, fontSize: 26 }}>万</span></span></div>
-                <div style={{ position: "absolute", left: wl + 12 * sp, top: 0, width: W - wl - 12 * sp, height: 150, background: "#fff", border: `6px solid ${G}`, borderRadius: 16, boxShadow: `6px 6px 0 ${M.ink}`, boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: `translateY(${(1 - sp) * -20}px)` }}><span style={{ ...K, fontSize: 26, color: G }}>先に積立</span><span style={{ ...SER, fontSize: 60, color: G }}>4.3<span style={{ ...K, fontSize: 28 }}>万円</span></span></div>
+                <div style={{ position: "absolute", left: wl + 12 * sp, top: 0, width: W - wl - 12 * sp, height: 150, background: "#fff", border: `6px solid ${G}`, borderRadius: 16, boxShadow: `6px 6px 0 ${M.ink}`, boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: `translateY(${(1 - sp) * -20}px)` }}><span style={{ ...K, fontSize: 26, color: G }}>積立投資</span><span style={{ ...SER, fontSize: 60, color: G }}>4.3<span style={{ ...K, fontSize: 28 }}>万円</span></span></div>
               </>
             )}
           </div>
@@ -263,61 +246,60 @@ const MonthRows: React.FC<{ aAt: number; bAt: number; splitAt?: number }> = ({ a
   return <>{row("A", 490, aAt)}{row("B", 700, bAt)}</>;
 };
 
-// ════════ 6 B家：毎月出せるのは同じ月7万くらい → 身の丈に合った車を（31.20–37.28） ════════
+// ════════ 6 一方B家：毎月出せるのは同じ月7万円くらい → 身の丈に合った車を（25.14–31.96） ════════
 const P6: React.FC = () => {
-  const S = 31.2, a = (t: number) => W(t) - W(S);
+  const S = 25.14, a = (t: number) => t - S;
   return (
     <AbsoluteFill>
       <Paper2 />
-      <Head at={0.05} c={G} pill="B家" icon="💡">毎月出せるのは<R c={M.red}>同じ</R></Head>
-      <MonthRows bAt={0.3} aAt={a(32.84)} />
-      <In at={a(33.36)} x={0} y={640} center mode="pop"><span style={{ ...K, fontSize: 44, color: M.red, marginLeft: 160 }}>＝ 同じ額</span></In>
-      <In at={a(35.3)} x={0} y={940} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 22, padding: "14px 34px", boxShadow: `8px 8px 0 ${G}`, ...K, fontSize: 50 }}>でも車は <R c={G}>身の丈</R>に合ったものを</span></In>
+      <Head at={0.05} c={G} pill="一方 B家" icon="💡">毎月 車に出せるのは<R c={M.red}>同じ</R></Head>
+      <MonthRows bAt={0.6} aAt={a(27.48)} />
+      <In at={a(28.36)} x={0} y={640} center mode="pop"><span style={{ ...K, fontSize: 44, color: M.red, marginLeft: 160 }}>＝ 同じ額</span></In>
+      <In at={a(29.84)} x={0} y={940} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 22, padding: "14px 34px", boxShadow: `8px 8px 0 ${G}`, ...K, fontSize: 50 }}>でも車は <R c={G}>身の丈</R>に合ったものを</span></In>
     </AbsoluteFill>
   );
 };
 
-// ════════ 7 B家の車（37.28–41.92）：300万円・銀行ローン10年 → メーターが月2.8万円 ════════
+// ════════ 7 B家の車（31.96–36.94）：300万円・銀行ローン10年 → メーターが月2.8万円 ════════
 const P7: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 37.28, a = (t: number) => W(t) - W(S);
-  const v = stepN(f, a(40.58), 28281, 0.8, 0);
+  const S = 31.96, a = (t: number) => t - S;
+  const v = stepN(f, a(35.5), 28281, 0.8, 0);
   return (
     <AbsoluteFill>
       <Paper2 />
       <Head at={0.05} c={G} pill="B家の車" icon="🚙" />
       <In at={0.2} x={600} y={380} mode="throw" from="r" rot={6}><GenSlot name="car_b_minivan" size={420} /></In>
-      <In at={a(37.64)} x={70} y={410} mode="pop" rot={-4}><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${G}`, borderRadius: 18, padding: "6px 24px", boxShadow: `6px 6px 0 ${M.ink}` }}><span style={{ ...K, fontSize: 34 }}>約</span><span style={{ ...SER, fontSize: 96, color: G }}>300</span><span style={{ ...K, fontSize: 40 }}>万円</span></span></In>
-      <In at={a(38.46)} x={90} y={570} mode="pop"><Chip c={G}>ミニバン</Chip></In>
-      <In at={a(38.9)} x={90} y={650} mode="pop"><Chip c={G} size={40}>銀行ローン</Chip></In>
-      <In at={a(39.7)} x={350} y={650} mode="pop"><Chip c={G} size={40}>10年</Chip></In>
-      <In at={a(40.16)} x={280} y={860} mode="rise"><Meter v={v} c={G} /></In>
-      <HandCircle at={a(41.4)} x={540} y={1162} r={250} ry={70} c={G} />
-      <Note at={a(40.16)} top={1262}>※例：金利2.5%・10年（120回）で試算</Note>
+      <In at={a(32.36)} x={70} y={410} mode="pop" rot={-4}><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${G}`, borderRadius: 18, padding: "6px 24px", boxShadow: `6px 6px 0 ${M.ink}` }}><span style={{ ...K, fontSize: 34 }}>約</span><span style={{ ...SER, fontSize: 96, color: G }}>300</span><span style={{ ...K, fontSize: 40 }}>万円</span></span></In>
+      <In at={a(33.14)} x={90} y={570} mode="pop"><Chip c={G}>ミニバン</Chip></In>
+      <In at={a(33.74)} x={90} y={650} mode="pop"><Chip c={G} size={40}>銀行ローン</Chip></In>
+      <In at={a(34.62)} x={350} y={650} mode="pop"><Chip c={G} size={40}>10年</Chip></In>
+      <In at={a(35.02)} x={280} y={860} mode="rise"><Meter v={v} c={G} /></In>
+      <HandCircle at={a(36.4)} x={540} y={1162} r={250} ry={70} c={G} />
+      <Note at={a(35.02)} top={1262}>※例：金利2.5%・10年（120回）で試算</Note>
     </AbsoluteFill>
   );
 };
 
-// ════════ 8 残りの4.3万円は先に積立（41.92–45.38） ════════
+// ════════ 8 残りの4.3万円は積立投資へ（36.94–39.90） ════════
 const P7b: React.FC = () => {
-  const S = 41.92, a = (t: number) => W(t) - W(S);
+  const S = 36.94, a = (t: number) => t - S;
   return (
     <AbsoluteFill>
       <Paper2 />
-      <Head at={0.05} c={G} pill="B家" icon="🌱">残りは<R c={G}>先に積立</R></Head>
-      <MonthRows aAt={0.1} bAt={0.1} splitAt={a(42.42)} />
-      <In at={a(44.4)} x={130} y={900} mode="pop"><GenSlot name="car_b_piggy" size={330} /></In>
-      <In at={a(43.74)} x={480} y={960} mode="pop"><Pill2 c={G} size={40}>毎月 <span style={{ color: M.yellow }}>先に</span> 積立</Pill2></In>
-      <Stamp at={a(44.6)} x={520} y={1080} text="使う前に よける" size={54} c={G} rot={-5} />
-      <Note at={a(42.42)} top={1262}>※71,053円 − 28,281円 ＝ 42,772円（約4.3万円）</Note>
+      <Head at={0.05} c={G} pill="B家" icon="🌱">残りは<R c={G}>積立投資</R>へ</Head>
+      <MonthRows aAt={0.1} bAt={0.1} splitAt={a(37.2)} />
+      <In at={a(38.56)} x={130} y={900} mode="pop"><GenSlot name="car_b_piggy" size={330} /></In>
+      <In at={a(38.9)} x={480} y={980} mode="pop"><Pill2 c={G} size={40}>毎月 4.3万円を 積立投資</Pill2></In>
+      <Note at={a(37.2)} top={1262}>※71,053円 − 28,281円 ＝ 42,772円（約4.3万円）</Note>
     </AbsoluteFill>
   );
 };
 
-// ════════ 9 5年後（45.38–48.66）：時間の棒が5年まで進む → A家の残クレが終わる ════════
+// ════════ 9 5年後（39.90–42.82）：時間の棒が5年まで進む → A家の残クレが終わる ════════
 const P8: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 45.38, a = (t: number) => W(t) - W(S);
+  const S = 39.9, a = (t: number) => t - S;
   const prog = interpolate(f, [F(0.1), F(0.9)], [0, 0.5], out);
   const age = Math.round(2 + 5 * (prog / 0.5));
   return (
@@ -329,18 +311,18 @@ const P8: React.FC = () => {
         <div style={{ display: "flex", justifyContent: "space-between", ...K, fontSize: 30, marginTop: 8, color: M.sub }}><span>今</span><span style={{ color: M.ink }}>5年</span><span>10年</span></div>
         <div style={{ position: "absolute", left: `${prog * 100}%`, top: -78, transform: "translateX(-50%)", ...K, fontSize: 34, whiteSpace: "nowrap" }}>子ども <span style={{ ...SER, fontSize: 52, color: M.red }}>{age}</span>歳</div>
       </div>
-      <In at={a(47.0)} x={70} y={690} mode="throw" from="l" rot={-5}><GenSlot name="car_a_minivan" size={430} /></In>
-      <In at={a(47.14)} x={540} y={760} mode="pop"><Pill2 c={A} size={42}>A家の残クレ</Pill2></In>
-      <Stamp at={a(48.2)} x={560} y={880} text="契約おわり" size={72} c={A} rot={-7} />
+      <In at={a(41.2)} x={70} y={690} mode="throw" from="l" rot={-5}><GenSlot name="car_a_minivan" size={430} /></In>
+      <In at={a(41.34)} x={540} y={760} mode="pop"><Pill2 c={A} size={42}>A家の残クレ</Pill2></In>
+      <Stamp at={a(42.22)} x={560} y={880} text="契約おわり" size={72} c={A} rot={-7} />
     </AbsoluteFill>
   );
 };
 
-// ════════ 10 選べる道は3つ（48.66–55.66）→「買い取る」に × ════════
+// ════════ 10 選べる道は3つ（42.82–50.16）→「買い取る」に × ════════
 const P8b: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 48.66, a = (t: number) => W(t) - W(S);
-  const x = interpolate(f, [F(a(53.98)), F(a(53.98)) + 7], [0, 1], out);
+  const S = 42.82, a = (t: number) => t - S;
+  const x = interpolate(f, [F(a(48.3)), F(a(48.3)) + 7], [0, 1], out);
   const card = (i: number, at: number, icon: string, t: React.ReactNode, sub: React.ReactNode) => (
     <In at={at} x={70} y={480 + i * 190} mode="throw" from="r" rot={3}>
       <div style={{ width: 940, height: 160, background: i === 1 && x > 0 ? "#F1EDE0" : "#fff", border: `6px solid ${M.ink}`, borderLeft: `20px solid ${A}`, borderRadius: 18, boxShadow: `6px 6px 0 ${M.ink}`, display: "flex", alignItems: "center", gap: 22, padding: "0 26px", boxSizing: "border-box", position: "relative" }}>
@@ -352,112 +334,110 @@ const P8b: React.FC = () => {
     </In>
   );
   return (
-    <AbsoluteFill style={{ transform: shake(f, a(53.98), 12) }}>
+    <AbsoluteFill style={{ transform: shake(f, a(48.3), 12) }}>
       <Paper2 />
       <Head at={0.05} c={A} pill="A家の5年後" icon="🔀">選べる道は<R c={A}>3つ</R></Head>
-      {card(0, a(50.12), "↩️", "車を返す", "条件を満たせば終わり。車は手元に残らない")}
-      {card(1, a(50.66), "💴", <>買い取る <span style={{ ...SER, fontSize: 44, color: A }}>約300</span><span style={{ fontSize: 30 }}>万円</span></>, "残りを払って自分の車にする")}
-      {card(2, a(52.84), "🔁", "乗り換える", "次の車の契約を結ぶ")}
-      <Stamp at={a(54.9)} x={250} y={1080} text="300万円は手元にない" size={56} rot={-5} />
-      <Note at={a(52.84)} top={1210}>※買い取りは、残りを分割で払う（再ローン）方法もあります</Note>
+      {card(0, a(43.92), "↩️", "車を返す", "車は手元に残らない")}
+      {card(1, a(44.92), "💴", <>買い取る <span style={{ ...SER, fontSize: 44, color: A }}>約300</span><span style={{ fontSize: 30 }}>万円</span></>, "残りを払って自分の車にする")}
+      {card(2, a(47.1), "🔁", "乗り換える", "次の車の契約を結ぶ")}
+      <Stamp at={a(49.14)} x={250} y={1080} text="300万円は手元にない" size={56} rot={-5} />
     </AbsoluteFill>
   );
 };
 
-// ════════ 11 返すときの条件 → 精算40万円（55.66–63.78） ════════
+// ════════ 11 返すときの条件 → 精算40万円（50.16–58.38） ════════
 const P9: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 55.66, a = (t: number) => W(t) - W(S);
-  const rc = interpolate(f, [F(a(59.66)), F(a(59.66)) + 12], [700, 0], out);
-  const tot = stepN(f, a(61.48), 40, 0.5, 0);
+  const S = 50.16, a = (t: number) => t - S;
+  const rc = interpolate(f, [F(a(54.0)), F(a(54.0)) + 12], [700, 0], out);
+  const tot = stepN(f, a(56.12), 40, 0.5, 0);
   return (
-    <AbsoluteFill style={{ transform: shake(f, a(62.7), 10) }}>
+    <AbsoluteFill style={{ transform: shake(f, a(57.4), 10) }}>
       <Paper2 />
-      <Head at={0.05} c={A} pill="A家" icon="🔍">返すときの<R c={A}>条件</R></Head>
+      <Head at={0.05} c={A} pill="A家" icon="🔍">さらに 返すときの<R c={A}>条件</R></Head>
       <In at={0.3} x={40} y={450} mode="throw" from="l" rot={-5}><GenSlot name="car_odometer" size={380} /></In>
-      <div style={{ position: "absolute", left: 470, top: 470 }}>
-        <Line at={a(56.74)}>✔ 走行距離（上限あり）</Line>
-        <Line at={a(57.5)}>✔ 傷・へこみ</Line>
-        <Line at={a(57.98)}>✔ におい（たばこ・ペット）</Line>
-        <Line at={a(58.54)}><span style={{ color: M.red }}>✔ 細かい条件がある</span></Line>
+      <div style={{ position: "absolute", left: 470, top: 490 }}>
+        <Line at={a(51.28)}>✔ 走行距離（上限あり）</Line>
+        <Line at={a(52.12)}>✔ 傷・へこみ</Line>
+        <Line at={a(52.64)}><span style={{ color: M.red }}>✔ 契約上の条件がある</span></Line>
       </div>
-      {f >= F(a(59.66)) ? (
+      {f >= F(a(54.0)) ? (
         <div style={{ position: "absolute", left: 250, top: 830 + rc, width: 580, background: "#fff", border: `5px solid ${M.ink}`, borderRadius: 8, boxShadow: `8px 8px 0 ${M.ink}`, padding: "16px 28px 18px", boxSizing: "border-box", transform: "rotate(-2deg)" }}>
           <div style={{ ...K, fontSize: 32, textAlign: "center", borderBottom: `4px dashed ${M.gray}`, paddingBottom: 6 }}>🧾 精算のお知らせ</div>
           <div style={{ ...K, fontSize: 32, lineHeight: 1.6, marginTop: 6 }}>
-            <div style={{ opacity: f >= F(a(60.52)) ? 1 : 0 }}>・走行距離の超過</div>
-            <div style={{ opacity: f >= F(a(61.08)) ? 1 : 0 }}>・傷の修理</div>
+            <div style={{ opacity: f >= F(a(54.56)) ? 1 : 0 }}>・走行距離の超過</div>
+            <div style={{ opacity: f >= F(a(55.58)) ? 1 : 0 }}>・傷の修理</div>
           </div>
-          <div style={{ borderTop: `4px solid ${M.ink}`, marginTop: 6, paddingTop: 4, display: "flex", alignItems: "baseline", justifyContent: "space-between" }}><span style={{ ...K, fontSize: 34 }}>合計</span><span><span style={{ ...K, fontSize: 32 }}>約</span><span style={{ ...SER, fontSize: 90, color: M.red }}>{f >= F(a(61.48)) ? yen(tot) : "--"}</span><span style={{ ...K, fontSize: 36 }}>万円</span></span></div>
+          <div style={{ borderTop: `4px solid ${M.ink}`, marginTop: 6, paddingTop: 4, display: "flex", alignItems: "baseline", justifyContent: "space-between" }}><span style={{ ...K, fontSize: 34 }}>合計</span><span><span style={{ ...K, fontSize: 32 }}>約</span><span style={{ ...SER, fontSize: 90, color: M.red }}>{f >= F(a(56.12)) ? yen(tot) : "--"}</span><span style={{ ...K, fontSize: 36 }}>万円</span></span></div>
         </div>
       ) : null}
-      <Stamp at={a(62.9)} x={600} y={1150} text="精算が必要" size={58} rot={-8} />
-      <Note at={a(59.66)} top={1262}>※精算があるか・いくらかは、契約（残価保証の条件）や車の状態で変わります（この例では約40万円）</Note>
+      <Stamp at={a(57.62)} x={600} y={1150} text="精算が必要" size={58} rot={-8} />
+      <Note at={a(54.0)} top={1262}>※精算があるか・いくらかは、契約（残価保証の条件）や車の状態で変わります（この例では約40万円）</Note>
     </AbsoluteFill>
   );
 };
 
-// ════════ 12 その40万円も手元にない → ディーラー（63.78–68.56） ════════
+// ════════ 12 その40万円も払えない → ディーラー（58.38–64.82） ════════
 const P10: React.FC = () => {
-  const S = 63.78, a = (t: number) => W(t) - W(S);
+  const S = 58.38, a = (t: number) => t - S;
   return (
     <AbsoluteFill>
       <Paper2 />
       <Head at={0.05} c={A} pill="A家" icon="💦" />
       <In at={0.15} x={40} y={400} mode="pop"><GenSlot name="car_a_dealer_worry" size={500} /></In>
-      <In at={a(64.12)} x={50} y={1130} mode="pop" rot={-3}><Pill2 c="#fff" size={40}>👛 その40万円も<R>手元にない</R></Pill2></In>
-      <In at={a(66.04)} x={560} y={700} mode="throw" from="r" rot={6}><GenSlot name="car_dealer_smile" size={400} /></In>
-      <In at={a(66.6)} x={470} y={430} mode="pop" rot={3}><Bubble tail="b" w={560} size={42}><TypeIn at={F(a(66.6))} step={2}>月々ほぼ同じで<br />乗り換えられますよ♪</TypeIn></Bubble></In>
+      <In at={a(59.9)} x={50} y={1130} mode="pop" rot={-3}><Pill2 c="#fff" size={40}>👛 その40万円も<R>払えない</R></Pill2></In>
+      <In at={a(61.24)} x={560} y={700} mode="throw" from="r" rot={6}><GenSlot name="car_dealer_smile" size={400} /></In>
+      <In at={a(62.2)} x={470} y={430} mode="pop" rot={3}><Bubble tail="b" w={560} size={42}><TypeIn at={F(a(62.2))} step={2}>月々ほぼ同じで<br />乗り換えられますよ♪</TypeIn></Bubble></In>
     </AbsoluteFill>
   );
 };
 
-// ════════ 13 精算金を次のローンに乗せる（68.56–71.96） ════════
+// ════════ 13 精算金40万円も次のローンに乗せる（64.82–69.70） ════════
 const P11: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 68.56, a = (t: number) => W(t) - W(S);
-  const slide = interpolate(f, [F(a(70.9)), F(a(70.9)) + 10], [0, 1], out);
+  const S = 64.82, a = (t: number) => t - S;
+  const slide = interpolate(f, [F(a(67.58)), F(a(67.58)) + 10], [0, 1], out);
   return (
     <AbsoluteFill>
       <Paper2 />
-      <Head at={0.05} c={A} pill="A家" icon="🔁">泣く泣く…</Head>
-      <In at={a(70.34)} x={90} y={700} mode="rise">
+      <Head at={0.05} c={A} pill="A家" icon="🔁">新しい車に乗り換え</Head>
+      <In at={a(66.92)} x={90} y={700} mode="rise">
         <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
           <div style={{ width: 640, height: 170, background: A, border: `6px solid ${M.ink}`, borderRadius: "16px 0 0 16px", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#fff" }}><span style={{ ...K, fontSize: 28 }}>次の車のローン</span><span style={{ ...SER, fontSize: 70 }}>600<span style={{ ...K, fontSize: 30 }}>万円</span></span></div>
           <div style={{ width: 220, height: 170, border: `6px dashed ${M.red}`, borderLeft: "none", borderRadius: "0 16px 16px 0", boxSizing: "border-box" }} />
         </div>
       </In>
-      <In at={a(69.48)} x={0} y={0} mode="pop">
+      <In at={a(65.36)} x={0} y={0} mode="pop">
         <div style={{ position: "absolute", left: 360 + 370 * slide, top: 450 + 256 * slide, width: 220, height: 158, background: "#FDE7E2", border: `6px solid ${M.red}`, borderRadius: 14, boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: `rotate(${-8 * (1 - slide)}deg)`, boxShadow: slide < 1 ? `6px 6px 0 ${M.ink}` : undefined }}>
           <span style={{ ...K, fontSize: 26 }}>精算金</span><span style={{ ...SER, fontSize: 60, color: M.red }}>40<span style={{ ...K, fontSize: 26 }}>万円</span></span>
         </div>
       </In>
-      {f >= F(a(70.9)) + 10 ? <div style={{ position: "absolute", left: 0, right: 0, top: 920, textAlign: "center", transform: `scale(${pop(f, F(a(70.9)) + 10)})` }}><span style={{ ...K, fontSize: 44 }}>借りる額 </span><span style={{ ...SER, fontSize: 96, color: M.red }}>640</span><span style={{ ...K, fontSize: 44 }}>万円に</span></div> : null}
-      <Stamp at={a(71.28)} x={330} y={1080} text="乗り換え" size={76} c={A} rot={-6} />
+      {f >= F(a(67.58)) + 10 ? <div style={{ position: "absolute", left: 0, right: 0, top: 920, textAlign: "center", transform: `scale(${pop(f, F(a(67.58)) + 10)})` }}><span style={{ ...K, fontSize: 44 }}>借りる額 </span><span style={{ ...SER, fontSize: 96, color: M.red }}>640</span><span style={{ ...K, fontSize: 44 }}>万円に</span></div> : null}
+      <Stamp at={a(68.96)} x={330} y={1080} text="乗り換え" size={76} c={A} rot={-6} />
     </AbsoluteFill>
   );
 };
 
-// ════════ 14 月7.9万円に増える → 残クレループ（71.96–76.88） ════════
+// ════════ 14 月7.9万円に増える → 次の残クレへ＝残クレループ（69.70–75.20） ════════
 const P12: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 71.96, a = (t: number) => W(t) - W(S);
-  const v = stepN(f, a(72.8), 78694, 0.9, 71053);
-  const spin = f >= F(a(74.5)) ? (f - F(a(74.5))) * 2.2 : 0;
+  const S = 69.7, a = (t: number) => t - S;
+  const v = stepN(f, a(70.78), 78694, 0.9, 71053);
+  const spin = f >= F(a(72.44)) ? (f - F(a(72.44))) * 2.2 : 0;
   return (
     <AbsoluteFill>
       <Paper2 />
       <Head at={0.05} c={A} pill="A家" icon="📈" />
       <In at={0.15} x={280} y={360} mode="rise"><Meter v={v} c={A} label={<div style={{ ...K, fontSize: 30, color: M.sub }}>7.1万円 → <R>7.9万円</R></div>} /></In>
-      <In at={a(74.04)} x={760} y={480} mode="pop" rot={8}><span style={{ ...K, fontSize: 64, color: M.red }}>UP↑</span></In>
-      <In at={a(74.5)} x={290} y={790} mode="pop"><div style={{ transform: `rotate(${Math.sin(spin / 20) * 4}deg)` }}><GenSlot name="car_a_loop" size={500} /></div></In>
-      <Stamp at={a(75.72)} x={190} y={1150} text="残クレループ" size={88} c={M.red} rot={-6} />
-      <Note at={a(72.8)} top={1290}>※例：640万円・金利5.5%・5年・残価300万円で試算</Note>
+      <In at={a(71.92)} x={760} y={480} mode="pop" rot={8}><span style={{ ...K, fontSize: 64, color: M.red }}>UP↑</span></In>
+      <In at={a(72.44)} x={290} y={790} mode="pop"><div style={{ transform: `rotate(${Math.sin(spin / 20) * 4}deg)` }}><GenSlot name="car_a_loop" size={500} /></div></In>
+      <Stamp at={a(74.28)} x={190} y={1150} text="残クレループ" size={88} c={M.red} rot={-6} />
+      <Note at={a(70.78)} top={1290}>※例：640万円・金利5.5%・5年・残価300万円で試算</Note>
     </AbsoluteFill>
   );
 };
 
-// ════════ 15 B家は乗り続け、積立は260万円（76.88–81.48） ════════
+// ════════ 15 一方B家は乗り続け、積立元本は260万円（75.20–80.34） ════════
 const Piggy: React.FC<{ v: number; max: number; c?: string }> = ({ v, max, c = G }) => (
   <div style={{ width: 300, textAlign: "center" }}>
     <div style={{ position: "relative", width: 180, height: 300, margin: "0 auto", border: `6px solid ${M.ink}`, borderRadius: "22px 22px 30px 30px", background: "#fff", overflow: "hidden", boxShadow: `6px 6px 0 ${M.ink}` }}>
@@ -468,47 +448,61 @@ const Piggy: React.FC<{ v: number; max: number; c?: string }> = ({ v, max, c = G
 );
 const P13: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 76.88, a = (t: number) => W(t) - W(S);
-  const v = stepN(f, a(79.86), 260, 0.8, 0);
+  const S = 75.2, a = (t: number) => t - S;
+  const v = stepN(f, a(79.08), 260, 0.8, 0);
   return (
     <AbsoluteFill>
       <Paper2 />
-      <Head at={0.05} c={G} pill="B家" icon="🌱" />
+      <Head at={0.05} c={G} pill="一方 B家" icon="🌱" />
       <In at={0.2} x={30} y={420} mode="throw" from="l" rot={-5}><GenSlot name="car_b_family_7" size={500} /></In>
-      <In at={a(77.46)} x={60} y={940} mode="pop"><Pill2 c={G} size={38}>同じ車に 乗り続ける</Pill2></In>
-      <In at={a(78.68)} x={640} y={440} mode="rise"><Piggy v={v} max={510} /></In>
-      <Note at={a(79.86)} top={1150}>※元本（積み立てたお金）のみ。運用で増えた分は入れていません</Note>
+      <In at={a(76.14)} x={60} y={940} mode="pop"><Pill2 c={G} size={38}>同じ車に 乗り続ける</Pill2></In>
+      <In at={a(77.46)} x={640} y={440} mode="rise"><Piggy v={v} max={510} /></In>
+      <Note at={a(79.08)} top={1150}>※元本（積み立てたお金）のみ。運用で増えた分は入れていません</Note>
     </AbsoluteFill>
   );
 };
 
-// ════════ 16 10年後：B家は完済して自分の車に／積立510万円（81.48–87.32） ════════
+// ════════ 16 10年後：B家は銀行ローン完済、車は完全に自分のもの／積立元本510万円（80.34–87.78） ════════
 const P14: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 81.48, a = (t: number) => W(t) - W(S);
-  const prog = interpolate(f, [F(0.1), F(0.9)], [0.5, 1], out);
-  const v = stepN(f, a(86.02), 510, 0.8, 260);
+  const S = 80.34, a = (t: number) => t - S;
+  const prog = interpolate(f, [F(0.3), F(1.1)], [0.5, 1], out);
+  const v = stepN(f, a(86.64), 510, 0.8, 260);
   return (
     <AbsoluteFill>
       <Paper2 />
-      <In at={0.05} x={0} y={290} center mode="pop"><span style={{ display: "inline-block", background: M.ink, borderRadius: 18, padding: "10px 46px", transform: "rotate(-2deg)", boxShadow: `6px 6px 0 ${G}` }}><BounceText text="10年後" at={F(0.1)} size={88} color={M.yellow} stroke={false} /></span></In>
+      <In at={0.25} x={0} y={290} center mode="pop"><span style={{ display: "inline-block", background: M.ink, borderRadius: 18, padding: "10px 46px", transform: "rotate(-2deg)", boxShadow: `6px 6px 0 ${G}` }}><BounceText text="10年後" at={F(0.3)} size={88} color={M.yellow} stroke={false} /></span></In>
       <div style={{ position: "absolute", left: 90, top: 470, width: 900 }}>
         <div style={{ height: 30, background: "#EDE5C4", border: `5px solid ${M.ink}`, borderRadius: 16, overflow: "hidden" }}><div style={{ width: `${prog * 100}%`, height: "100%", background: `repeating-linear-gradient(-45deg, ${M.yellow} 0 18px, #F6CF4A 18px 36px)` }} /></div>
         <div style={{ position: "absolute", right: 0, top: 40, ...K, fontSize: 34 }}>子ども <span style={{ ...SER, fontSize: 50, color: M.red }}>12</span>歳</div>
       </div>
-      <In at={a(83.0)} x={20} y={560} mode="throw" from="l" rot={-4}><GenSlot name="car_b_family_12" size={540} /></In>
-      <Stamp at={a(84.08)} x={70} y={1070} text="完済！自分の車に" size={58} c={G} rot={-6} />
-      <In at={a(84.84)} x={660} y={600} mode="rise"><Piggy v={v} max={510} /></In>
-      <Note at={a(86.02)} top={1200}>※元本のみ（約42,772円×120か月＝約513万円）</Note>
+      <In at={a(82.18)} x={20} y={560} mode="throw" from="l" rot={-4}><GenSlot name="car_b_family_12" size={540} /></In>
+      <Stamp at={a(83.3)} x={70} y={1030} text="銀行ローン 完済！" size={56} c={G} rot={-6} />
+      <In at={a(84.62)} x={80} y={1130} mode="pop"><Pill2 c={G} size={36}>車は 完全に自分のもの</Pill2></In>
+      <In at={a(85.6)} x={660} y={600} mode="rise"><Piggy v={v} max={510} /></In>
+      <Note at={a(86.64)} top={1220}>※元本のみ（約42,772円×120か月＝約513万円）</Note>
     </AbsoluteFill>
   );
 };
 
-// ════════ 17 10年で払った利息（87.32–92.06）：棒の高さで比べる ════════
+// ════════ 17 一方A家は2台目の残クレの終わり（87.78–90.48） ════════
+const P14b: React.FC = () => {
+  const S = 87.78, a = (t: number) => t - S;
+  return (
+    <AbsoluteFill>
+      <Paper2 />
+      <Head at={0.05} c={A} pill="一方 A家" icon="🚗">2台目の<R c={A}>残クレ</R>も終わり</Head>
+      <In at={0.2} x={140} y={470} mode="pop"><GenSlot name="car_a_family_12" size={620} /></In>
+      <Stamp at={a(89.6)} x={560} y={1060} text="2台目も契約おわり" size={50} c={A} rot={-6} />
+    </AbsoluteFill>
+  );
+};
+
+// ════════ 18 10年で払った利息（90.48–95.64）：棒の高さで比べる ════════
 const P15: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 87.32, a = (t: number) => W(t) - W(S);
-  const hA = interpolate(f, [F(a(88.7)), F(a(88.7)) + 14], [0, 1], out), hB = interpolate(f, [F(a(90.56)), F(a(90.56)) + 10], [0, 1], out);
+  const S = 90.48, a = (t: number) => t - S;
+  const hA = interpolate(f, [F(a(92.22)), F(a(92.22)) + 14], [0, 1], out), hB = interpolate(f, [F(a(94.06)), F(a(94.06)) + 10], [0, 1], out);
   const H = 560, base = 1100;
   const col = (x: number, h: number, c: string, lab: string, v: number, show: boolean) => (
     <>
@@ -520,38 +514,43 @@ const P15: React.FC = () => {
   return (
     <AbsoluteFill>
       <Paper2 />
-      <Head at={0.05} c={M.ink} pill="10年で払った利息" icon="💸" />
+      <Head at={0.05} c={M.ink} pill="10年間で払った利息" icon="💸" />
       <div style={{ position: "absolute", left: 120, top: base, width: 840, height: 6, background: M.ink }} />
-      {col(200, H * hA, A, "A家", stepN(f, a(89.2), 260, 0.6, 0), f >= F(a(89.0)))}
-      {col(620, H * (40 / 260) * hB, G, "B家", stepN(f, a(91.08), 40, 0.4, 0), f >= F(a(90.9)))}
-      <Note at={a(88.7)} top={1200}>※A家：1台目（600万円）と2台目（640万円）の利息の合計 約258万円／B家：約39万円</Note>
+      {col(200, H * hA, A, "A家", stepN(f, a(92.8), 260, 0.6, 0), f >= F(a(92.6)))}
+      {col(620, H * (40 / 260) * hB, G, "B家", stepN(f, a(94.6), 40, 0.4, 0), f >= F(a(94.4)))}
+      <Note at={a(92.22)} top={1200}>※A家：1台目（600万円）と2台目（640万円）の利息の合計 約258万円／B家：約39万円</Note>
     </AbsoluteFill>
   );
 };
 
-// ════════ 18 A家が車に払ったのは約900万円 → それでもまだ自分のものではない（92.06–97.06） ════════
+// ════════ 19 A家が払ったのは約900万円 → それでも2台目の残価約300万円が残っている（95.64–106.14） ════════
 const P16: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 92.06, a = (t: number) => W(t) - W(S);
-  const v = stepN(f, a(93.34), 900, 1.0, 0);
+  const S = 95.64, a = (t: number) => t - S;
+  const v = stepN(f, a(98.22), 900, 0.9, 0);
   return (
     <AbsoluteFill>
       <Paper2 />
-      <Head at={0.05} c={A} pill="A家" icon="🧾">10年で<R c={A}>車に払った</R>のは</Head>
-      <In at={a(93.1)} x={0} y={480} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 24, boxShadow: `10px 10px 0 ${A}`, padding: "4px 40px" }}><span style={{ ...K, fontSize: 44 }}>約</span><span style={{ ...SER, fontSize: 150, color: A, lineHeight: 1.1 }}>{yen(v)}</span><span style={{ ...K, fontSize: 52 }}>万円</span></span></In>
-      <In at={a(93.9)} x={0} y={710} center mode="ghost"><span style={{ ...B, fontSize: 30, color: M.sub }}>月7.1万円×5年 ＋ 月7.9万円×5年</span></In>
-      <In at={a(94.76)} x={40} y={790} mode="pop"><div style={{ filter: "grayscale(0.25)" }}><GenSlot name="car_a_family_12" size={470} /></div></In>
-      <In at={a(95.14)} x={540} y={860} mode="throw" from="r" rot={5}><Bubble tail="l" w={490} size={38}>それでも車は<br /><R>まだ自分のもの</R><br /><R>ではない</R></Bubble></In>
-      <Stamp at={a(96.0)} x={560} y={1130} text="所有者は販売店など" size={44} rot={-5} />
+      <Head at={0.05} c={A} pill="A家" icon="🧾">10年間で<R c={A}>車のローンに払った</R>金額</Head>
+      <In at={a(97.9)} x={0} y={470} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 24, boxShadow: `10px 10px 0 ${A}`, padding: "4px 40px" }}><span style={{ ...K, fontSize: 44 }}>約</span><span style={{ ...SER, fontSize: 150, color: A, lineHeight: 1.1 }}>{yen(v)}</span><span style={{ ...K, fontSize: 52 }}>万円</span></span></In>
+      <In at={a(98.9)} x={0} y={700} center mode="ghost"><span style={{ ...B, fontSize: 30, color: M.sub }}>月7.1万円×5年 ＋ 月7.9万円×5年</span></In>
+      <In at={a(99.3)} x={40} y={790} mode="pop"><GenSlot name="car_paper_owner" size={380} /></In>
+      <In at={a(99.74)} x={450} y={800} mode="throw" from="r" rot={4}>
+        <div style={{ width: 560, background: "#fff", border: `6px solid ${A}`, borderRadius: 18, boxShadow: `6px 6px 0 ${M.ink}`, padding: "12px 20px", textAlign: "center" }}>
+          <div style={{ ...K, fontSize: 32 }}>それでも まだ残っている</div>
+          <div><span style={{ ...K, fontSize: 32 }}>2台目の残価 約</span><span style={{ ...SER, fontSize: 80, color: A }}>300</span><span style={{ ...K, fontSize: 34 }}>万円</span></div>
+        </div>
+      </In>
+      <Stamp at={a(104.56)} x={50} y={1120} text="自分のものにするなら さらに支払い" size={42} rot={-4} />
     </AbsoluteFill>
   );
 };
 
-// ════════ 19 締め①：乗りたい車に乗るのは自由 → でも数字で見ると残クレは損しやすい（97.06–101.68） ════════
+// ════════ 20 締め①：乗りたい車に乗るのは自由／残クレ自体が悪いわけではない → ただ月々払えるからで選ぶと…（106.14–113.98） ════════
 const P17: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 97.06, a = (t: number) => W(t) - W(S);
-  const dim = interpolate(f, [F(a(98.98)), F(a(98.98)) + 8], [0, 1], clamp);
+  const S = 106.14, a = (t: number) => t - S;
+  const dim = interpolate(f, [F(a(109.58)), F(a(109.58)) + 8], [0, 1], clamp);
   return (
     <AbsoluteFill>
       <Paper2 />
@@ -559,18 +558,18 @@ const P17: React.FC = () => {
       <div style={{ opacity: 1 - 0.45 * dim, transform: `scale(${1 - 0.08 * dim})`, transformOrigin: "540px 400px" }}>
         <In at={0.15} x={60} y={390} mode="throw" from="l" rot={-5}><GenSlot name="car_a_minivan" size={330} /></In>
         <In at={0.3} x={690} y={410} mode="throw" from="r" rot={5}><GenSlot name="car_b_minivan" size={300} /></In>
-        <In at={a(98.12)} x={0} y={700} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 22, padding: "10px 34px", boxShadow: `8px 8px 0 ${M.yellow}`, ...K, fontSize: 52 }}>乗りたい車に乗るのは <R c={G}>自由</R></span></In>
+        <In at={a(106.94)} x={0} y={700} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 22, padding: "10px 34px", boxShadow: `8px 8px 0 ${M.yellow}`, ...K, fontSize: 52 }}>乗りたい車に乗るのは <R c={G}>自由</R></span></In>
+        <In at={a(107.54)} x={0} y={830} center mode="ghost"><span style={{ ...K, fontSize: 40, color: M.sub }}>残クレ自体が悪いわけではない</span></In>
       </div>
-      <In at={a(99.42)} x={0} y={860} center mode="ghost"><span style={{ ...K, fontSize: 46 }}>でも <R>数字</R>で見ると</span></In>
-      <Stamp at={a(100.28)} x={110} y={960} text="残クレは損しやすい買い方" size={64} rot={-4} />
-      <In at={a(100.9)} x={0} y={1140} center mode="pop"><span style={{ ...B, fontSize: 30, color: M.sub }}>10年の利息　<R c={A}>A家 約260万円</R>　／　<R c={G}>B家 約40万円</R></span></In>
+      <In at={a(109.58)} x={0} y={920} center mode="ghost"><span style={{ ...K, fontSize: 44 }}>ただ「<R c={A}>月々払えるから</R>」で選ぶと</span></In>
+      <Stamp at={a(111.52)} x={110} y={1020} text="総支払額で大きく損しやすい" size={58} rot={-4} />
     </AbsoluteFill>
   );
 };
 
-// ════════ 20 締め②：なるべく損をしないためには（101.68–109.50） ════════
+// ════════ 21 締め②：なるべく損を減らすなら（113.98–120.80） ════════
 const P17b: React.FC = () => {
-  const S = 101.68, a = (t: number) => W(t) - W(S);
+  const S = 113.98, a = (t: number) => t - S;
   const tip = (y: number, at: number, no: string, img: string, title: React.ReactNode, sub: React.ReactNode) => (
     <In at={at} x={60} y={y} mode="throw" from="r" rot={3}>
       <div style={{ width: 960, height: 280, background: "#fff", border: `6px solid ${M.ink}`, borderLeft: `20px solid ${G}`, borderRadius: 20, boxShadow: `8px 8px 0 ${M.ink}`, display: "flex", alignItems: "center", gap: 18, padding: "0 24px", boxSizing: "border-box" }}>
@@ -584,18 +583,18 @@ const P17b: React.FC = () => {
     <AbsoluteFill>
       <Paper2 />
       <SectionPill c={M.ink} at={0.05} icon="✓">まとめ</SectionPill>
-      <In at={0.15} x={0} y={385} center mode="ghost"><span style={{ ...K, fontSize: 50 }}>車で<R>なるべく損をしない</R>ためには</span></In>
-      {tip(500, a(103.9), "①", "car_dealer_smile", <><R c={G}>リセールバリュー</R>を考える</>, "売るときに値段が下がりにくい車を選ぶ")}
-      {tip(820, a(105.38), "②", "car_b_piggy", <>低金利の<R c={G}>銀行ローン</R>を長めに<br />＋ <R c={G}>運用</R>と組み合わせる</>, "")}
-      <HandCircle at={a(108.74)} x={600} y={960} r={380} ry={150} c={M.red} />
+      <In at={0.15} x={0} y={385} center mode="ghost"><span style={{ ...K, fontSize: 50 }}>車で<R>なるべく損を減らす</R>なら</span></In>
+      {tip(500, a(116.26), "①", "car_dealer_smile", <><R c={G}>リセールバリュー</R>を考える</>, "売るときに値段が下がりにくい車を選ぶ")}
+      {tip(820, a(117.82), "②", "car_b_piggy", <>低金利の<R c={G}>銀行ローン</R>と<br /><R c={G}>資産形成</R>を組み合わせる</>, "")}
+      <HandCircle at={a(120.2)} x={600} y={960} r={380} ry={150} c={M.red} />
     </AbsoluteFill>
   );
 };
 
-// ════════ 21 保存とフォロー（109.50–112.15） ════════
+// ════════ 22 保存とフォロー（120.80–122.98） ════════
 const P18: React.FC = () => {
   const f = useCurrentFrame();
-  const S = 109.5, a = (t: number) => W(t) - W(S);
+  const S = 120.8, a = (t: number) => t - S;
   const btn = (x: number, at: number, icon: string, t: string, c: string) => (
     <In at={at} x={x} y={620} mode="pop">
       <div style={{ width: 400, height: 260, background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 30, boxShadow: `10px 10px 0 ${c}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: f >= F(at + 0.45) && f < F(at + 0.45) + 6 ? "scale(0.92)" : undefined }}>
@@ -607,8 +606,8 @@ const P18: React.FC = () => {
     <AbsoluteFill>
       <Paper2 />
       <In at={0.05} x={0} y={400} center mode="ghost"><span style={{ ...K, fontSize: 54 }}>忘れないように</span></In>
-      {btn(90, a(110.36), "🔖", "保存", M.yellow)}
-      {btn(590, a(110.82), "➕", "フォロー", G)}
+      {btn(90, a(121.6), "🔖", "保存", M.yellow)}
+      {btn(590, a(122.06), "➕", "フォロー", G)}
     </AbsoluteFill>
   );
 };
@@ -627,59 +626,62 @@ const PageMove: React.FC<{ dur: number; chapterNext: boolean; first: boolean; la
   const blur = v > 40 ? Math.min(18, v / 22) : 0;
   return <AbsoluteFill style={{ transform: `translateY(${y}px)`, filter: blur ? `blur(${blur}px)` : undefined }}>{first ? children : <Sequence from={-4} layout="none">{children}</Sequence>}</AbsoluteFill>;
 };
-export const CAR1_END = 121.53;
-export const CAR1_PAGES: [number, React.FC][] = [[0, P1], [5.92, P2], [12.24, P3], [17.84, P4], [24.8, P5], [31.2, P6], [37.28, P7], [41.92, P7b], [45.38, P8], [48.66, P8b], [55.66, P9], [63.78, P10], [68.56, P11], [71.96, P12], [76.88, P13], [81.48, P14], [87.32, P15], [92.06, P16], [97.06, P17], [101.68, P17b], [109.5, P18]];
-const CHAPTER = new Set([2, 5, 8, 15, 18]); // 次のページが章の頭（A家・B家・5年後・10年後・まとめ）
+export const CAR1_END = 123.0;
+export const CAR1_PAGES: [number, React.FC][] = [[0, P1], [5.14, P2], [10.76, P3], [15.96, P4], [22.36, P5], [25.14, P6], [31.96, P7], [36.94, P7b], [39.9, P8], [42.82, P8b], [50.16, P9], [58.38, P10], [64.82, P11], [69.7, P12], [75.2, P13], [80.34, P14], [87.78, P14b], [90.48, P15], [95.64, P16], [106.14, P17], [113.98, P17b], [120.8, P18]];
+const CHAPTER = new Set([2, 5, 8, 15, 19]); // 次のページが章の頭（A家・B家・5年後・10年後・まとめ）
 export const CARFAMILY_FRAMES = F(CAR1_END);
 
-// 字幕（AIの読み間違いは直した字で・!A家の言葉! *B家の言葉* ~全体~）
+// 字幕（話した言葉どおり・!A家の言葉! *B家の言葉* ~全体~）
 const SUBS: [number, string][] = [
-  [0, "*お金が残る家族*と"], [1.5, "!残らない家族!"], [2.34, "将来どうなるか 見てください"], [3.76, "今回は ~車の選び方~ です"],
-  [5.92, "同じ収入の 2組の家族"], [7.62, "どちらも 夫婦27歳"], [9.1, "2歳の子どもが1人"], [10.36, "世帯年収は ~600万円~"],
-  [12.24, "!A家!は 約600万円の"], [13.94, "大きなミニバンを !残クレ! で"], [15.26, "5年契約で"], [16.32, "月々 約!7万1,000円!"],
-  [17.84, "残価設定は !50%!"], [18.96, "最後に 車の値段の半分"], [19.56, "約!300万円!を 残しました"], [21.22, "でも その300万円にも"], [23.14, "5年間ずっと !利息! がかかります"],
-  [24.8, "しかも 残クレの車は"], [26.34, "払い終わるまで"], [27.1, "!自分のものではありません!"], [28.34, "「月々払えるなら大丈夫」"], [29.88, "A家は そう思っていました"],
-  [31.2, "*B家*も 毎月出せるのは"], [32.84, "A家と同じ 月*7万*くらいと"], [34.56, "決めていましたが"], [35.3, "*身の丈*に合った車を買おうと考え"],
-  [37.28, "約300万円のミニバンを"], [38.9, "*銀行ローン*で 10年"], [40.16, "月々 約*2万8,000円*"],
-  [41.92, "残りの 約*4万3,000円*は"], [43.74, "毎月 *先に積み立て* ました"],
-  [45.38, "~5年後~ 子どもは7歳"], [47.14, "A家の残クレが 終わります"],
-  [48.66, "選べる道は ~3つ~"], [49.84, "車を返すか"], [50.66, "残りの約300万円を払って買い取るか"], [52.84, "乗り換えるか"], [53.54, "でも !300万円! は手元にありません"],
-  [55.66, "返すときには"], [56.74, "!走行距離!や!傷!や!におい!などに"], [58.54, "細かい条件があります"], [59.66, "走行距離の超過と傷で"], [61.48, "約!40万円!の精算が"], [62.9, "必要と言われました"],
-  [63.78, "その40万円も 手元には残っていません"], [66.04, "ディーラーで"], [66.68, "「月々ほぼ同じで 乗り換えられますよ」"],
-  [68.56, "A家は 泣く泣く"], [69.48, "精算金を 次のローンに乗せて"], [71.28, "乗り換えました"], [71.96, "月々は 約!7万9,000円!に"], [74.04, "増えました"], [74.5, "これが 抜け出しにくい"], [75.72, "!残クレループ! です"],
-  [76.88, "*B家*は 同じ車に乗り続け"], [78.68, "積み立ては 元本 約*260万円*"],
-  [81.48, "~10年後~ 子どもは12歳"], [83.12, "B家の車は *自分のもの* に"], [84.84, "積み立ては 元本 約*510万円*"],
-  [87.32, "10年で払った利息は"], [88.7, "A家が 約!260万円!"], [90.56, "B家は 約*40万円*"],
-  [92.06, "A家が 車に払ったのは"], [93.34, "約!900万円!"], [94.76, "それでも 車はまだ"], [95.8, "自分のものではありません"],
-  [97.06, "乗りたい車に乗るのは ~自由~ です"], [98.98, "でも 数字で見ると"], [100.28, "!残クレ!は 損しやすい買い方"],
-  [101.68, "車の購入で"], [102.6, "なるべく損をしないためには"], [103.9, "*リセールバリュー*を考えることや"], [105.38, "低金利の*銀行ローン*を長めに組んで"], [107.34, "*運用*と組み合わせることが大切です"],
-  [109.5, "忘れないように"], [110.36, "*保存*と*フォロー*を しておいてください"],
+  [0, "*お金が残る家族*と"], [1.32, "!残らない家族!"], [2.48, "将来どうなるのか？"], [3.94, "今回は ~車の買い方~"],
+  [5.14, "同じ収入の 2組の家族で"], [7.02, "夫婦27歳"], [8.32, "2歳の子どもが1人"], [9.4, "世帯年収は ~600万円~"],
+  [10.76, "!A家!が選んだのは"], [11.58, "約600万円の 大きなミニバン"], [13.38, "!残クレ!で 5年契約"], [14.8, "月々 約!7万1,000円!"],
+  [15.96, "残価設定は !50%!"], [17.36, "約!300万円!を 残しました"], [18.94, "でも その300万円にも"], [20.48, "5年間ずっと !利息! がかかります"],
+  [22.36, "「月々払えるから大丈夫」"], [23.68, "A家は そう思っていました"],
+  [25.14, "一方 *B家*は"], [26.16, "毎月 車に出せるのは"], [27.48, "A家と同じ 月*7万円*くらい"], [29.6, "でも *身の丈*に合った車を買おうと考えて"],
+  [31.96, "約300万円のミニバンを"], [33.74, "*銀行ローン*で 10年"], [35.02, "月々 約*2万8,000円*"],
+  [36.94, "残りの *4万3,000円*は"], [38.56, "*積み立て投資*に回しました"],
+  [39.9, "~5年後~ 子どもは7歳"], [41.34, "A家の残クレが 終わります"],
+  [42.82, "選べる道は ~3つ~"], [43.92, "車を返すか"], [44.92, "残りの300万円を払って買い取るか"], [47.1, "乗り換えるか"], [48.02, "でも !300万円! は手元にはありません"],
+  [50.16, "さらに 返すときには"], [51.28, "!走行距離!や!傷!など"], [52.64, "契約上の条件があります"], [54.0, "今回は 走行距離の超過と傷で"], [56.12, "約!40万円!の精算が"], [57.62, "必要になりました"],
+  [58.38, "でも その40万円も"], [59.9, "払うことはできませんでした"], [61.24, "ディーラーから"], [62.2, "「月々ほぼ同じで 乗り換えられますよ」"], [64.24, "と言われ"],
+  [64.82, "A家は 精算金40万円も"], [66.92, "次のローンに乗せて"], [68.02, "新しい車に乗り換えました"], [69.7, "月々の支払いは 約!7万9,000円!に"], [71.92, "増えました"], [72.44, "こうして 次の残クレ"], [73.78, "これが !残クレループ! です"],
+  [75.2, "一方 *B家*は 同じ車に乗り続けています"], [77.46, "5年間で積み立てた元本は"], [79.08, "約*260万円*"],
+  [80.34, "そして ~10年後~"], [81.34, "子どもは12歳"], [82.18, "B家は *銀行ローン完済*"], [84.08, "車は *完全に自分のもの* です"], [85.6, "積み立てた元本は 約*510万円*"],
+  [87.78, "一方 A家は"], [88.54, "2台目の!残クレ!の 終わりを迎えます"],
+  [90.48, "10年間で払った利息は"], [92.22, "A家が 約!260万円!"], [94.06, "B家が 約*40万円*"],
+  [95.64, "A家が10年間で"], [96.78, "車のローンに払った金額は"], [98.22, "約!900万円!"], [99.3, "それでも 2台目の残価"], [100.56, "約!300万円!が 残っています"],
+  [102.16, "つまり その車を"], [103.24, "自分のものにするなら"], [104.56, "さらに支払いが必要です"],
+  [106.14, "乗りたい車に乗るのは ~自由~"], [107.54, "残クレ自体が 悪いわけではありません"], [109.58, "ただ「月々払えるから」で選ぶと"], [111.52, "総支払額は"], [112.4, "!大きく損する!可能性が高いです"],
+  [113.98, "車の購入で"], [114.9, "なるべく損を減らすなら"], [116.26, "*リセールバリュー*を考えること"], [117.82, "低金利の*銀行ローン*と"], [119.2, "*資産形成*を組み合わせること"],
+  [120.8, "忘れないように"], [121.6, "*保存*と*フォロー*を しておいてください"],
 ];
 
-const s = (file: string, t: number, volume = 0.22) => ({ file: `user/${file}`, at: F(W(t)), volume });
+const s = (file: string, t: number, volume = 0.22) => ({ file: `user/${file}`, at: F(t), volume });
 const CUES = [
   ...CAR1_PAGES.slice(1).map(([t]) => s("u03s", t - 0.42, 0.22)),
-  s("u02s", 1.5, 0.18), s("u04", 1.75, 0.26), s("u05s", 2.34, 0.2), s("u05", 3.76, 0.22),
-  s("u02s", 6.7, 0.16), s("u02s", 7.9, 0.14), s("u02s", 8.85, 0.14), s("u06", 10.9, 0.2), s("u04", 11.5, 0.28),
-  s("u02s", 12.65, 0.18), s("u02s", 13.7, 0.16), s("u04", 14.5, 0.28), s("u02s", 15.0, 0.16), s("u06", 16.4, 0.22), s("u05s", 17.3, 0.22),
-  s("u05s", 19.35, 0.22), s("u05s", 21.9, 0.2), s("u04", 23.75, 0.26),
-  s("u02s", 25.4, 0.18), s("u05s", 26.9, 0.2), s("u04", 27.2, 0.26), s("u02s", 28.15, 0.18), s("u10", 29.7, 0.2),
-  s("u02s", 31.5, 0.18), s("u02s", 32.6, 0.18), s("u05s", 33.15, 0.2), s("u05", 35.1, 0.22),
-  s("u02s", 37.45, 0.18), s("u02s", 38.25, 0.16), s("u02s", 38.7, 0.16), s("u02s", 39.5, 0.16), s("u06", 40.4, 0.22), s("u05s", 41.2, 0.2),
-  s("u05s", 42.2, 0.24), s("u05", 43.55, 0.22), s("u02s", 44.2, 0.18), s("u04", 44.4, 0.26),
-  s("u09", 45.38, 0.26), s("u02s", 46.8, 0.18), s("u04", 48.0, 0.28),
-  s("u02s", 49.9, 0.18), s("u02s", 50.45, 0.18), s("u02s", 52.6, 0.18), s("u04", 53.75, 0.3), s("u04", 54.7, 0.26),
-  s("u02s", 56.5, 0.14), s("u02s", 57.3, 0.14), s("u02s", 57.75, 0.14), s("u02s", 58.3, 0.14), s("u05s", 59.45, 0.22), s("u06", 61.25, 0.22), s("u04", 62.65, 0.3),
-  s("u02s", 63.9, 0.18), s("u02s", 65.8, 0.18), s("u07", 66.4, 0.2),
-  s("u02s", 69.25, 0.18), s("u05s", 70.1, 0.22), s("u05s", 70.7, 0.22), s("u04", 71.05, 0.28),
-  s("u06", 72.55, 0.22), s("u02s", 73.8, 0.18), s("u05", 74.3, 0.22), s("u04", 75.5, 0.3),
-  s("u02s", 77.25, 0.16), s("u06", 79.6, 0.22),
-  s("u09", 81.48, 0.26), s("u04", 83.85, 0.28), s("u06", 85.8, 0.22),
-  s("u05s", 88.5, 0.22), s("u05s", 90.35, 0.22),
-  s("u06", 93.1, 0.24), s("u02s", 94.55, 0.16), s("u04", 95.8, 0.28),
-  s("u05", 97.9, 0.22), s("u05s", 99.2, 0.2), s("u04", 100.05, 0.3),
-  s("u05s", 103.7, 0.22), s("u05s", 105.15, 0.22), s("u10", 108.5, 0.22),
-  s("u02s", 110.15, 0.18), s("u07", 110.6, 0.22), s("u02s", 110.8, 0.16),
+  s("u02s", 1.32, 0.18), s("u04", 1.6, 0.26), s("u05s", 2.48, 0.2), s("u05", 3.94, 0.22),
+  s("u02s", 5.6, 0.16), s("u02s", 6.8, 0.14), s("u02s", 8.1, 0.14), s("u06", 9.8, 0.2), s("u04", 10.15, 0.28),
+  s("u02s", 11.35, 0.18), s("u02s", 12.35, 0.16), s("u04", 13.15, 0.28), s("u02s", 13.65, 0.16), s("u06", 14.9, 0.22), s("u05s", 15.5, 0.22),
+  s("u05s", 17.15, 0.22), s("u05s", 19.1, 0.2), s("u04", 21.15, 0.26),
+  s("u02s", 22.4, 0.18), s("u10", 23.5, 0.2),
+  s("u02s", 25.6, 0.18), s("u02s", 27.25, 0.18), s("u05s", 28.15, 0.2), s("u05", 29.6, 0.22),
+  s("u02s", 32.15, 0.18), s("u02s", 32.9, 0.16), s("u02s", 33.5, 0.16), s("u02s", 34.4, 0.16), s("u06", 35.3, 0.22), s("u05s", 36.2, 0.2),
+  s("u05s", 37.0, 0.24), s("u02s", 38.35, 0.18), s("u05", 38.7, 0.22),
+  s("u09", 39.9, 0.26), s("u02s", 41.1, 0.18), s("u04", 42.0, 0.28),
+  s("u02s", 43.7, 0.18), s("u02s", 44.7, 0.18), s("u02s", 46.9, 0.18), s("u04", 48.1, 0.3), s("u04", 48.9, 0.26),
+  s("u02s", 51.05, 0.14), s("u02s", 51.9, 0.14), s("u02s", 52.4, 0.14), s("u05s", 53.8, 0.22), s("u06", 55.9, 0.22), s("u04", 57.4, 0.3),
+  s("u02s", 59.7, 0.18), s("u02s", 61.0, 0.18), s("u07", 62.0, 0.2),
+  s("u02s", 65.15, 0.18), s("u05s", 66.7, 0.22), s("u05s", 67.4, 0.22), s("u04", 68.75, 0.28),
+  s("u06", 70.55, 0.22), s("u02s", 71.7, 0.18), s("u05", 72.25, 0.22), s("u04", 74.05, 0.3),
+  s("u02s", 75.95, 0.16), s("u06", 78.85, 0.22),
+  s("u09", 80.34, 0.26), s("u04", 83.1, 0.28), s("u02s", 84.4, 0.18), s("u06", 86.4, 0.22),
+  s("u02s", 88.0, 0.18), s("u04", 89.4, 0.26),
+  s("u05s", 92.0, 0.22), s("u05s", 93.85, 0.22),
+  s("u06", 98.0, 0.24), s("u02s", 99.1, 0.16), s("u05s", 99.55, 0.2), s("u04", 104.35, 0.28),
+  s("u05", 106.75, 0.22), s("u05s", 109.4, 0.2), s("u04", 111.3, 0.3),
+  s("u05s", 116.05, 0.22), s("u05s", 117.6, 0.22), s("u10", 120.0, 0.22),
+  s("u02s", 121.4, 0.18), s("u07", 121.85, 0.22), s("u02s", 122.0, 0.16),
 ];
 
 // 右下のたいち：口パク＋まばたき（マーケ博士のように話している形）
@@ -694,7 +696,7 @@ const Chara: React.FC = () => {
 const SAFE = 0.9, SAFE_X = 540 - 540 * SAFE, SAFE_Y = 300 - 280 * SAFE;
 export const CarFamilyReel: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: M.paper, fontFamily: FONT }}>
-    <Audio src={staticFile("car3-narration.wav")} />
+    <Audio src={staticFile("car7-narration.wav")} />
     <SfxTrack cues={CUES} />
     <AbsoluteFill style={{ background: M.paper, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)` }} />
     <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1920, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}>
