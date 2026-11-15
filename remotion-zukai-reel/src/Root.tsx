@@ -64,6 +64,7 @@ import { RateLoanReel, RATELOAN_FRAMES } from "./RateLoanReel";
 import { LoanTaisakuStills, LOAN_TAISAKU_STILL_FRAMES } from "./LoanTaisakuReel";
 import { LoanTaisaku2Reel, LOANTAISAKU2_FRAMES } from "./LoanTaisaku2Reel";
 import { CarFamilyReel, CARFAMILY_FRAMES } from "./CarFamilyReel";
+import { Ref12Repro, REF12_FRAMES } from "./Ref12Repro";
 import { FxDemo, FXDEMO_FRAMES } from "./FxDemo";
 import { CommentCtaDemo, CTA_DEMO_FRAMES } from "./components/ctaComment";
 import { Ref03Repro, REF03_FRAMES } from "./Ref03Repro";
@@ -89,6 +90,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="RateLoanReel" component={RateLoanReel} durationInFrames={RATELOAN_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="LoanTaisakuStills" component={LoanTaisakuStills} durationInFrames={LOAN_TAISAKU_STILL_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="LoanTaisaku2Reel" component={LoanTaisaku2Reel} durationInFrames={LOANTAISAKU2_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="Ref12Repro" component={Ref12Repro} durationInFrames={REF12_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="CarFamilyReel" component={CarFamilyReel} durationInFrames={CARFAMILY_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="CompareDemo" component={CompareDemo} durationInFrames={COMPAREDEMO_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="AmexReel" component={AmexReel} durationInFrames={AMEX_FRAMES} fps={FPS} width={1080} height={1920} />
