@@ -20,8 +20,6 @@ const CAM: CamKey[] = [
   { f: 228, x: 540, y: 2950, z: 1, p: "scroll" },         // 表へ
   { f: 290, x: 540, y: 3330, z: 1.18, p: "zoomIn" },       // ③ 引き出しの行に寄る
   { f: 352, x: 540, y: 3170, z: 1.18, p: "slide" },        // 買い方の行へすべる
-  { f: 400, x: 540, y: 1700, z: 0.8, p: "recallUp" },     // 回想：箱まで一気に戻る
-  { f: 432, x: 540, y: 2950, z: 1, p: "recallBack" },     // また表へ
 ];
 
 const Box: React.FC<{ w: number; h: number; c: string; label: string; v: string; glow?: number }> = ({ w, h, c, label, v, glow = 0 }) => (
@@ -41,7 +39,7 @@ const ROWS: [string, React.ReactNode][] = [
   ["引き出し", <><span style={{ color: M.red }}>12歳まで原則✕</span><br /><span style={{ fontSize: 30 }}>12歳〜 子どもの同意が必要</span></>],
 ];
 
-export const KODOMO_PROTO_FRAMES = 480;
+export const KODOMO_PROTO_FRAMES = 410;
 export const KodomoProto: React.FC = () => {
   const f = useCurrentFrame();
   const c = camAt(CAM, f);
