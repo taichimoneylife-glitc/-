@@ -22,6 +22,9 @@ description: >-
 - 分析＝`references/script-length-guide.md`（文字数・メリハリ実測）＋`references/script-study-good.md`（良い台本の"声"）＋`references/script-structure.md`（構成の型）。
 ※ `public/car-narration.transcript.txt` は自動文字起こしで表記が乱れている＝手本にしない。
 
+## ★★★冒頭（フック）の極意：`references/hook-gokui.md`（2026-11-17 たいちさん指定）
+リールの冒頭を作るときは、必ずこのファイルを読んでから作る。1画面・3行・1行10文字前後（文字数を数える）、損失型が好み、型ごとに複数案、各案に3行（文字数つき）＋トークの冒頭3文＋型＋損/利益/危機感を付ける。
+
 ## ★★★リサーチのルール（嘘をつかない）：`references/research-rules.md`（2026-11-17）
 台本・図解・ガイドの制度と数字は、書く前に必ず調べ、出典の強さ（公式／大手金融機関／ブログ）を分けて報告する。確認していないことを「確認済み」と言わない。調べた事実は `references/facts-*.md` に残して再利用する。
 
