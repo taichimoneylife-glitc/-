@@ -22,6 +22,9 @@ description: >-
 - 分析＝`references/script-length-guide.md`（文字数・メリハリ実測）＋`references/script-study-good.md`（良い台本の"声"）＋`references/script-structure.md`（構成の型）。
 ※ `public/car-narration.transcript.txt` は自動文字起こしで表記が乱れている＝手本にしない。
 
+## ★★★リサーチのルール（嘘をつかない）：`references/research-rules.md`（2026-11-17）
+台本・図解・ガイドの制度と数字は、書く前に必ず調べ、出典の強さ（公式／大手金融機関／ブログ）を分けて報告する。確認していないことを「確認済み」と言わない。調べた事実は `references/facts-*.md` に残して再利用する。
+
 ## ★★台本の最上位ルール：`references/script-rules-master.md`（2026-10-14 確定）
 台本を書く/直す前に**必ず最初に読む**。要点＝**①解説型（キャラのセリフ・掛け合い・演技NG。物語は“演じず解説する”）②短く無駄なく（足すより削る）③売り込まず知識と価値観で信頼④図解と実写で同じ説明を繰り返さない⑨提出前に9項目を自己添削**。他のどの台本ガイドより優先。
 
