@@ -66,6 +66,7 @@ import { LoanTaisaku2Reel, LOANTAISAKU2_FRAMES } from "./LoanTaisaku2Reel";
 import { CarFamilyReel, CARFAMILY_FRAMES } from "./CarFamilyReel";
 import { Ref12Repro, REF12_FRAMES } from "./Ref12Repro";
 import { KodomoProto, KODOMO_PROTO_FRAMES } from "./KodomoProto";
+import { KodomoProto2, KODOMO_PROTO2_FRAMES } from "./KodomoProto2";
 import { MotionCatalog, MOTION_CATALOG_FRAMES } from "./MotionCatalog";
 import { TransitionDemo, TRANSITION_DEMO_FRAMES } from "./TransitionDemo";
 import { FxDemo, FXDEMO_FRAMES } from "./FxDemo";
@@ -95,6 +96,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="LoanTaisaku2Reel" component={LoanTaisaku2Reel} durationInFrames={LOANTAISAKU2_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="TransitionDemo" component={TransitionDemo} durationInFrames={TRANSITION_DEMO_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MotionCatalog" component={MotionCatalog} durationInFrames={MOTION_CATALOG_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="KodomoProto2" component={KodomoProto2} durationInFrames={KODOMO_PROTO2_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="KodomoProto" component={KodomoProto} durationInFrames={KODOMO_PROTO_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="Ref12Repro" component={Ref12Repro} durationInFrames={REF12_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="CarFamilyReel" component={CarFamilyReel} durationInFrames={CARFAMILY_FRAMES} fps={FPS} width={1080} height={1920} />
