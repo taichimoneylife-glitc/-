@@ -160,9 +160,10 @@ const S0: React.FC<{ f: number }> = ({ f }) => (
 // 光が右回りに走る枠：枠が描かれる → 光の粒が枠の上を時計回りにぐるぐる回り続ける
 const rrect = (x0: number, y0: number, x1: number, y1: number, r = 16) =>
   `M${x0 + r} ${y0} H${x1 - r} Q${x1} ${y0} ${x1} ${y0 + r} V${y1 - r} Q${x1} ${y1} ${x1 - r} ${y1} H${x0 + r} Q${x0} ${y1} ${x0} ${y1 - r} V${y0 + r} Q${x0} ${y0} ${x0 + r} ${y0} Z`;
-const GlowBox: React.FC<{ box: [number, number, number, number]; start: number; c?: string; w?: number; speed?: number }> = ({ box, start, c = RED, w = 7, speed = 0.022 }) => {
+const GlowBox: React.FC<{ box: [number, number, number, number]; start: number; end: number; c?: string; w?: number; speed?: number }> = ({ box, start, end, c = RED, w = 7, speed = 0.022 }) => {
   const f = useCurrentFrame();
-  if (f < start) return null;
+  if (f < start || f > end + 10) return null;
+  const fade = 1 - p01(f, end, end + 10); // 話が次へ進んだら、光も枠もすっと消える
   const d = rrect(...box);
   const p = at([0, 0.06, 0.16, 0.3, 0.46, 0.62, 0.76, 0.87, 0.95, 1], f - start);
   const head = -(f - start) * speed; // 時計回りに進む
@@ -170,7 +171,7 @@ const GlowBox: React.FC<{ box: [number, number, number, number]; start: number; 
     <path d={d} fill="none" stroke={color} strokeWidth={width} strokeLinecap="round" pathLength={1} strokeDasharray={`${len} ${1 - len}`} strokeDashoffset={head + len} opacity={op * p01(f, start + 6, start + 12)} style={blur ? { filter: `blur(${blur}px)` } : undefined} />
   );
   return (
-    <g>
+    <g opacity={fade}>
       {/* 土台の枠（描かれていく） */}
       <path d={d} fill="none" stroke={c} strokeWidth={w} strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} opacity={0.85} />
       {/* 走る光：ぼんやりした尾 → 明るい芯 → 白い先頭 */}
@@ -236,11 +237,13 @@ const S1: React.FC<{ f: number }> = ({ f }) => {
       <svg width={1080} height={3400} style={{ position: "absolute", inset: 0, overflow: "visible", zIndex: 6, pointerEvents: "none" }}>
         <GrowPath d="M540 2920 L540 3300" start={F(22.9)} kind="lineLong" color={INK} w={6} glow={false} />
         {/* 赤ペン：1,800万円の枠 → 非課税で持てる上限の行 → こどもNISAの600万円 */}
-        <GlowBox box={[504, 2058, 1046, 2134]} start={F(14.95)} />
-        <GlowBox box={[510, 2128, 776, 2224]} start={F(16.95)} c={G} />
-        <GlowBox box={[508, 2436, 778, 2548]} start={F(15.9)} c={G} />
-        <GlowBox box={[778, 2436, 1042, 2548]} start={F(16.3)} c={O} />
-        <GlowBox box={[244, 2436, 512, 2548]} start={F(18.7)} />
+        {/* 回す枠は「今その言葉を話している所」だけ。話が移ったら消す（同時に回るのは2つまで） */}
+        <GlowBox box={[504, 2058, 1046, 2134]} start={F(14.95)} end={F(16.9)} />                {/* 1,800万円の枠のうち */}
+        <GlowBox box={[508, 2436, 778, 2548]} start={F(15.9)} end={F(16.9)} c={G} />          {/* 内訳：つみたて */}
+        <GlowBox box={[778, 2436, 1042, 2548]} start={F(16.2)} end={F(16.9)} c={O} />         {/* 内訳：成長 */}
+        <GlowBox box={[510, 2128, 776, 2224]} start={F(16.95)} end={F(17.95)} c={G} />        {/* つみたて投資枠を */}
+        <GlowBox box={[244, 2436, 512, 2548]} start={F(18.7)} end={F(21.3)} />                 {/* こどもNISAの600万円 */}
+        <GlowBox box={[508, 2436, 778, 2548]} start={F(20.4)} end={F(22.6)} c={G} />          {/* 18歳で移る先 */}
       </svg>
       <Note x={60} y={TY + HH + RH * 4 + 170} t={19.0} w={960}>※こどもNISAは2027年1月から始まる予定の制度です。600万円は大人の1,800万円の中に含まれる予定です。大人のつみたて投資枠は最大1,800万円まで使え、成長投資枠は1,200万円までなので、少なくとも600万円分はつみたて投資枠になります</Note>
     </>
