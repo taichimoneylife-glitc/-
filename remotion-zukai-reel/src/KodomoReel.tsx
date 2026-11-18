@@ -41,16 +41,16 @@ const ck = (t: number, x: number, cy: number, z = 1, p: CamKey["p"] = "scroll"):
 const CAM: CamKey[] = [
   { f: 0, x: 540, y: 700 + 200 / 1.18, z: 1.18 },
   ck(3.2, 540, 690, 1, "zoomOut"),
-  ck(7.5, 540, 1720),                      // ① 何？
+  ck(7.1, 540, 1720, 1, "marke"),                      // ① 何？
   ck(13.5, 540, 2330),                      // 比較表
   ck(17.85, 430, 2370, 1.1, "slide"),       // こどもNISAの列に寄る
   ck(20.0, 560, 2390, 1, "slide"),          // 18歳で自動的に移行
-  ck(23.2, 540, 3520),                      // ② デメリット
+  ck(22.85, 540, 3520, 1, "marke"),                      // ② デメリット
   ck(33.0, 540, 4260),                      // 例：お年玉
-  ck(39.5, 540, 5060),                      // ③ なんで？
-  ck(45.7, 540, 5560, 1, "slide"),          // 教育資金は親
-  ck(51.8, 540, 5900, 1.06, "zoomIn"),      // まずは親のNISA
-  ck(54.2, 540, 6680),                      // ④ どう使う？
+  ck(39.2, 540, 5180, 1, "marke"),          // ③ なんで？（ため→加速→ピタ）
+  ck(45.6, 540, 5580, 1, "slide"),          // 教育資金は親
+  ck(51.8, 540, 5740, 1.05, "zoomIn"),      // まずは親のNISA
+  ck(53.85, 540, 6680, 1, "marke"),                      // ④ どう使う？
   ck(63.9, 560, 7000, 1, "slide"),          // 18歳で渡す
   ck(66.8, 540, 7620),                      // 画面を一緒に見る
   ck(71.5, 540, 7700, 1.08, "zoomIn"),      // 金融教育
@@ -221,14 +221,15 @@ const SLOT = [40, 375, 710];
 const S2: React.FC<{ f: number }> = ({ f }) => {
   // 自由度メーター：高 → 低
   const needle = interpolate(f, [F(31.9), F(32.25), F(32.5), F(32.7)], [55, -72, -55, -60], clamp);
-  // お年玉・ご祝儀：飛んで → ぶつかって跳ね返る
+  // 例：子どもNISAのアプリ画面。お年玉・ご祝儀が「一括で入れる」へ飛ぶ → エラーで弾かれる → 「毎月つみたて」にだけコインが落ちる
+  const HIT = F(38.15);
   const fly = (t0: number, fromX: number, dir: number) => {
-    const p = p01(f, F(t0), F(38.15), Easing.in(Easing.quad));
-    const b = p01(f, F(38.15), F(38.15) + 12, Easing.out(Easing.quad));
-    const x = fromX + (450 - fromX) * p - dir * 260 * b;
-    const y = 4280 - Math.sin(p * Math.PI) * 160 + b * -60 + Math.pow(b, 2) * 260;
-    const r = (1 - p) * dir * -20 + b * dir * -90;
-    return { left: x, top: y, transform: `rotate(${r}deg)`, opacity: 1 - p01(f, F(38.15) + 10, F(38.15) + 16) };
+    const p = p01(f, F(t0), F(t0) + 14);
+    const b = p01(f, HIT, HIT + 12, Easing.out(Easing.quad));
+    const x = fromX + (380 - fromX) * p - dir * 300 * b;
+    const y = 4470 - Math.sin(p * Math.PI) * 120 - (f < HIT ? Math.sin((f - F(t0)) / 6) * 6 : 0) - b * 80 + b * b * 300;
+    const r = (1 - p) * dir * -25 + b * dir * -100;
+    return { left: x, top: y, transform: `rotate(${r}deg) scale(${1 - 0.35 * p})`, opacity: 1 - p01(f, HIT + 10, HIT + 16) };
   };
   return (
     <>
@@ -259,58 +260,87 @@ const S2: React.FC<{ f: number }> = ({ f }) => {
       <svg width={1080} height={4800} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
         <GrowPath d="M875 4030 L875 4110 L540 4110 L540 4150" start={F(32.9)} kind="lineShort" color={RED} w={6} glow={false} />
       </svg>
-      {/* 例：お年玉・お祝い → 一括 ✕ で跳ね返る → コインで少しずつ */}
+      {/* 例：アプリの画面 */}
       <Pos x={70} y={4160} t={33.05} pat="slideL" tempo="brake"><span style={{ ...K, fontSize: 42 }}>例えば…</span></Pos>
-      {f >= F(34.0) ? <div style={{ position: "absolute", ...fly(34.0, 40, 1) }}><GenSlot name="kn_otoshidama" size={250} /></div> : null}
-      {f >= F(34.6) ? <div style={{ position: "absolute", ...fly(34.6, 860, -1) }}><GenSlot name="kn_gift_envelope" size={250} /></div> : null}
-      <Pos x={360} y={4520} t={35.9} pat="rubber" tempo="bounce"><div style={{ width: 360, height: 210, background: "#fff", border: `6px solid ${G}`, borderRadius: 22, boxShadow: `8px 8px 0 ${INK}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}><span style={{ ...K, fontSize: 30, color: M.sub }}>子どものお金として</span><span style={{ ...K, fontSize: 46, color: G }}>子どもNISA</span></div></Pos>
-      {/* 見えない壁 → ぶつかった瞬間に出る */}
-      {f >= F(38.15) ? <div style={{ position: "absolute", left: 340, top: 4440, width: 400, height: 14, background: RED, borderRadius: 8, opacity: interpolate(f - F(38.15), [0, 2, 30, 40], [0, 1, 1, 0.4], clamp), boxShadow: `0 0 24px ${RED}` }} /> : null}
-      <Stamp x={410} y={4330} t={38.2} size={64}>一括 ✕</Stamp>
-      {/* コインが1枚ずつ（積立だけ） */}
+      <Pos x={250} y={4220} t={33.3} pat="slideUp" tempo="brake">
+        <div style={{ width: 580, height: 560, background: "#fff", border: `10px solid ${INK}`, borderRadius: 50, boxShadow: `12px 12px 0 ${G}`, position: "relative", overflow: "hidden", transform: f >= HIT && f < HIT + 9 ? `translateX(${Math.sin((f - HIT) * 2.6) * (9 - (f - HIT)) * 2.4}px)` : undefined }}>
+          <div style={{ background: G, color: "#fff", ...K, fontSize: 34, padding: "26px 30px 16px" }}>こどもNISA　入金</div>
+          <div style={{ padding: "14px 30px", ...B, fontSize: 24, color: M.sub }}>口座の名義：子ども</div>
+          <div style={{ margin: "10px 30px", height: 104, borderRadius: 18, border: `5px solid ${f >= HIT ? RED : "#B9B2A0"}`, background: f >= HIT ? "#FFE4E0" : "#F2EFE6", display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 40, color: f >= HIT ? RED : "#8C8471", transform: f >= F(37.6) && f < F(37.6) + 4 ? "scale(0.95)" : undefined }}>{f >= HIT ? "✕ 一括はできません" : "一括で入れる"}</div>
+          <div style={{ margin: "18px 30px", height: 104, borderRadius: 18, border: `5px solid ${G}`, background: "#EAF6E2", display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 40, color: G, boxShadow: f >= F(38.8) ? `0 0 ${(18 * (1 + Math.sin(f / 4))) / 2}px ${G}` : undefined }}>毎月つみたてのみ</div>
+          {f >= F(37.5) && f < HIT + 6 ? <div style={{ position: "absolute", left: 320, top: 250, width: 70, height: 70, borderRadius: "50%", border: `6px solid ${INK}`, transform: `scale(${0.6 + 0.6 * p01(f, F(37.5), F(37.5) + 8)})`, opacity: 1 - p01(f, F(37.5) + 6, HIT + 6) }} /> : null}
+        </div>
+      </Pos>
+      {f >= HIT ? <div style={{ position: "absolute", left: 270, top: 4140 + 70 * p01(f, HIT, HIT + 8, Easing.out(Easing.back(1.6))), width: 540, background: RED, color: "#fff", borderRadius: 18, padding: "16px 22px", ...K, fontSize: 34, textAlign: "center", boxShadow: "0 10px 24px rgba(0,0,0,0.25)", opacity: p01(f, HIT, HIT + 3), zIndex: 6 }}>⚠ 積立のみ：一括では入れられません</div> : null}
+      {f >= F(34.0) ? <div style={{ position: "absolute", zIndex: 5, ...fly(34.0, -60, 1) }}><GenSlot name="kn_otoshidama" size={220} /></div> : null}
+      {f >= F(34.6) ? <div style={{ position: "absolute", zIndex: 5, ...fly(34.6, 900, -1) }}><GenSlot name="kn_gift_envelope" size={220} /></div> : null}
       {Array.from({ length: 6 }).map((_, i) => {
         const s0 = F(38.9) + i * 4;
         if (f < s0) return null;
         const p = p01(f, s0, s0 + 7, Easing.in(Easing.quad));
-        return <div key={i} style={{ position: "absolute", left: 500 + (i % 3 - 1) * 26, top: 4380 + p * 150, opacity: 1 - p01(f, s0 + 6, s0 + 9) }}><GenSlot name="kn_coin" size={70} /></div>;
+        return <div key={i} style={{ position: "absolute", left: 500 + ((i % 3) - 1) * 40, top: 4560 + p * 120, opacity: 1 - p01(f, s0 + 6, s0 + 9), zIndex: 6 }}><GenSlot name="kn_coin" size={64} /></div>;
       })}
     </>
   );
 };
 
-// ③ なんで縛りが多い？ → 教育資金は親
+// ③ なんで縛りが多い？ → 教育資金は親（人物は使わず、口座のカードと線で見せる）
+const Acct: React.FC<{ c: string; title: string; rows: [string, React.ReactNode][]; w?: number; children?: React.ReactNode }> = ({ c, title, rows, w = 420, children }) => (
+  <div style={{ width: w, background: "#fff", border: `6px solid ${INK}`, borderRadius: 24, boxShadow: `9px 9px 0 ${c}`, overflow: "hidden", position: "relative" }}>
+    <div style={{ background: c, color: "#fff", ...K, fontSize: 36, padding: "16px 24px" }}>{title}</div>
+    {rows.map(([k, v], i) => (
+      <div key={k} style={{ display: "flex", alignItems: "center", padding: "12px 24px", borderTop: i ? `3px dashed ${M.gray}` : undefined, ...K, fontSize: 30 }}><span style={{ width: 130, color: M.sub, fontSize: 26 }}>{k}</span><span>{v}</span></div>
+    ))}
+    {children}
+  </div>
+);
 const S3: React.FC<{ f: number }> = ({ f }) => {
-  const struggle = f > F(44.0) && f < F(45.6) ? Math.sin(f * 1.9) * 7 : 0;
+  const LOCK = F(44.2);
+  const pull = p01(f, F(43.5), LOCK, Easing.in(Easing.cubic));
+  const bounce = p01(f, LOCK, LOCK + 10, Easing.out(Easing.back(2)));
+  const nisa = p01(f, F(49.0), F(49.0) + 12, Easing.out(Easing.back(1.4))); // 親 → 親のNISA にめくれる
   return (
     <>
       <svg width={1080} height={6200} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
         <GrowPath d="M540 4760 L540 4900" start={F(39.3)} kind="lineShort" color={INK} w={6} glow={false} />
-        {/* 教育資金 → 子どもNISA（✕） / → 親（○） */}
-        <GrowPath d="M330 5700 C330 5600 250 5520 230 5420" start={F(46.95)} kind="lineShort" color={RED} w={8} glow={false} />
-        <GrowPath d="M560 5770 C700 5770 760 5770 800 5770" start={F(47.3)} kind="lineShort" color={O} w={10} glow={false} />
       </svg>
       <Head y={4920} t={39.65} no="③" title="なんで縛りが多い？" />
-      {/* ?マークがふわふわ */}
-      {[0, 1, 2].map((i) => <Pos key={i} x={760 + i * 90} y={4840 - i * 40} t={40.1 + i * 0.12} pat="spin" tempo="bounce"><span style={{ ...K, fontSize: 70 - i * 10, color: RED, display: "inline-block", transform: `translateY(${Math.sin(f / 8 + i) * 8}px)` }}>？</span></Pos>)}
-      <Img name="kn_child_hug_piggy" x={110} y={5060} size={260} t={41.7} pat="pop" tempo="bounce" />
-      <Pos x={110} y={5330} t={42.1} pat="slideUp" tempo="brake"><Chip c={G} size={40}>子どものお金</Chip></Pos>
-      <Img name="kn_parent_cant_open" x={560} y={5040} size={340} t={43.45} pat="whip" tempo="brake" style={{ marginLeft: struggle }} />
-      <Pos x={520} y={5390} t={44.25} pat="slideUp" tempo="brake"><span style={{ ...K, fontSize: 40, color: RED }}>親が自由に<Marker t={44.6} c="#FFC9C2">引き出せない</Marker></span></Pos>
-      {/* 教育資金は親が払う */}
-      <Pos x={60} y={5520} t={45.8} pat="wipe" tempo="brake"><span style={{ ...K, fontSize: 48 }}>つまり…</span></Pos>
-      <Img name="kn_school_items" x={200} y={5620} size={260} t={46.85} pat="drop" tempo="bounce" />
-      <Pos x={180} y={5880} t={47.0}><span style={{ ...K, fontSize: 38 }}>教育資金</span></Pos>
-      <Stamp x={250} y={5500} t={47.75} size={46} rot={8}>✕ 使いにくい</Stamp>
-      <Img name="kn_parent_school_pay" x={720} y={5620} size={280} t={46.7} pat="slideL" tempo="brake" />
-      <Pos x={740} y={5900} t={46.9}><Chip c={O} size={36}>払うのは親</Chip></Pos>
-      {/* まずは親のNISA */}
-      <Pos x={470} y={6000} t={50.45} pat="pop" tempo="bounce"><Chip c={O} size={34}>一部を株で用意するなら</Chip></Pos>
-      <Img name="kn_parent_phone_nisa" x={80} y={5980} size={300} t={52.0} pat="rubber" tempo="bounce" />
-      <Stamp x={370} y={6090} t={52.05} c={O} size={66}>まずは親のNISA</Stamp>
-      <Burst t={52.05} x={700} y={6150} c={O} r={260} n={16} />
+      {[0, 1, 2].map((i) => <Pos key={i} x={780 + i * 80} y={4860 - i * 40} t={40.1 + i * 0.12} pat="spin" tempo="bounce"><span style={{ ...K, fontSize: 70 - i * 10, color: RED, display: "inline-block", transform: `translateY(${Math.sin(f / 8 + i) * 8}px)` }}>？</span></Pos>)}
+      {/* 子どもの口座 */}
+      <Pos x={60} y={5060} t={41.7} pat="whip" tempo="brake">
+        <Acct c={G} title="子どもの口座" rows={[["名義", "子ども"], ["お金", <span style={{ color: G }}>子どものもの</span>], ["引き出し", <span style={{ color: RED }}>12歳まで原則✕</span>]]}>
+          {f >= LOCK ? <div style={{ position: "absolute", right: 14, top: 8, fontSize: 64, transform: `scale(${2 - bounce}) rotate(${(1 - bounce) * -20}deg)` }}>🔒</div> : null}
+        </Acct>
+      </Pos>
+      {/* 親 → あとで親のNISAへめくれる */}
+      <Pos x={600} y={5060} t={43.3} pat="whip" tempo="brake">
+        <div style={{ transform: `perspective(1200px) rotateY(${nisa < 0.5 ? nisa * 180 : (nisa - 1) * 180}deg)` }}>
+          {nisa < 0.5 ? <Acct c={O} title="親" w={400} rows={[["教育資金", "親が払う"], ["引き出し", "自由"]]} />
+            : <Acct c={O} title="親のNISA" w={400} rows={[["引き出し", "いつでも"], ["使い道", "自由"]]}>
+                <svg width={380} height={110} style={{ display: "block", margin: "0 auto 10px" }}><GrowPath d="M20 95 L90 80 L150 86 L220 50 L290 58 L360 15" start={F(49.4)} kind="lineLong" color={O} w={9} glow={false} /></svg>
+              </Acct>}
+        </div>
+      </Pos>
+      {/* 親が子どもの口座から引き出そうとして、鍵で弾かれる */}
+      {f >= F(43.5) ? <div style={{ position: "absolute", left: 470 - 120 * pull + 90 * bounce, top: 5330, zIndex: 4, ...K, fontSize: 38, color: f >= LOCK ? RED : INK, whiteSpace: "nowrap", background: "rgba(255,255,255,0.9)", borderRadius: 12, padding: "2px 10px", opacity: 1 - p01(f, F(45.6), F(45.9)) }}>← 引き出したい{f >= LOCK ? " ✕" : ""}</div> : null}
+      <Pos x={150} y={5430} t={44.4} pat="slideUp" tempo="brake"><span style={{ ...K, fontSize: 42, color: RED }}>親が自由に<Marker t={44.7} c="#FFC9C2">引き出せない仕組み</Marker></span></Pos>
+      {/* 教育資金 */}
+      <Pos x={60} y={5560} t={45.8} pat="wipe" tempo="brake"><span style={{ ...K, fontSize: 46 }}>つまり…</span></Pos>
+      <Pos x={330} y={5660} t={46.85} pat="drop" tempo="bounce">
+        <div style={{ width: 420, background: "#fff", border: `6px solid ${INK}`, borderRadius: 18, boxShadow: `9px 9px 0 ${INK}`, padding: "14px 20px", display: "flex", alignItems: "center", gap: 10 }}>
+          <GenSlot name="kn_school_items" size={130} />
+          <div><div style={{ ...K, fontSize: 40 }}>教育資金</div><div style={{ ...B, fontSize: 24, color: M.sub }}>入学金・授業料など</div><div style={{ ...K, fontSize: 30, color: O }}>払うのは 親</div></div>
+        </div>
+      </Pos>
       <svg width={1080} height={6600} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
-        <GrowPath d="M540 6260 L540 6560" start={F(53.9)} kind="lineLong" color={INK} w={6} glow={false} />
+        <GrowPath d="M250 5400 C250 5540 280 5660 330 5720" start={F(47.6)} kind="lineShort" color={RED} w={8} glow={false} />
+        <GrowPath d="M800 5390 C800 5540 790 5660 750 5720" start={F(50.3)} kind="lineLong" color={O} w={12} glow={false} />
+        <GrowPath d="M540 6040 L540 6560" start={F(53.9)} kind="lineLong" color={INK} w={6} glow={false} />
       </svg>
+      <Stamp x={20} y={5650} t={47.75} size={40} rot={-8}>✕ 使いにくい</Stamp>
+      <Pos x={690} y={5480} t={50.45} pat="pop" tempo="bounce"><Chip c={O} size={28}>一部を株で用意するなら</Chip></Pos>
+      <Stamp x={250} y={5900} t={52.05} c={O} size={72}>まずは親のNISA</Stamp>
+      <Burst t={52.05} x={560} y={5960} c={O} r={280} n={16} />
     </>
   );
 };
@@ -396,19 +426,20 @@ const Img2: React.FC = () => <img src={staticFile("cta_kodomo/cover.jpg")} style
 
 // ── 字幕（カラオケ式：話している所まで濃くなる。*緑* !赤! はマーカーつき）──
 const SUBS: [number, string][] = [
-  [0.0, "まず結論から言うと"], [1.44, "子どもNISAは !教育資金目的! ではなくて"], [4.32, "あくまで *将来の子どものお金* として"], [6.2, "使うのが良いと思います"],
-  [7.56, "そもそも 子どもNISAって何？っていうと"], [10.54, "*2027年1月* から始まる"], [12.42, "子ども用のNISA"],
-  [13.66, "大人の新NISA *1,800万円* の枠のうち"], [16.94, "*つみたて投資枠* を"], [17.94, "*0歳から* 使えるようにしたイメージです"],
-  [20.12, "18歳になると"], [21.34, "そのまま *大人のNISA* に移ります"],
-  [23.28, "ただ !デメリット! が3つあって"], [25.54, "!12歳まで! は 原則引き出せない"], [27.56, "12歳を過ぎても !子どもの同意! が必要"],
-  [30.14, "しかも !積み立てのみ! なので"], [32.04, "自由度が低いです"], [33.04, "例えば お年玉やお祝いの一部を"],
-  [35.94, "子どものお金として 置いておきたくても"], [38.16, "!一括! では入れられないです"],
-  [39.6, "なんでこんなに 縛りが多いかっていうと"], [41.7, "あくまで *子どものお金* だから"], [43.46, "親が自由に 引き出せない仕組みになっています"],
-  [45.8, "つまり !親が払う教育資金! には使いにくい"], [48.66, "なので 教育資金を一部株で用意するなら"], [52.04, "まずは *親のNISA* を使うのが良いと思います"],
-  [54.3, "では 子どもNISAは どう使えばいいのかっていうと"], [57.04, "あくまで 子どものお金だから"], [59.0, "*1万円でも 数千円でも* いいので"],
-  [61.44, "子どもの将来のために 積み立てて置いてあげる"], [63.98, "それを将来 *子どもに渡してあげる* イメージです"],
-  [66.9, "「こうやってお金が増えるんだよ」って"], [68.92, "実際の画面を元に 一緒に話すことで"], [71.6, "*金融教育* にも繋がると思います"],
-  [73.6, "ということで 子どもNISAの概要や注意点"], [76.56, "使い方など *ガイド* にまとめました"], [78.5, "欲しい方は プロフのリンクから"], [80.3, "*公式LINE* を追加して"], [82.02, "ここから受け取ってください"],
+  // 「/」＝改行の位置（意味のかたまりで切る。1行に収まらない時だけ2行。単語の途中で折り返さない）
+  [0.0, "まず結論から言うと"], [1.44, "子どもNISAは/!教育資金目的! ではなくて"], [4.32, "あくまで/*将来の子どものお金* として"], [6.2, "使うのが良いと思います"],
+  [7.56, "そもそも/子どもNISAって何？っていうと"], [10.54, "*2027年1月* から始まる"], [12.42, "子ども用のNISA"],
+  [13.66, "大人の新NISA/*1,800万円* の枠のうち"], [16.94, "*つみたて投資枠* を"], [17.94, "*0歳から* 使えるように/したイメージです"],
+  [20.12, "18歳になると"], [21.34, "そのまま/*大人のNISA* に移ります"],
+  [23.28, "ただ !デメリット! が3つあって"], [25.54, "!12歳まで! は/原則引き出せない"], [27.56, "12歳を過ぎても/!子どもの同意! が必要"],
+  [30.14, "しかも !積み立てのみ! なので"], [32.04, "自由度が低いです"], [33.04, "例えば/お年玉やお祝いの一部を"],
+  [35.94, "子どものお金として/置いておきたくても"], [38.16, "!一括! では入れられないです"],
+  [39.6, "なんでこんなに/縛りが多いかっていうと"], [41.7, "あくまで/*子どものお金* だから"], [43.46, "親が自由に引き出せない/仕組みになっています"],
+  [45.8, "つまり/!親が払う教育資金! には使いにくい"], [48.66, "なので 教育資金を/一部株で用意するなら"], [52.04, "まずは *親のNISA* を/使うのが良いと思います"],
+  [54.3, "では 子どもNISAは/どう使えばいいのかっていうと"], [57.04, "あくまで/子どものお金だから"], [59.0, "*1万円でも 数千円でも*/いいので"],
+  [61.44, "子どもの将来のために/積み立てて置いてあげる"], [63.98, "それを将来/*子どもに渡してあげる* イメージです"],
+  [66.9, "「こうやって/お金が増えるんだよ」って"], [68.92, "実際の画面を元に/一緒に話すことで"], [71.6, "*金融教育* にも/繋がると思います"],
+  [73.6, "ということで/子どもNISAの概要や注意点"], [76.56, "使い方など/*ガイド* にまとめました"], [78.5, "欲しい方は/プロフのリンクから"], [80.3, "*公式LINE* を追加して"], [82.02, "ここから受け取ってください"],
 ];
 const END = 83.3;
 // 今の時刻 → 1回目の録音の時刻（字幕の表は1回目の時刻で書いてある）
@@ -433,15 +464,18 @@ const Karaoke: React.FC = () => {
     if (ch === "*" || ch === "!") { mode = mode ? null : ch; continue; }
     parts.push({ ch, c: mode === "*" ? G : mode === "!" ? RED : null });
   }
-  const n = parts.filter((p) => p.ch !== " ").length;
+  const n = parts.filter((p) => p.ch !== " " && p.ch !== "/").length;
+  const longest = Math.max(...raw.replace(/[*!]/g, "").split("/").map((l) => l.length));
+  const size = Math.min(42, Math.floor(650 / longest));
   const spoken = interpolate(t, [s, s + (e - s) * 0.92], [0, n], clamp);
   const k = f - F(s);
   const inS = interpolate(k, [0, 2, 5], [0.9, 1.04, 1], clamp);
   let idx = 0;
   return (
     <div style={{ position: "absolute", left: 40, width: 720, top: 1185, display: "flex", justifyContent: "center" }}>
-      <div style={{ background: "rgba(255,255,255,0.94)", border: `5px solid ${INK}`, borderRadius: 22, padding: "12px 26px", boxShadow: `6px 6px 0 ${INK}`, maxWidth: 700, textAlign: "center", transform: `scale(${inS})`, ...K, fontSize: 40, lineHeight: 1.32 }}>
+      <div style={{ background: "rgba(255,255,255,0.94)", border: `5px solid ${INK}`, borderRadius: 22, padding: "12px 26px", boxShadow: `6px 6px 0 ${INK}`, maxWidth: 700, textAlign: "center", whiteSpace: "nowrap", transform: `scale(${inS})`, ...K, fontSize: size, lineHeight: 1.32 }}>
         {parts.map((p, j) => {
+          if (p.ch === "/") return <br key={j} />;
           if (p.ch === " ") return <span key={j}> </span>;
           const on = idx++ < spoken;
           const col = on ? (p.c ?? INK) : "#C9C2B0";
