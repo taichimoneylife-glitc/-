@@ -157,6 +157,23 @@ const S0: React.FC<{ f: number }> = ({ f }) => (
   </>
 );
 
+// 光る点線の枠：描かれていく → 点線が流れ続ける → ふわっと光る
+const GlowBox: React.FC<{ d: string; start: number; id: string; c?: string; w?: number }> = ({ d, start, id, c = RED, w = 8 }) => {
+  const f = useCurrentFrame();
+  const p = at([0, 0.04, 0.09, 0.16, 0.25, 0.36, 0.48, 0.6, 0.71, 0.8, 0.88, 0.94, 0.98, 1], f - start);
+  if (f < start) return null;
+  const pulse = 0.45 + 0.3 * Math.sin((f - start) / 5);
+  return (
+    <g>
+      <defs><mask id={id} maskUnits="userSpaceOnUse" x={-200} y={0} width={1500} height={4000}><path d={d} fill="none" stroke="#fff" strokeWidth={w * 6} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} /></mask></defs>
+      <g mask={`url(#${id})`}>
+        <path d={d} fill="none" stroke={c} strokeWidth={w * 3.2} strokeLinejoin="round" opacity={pulse} style={{ filter: "blur(7px)" }} />
+        <path d={d} fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="24 14" strokeDashoffset={-(f - start) * 2.2} />
+        <path d={d} fill="none" stroke="#fff" strokeWidth={w * 0.3} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="24 14" strokeDashoffset={-(f - start) * 2.2} opacity={0.75} />
+      </g>
+    </g>
+  );
+};
 // ① 子どもNISAって何？（大人の新NISAとの比較表：右の大人の枠 → つみたて投資枠の子ども版として左に こどもNISA が入る → 18歳で自動的に移行）
 const TY = 2130, HH = 92, RH = 108, CX = [40, 245, 510, 775, 1040];
 const ROWS2: [string, React.ReactNode, React.ReactNode, React.ReactNode][] = [
@@ -212,9 +229,9 @@ const S1: React.FC<{ f: number }> = ({ f }) => {
       <svg width={1080} height={3400} style={{ position: "absolute", inset: 0, overflow: "visible", zIndex: 6, pointerEvents: "none" }}>
         <GrowPath d="M540 2760 L540 3300" start={F(22.9)} kind="lineLong" color={INK} w={6} glow={false} />
         {/* 赤ペン：1,800万円の枠 → 非課税で持てる上限の行 → こどもNISAの600万円 */}
-        <GrowPath d="M520 1968 L1056 1974 L1048 2056 L494 2048 L502 1964 L540 1970" start={F(14.95)} kind="lineLong" color={RED} w={8} glow={false} />
-        <GrowPath d="M532 2438 L1044 2444 L1036 2550 L506 2542 L514 2434 L552 2440" start={F(15.9)} kind="lineLong" color={RED} w={9} glow={false} />
-        <GrowPath d="M268 2438 L514 2444 L506 2550 L242 2542 L250 2434 L288 2440" start={F(18.7)} kind="lineLong" color={RED} w={9} glow={false} />
+        <GlowBox id="gb1" d="M520 1968 L1056 1974 L1048 2056 L494 2048 L502 1964 L540 1970" start={F(14.95)} w={8} />
+        <GlowBox id="gb2" d="M532 2438 L1044 2444 L1036 2550 L506 2542 L514 2434 L552 2440" start={F(15.9)} w={9} />
+        <GlowBox id="gb3" d="M268 2438 L514 2444 L506 2550 L242 2542 L250 2434 L288 2440" start={F(18.7)} w={9} />
       </svg>
       <Note x={60} y={TY + HH + RH * 4 + 26} t={19.0} w={960}>※こどもNISAは2027年1月から始まる予定の制度です。600万円は大人の1,800万円の中に含まれる予定です（別に増えるわけではありません）</Note>
     </>
