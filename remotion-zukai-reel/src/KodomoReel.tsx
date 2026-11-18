@@ -55,6 +55,7 @@ const CAM: CamKey[] = [
   ck(66.8, 540, 7620),                      // 画面を一緒に見る
   ck(71.5, 540, 7700, 1.08, "zoomIn"),      // 金融教育
 ];
+const PUNCH = [18.0, 26.75, 38.15, 44.2, 52.05, 71.6]; // 大事な言葉の瞬間に、画面ごと少しグッと寄る
 const SHAKES = [23.75, 26.75, 38.2, 52.1];   // 画面ごと揺れる所
 const shakeAt = (f: number) => {
   let x = 0, y = 0;
@@ -272,7 +273,10 @@ const S2: React.FC<{ f: number }> = ({ f }) => {
         </div>
       </Pos>
       {f >= HIT ? <div style={{ position: "absolute", left: 270, top: 4140 + 70 * p01(f, HIT, HIT + 8, Easing.out(Easing.back(1.6))), width: 540, background: RED, color: "#fff", borderRadius: 18, padding: "16px 22px", ...K, fontSize: 34, textAlign: "center", boxShadow: "0 10px 24px rgba(0,0,0,0.25)", opacity: p01(f, HIT, HIT + 3), zIndex: 6 }}>⚠ 積立のみ：一括では入れられません</div> : null}
-      {f >= F(34.0) ? <div style={{ position: "absolute", zIndex: 5, ...fly(34.0, -60, 1) }}><GenSlot name="kn_otoshidama" size={220} /></div> : null}
+      {/* 子ども：お年玉を入れようとする → 弾かれて「えっ！」 */}
+      <Img name="kn_kid_elementary" x={0} y={4330} size={340} t={33.4} pat="slideL" tempo="brake" style={{ transform: f >= HIT && f < HIT + 10 ? `rotate(${Math.sin((f - HIT) * 2.2) * 6}deg)` : undefined, zIndex: 4 }} />
+      {f >= HIT + 4 ? <div style={{ position: "absolute", left: 40, top: 4370, zIndex: 7, ...enter(f, HIT + 4, "pop", "bounce") }}><span style={{ display: "inline-block", background: "#fff", border: `5px solid ${INK}`, borderRadius: 24, padding: "4px 18px", ...K, fontSize: 40 }}>えっ！</span></div> : null}
+      {f >= F(34.0) ? <div style={{ position: "absolute", zIndex: 5, ...fly(34.0, 120, 1) }}><GenSlot name="kn_otoshidama" size={220} /></div> : null}
       {f >= F(34.6) ? <div style={{ position: "absolute", zIndex: 5, ...fly(34.6, 900, -1) }}><GenSlot name="kn_gift_envelope" size={220} /></div> : null}
       {Array.from({ length: 6 }).map((_, i) => {
         const s0 = F(38.9) + i * 4;
@@ -296,6 +300,7 @@ const Acct: React.FC<{ c: string; title: string; rows: [string, React.ReactNode]
 );
 const S3: React.FC<{ f: number }> = ({ f }) => {
   const LOCK = F(44.2);
+  const rattle = f >= LOCK && f < LOCK + 24 ? Math.sin((f - LOCK) * 2.4) * (24 - (f - LOCK)) * 0.35 : 0;
   const pull = p01(f, F(43.5), LOCK, Easing.in(Easing.cubic));
   const bounce = p01(f, LOCK, LOCK + 10, Easing.out(Easing.back(2)));
   const nisa = p01(f, F(49.0), F(49.0) + 12, Easing.out(Easing.back(1.4))); // 親 → 親のNISA にめくれる
@@ -307,13 +312,13 @@ const S3: React.FC<{ f: number }> = ({ f }) => {
       <Head y={4920} t={39.65} no="③" title="なんで縛りが多い？" />
       {[0, 1, 2].map((i) => <Pos key={i} x={780 + i * 80} y={4860 - i * 40} t={40.1 + i * 0.12} pat="spin" tempo="bounce"><span style={{ ...K, fontSize: 70 - i * 10, color: RED, display: "inline-block", transform: `translateY(${Math.sin(f / 8 + i) * 8}px)` }}>？</span></Pos>)}
       {/* 子どもの口座 */}
-      <Pos x={60} y={5060} t={41.7} pat="whip" tempo="brake">
+      <Pos x={60} y={5060} t={41.7} pat="whip" tempo="brake" style={{ marginLeft: rattle }}>
         <Acct c={G} title="子どもの口座" rows={[["名義", "子ども"], ["お金", <span style={{ color: G }}>子どものもの</span>], ["引き出し", <span style={{ color: RED }}>12歳まで原則✕</span>]]}>
           {f >= LOCK ? <div style={{ position: "absolute", right: 14, top: 8, fontSize: 64, transform: `scale(${2 - bounce}) rotate(${(1 - bounce) * -20}deg)` }}>🔒</div> : null}
         </Acct>
       </Pos>
       {/* 親 → あとで親のNISAへめくれる */}
-      <Pos x={600} y={5060} t={43.3} pat="whip" tempo="brake">
+      <Pos x={600} y={5060} t={45.9} pat="whip" tempo="brake">
         <div style={{ transform: `perspective(1200px) rotateY(${nisa < 0.5 ? nisa * 180 : (nisa - 1) * 180}deg)` }}>
           {nisa < 0.5 ? <Acct c={O} title="親" w={400} rows={[["教育資金", "親が払う"], ["引き出し", "自由"]]} />
             : <Acct c={O} title="親のNISA" w={400} rows={[["引き出し", "いつでも"], ["使い道", "自由"]]}>
@@ -322,11 +327,15 @@ const S3: React.FC<{ f: number }> = ({ f }) => {
         </div>
       </Pos>
       {/* 親が子どもの口座から引き出そうとして、鍵で弾かれる */}
-      {f >= F(43.5) ? <div style={{ position: "absolute", left: 470 - 120 * pull + 90 * bounce, top: 5330, zIndex: 4, ...K, fontSize: 38, color: f >= LOCK ? RED : INK, whiteSpace: "nowrap", background: "rgba(255,255,255,0.9)", borderRadius: 12, padding: "2px 10px", opacity: 1 - p01(f, F(45.6), F(45.9)) }}>← 引き出したい{f >= LOCK ? " ✕" : ""}</div> : null}
+      {/* 親：子どもの口座の鍵を引っぱる → 開かずにガタガタ → 汗 → はけて、親のカードに入れ替わる */}
+      {f >= F(43.3) && f < F(46.2) ? <div style={{ position: "absolute", left: 470 - 30 * pull + (f >= LOCK ? Math.sin(f * 1.7) * 9 * (1 - p01(f, LOCK + 20, LOCK + 34)) : 0) + 700 * p01(f, F(45.7), F(46.2), Easing.in(Easing.cubic)), top: 5050, zIndex: 4, ...enter(f, F(43.3), "whip", "brake") }}>
+        <GenSlot name="kn_parent_cant_open" size={330} />
+        {f >= LOCK + 6 ? <div style={{ position: "absolute", right: 10, top: 0, ...K, fontSize: 54, transform: `translateY(${Math.sin(f / 4) * 4}px)` }}>💦</div> : null}
+      </div> : null}
       <Pos x={150} y={5430} t={44.4} pat="slideUp" tempo="brake"><span style={{ ...K, fontSize: 42, color: RED }}>親が自由に<Marker t={44.7} c="#FFC9C2">引き出せない仕組み</Marker></span></Pos>
       {/* 教育資金 */}
       <Pos x={60} y={5560} t={45.8} pat="wipe" tempo="brake"><span style={{ ...K, fontSize: 46 }}>つまり…</span></Pos>
-      <Pos x={330} y={5660} t={46.85} pat="drop" tempo="bounce">
+      <Pos x={360} y={5660} t={46.85} pat="drop" tempo="bounce">
         <div style={{ width: 420, background: "#fff", border: `6px solid ${INK}`, borderRadius: 18, boxShadow: `9px 9px 0 ${INK}`, padding: "14px 20px", display: "flex", alignItems: "center", gap: 10 }}>
           <GenSlot name="kn_school_items" size={130} />
           <div><div style={{ ...K, fontSize: 40 }}>教育資金</div><div style={{ ...B, fontSize: 24, color: M.sub }}>入学金・授業料など</div><div style={{ ...K, fontSize: 30, color: O }}>払うのは 親</div></div>
@@ -337,9 +346,13 @@ const S3: React.FC<{ f: number }> = ({ f }) => {
         <GrowPath d="M800 5390 C800 5540 790 5660 750 5720" start={F(50.3)} kind="lineLong" color={O} w={12} glow={false} />
         <GrowPath d="M540 6040 L540 6560" start={F(53.9)} kind="lineLong" color={INK} w={6} glow={false} />
       </svg>
-      <Stamp x={20} y={5650} t={47.75} size={40} rot={-8}>✕ 使いにくい</Stamp>
+      <Stamp x={270} y={5520} t={47.75} size={38} rot={-8}>✕ 使いにくい</Stamp>
+      <Img name="kn_parent_school_pay" x={-10} y={5700} size={260} t={47.1} pat="slideL" tempo="brake" />
       <Pos x={690} y={5480} t={50.45} pat="pop" tempo="bounce"><Chip c={O} size={28}>一部を株で用意するなら</Chip></Pos>
-      <Stamp x={250} y={5900} t={52.05} c={O} size={72}>まずは親のNISA</Stamp>
+      {/* スポットライト：まわりを少し暗く */}
+      {f >= F(51.9) ? <div style={{ position: "absolute", left: -600, top: 5000, width: 2280, height: 1700, background: "radial-gradient(circle at 1140px 960px, rgba(0,0,0,0) 330px, rgba(40,30,10,0.42) 560px)", opacity: interpolate(f, [F(51.9), F(51.9) + 8, F(53.7), F(53.7) + 8], [0, 1, 1, 0], clamp), pointerEvents: "none", zIndex: 8 }} /> : null}
+      <div style={{ position: "absolute", left: 40, top: 5820, zIndex: 9, ...enter(f, F(51.95), "zoomIn", "brake") }}><GenSlot name="kn_parent_phone_nisa" size={300} /></div>
+      <div style={{ position: "absolute", left: 0, top: 0, zIndex: 9 }}><Stamp x={330} y={5900} t={52.05} c={O} size={72}>まずは親のNISA</Stamp></div>
       <Burst t={52.05} x={560} y={5960} c={O} r={280} n={16} />
     </>
   );
@@ -516,6 +529,7 @@ export const KodomoReel: React.FC = () => {
   const f = useCurrentFrame();
   const c = camAt(CAM, f);
   const sh = shakeAt(f);
+  const punch = PUNCH.reduce((a, t) => { const k = f - F(t); return k >= 0 && k < 12 ? a + at([0, 0.06, 0.075, 0.06, 0.04, 0.025, 0.014, 0.007, 0.003, 0], k) : a; }, 0);
   const blur = motionBlur(c.v);
   const drift = Math.sin(f / 50) * 6; // ずっと少しだけ息をしている
   return (
@@ -524,6 +538,7 @@ export const KodomoReel: React.FC = () => {
       <SfxTrack cues={CUES} />
       {/* 安全な枠：右のいいね列（x>950）・下の名前と説明（y>1450）・上のリール表示（y<150）をよける */}
       <div style={{ position: "absolute", left: SAFE_X, top: SAFE_Y, width: 1080, height: 1920, transform: `scale(${SAFE})`, transformOrigin: "0 0", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, transform: `scale(${1 + punch})`, transformOrigin: "540px 700px" }}>
       <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 9000, transform: `translate(${540 - c.x * c.z + sh.x + drift}px, ${960 - c.y * c.z + sh.y}px) scale(${c.z})`, transformOrigin: "0 0", filter: blur ? `blur(${blur}px)` : undefined }}>
         <div style={{ position: "absolute", inset: -600, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)` }} />
         <div style={{ position: "absolute", left: 60, top: -600, width: 4, height: 10000, background: "rgba(239,125,87,0.35)" }} />
@@ -532,6 +547,7 @@ export const KodomoReel: React.FC = () => {
         {f > F(22) && f < F(56) ? <S2 f={f} /> : null}
         {f > F(38) && f < F(75) ? <S3 f={f} /> : null}
         {f > F(53) ? <S4 f={f} /> : null}
+      </div>
       </div>
       </div>
       {f >= F(78.4) ? <AbsoluteFill style={{ background: M.paper, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)` }} /> : null}
