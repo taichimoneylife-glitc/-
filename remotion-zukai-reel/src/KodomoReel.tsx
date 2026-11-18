@@ -157,20 +157,26 @@ const S0: React.FC<{ f: number }> = ({ f }) => (
   </>
 );
 
-// 光る点線の枠：描かれていく → 点線が流れ続ける → ふわっと光る
-const GlowBox: React.FC<{ d: string; start: number; id: string; c?: string; w?: number }> = ({ d, start, id, c = RED, w = 8 }) => {
+// 光が右回りに走る枠：枠が描かれる → 光の粒が枠の上を時計回りにぐるぐる回り続ける
+const rrect = (x0: number, y0: number, x1: number, y1: number, r = 16) =>
+  `M${x0 + r} ${y0} H${x1 - r} Q${x1} ${y0} ${x1} ${y0 + r} V${y1 - r} Q${x1} ${y1} ${x1 - r} ${y1} H${x0 + r} Q${x0} ${y1} ${x0} ${y1 - r} V${y0 + r} Q${x0} ${y0} ${x0 + r} ${y0} Z`;
+const GlowBox: React.FC<{ box: [number, number, number, number]; start: number; c?: string; w?: number; speed?: number }> = ({ box, start, c = RED, w = 7, speed = 0.022 }) => {
   const f = useCurrentFrame();
-  const p = at([0, 0.04, 0.09, 0.16, 0.25, 0.36, 0.48, 0.6, 0.71, 0.8, 0.88, 0.94, 0.98, 1], f - start);
   if (f < start) return null;
-  const pulse = 0.45 + 0.3 * Math.sin((f - start) / 5);
+  const d = rrect(...box);
+  const p = at([0, 0.06, 0.16, 0.3, 0.46, 0.62, 0.76, 0.87, 0.95, 1], f - start);
+  const head = -(f - start) * speed; // 時計回りに進む
+  const seg = (len: number, width: number, color: string, op: number, blur?: number) => (
+    <path d={d} fill="none" stroke={color} strokeWidth={width} strokeLinecap="round" pathLength={1} strokeDasharray={`${len} ${1 - len}`} strokeDashoffset={head + len} opacity={op * p01(f, start + 6, start + 12)} style={blur ? { filter: `blur(${blur}px)` } : undefined} />
+  );
   return (
     <g>
-      <defs><mask id={id} maskUnits="userSpaceOnUse" x={-200} y={0} width={1500} height={4000}><path d={d} fill="none" stroke="#fff" strokeWidth={w * 6} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} /></mask></defs>
-      <g mask={`url(#${id})`}>
-        <path d={d} fill="none" stroke={c} strokeWidth={w * 3.2} strokeLinejoin="round" opacity={pulse} style={{ filter: "blur(7px)" }} />
-        <path d={d} fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="24 14" strokeDashoffset={-(f - start) * 2.2} />
-        <path d={d} fill="none" stroke="#fff" strokeWidth={w * 0.3} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="24 14" strokeDashoffset={-(f - start) * 2.2} opacity={0.75} />
-      </g>
+      {/* 土台の枠（描かれていく） */}
+      <path d={d} fill="none" stroke={c} strokeWidth={w} strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} opacity={0.85} />
+      {/* 走る光：ぼんやりした尾 → 明るい芯 → 白い先頭 */}
+      {seg(0.22, w * 4, c, 0.55, 8)}
+      {seg(0.12, w * 1.6, "#FF9A8A", 0.95)}
+      {seg(0.035, w * 1.2, "#fff", 1)}
     </g>
   );
 };
@@ -229,9 +235,9 @@ const S1: React.FC<{ f: number }> = ({ f }) => {
       <svg width={1080} height={3400} style={{ position: "absolute", inset: 0, overflow: "visible", zIndex: 6, pointerEvents: "none" }}>
         <GrowPath d="M540 2760 L540 3300" start={F(22.9)} kind="lineLong" color={INK} w={6} glow={false} />
         {/* 赤ペン：1,800万円の枠 → 非課税で持てる上限の行 → こどもNISAの600万円 */}
-        <GlowBox id="gb1" d="M520 1968 L1056 1974 L1048 2056 L494 2048 L502 1964 L540 1970" start={F(14.95)} w={8} />
-        <GlowBox id="gb2" d="M532 2438 L1044 2444 L1036 2550 L506 2542 L514 2434 L552 2440" start={F(15.9)} w={9} />
-        <GlowBox id="gb3" d="M268 2438 L514 2444 L506 2550 L242 2542 L250 2434 L288 2440" start={F(18.7)} w={9} />
+        <GlowBox box={[494, 1964, 1056, 2056]} start={F(14.95)} />
+        <GlowBox box={[508, 2436, 1042, 2548]} start={F(15.9)} />
+        <GlowBox box={[244, 2436, 512, 2548]} start={F(18.7)} />
       </svg>
       <Note x={60} y={TY + HH + RH * 4 + 26} t={19.0} w={960}>※こどもNISAは2027年1月から始まる予定の制度です。600万円は大人の1,800万円の中に含まれる予定です（別に増えるわけではありません）</Note>
     </>
