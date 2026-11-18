@@ -198,7 +198,13 @@ const S2: React.FC<{ f: number }> = ({ f }) => (
       );
     })}
     <GlowBox box={[778, BASE - 6.2 * 62 - 90, 1000, BASE + 4]} start={F(21.7)} end={F(22.9)} />
-    <Note x={60} y={BASE + 70} t={16.5} w={960}>※30歳で月1万円の保険が、更新ごとに1.5倍・1.8倍・2.3倍に上がった場合の計算例。実際の上がり方は、年齢・性別・保障額・保険会社・商品によって違います</Note>
+    {/* 注意書き：階段のすぐ上に、読める大きさで（数字が出ている間ずっと） */}
+    <Pos x={60} y={3010} t={15.7} pat="slideL" tempo="brake">
+      <div style={{ width: 520, background: "#FFF6C8", border: `5px solid ${O}`, borderRadius: 16, padding: "12px 18px", boxShadow: `5px 5px 0 ${INK}`, ...K, fontSize: 28, lineHeight: 1.35 }}>
+        <span style={{ color: RED }}>⚠ 計算の一例です</span><br />
+        <span style={{ fontSize: 24 }}>倍率や金額は、年齢・性別・保障額・<br />保険会社・商品によって違います</span>
+      </div>
+    </Pos>
     {/* 父の実話 */}
     <Img name="kh_father_shock" x={60} y={3900} size={340} t={23.5} pat="slideL" tempo="brake" />
     <Pos x={420} y={3950} t={24.0} pat="pop" tempo="bounce"><Chip c={INK} size={36}>実は 僕の父も…</Chip></Pos>
