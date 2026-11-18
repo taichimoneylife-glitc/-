@@ -185,7 +185,7 @@ const TY = 2130, HH = 92, RH = 108, CX = [40, 245, 510, 775, 1040];
 const ROWS2: [string, React.ReactNode, React.ReactNode, React.ReactNode][] = [
   ["対象年齢", <Marker t={18.3}>0〜17歳</Marker>, "18歳以上", "18歳以上"],
   ["年間投資枠", "60万円", "120万円", "240万円"],
-  ["非課税で\n持てる上限", "600万円", null, null],
+  ["非課税で\n持てる上限", "600万円", <span style={{ lineHeight: 1.05, paddingLeft: 40 }}><span style={{ ...SER, fontSize: 46, color: G }}>600</span>万円〜<br /><span style={{ fontSize: 22, color: M.sub }}>最大1,800万円</span></span>, <span style={{ lineHeight: 1.05 }}><span style={{ ...SER, fontSize: 46, color: O }}>1,200</span>万円<br /><span style={{ fontSize: 22, color: M.sub }}>まで</span></span>],
   ["引き出し", <span style={{ color: RED, fontSize: 28, lineHeight: 1.25 }}>12歳まで原則✕<br />以降は条件つき</span>, "制限なし", "制限なし"],
 ];
 const S1: React.FC<{ f: number }> = ({ f }) => {
@@ -217,29 +217,26 @@ const S1: React.FC<{ f: number }> = ({ f }) => {
       {ROWS2.map(([k, kid, tsu, gro], r) => (
         <React.Fragment key={k}>
           {cell(0, r, 13.85 + r * 0.1, k, "#F6F1E2")}
-          {r === 2 ? (
-            <div style={{ position: "absolute", left: CX[2], top: TY + HH + r * RH, width: CX[4] - CX[2], height: RH, background: "#fff", borderTop: `3px solid ${INK}`, borderLeft: `3px solid ${INK}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingLeft: 250, boxSizing: "border-box", ...K, fontSize: 34, lineHeight: 1.15, ...enter(f, F(14.1 + r * 0.1), "slideL", "brake") }}>
-              <span>総枠 1,800万円</span><span style={{ fontSize: 22, color: M.sub }}>（成長は1,200万円まで）</span>
-            </div>
-          ) : (<>{cell(2, r, 14.0 + r * 0.1, tsu)}{cell(3, r, 14.1 + r * 0.1, gro)}</>)}
+          {(<>{cell(2, r, 14.0 + r * 0.1, tsu)}{cell(3, r, 14.1 + r * 0.1, gro)}</>)}
           {cell(1, r, 17.95 + (r + 1) * 0.1, r === 2 ? <span style={{ ...SER, fontSize: 52, color: G }}>600<span style={{ ...K, fontSize: 28 }}>万円</span></span> : kid, "#EAF6E2")}
         </React.Fragment>
       ))}
       {/* こどもNISAの列を光らせる */}
       {f >= kidCol ? <div style={{ position: "absolute", left: CX[1] - 6, top: TY - 6, width: CX[2] - CX[1] + 12, height: HH + RH * 4 + 12, border: `8px solid ${G}`, borderRadius: 10, boxShadow: `0 0 ${30 * interpolate(f, [kidCol + 6, kidCol + 14, F(20)], [0, 1, 0.3], clamp)}px ${YEL}`, pointerEvents: "none", opacity: p01(f, kidCol + 4, kidCol + 8) }} /> : null}
       {/* 18歳で自動的に移行（600万円 → 1,800万円の枠へ） */}
-      {f >= F(20.15) ? <div style={{ position: "absolute", left: CX[1] + 205, top: TY + HH + 2 * RH + 20, width: 330 * arrow, height: 68, overflow: "hidden", zIndex: 5 }}>
-        <div style={{ width: 330, height: 68, background: INK, color: "#fff", clipPath: "polygon(0 18%, 82% 18%, 82% 0, 100% 50%, 82% 100%, 82% 82%, 0 82%)", ...K, fontSize: 26, display: "flex", alignItems: "center", paddingLeft: 18, boxSizing: "border-box" }}>18歳で自動的に移行</div>
-      </div> : null}
-      <Burst t={21.4} x={(CX[2] + CX[4]) / 2} y={TY + HH + 2.5 * RH} c={YEL} r={220} />
+      {/* 18歳で移行：列の境目に丸い矢印 ＋ 表の下に札 */}
+      {f >= F(20.15) ? <div style={{ position: "absolute", left: CX[2] - 36, top: TY + HH + 2 * RH + 18, width: 72, height: 72, borderRadius: "50%", background: INK, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 44, zIndex: 7, transform: `scale(${at([0, 1.3, 0.92, 1.04, 1], (f - F(20.15)) / 1.5)}) translateX(${Math.sin((f - F(20.15)) / 5) * 4}px)`, boxShadow: "0 4px 10px rgba(0,0,0,0.3)" }}>➜</div> : null}
+      <Pos x={CX[1] - 10} y={TY + HH + 4 * RH + 18} t={20.2} pat="slideL" tempo="brake"><span style={{ display: "inline-block", background: INK, color: "#fff", borderRadius: 14, padding: "8px 22px", ...K, fontSize: 32 }}>18歳で、大人の<span style={{ color: "#9BE07A" }}>つみたて投資枠</span>へ自動的に移行</span></Pos>
+      <Burst t={21.4} x={(CX[2] + CX[3]) / 2} y={TY + HH + 2.5 * RH} c={YEL} r={180} />
       <svg width={1080} height={3400} style={{ position: "absolute", inset: 0, overflow: "visible", zIndex: 6, pointerEvents: "none" }}>
-        <GrowPath d="M540 2760 L540 3300" start={F(22.9)} kind="lineLong" color={INK} w={6} glow={false} />
+        <GrowPath d="M540 2840 L540 3300" start={F(22.9)} kind="lineLong" color={INK} w={6} glow={false} />
         {/* 赤ペン：1,800万円の枠 → 非課税で持てる上限の行 → こどもNISAの600万円 */}
         <GlowBox box={[494, 1964, 1056, 2056]} start={F(14.95)} />
-        <GlowBox box={[508, 2436, 1042, 2548]} start={F(15.9)} />
+        <GlowBox box={[508, 2436, 778, 2548]} start={F(15.9)} c={G} />
+        <GlowBox box={[778, 2436, 1042, 2548]} start={F(16.3)} c={O} />
         <GlowBox box={[244, 2436, 512, 2548]} start={F(18.7)} />
       </svg>
-      <Note x={60} y={TY + HH + RH * 4 + 26} t={19.0} w={960}>※こどもNISAは2027年1月から始まる予定の制度です。600万円は大人の1,800万円の中に含まれる予定です（別に増えるわけではありません）</Note>
+      <Note x={60} y={TY + HH + RH * 4 + 100} t={19.0} w={960}>※こどもNISAは2027年1月から始まる予定の制度です。600万円は大人の1,800万円の中に含まれる予定です。大人のつみたて投資枠は最大1,800万円まで使え、成長投資枠は1,200万円までなので、少なくとも600万円分はつみたて投資枠になります</Note>
     </>
   );
 };
