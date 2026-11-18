@@ -33,12 +33,13 @@ const G = M.green, O = M.orange, INK = M.ink, RED = M.red, YEL = "#FFE15A";
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const OUT = Easing.bezier(0.16, 1, 0.3, 1);
 const p01 = (f: number, a: number, b: number, e = OUT) => interpolate(f, [a, b], [0, 1], { ...clamp, easing: e });
+const SAFE = 0.86, SAFE_X = 40, SAFE_Y = 120;
 export const KODOMO_REEL_FRAMES = F(83.4);
 
 // ── カメラ（中身の中心 cy を画面の上寄り 720 に映す）──
-const ck = (t: number, x: number, cy: number, z = 1, p: CamKey["p"] = "scroll"): CamKey => ({ f: F(t), x, y: cy + 240 / z, z, p });
+const ck = (t: number, x: number, cy: number, z = 1, p: CamKey["p"] = "scroll"): CamKey => ({ f: F(t), x, y: cy + 200 / z, z, p });
 const CAM: CamKey[] = [
-  { f: 0, x: 540, y: 700 + 240 / 1.18, z: 1.18 },
+  { f: 0, x: 540, y: 700 + 200 / 1.18, z: 1.18 },
   ck(3.2, 540, 690, 1, "zoomOut"),
   ck(7.5, 540, 1720),                      // ① 何？
   ck(13.5, 540, 2260, 1, "slide"),          // 1,800万円の箱
@@ -431,8 +432,8 @@ const Karaoke: React.FC = () => {
   const inS = interpolate(k, [0, 2, 5], [0.9, 1.04, 1], clamp);
   let idx = 0;
   return (
-    <div style={{ position: "absolute", left: 40, right: 40, top: 1395, display: "flex", justifyContent: "center" }}>
-      <div style={{ background: "rgba(255,255,255,0.94)", border: `5px solid ${INK}`, borderRadius: 22, padding: "12px 26px", boxShadow: `6px 6px 0 ${INK}`, maxWidth: 760, textAlign: "center", transform: `scale(${inS})`, ...K, fontSize: 44, lineHeight: 1.32 }}>
+    <div style={{ position: "absolute", left: 40, width: 720, top: 1185, display: "flex", justifyContent: "center" }}>
+      <div style={{ background: "rgba(255,255,255,0.94)", border: `5px solid ${INK}`, borderRadius: 22, padding: "12px 26px", boxShadow: `6px 6px 0 ${INK}`, maxWidth: 700, textAlign: "center", transform: `scale(${inS})`, ...K, fontSize: 40, lineHeight: 1.32 }}>
         {parts.map((p, j) => {
           if (p.ch === " ") return <span key={j}> </span>;
           const on = idx++ < spoken;
@@ -451,7 +452,7 @@ const Chara: React.FC = () => {
   const lv = KODOMO_MOUTH.charCodeAt(Math.min(KODOMO_MOUTH.length - 1, f)) - 48;
   const blink = f % 96 > 92 && lv === 0;
   const name = blink ? "taichi_blink" : lv >= 2 ? (Math.floor(f / 3) % 4 ? "taichi_talk_open" : "taichi_talk_mid") : lv === 1 ? "taichi_talk_mid" : "taichi_talk_closed";
-  return <div style={{ position: "absolute", left: 810, top: 1600 + Math.sin(f / 10) * 5, width: 240, height: 240 }}><GenSlot name={name} size={240} /></div>;
+  return <div style={{ position: "absolute", left: 760, top: 1190 + Math.sin(f / 10) * 4, width: 200, height: 200 }}><GenSlot name={name} size={200} /></div>;
 };
 
 // 効果音（たいちさんの音 u01〜u10 のみ・0秒には置かない）
@@ -480,6 +481,8 @@ export const KodomoReel: React.FC = () => {
     <AbsoluteFill style={{ background: M.paper, overflow: "hidden" }}>
       <Audio src={staticFile("kodomo-narration.wav")} />
       <SfxTrack cues={CUES} />
+      {/* 安全な枠：右のいいね列（x>950）・下の名前と説明（y>1450）・上のリール表示（y<150）をよける */}
+      <div style={{ position: "absolute", left: SAFE_X, top: SAFE_Y, width: 1080, height: 1920, transform: `scale(${SAFE})`, transformOrigin: "0 0", overflow: "hidden" }}>
       <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 9000, transform: `translate(${540 - c.x * c.z + sh.x + drift}px, ${960 - c.y * c.z + sh.y}px) scale(${c.z})`, transformOrigin: "0 0", filter: blur ? `blur(${blur}px)` : undefined }}>
         <div style={{ position: "absolute", inset: -600, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)` }} />
         <div style={{ position: "absolute", left: 60, top: -600, width: 4, height: 10000, background: "rgba(239,125,87,0.35)" }} />
@@ -489,16 +492,17 @@ export const KodomoReel: React.FC = () => {
         {f > F(38) && f < F(75) ? <S3 f={f} /> : null}
         {f > F(53) ? <S4 f={f} /> : null}
       </div>
+      </div>
       {f >= F(78.4) ? <AbsoluteFill style={{ background: M.paper, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)` }} /> : null}
       <Guide f={f} />
       <TapCard at={W(78.45)} until={W(80.25)} src="cta_nisabond/igprofile.jpg" iw={1178} ih={915} x={90} y={380} w={900} hit={[0.03, 0.9, 0.52, 0.085]} dimAt={W(78.8)} tapAt={W(79.5)} label={<>プロフの<span style={{ color: RED }}>リンク</span>から</>} labelAt={W(79.1)} />
       <TapCard at={W(80.3)} until={W(81.95)} src="cta_nisabond/links.jpg" iw={1179} ih={525} x={90} y={420} w={900} hit={[0.02, 0.03, 0.96, 0.3]} dimAt={W(80.5)} tapAt={W(80.95)} label={<><span style={{ color: "#06C755" }}>公式LINE</span>を追加して</>} labelAt={W(80.6)} labelTop={900} labelLeft={150} />
       <TapCard at={W(82.0)} src="cta_nisabond/site.webp" iw={2000} ih={1349} x={90} y={400} w={900} hit={[0.34, 0.52, 0.32, 0.45]} dimAt={W(82.1)} tapAt={W(82.4)} label={<>ここから<span style={{ color: RED }}>受け取り</span></>} labelAt={W(82.2)} labelTop={1050} labelLeft={110} rot={1} />
       {/* 下：字幕の帯（ノートが透けないように） */}
-      <div style={{ position: "absolute", left: 0, right: 0, top: 1340, bottom: 0, background: `linear-gradient(${M.paper}00, ${M.paper} 40px)` }} />
+      <div style={{ position: "absolute", left: 0, right: 0, top: 1150, bottom: 0, background: `linear-gradient(${M.paper}00, ${M.paper} 50px)` }} />
       <Karaoke />
-      <div style={{ position: "absolute", left: 0, top: 0, transform: "scale(0.8)", transformOrigin: "0 1920px", opacity: f < F(73.4) ? 1 : 0 }}>
-        <Stepper labels={["結論", "概要", "デメリット", "教育資金", "使い方"]} steps={[0, 7.56, 23.28, 39.6, 54.3].map(W)} x={30} y={1690} color={G} />
+      <div style={{ position: "absolute", left: 0, top: 0, transform: "scale(0.55)", transformOrigin: "0 0", opacity: f < F(73.4) ? 1 : 0 }}>
+        <Stepper labels={["結論", "概要", "デメリット", "教育資金", "使い方"]} steps={[0, 7.56, 23.28, 39.6, 54.3].map(W)} x={73} y={2490} color={G} />
       </div>
       <Chara />
     </AbsoluteFill>
