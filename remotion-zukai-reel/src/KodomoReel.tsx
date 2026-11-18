@@ -205,12 +205,12 @@ const S1: React.FC<{ f: number }> = ({ f }) => {
       <Img name="kn_family_baby" x={760} y={1760} size={200} t={12.6} pat="pop" tempo="bounce" />
 
       {/* 上の帯：大人の新NISA（右2列）／つみたて投資枠（真ん中から左へ伸びて こどもNISA の上まで） */}
-      <div style={{ position: "absolute", left: CX[2], top: TY - 150, width: CX[4] - CX[2], height: 62, background: O, border: `4px solid ${INK}`, borderRadius: "14px 14px 0 0", color: "#fff", ...K, fontSize: 34, display: "flex", alignItems: "center", justifyContent: "center", ...enter(f, F(13.7), "wipe", "brake") }}>大人の新NISA　総枠 <span style={{ ...SER, fontSize: 44, margin: "0 4px" }}>{f >= F(14.9) ? <Roll t={14.9} text="1,800" dur={10} /> : "　"}</span>万円</div>
-      {f >= F(17.0) ? <div style={{ position: "absolute", left: CX[1], top: TY - 78, width: CX[3] - CX[1], height: 62, background: YEL, border: `4px solid ${INK}`, borderRadius: "14px 14px 0 0", ...K, fontSize: 34, display: "flex", alignItems: "center", justifyContent: "center", transformOrigin: "100% 50%", transform: `scaleX(${0.5 + 0.5 * p01(f, F(17.0), F(17.0) + 9)})` }}>つみたて投資枠</div> : <div style={{ position: "absolute", left: CX[2], top: TY - 78, width: CX[3] - CX[2], height: 62, background: "#FFF3B8", border: `4px solid ${INK}`, borderRadius: "14px 14px 0 0", ...K, fontSize: 30, display: "flex", alignItems: "center", justifyContent: "center", ...enter(f, F(13.9), "wipe", "brake") }}>つみたて投資枠</div>}
+      <div style={{ position: "absolute", left: CX[2], top: TY - 66, width: CX[4] - CX[2], height: 62, background: O, border: `4px solid ${INK}`, borderRadius: "14px 14px 0 0", color: "#fff", ...K, fontSize: 34, display: "flex", alignItems: "center", justifyContent: "center", ...enter(f, F(13.7), "wipe", "brake") }}>大人の新NISA　総枠 <span style={{ ...SER, fontSize: 44, margin: "0 4px" }}>{f >= F(14.9) ? <Roll t={14.9} text="1,800" dur={10} /> : "　"}</span>万円</div>
+      {/* （つみたて投資枠の黄色い帯は外した：見出しの列で分かるので） */}
       {/* 見出しの行 */}
       <div style={{ position: "absolute", left: CX[0], top: TY, width: CX[1] - CX[0], height: HH, background: "#EFE8D4", border: `3px solid ${INK}`, ...cardIn(f, F(13.8)) }} />
       <div style={{ position: "absolute", left: CX[1], top: TY, width: CX[2] - CX[1], height: HH, background: G, border: `3px solid ${INK}`, color: "#fff", ...K, fontSize: 40, display: "flex", alignItems: "center", justifyContent: "center", ...enter(f, kidCol, "drop", "bounce") }}>こどもNISA</div>
-      <div style={{ position: "absolute", left: CX[2], top: TY, width: CX[3] - CX[2], height: HH, background: "#FFF3B8", border: `3px solid ${INK}`, ...K, fontSize: 30, display: "flex", alignItems: "center", justifyContent: "center", ...enter(f, F(13.9), "slideL", "brake") }}>大人</div>
+      <div style={{ position: "absolute", left: CX[2], top: TY, width: CX[3] - CX[2], height: HH, background: "#FFF3B8", border: `3px solid ${INK}`, ...K, fontSize: 30, display: "flex", alignItems: "center", justifyContent: "center", ...enter(f, F(13.9), "slideL", "brake") }}>つみたて投資枠</div>
       <div style={{ position: "absolute", left: CX[3], top: TY, width: CX[4] - CX[3], height: HH, background: "#FFE2CF", border: `3px solid ${INK}`, ...K, fontSize: 30, display: "flex", alignItems: "center", justifyContent: "center", ...enter(f, F(14.0), "slideL", "brake") }}>成長投資枠</div>
       {/* 表の中身（大人の2列が先、こどもNISAの列があとから落ちてくる） */}
       <div style={{ position: "absolute", left: CX[0] - 4, top: TY - 4, width: CX[4] - CX[0] + 8, height: HH + RH * 4 + 8, border: `6px solid ${INK}`, borderRadius: 8, boxShadow: `10px 10px 0 ${G}`, pointerEvents: "none", ...cardIn(f, F(13.8)) }} />
@@ -226,17 +226,23 @@ const S1: React.FC<{ f: number }> = ({ f }) => {
       {/* 18歳で自動的に移行（600万円 → 1,800万円の枠へ） */}
       {/* 18歳で移行：列の境目に丸い矢印 ＋ 表の下に札 */}
       {f >= F(20.15) ? <div style={{ position: "absolute", left: CX[2] - 36, top: TY + HH + 2 * RH + 18, width: 72, height: 72, borderRadius: "50%", background: INK, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 44, zIndex: 7, transform: `scale(${at([0, 1.3, 0.92, 1.04, 1], (f - F(20.15)) / 1.5)}) translateX(${Math.sin((f - F(20.15)) / 5) * 4}px)`, boxShadow: "0 4px 10px rgba(0,0,0,0.3)" }}>➜</div> : null}
-      <Pos x={CX[1] - 10} y={TY + HH + 4 * RH + 18} t={20.2} pat="slideL" tempo="brake"><span style={{ display: "inline-block", background: INK, color: "#fff", borderRadius: 14, padding: "8px 22px", ...K, fontSize: 32 }}>18歳で、大人の<span style={{ color: "#9BE07A" }}>つみたて投資枠</span>へ自動的に移行</span></Pos>
+      {/* 表の下：こどもNISA → つみたて投資枠 へ回り込む矢印（18歳で移行） */}
+      <svg width={1080} height={3000} style={{ position: "absolute", inset: 0, overflow: "visible", zIndex: 6, pointerEvents: "none" }}>
+        <GrowPath d={`M${(CX[1] + CX[2]) / 2} ${TY + HH + 4 * RH + 12} C${(CX[1] + CX[2]) / 2} ${TY + HH + 4 * RH + 110} ${(CX[2] + CX[3]) / 2} ${TY + HH + 4 * RH + 110} ${(CX[2] + CX[3]) / 2} ${TY + HH + 4 * RH + 22}`} start={F(20.15)} kind="lineLong" color={G} w={12} glow={false} />
+      </svg>
+      {f >= F(20.15) + 12 ? <div style={{ position: "absolute", left: (CX[2] + CX[3]) / 2 - 22, top: TY + HH + 4 * RH + 6, width: 0, height: 0, borderLeft: "22px solid transparent", borderRight: "22px solid transparent", borderBottom: `30px solid ${G}`, zIndex: 6, ...enter(f, F(20.15) + 12, "pop", "kire") }} /> : null}
+      <Pos x={CX[2] - 140} y={TY + HH + 4 * RH + 98} t={20.35} pat="pop" tempo="bounce"><span style={{ display: "inline-block", background: "#fff", border: `4px solid ${G}`, borderRadius: 14, padding: "4px 16px", ...K, fontSize: 30, color: INK, whiteSpace: "nowrap" }}>18歳で そのまま移行</span></Pos>
       <Burst t={21.4} x={(CX[2] + CX[3]) / 2} y={TY + HH + 2.5 * RH} c={YEL} r={180} />
       <svg width={1080} height={3400} style={{ position: "absolute", inset: 0, overflow: "visible", zIndex: 6, pointerEvents: "none" }}>
-        <GrowPath d="M540 2840 L540 3300" start={F(22.9)} kind="lineLong" color={INK} w={6} glow={false} />
+        <GrowPath d="M540 2920 L540 3300" start={F(22.9)} kind="lineLong" color={INK} w={6} glow={false} />
         {/* 赤ペン：1,800万円の枠 → 非課税で持てる上限の行 → こどもNISAの600万円 */}
-        <GlowBox box={[494, 1964, 1056, 2056]} start={F(14.95)} />
+        <GlowBox box={[504, 2058, 1046, 2134]} start={F(14.95)} />
+        <GlowBox box={[510, 2128, 776, 2224]} start={F(16.95)} c={G} />
         <GlowBox box={[508, 2436, 778, 2548]} start={F(15.9)} c={G} />
         <GlowBox box={[778, 2436, 1042, 2548]} start={F(16.3)} c={O} />
         <GlowBox box={[244, 2436, 512, 2548]} start={F(18.7)} />
       </svg>
-      <Note x={60} y={TY + HH + RH * 4 + 100} t={19.0} w={960}>※こどもNISAは2027年1月から始まる予定の制度です。600万円は大人の1,800万円の中に含まれる予定です。大人のつみたて投資枠は最大1,800万円まで使え、成長投資枠は1,200万円までなので、少なくとも600万円分はつみたて投資枠になります</Note>
+      <Note x={60} y={TY + HH + RH * 4 + 170} t={19.0} w={960}>※こどもNISAは2027年1月から始まる予定の制度です。600万円は大人の1,800万円の中に含まれる予定です。大人のつみたて投資枠は最大1,800万円まで使え、成長投資枠は1,200万円までなので、少なくとも600万円分はつみたて投資枠になります</Note>
     </>
   );
 };
