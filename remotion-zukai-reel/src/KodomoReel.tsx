@@ -209,8 +209,12 @@ const S1: React.FC<{ f: number }> = ({ f }) => {
         <div style={{ width: 330, height: 68, background: INK, color: "#fff", clipPath: "polygon(0 18%, 82% 18%, 82% 0, 100% 50%, 82% 100%, 82% 82%, 0 82%)", ...K, fontSize: 26, display: "flex", alignItems: "center", paddingLeft: 18, boxSizing: "border-box" }}>18歳で自動的に移行</div>
       </div> : null}
       <Burst t={21.4} x={(CX[2] + CX[4]) / 2} y={TY + HH + 2.5 * RH} c={YEL} r={220} />
-      <svg width={1080} height={3400} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
+      <svg width={1080} height={3400} style={{ position: "absolute", inset: 0, overflow: "visible", zIndex: 6, pointerEvents: "none" }}>
         <GrowPath d="M540 2760 L540 3300" start={F(22.9)} kind="lineLong" color={INK} w={6} glow={false} />
+        {/* 赤ペン：1,800万円の枠 → 非課税で持てる上限の行 → こどもNISAの600万円 */}
+        <GrowPath d="M520 1968 L1056 1974 L1048 2056 L494 2048 L502 1964 L540 1970" start={F(14.95)} kind="lineLong" color={RED} w={8} glow={false} />
+        <GrowPath d="M532 2438 L1044 2444 L1036 2550 L506 2542 L514 2434 L552 2440" start={F(15.9)} kind="lineLong" color={RED} w={9} glow={false} />
+        <GrowPath d="M268 2438 L514 2444 L506 2550 L242 2542 L250 2434 L288 2440" start={F(18.7)} kind="lineLong" color={RED} w={9} glow={false} />
       </svg>
       <Note x={60} y={TY + HH + RH * 4 + 26} t={19.0} w={960}>※こどもNISAは2027年1月から始まる予定の制度です。600万円は大人の1,800万円の中に含まれる予定です（別に増えるわけではありません）</Note>
     </>
