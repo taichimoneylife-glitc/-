@@ -1,6 +1,6 @@
 import React from "react";
-import { AbsoluteFill, Audio, Easing, interpolate, staticFile, useCurrentFrame } from "remotion";
-import { K, B, SER, M, F } from "./components/marke";
+import { AbsoluteFill, Audio, Easing, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { K, B, SER, M, F as F0 } from "./components/marke";
 import { GenSlot } from "./MileLifePlan";
 import { Stepper } from "./components/board";
 import { TypeIn } from "./components/zukaiKit";
@@ -9,6 +9,16 @@ import { TapCard } from "./components/tapCard";
 import { camAt, CamKey, motionBlur, titleSlam, GrowPath, cardIn, at } from "./components/flowKit";
 import { enter } from "./components/motionLib";
 import { KODOMO_MOUTH } from "./kodomoMouth";
+import { KODOMO_WARP } from "./kodomoWarp";
+
+// 1回目の録音の時刻（台本の目安）→ 今の音声（少し早口）の時刻へ。文字起こしの言葉をつき合わせて作った表で直線補間
+const W = (t: number) => {
+  const A = KODOMO_WARP;
+  let i = 0; while (i + 2 < A.length && t >= A[i + 1][0]) i++;
+  const [o0, n0] = A[i], [o1, n1] = A[i + 1];
+  return n0 + ((n1 - n0) * (t - o0)) / (o1 - o0);
+};
+const F = (t: number) => F0(W(t));
 
 // ════════════════════════════════════════════════════════════════════
 //  子どもNISA（声 public/kodomo-narration.wav 83.2秒・図解＋締め）台本：assets/script_kodomo_nisa.md v2
@@ -344,30 +354,37 @@ const S4: React.FC<{ f: number }> = ({ f }) => {
   );
 };
 
-// ── 締め（ガイド）──
+// ── 締め（ガイド）：特典の表紙＋後ろでスライドが流れる ──
 const Guide: React.FC<{ f: number }> = ({ f }) => {
   if (f < F(73.5)) return null;
   const inP = p01(f, F(73.5), F(73.5) + 12);
   const outP = p01(f, F(78.4), F(78.4) + 8, Easing.in(Easing.cubic));
-  const items: [string, number][] = [["概要", 75.1], ["注意点", 75.8], ["使い方", 76.6]];
+  const flip = p01(f, F(73.9), F(73.9) + 12, Easing.out(Easing.back(1.3)));
+  const items: [string, number][] = [["制度の基本", 75.1], ["注意点", 75.8], ["使い方", 76.6]];
   return (
-    <AbsoluteFill style={{ background: M.paper, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)`, clipPath: `circle(${inP * 1500}px at 540 700)`, transform: `translateY(${outP * -1900}px)` }}>
-      <div style={{ position: "absolute", left: 0, right: 0, top: 230, textAlign: "center", ...K, fontSize: 62 }}><Marker t={74.4}>ガイドにまとめました</Marker></div>
-      <div style={{ position: "absolute", left: 200, top: 400, width: 680, height: 780, background: "#fff", border: `8px solid ${INK}`, borderRadius: 26, boxShadow: `14px 14px 0 ${G}`, transform: `perspective(1400px) rotateY(${(1 - p01(f, F(73.8), F(74.5))) * -60}deg) rotate(-2deg)` }}>
-        <div style={{ background: G, color: "#fff", ...K, fontSize: 52, padding: "26px 30px", borderRadius: "16px 16px 0 0" }}>子どもNISA</div>
-        <div style={{ padding: "26px 36px" }}>
-          {items.map(([t, s]) => (
-            <div key={t} style={{ display: "flex", alignItems: "center", gap: 20, margin: "26px 0", ...enter(f, F(s), "slideL", "brake") }}>
-              <span style={{ width: 64, height: 64, borderRadius: 14, border: `6px solid ${G}`, display: "inline-flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 48, color: G }}>{f >= F(s) + 4 ? "✓" : ""}</span>
-              <span style={{ ...K, fontSize: 56 }}>{t}</span>
-            </div>
-          ))}
-        </div>
-        <div style={{ position: "absolute", right: -40, bottom: -60 }}><GenSlot name="kn_family_pc_rising" size={300} /></div>
+    <AbsoluteFill style={{ background: M.paper, clipPath: `circle(${inP * 1500}px at 540 700)`, transform: `translateY(${outP * -1900}px)` }}>
+      {/* 後ろ：中身のスライドが流れる（ぼかして暗めに） */}
+      <Sequence from={F(73.5)} layout="none">
+        <OffthreadVideo src={staticFile("cta_nisabond/slides.mp4")} muted playbackRate={1.4} style={{ position: "absolute", left: -60, top: -40, width: 1200, height: 1380, objectFit: "cover", filter: "blur(5px) brightness(0.9)", transform: `scale(${1.05 + 0.04 * p01(f, F(73.5), F(78.4), Easing.linear)})` }} />
+      </Sequence>
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(rgba(251,246,216,0.35), rgba(251,246,216,0.55) 60%, rgba(251,246,216,0.95) 70%)" }} />
+      <div style={{ position: "absolute", left: 0, right: 0, top: 200, textAlign: "center", ...K, fontSize: 60 }}><span style={{ background: "rgba(255,255,255,0.9)", padding: "6px 20px", borderRadius: 14 }}><Marker t={74.4}>ガイドにまとめました</Marker></span></div>
+      {/* 表紙：くるっと回って出る */}
+      <div style={{ position: "absolute", left: 60, top: 360, width: 960, transform: `perspective(1600px) rotateY(${(1 - flip) * -75}deg) rotate(${-2 * flip}deg) scale(${0.85 + 0.15 * flip})`, opacity: flip > 0.02 ? 1 : 0, boxShadow: "0 24px 50px rgba(60,45,10,0.35)", border: `8px solid #fff`, borderRadius: 18, overflow: "hidden" }}>
+        <Img2 />
+      </div>
+      <div style={{ position: "absolute", left: 640, top: 310, ...enter(f, F(74.6), "stamp", "kire") }}><span style={{ display: "inline-block", background: YEL, ...K, fontSize: 40, padding: "10px 24px", transform: "rotate(6deg)", boxShadow: "4px 6px 10px rgba(0,0,0,0.15)" }}>作りました！</span></div>
+      <div style={{ position: "absolute", left: 90, top: 950, display: "flex", gap: 22 }}>
+        {items.map(([t, s0]) => (
+          <div key={t} style={{ display: "flex", alignItems: "center", gap: 12, background: "#fff", border: `5px solid ${G}`, borderRadius: 16, padding: "10px 18px", boxShadow: `5px 5px 0 ${INK}`, ...enter(f, F(s0), "drop", "bounce") }}>
+            <span style={{ ...K, fontSize: 40, color: G }}>✓</span><span style={{ ...K, fontSize: 38 }}>{t}</span>
+          </div>
+        ))}
       </div>
     </AbsoluteFill>
   );
 };
+const Img2: React.FC = () => <img src={staticFile("cta_kodomo/cover.jpg")} style={{ width: "100%", display: "block" }} />;
 
 // ── 字幕（カラオケ式：話している所まで濃くなる。*緑* !赤! はマーカーつき）──
 const SUBS: [number, string][] = [
@@ -386,9 +403,16 @@ const SUBS: [number, string][] = [
   [73.6, "ということで 子どもNISAの概要や注意点"], [76.56, "使い方など *ガイド* にまとめました"], [78.5, "欲しい方は プロフのリンクから"], [80.3, "*公式LINE* を追加して"], [82.02, "ここから受け取ってください"],
 ];
 const END = 83.3;
+// 今の時刻 → 1回目の録音の時刻（字幕の表は1回目の時刻で書いてある）
+const W0 = (t: number) => {
+  const A = KODOMO_WARP;
+  let i = 0; while (i + 2 < A.length && t >= A[i + 1][1]) i++;
+  const [o0, n0] = A[i], [o1, n1] = A[i + 1];
+  return o0 + ((o1 - o0) * (t - n0)) / (n1 - n0);
+};
 const Karaoke: React.FC = () => {
   const f = useCurrentFrame();
-  const t = f / 30;
+  const t = W0(f / 30);
   let i = -1;
   SUBS.forEach(([s], k) => { if (t >= s) i = k; });
   if (i < 0 || t > END) return null;
@@ -467,14 +491,14 @@ export const KodomoReel: React.FC = () => {
       </div>
       {f >= F(78.4) ? <AbsoluteFill style={{ background: M.paper, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)` }} /> : null}
       <Guide f={f} />
-      <TapCard at={78.45} until={80.25} src="cta_nisabond/igprofile.jpg" iw={1178} ih={915} x={90} y={380} w={900} hit={[0.03, 0.9, 0.52, 0.085]} dimAt={78.8} tapAt={79.5} label={<>プロフの<span style={{ color: RED }}>リンク</span>から</>} labelAt={79.1} />
-      <TapCard at={80.3} until={81.95} src="cta_nisabond/links.jpg" iw={1179} ih={525} x={90} y={420} w={900} hit={[0.02, 0.03, 0.96, 0.3]} dimAt={80.5} tapAt={80.95} label={<><span style={{ color: "#06C755" }}>公式LINE</span>を追加して</>} labelAt={80.6} labelTop={900} labelLeft={150} />
-      <TapCard at={82.0} src="cta_nisabond/site.webp" iw={2000} ih={1349} x={90} y={400} w={900} hit={[0.34, 0.52, 0.32, 0.45]} dimAt={82.1} tapAt={82.4} label={<>ここから<span style={{ color: RED }}>受け取り</span></>} labelAt={82.2} labelTop={1050} labelLeft={110} rot={1} />
+      <TapCard at={W(78.45)} until={W(80.25)} src="cta_nisabond/igprofile.jpg" iw={1178} ih={915} x={90} y={380} w={900} hit={[0.03, 0.9, 0.52, 0.085]} dimAt={W(78.8)} tapAt={W(79.5)} label={<>プロフの<span style={{ color: RED }}>リンク</span>から</>} labelAt={W(79.1)} />
+      <TapCard at={W(80.3)} until={W(81.95)} src="cta_nisabond/links.jpg" iw={1179} ih={525} x={90} y={420} w={900} hit={[0.02, 0.03, 0.96, 0.3]} dimAt={W(80.5)} tapAt={W(80.95)} label={<><span style={{ color: "#06C755" }}>公式LINE</span>を追加して</>} labelAt={W(80.6)} labelTop={900} labelLeft={150} />
+      <TapCard at={W(82.0)} src="cta_nisabond/site.webp" iw={2000} ih={1349} x={90} y={400} w={900} hit={[0.34, 0.52, 0.32, 0.45]} dimAt={W(82.1)} tapAt={W(82.4)} label={<>ここから<span style={{ color: RED }}>受け取り</span></>} labelAt={W(82.2)} labelTop={1050} labelLeft={110} rot={1} />
       {/* 下：字幕の帯（ノートが透けないように） */}
       <div style={{ position: "absolute", left: 0, right: 0, top: 1340, bottom: 0, background: `linear-gradient(${M.paper}00, ${M.paper} 40px)` }} />
       <Karaoke />
       <div style={{ position: "absolute", left: 0, top: 0, transform: "scale(0.8)", transformOrigin: "0 1920px", opacity: f < F(73.4) ? 1 : 0 }}>
-        <Stepper labels={["結論", "概要", "デメリット", "教育資金", "使い方"]} steps={[0, 7.56, 23.28, 39.6, 54.3]} x={30} y={1690} color={G} />
+        <Stepper labels={["結論", "概要", "デメリット", "教育資金", "使い方"]} steps={[0, 7.56, 23.28, 39.6, 54.3].map(W)} x={30} y={1690} color={G} />
       </div>
       <Chara />
     </AbsoluteFill>
