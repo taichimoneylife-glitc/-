@@ -587,7 +587,7 @@ export const KodomoReel: React.FC = () => {
       <Guide f={f} />
       <TapCard at={W(78.45)} until={W(80.25)} src="cta_nisabond/igprofile.jpg" iw={1178} ih={915} x={90} y={380} w={900} hit={[0.03, 0.9, 0.52, 0.085]} dimAt={W(78.8)} tapAt={W(79.5)} label={<>プロフの<span style={{ color: RED }}>リンク</span>から</>} labelAt={W(79.1)} />
       <TapCard at={W(80.3)} until={W(81.95)} src="cta_nisabond/links.jpg" iw={1179} ih={525} x={90} y={420} w={900} hit={[0.02, 0.03, 0.96, 0.3]} dimAt={W(80.5)} tapAt={W(80.95)} label={<><span style={{ color: "#06C755" }}>公式LINE</span>を追加して</>} labelAt={W(80.6)} labelTop={900} labelLeft={150} />
-      <TapCard at={W(82.0)} src="cta_nisabond/site.webp" iw={2000} ih={1349} x={90} y={400} w={900} hit={[0.34, 0.52, 0.32, 0.45]} dimAt={W(82.1)} tapAt={W(82.4)} label={<>ここから<span style={{ color: RED }}>受け取り</span></>} labelAt={W(82.2)} labelTop={1050} labelLeft={110} rot={1} />
+      <TapCard at={W(82.0)} src="cta_kodomo/menu.jpg" iw={1179} ih={802} x={90} y={400} w={900} hit={[0.35, 0.83, 0.28, 0.1]} dimAt={W(82.1)} tapAt={W(82.4)} label={<><span style={{ color: RED }}>特典はこちら</span>から受け取り</>} labelAt={W(82.2)} labelTop={1050} labelLeft={110} rot={1} />
       {/* 下：字幕の帯（ノートが透けないように） */}
       <div style={{ position: "absolute", left: 0, right: 0, top: 1150, bottom: 0, background: `linear-gradient(${M.paper}00, ${M.paper} 50px)` }} />
       <Karaoke />
