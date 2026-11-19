@@ -1,6 +1,18 @@
 {
   "_説明": "Gitに上げない個人の素材（声・特典の画像・完成動画）の置き場所。中身はたいちさんのGoogleドライブ『zukai-reel 素材バックアップ（非公開）』にある。作業環境がリセットされたら、この表の driveId を Google Drive の download_file_content で取り戻して path に置く（sha256 で確認）。",
   "driveFolderId": "1_RT1DUYMEvuYKYnZJXvs67_34gw-ikys",
-  "files": [],
-  "videoFolderId": "1YRMr_DnjNc8VNok01QmqExC4jZ601xFd"
+  "files": [
+    {
+      "path": "public/koshin-narration.wav",
+      "sha256": "7d62b9d4271c02cbca38a78dbc8a35701b3145d22fd6810741db2d33ee45000b",
+      "bytes": 6361836,
+      "parts": [
+        "16YT9-aopMUKbhtT3uNsfFBq4e3r2Xxg9",
+        "1YS0N1LtTmXLR4a2uUbPBWLhUXGrT2aaL",
+        "1thL6U5KR45ZrVOx5o4cRfop3DG9RI_2q"
+      ]
+    }
+  ],
+  "videoFolderId": "1YRMr_DnjNc8VNok01QmqExC4jZ601xFd",
+  "_分け方": "約3MBを超える物は 2,900,000 バイトずつに分けて保存（part0, part1…）。取り戻したら順番に cat でつなぎ、sha256 で確認する。"
 }

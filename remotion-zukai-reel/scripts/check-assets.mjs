@@ -17,7 +17,7 @@ if (process.argv[2] === "--add") {
   if (!miss.length) console.log("✓ 個人の素材はすべて手元にあります（" + m.files.length + "件）");
   else {
     console.log("⚠ 手元に無い素材：" + miss.length + "件（Google Drive から取り戻す）");
-    for (const x of miss) console.log(`  ${x.path}  driveId=${x.driveId}`);
+    for (const x of miss) console.log(x.parts ? `  ${x.path}  分割 ${x.parts.length}個（順につなぐ）: ${x.parts.join(" ")}` : `  ${x.path}  driveId=${x.driveId}`);
   }
   if (!fs.existsSync("node_modules")) console.log("⚠ node_modules がありません → npm ci");
 }
