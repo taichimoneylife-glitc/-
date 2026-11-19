@@ -269,9 +269,9 @@ const S2: React.FC<{ f: number }> = ({ f }) => {
         const x = 80 + i * 235;
         return (
           <React.Fragment key={age}>
-            {f >= F(t) ? <div style={{ position: "absolute", left: x, top: BASE - h * g, width: 200, height: h * g, background: i === 3 ? RED : O, border: `5px solid ${INK}`, borderRadius: 12, boxShadow: `6px 6px 0 ${INK}`, opacity: i < 3 ? 1 - 0.55 * dim : 1 }} /> : null}
+            {f >= F(t) ? <div style={{ position: "absolute", left: x, top: BASE - h * g, width: 200, height: h * g, background: i === 3 ? RED : O, border: `5px solid ${INK}`, borderRadius: 12, boxShadow: `6px 6px 0 ${INK}`, opacity: i < 3 ? 1 - 0.55 * dim : 1, zIndex: i === 3 ? 9 : undefined }} /> : null}
             <div style={{ position: "absolute", left: x - 30, top: BASE - Number(v) * PX - 330, width: 260, opacity: i < 3 ? 1 - dim : 1 - p01(f, F(23.0), F(23.4)), ...enter(f, F(t) + 2, "drop", "bounce") }}><AgeMan age={age} size={250} /></div>
-            <Pos x={x} y={BASE - h - 80} t={t + 0.15} pat="pop" tempo="bounce"><span style={{ display: "inline-block", width: 200, textAlign: "center", ...SER, fontSize: i === 3 ? 62 : 52, color: i === 3 ? RED : INK }}>{i === 3 && f >= dad ? "8" : f >= F(t) + 4 ? <Roll t={t + 0.13} text={v} dur={8} /> : null}<span style={{ ...K, fontSize: 26 }}>{i === 3 && f >= dad ? "万円超え" : "万円"}</span></span></Pos>
+            <Pos x={x} y={BASE - h - 80} t={t + 0.15} pat="pop" tempo="bounce" style={{ zIndex: i === 3 ? 9 : undefined }}><span style={{ display: "inline-block", width: 200, textAlign: "center", ...SER, fontSize: i === 3 ? 62 : 52, color: i === 3 ? RED : INK }}>{i === 3 && f >= dad ? "8" : f >= F(t) + 4 ? <Roll t={t + 0.13} text={v} dur={8} /> : null}<span style={{ ...K, fontSize: 26 }}>{i === 3 && f >= dad ? "万円超え" : "万円"}</span></span></Pos>
             <Pos x={x + 40} y={BASE + 14} t={t} pat="pop" tempo="kire"><span style={{ ...K, fontSize: 36 }}>{age}歳</span></Pos>
             {mul ? <Pos x={x - 60} y={BASE - Number(v) * PX - 140} t={t + 0.5} pat="stamp" tempo="kire" style={{ opacity: 1 - dim }}><span style={{ display: "inline-block", background: "#fff", border: `4px solid ${RED}`, color: RED, borderRadius: 12, padding: "2px 10px", ...K, fontSize: 28, transform: "rotate(-8deg)" }}>{mul}</span></Pos> : null}
           </React.Fragment>
@@ -279,12 +279,14 @@ const S2: React.FC<{ f: number }> = ({ f }) => {
       })}
       <GlowBox box={[778, BASE - 6.2 * PX - 90, 1000, BASE + 4]} start={F(21.6)} end={F(22.8)} />
       {/* 父の実話（グラフの左に入ってくる） */}
-      <Img name="kh_father_shock" x={50} y={3260} size={340} t={23.2} pat="slideL" tempo="brake" />
-      <Pos x={60} y={3190} t={23.6} pat="pop" tempo="bounce"><Chip c={INK} size={36}>実は 僕の父も…</Chip></Pos>
-      <Pos x={400} y={3330} t={25.4} pat="slideUp" tempo="brake"><span style={{ ...K, fontSize: 34, color: M.sub }}>更新型の保険で<br />毎月の保険料が…</span></Pos>
+      {/* 父の話の間は、まわりを少し暗くして、父の絵・札・60歳の棒だけ明るく */}
+      {f >= F(23.0) && f < F(28.8) ? <div style={{ position: "absolute", left: -1200, top: 1600, width: 3480, height: 3200, background: "rgba(40,30,10,0.5)", opacity: interpolate(f, [F(23.0), F(23.0) + 8, F(28.4), F(28.4) + 8], [0, 1, 1, 0], clamp), zIndex: 8, pointerEvents: "none" }} /> : null}
+      <Img name="kh_father_shock" x={50} y={3260} size={340} t={23.2} pat="slideL" tempo="brake" style={{ zIndex: 9 }} />
+      <Pos x={60} y={3190} t={23.6} pat="pop" tempo="bounce" style={{ zIndex: 9 }}><Chip c={INK} size={36}>実は 僕の父も…</Chip></Pos>
+      <Pos x={400} y={3330} t={25.4} pat="slideUp" tempo="brake" style={{ zIndex: 9 }}><span style={{ display: "inline-block", background: "#fff", borderRadius: 14, padding: "6px 14px", ...K, fontSize: 34, color: INK }}>更新型の保険で<br />毎月の保険料が…</span></Pos>
       {/* 枠を突き破る：ヒビと破片 */}
       {f >= dad ? (
-        <svg width={1080} height={4000} style={{ position: "absolute", inset: 0, overflow: "visible", pointerEvents: "none" }}>
+        <svg width={1080} height={4000} style={{ position: "absolute", inset: 0, overflow: "visible", pointerEvents: "none", zIndex: 9 }}>
           {[[-60, -40], [-30, -70], [10, -80], [50, -50], [80, -20]].map(([dx, dy], i) => (
             <line key={i} x1={890} y1={FRAME_TOP} x2={890 + dx * crash} y2={FRAME_TOP + dy * crash} stroke={INK} strokeWidth={5} strokeLinecap="round" />
           ))}
@@ -295,8 +297,7 @@ const S2: React.FC<{ f: number }> = ({ f }) => {
           })}
         </svg>
       ) : null}
-      <Burst t={27.25} x={890} y={FRAME_TOP} c={RED} r={240} n={16} />
-      <Stamp x={300} y={3010} t={27.45} size={64}>父は 月8万円超え</Stamp>
+      <div style={{ position: "absolute", left: 0, top: 0, zIndex: 9 }}><Burst t={27.25} x={890} y={FRAME_TOP} c={RED} r={240} n={16} /><Stamp x={300} y={3010} t={27.45} size={64}>父は 月8万円超え</Stamp></div>
     </>
   );
 };
