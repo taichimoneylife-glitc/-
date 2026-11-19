@@ -67,14 +67,19 @@ const Burst: React.FC<{ t: number; x: number; y: number; c?: string; r?: number;
 };
 const Img: React.FC<{ name: string; x: number; y: number; size: number; t: number; pat?: Parameters<typeof enter>[2]; tempo?: Parameters<typeof enter>[3]; style?: React.CSSProperties }> = ({ name, x, y, size, t, pat = "pop", tempo = "std", style }) => {
   const f = useCurrentFrame();
-  return <div style={{ position: "absolute", left: x, top: y, ...enter(f, F(t), pat, tempo), ...style }}><GenSlot name={name} size={size} /></div>;
+  const alive = /^k[hn]_(man|father|hospital|elderly|long|couple|umbrella|review|kid|parent|family|child|teen)/.test(name);
+  const k = f - F(t) - 10;
+  const br = alive && k > 0 ? Math.sin(k / 11) : 0; // 出ている間ずっと小さく呼吸
+  return <div style={{ position: "absolute", left: x, top: y, ...enter(f, F(t), pat, tempo), ...style }}><div style={{ transform: `scale(${1 + 0.012 * br}, ${1 - 0.012 * br})`, transformOrigin: "50% 100%" }}><GenSlot name={name} size={size} /></div></div>;
 };
 const Chip: React.FC<{ c?: string; children: React.ReactNode; size?: number; bg?: string }> = ({ c = RED, children, size = 38, bg = "#fff" }) => (
   <span style={{ display: "inline-block", background: bg, border: `5px solid ${c}`, borderRadius: 16, padding: "8px 22px", ...K, fontSize: size, color: INK, boxShadow: `5px 5px 0 ${INK}`, whiteSpace: "nowrap" }}>{children}</span>
 );
 const Pos: React.FC<{ x: number; y: number; t: number; pat?: Parameters<typeof enter>[2]; tempo?: Parameters<typeof enter>[3]; children: React.ReactNode; style?: React.CSSProperties }> = ({ x, y, t, pat = "pop", tempo = "std", children, style }) => {
   const f = useCurrentFrame();
-  return <div style={{ position: "absolute", left: x, top: y, ...enter(f, F(t), pat, tempo), ...style }}>{children}</div>;
+  const e = enter(f, F(t), pat, tempo);
+  const op = (e.opacity === undefined ? 1 : Number(e.opacity)) * (style?.opacity === undefined ? 1 : Number(style.opacity));
+  return <div style={{ position: "absolute", left: x, top: y, ...e, ...style, opacity: op }}>{children}</div>;
 };
 const Stamp: React.FC<{ x: number; y: number; t: number; c?: string; size?: number; rot?: number; children: React.ReactNode }> = ({ x, y, t, c = RED, size = 54, rot = -6, children }) => (
   <Pos x={x} y={y} t={t} pat="stamp" tempo="kire"><span style={{ display: "inline-block", border: `8px solid ${c}`, color: c, background: "rgba(255,255,255,0.95)", borderRadius: 18, padding: "6px 28px", ...K, fontSize: size, transform: `rotate(${rot}deg)`, whiteSpace: "nowrap" }}>{children}</span></Pos>
@@ -117,8 +122,10 @@ const AgeMan: React.FC<{ age: number; size: number }> = ({ age, size }) => {
   let i = 0; while (i + 1 < MEN.length - 1 && a >= MEN[i + 1][0]) i++;
   const k = Math.min(1, Math.max(0, (a - MEN[i][0]) / 10));
   const mix = k < 0.6 ? 0 : (k - 0.6) / 0.4; // 年齢の区切りの手前で一気に入れ替わる
+  const f = useCurrentFrame();
+  const br = Math.sin(f / 11);
   return (
-    <div style={{ position: "relative", width: size, height: size }}>
+    <div style={{ position: "relative", width: size, height: size, transform: `scale(${1 + 0.012 * br}, ${1 - 0.012 * br})`, transformOrigin: "50% 100%" }}>
       <div style={{ position: "absolute", inset: 0, opacity: 1 - mix }}><GenSlot name={MEN[i][1]} size={size} /></div>
       {i + 1 < MEN.length ? <div style={{ position: "absolute", inset: 0, opacity: mix }}><GenSlot name={MEN[i + 1][1]} size={size} /></div> : null}
     </div>
@@ -297,7 +304,7 @@ const S2: React.FC<{ f: number }> = ({ f }) => {
           })}
         </svg>
       ) : null}
-      <div style={{ position: "absolute", left: 0, top: 0, zIndex: 9 }}><Burst t={27.25} x={890} y={FRAME_TOP} c={RED} r={240} n={16} /><Stamp x={300} y={3010} t={27.45} size={64}>父は 月8万円超え</Stamp></div>
+      <div style={{ position: "absolute", left: 0, top: 0, zIndex: 9 }}><Burst t={27.25} x={890} y={FRAME_TOP} c={RED} r={240} n={16} /></div>
     </>
   );
 };
@@ -343,7 +350,7 @@ const S3: React.FC<{ f: number }> = ({ f }) => {
 
 // ── ③ 決まった年齢で終わる：保障の「橋」が崩れる ──
 const BANDS: [string, number, number][] = [["死亡保障", 80, 39.6], ["三大疾病", 80, 39.9], ["入院", 70, 40.2], ["介護", 70, 40.5]];
-const SY = 5780, RH2 = 112;
+const SY = 5880, RH2 = 112;
 const S4: React.FC<{ f: number }> = ({ f }) => {
   const end80 = F(41.82), end70 = F(43.36);
   const walk = p01(f, F(39.2), F(45.6), Easing.linear);
@@ -384,7 +391,7 @@ const S4: React.FC<{ f: number }> = ({ f }) => {
         const cross = F(39.2) + (50 / 58) * (F(45.6) - F(39.2)); // 80歳に着く時
         const d = Math.max(0, f - cross);
         const ax = age > 80 ? AX(80) + d * 4 : AX(age);
-        return <div style={{ position: "absolute", left: ax - 80, top: SY + 18 - 160 + (d > 0 ? 0.8 * d * d : Math.abs(Math.sin(f / 3)) * -8), transform: `rotate(${d * 6}deg)`, opacity: Math.max(0, 1 - d / 26), zIndex: 5 }}><AgeMan age={Math.min(age, 80)} size={160} />{d > 0 ? <span style={{ position: "absolute", left: 120, top: -10, ...K, fontSize: 56, color: RED }}>!?</span> : null}</div>;
+        return <div style={{ position: "absolute", left: ax - 80, top: SY + 18 - 160 + (d > 0 ? 0.8 * d * d : Math.abs(Math.sin(f / 3)) * -8), transform: `rotate(${d * 6}deg)`, opacity: Math.max(0, 1 - d / 26), zIndex: 5 }}><AgeMan age={Math.min(age, 80)} size={150} />{d > 0 ? <span style={{ position: "absolute", left: 120, top: -10, ...K, fontSize: 56, color: RED }}>!?</span> : null}</div>;
       })() : null}
       <GlowBox box={[AX(30) - 8, SY + 8, AX(80) + 8, SY + RH2 * 2 - 2]} start={end80 - 4} end={F(43.2)} />
       <GlowBox box={[AX(30) - 8, SY + RH2 * 2 + 8, AX(70) + 8, SY + RH2 * 4 - 2]} start={end70 - 4} end={F(45.0)} />
@@ -442,6 +449,47 @@ const S5: React.FC<{ f: number }> = ({ f }) => {
       <Stamp x={560} y={7880} t={63.8} c={G} size={62}>アップデート</Stamp>
       <Burst t={63.8} x={760} y={7930} c={G} r={240} n={16} />
     </>
+  );
+};
+
+// ── 見せ場カット：画面全体を1つの物が占める（暗転＋叩きつける数字／光が横切る）──
+const HeroCut: React.FC<{ t0: number; t1: number; bg?: string; children: React.ReactNode; sweep?: boolean }> = ({ t0, t1, bg = INK, children, sweep }) => {
+  const f = useCurrentFrame();
+  if (f < F(t0) || f > F(t1) + 6) return null;
+  const k = f - F(t0);
+  const inP = p01(f, F(t0), F(t0) + 4, Easing.out(Easing.cubic));
+  const out = p01(f, F(t1), F(t1) + 6, Easing.in(Easing.cubic));
+  const slam = at([1.7, 1.25, 0.96, 1.03, 1], k);
+  if (sweep) {
+    const x = interpolate(f, [F(t0), F(t1) + 6], [-1300, 1300], clamp);
+    return (
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+        <div style={{ position: "absolute", left: x, top: 380, width: 1400, height: 420, background: `linear-gradient(90deg, ${G}00, ${G}EE 30%, ${G}EE 70%, ${G}00)`, transform: "skewY(-8deg)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 80px ${G}` }}>{children}</div>
+      </div>
+    );
+  }
+  return (
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 1 - out }}>
+      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 50% 38%, ${bg}F0 0%, ${bg}FA 55%, #000 100%)`, opacity: inP }} />
+      <svg width={1080} height={1920} style={{ position: "absolute", inset: 0, opacity: 0.35 * inP }}>
+        {Array.from({ length: 28 }).map((_, i) => { const a = (i / 28) * Math.PI * 2; const r0 = 420 + ((i * 53) % 90) + k * 10; return <line key={i} x1={540 + Math.cos(a) * r0} y1={720 + Math.sin(a) * r0} x2={540 + Math.cos(a) * (r0 + 500)} y2={720 + Math.sin(a) * (r0 + 500)} stroke="#fff" strokeWidth={6} />; })}
+      </svg>
+      <div style={{ position: "absolute", left: 40, width: 880, top: 300, height: 840, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: `scale(${slam}) translateY(${-out * 60}px)`, filter: k < 3 ? `blur(${(3 - k) * 3}px)` : undefined }}>{children}</div>
+    </div>
+  );
+};
+// 手前の小物：カメラより速く動く（ぼかし）＝奥行き
+const PROPS: [number, number, string, number][] = [[10, 900, "kn_coin", 110], [960, 1700, "kh_renewal_notice", 140], [0, 2700, "kn_coin", 90], [980, 3500, "kn_coin", 120], [20, 4500, "kh_policy_doc", 130], [970, 5400, "kn_coin", 100], [10, 6300, "kh_hourglass", 120], [975, 7200, "kn_coin", 110], [15, 8000, "kh_renewal_notice", 130]];
+const Foreground: React.FC<{ c: { x: number; y: number; z: number } }> = ({ c }) => {
+  const P = 1.45;
+  return (
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+      {PROPS.map(([x, y, n, sz], i) => {
+        const sy = 960 + (y - c.y) * c.z * P;
+        if (sy < -300 || sy > 2200) return null;
+        return <div key={i} style={{ position: "absolute", left: x - sz / 2, top: sy, opacity: 0.5, filter: "blur(5px)", transform: `rotate(${(i % 2 ? 1 : -1) * 18}deg)` }}><GenSlot name={n} size={sz} /></div>;
+      })}
+    </div>
   );
 };
 
@@ -512,7 +560,7 @@ const CAM: CamKey[] = [
   ck(12.9, 540, 3300, 1, "marke"),           // 保険料の階段
   ck(28.3, 540, 4900, 1, "marke"),           // 保障が減る
   ck(34.0, 1620, 4900, 1, "side"),           // 横へすべって「足りない分」
-  ck(36.6, 540, 6000, 1, "marke"),           // 年齢で終わる（橋）
+  ck(36.6, 540, 6060, 1, "marke"),           // 年齢で終わる（橋）
   ck(47.3, 540, 4300, 0.24, "zoomOut"),      // ノート全体＝全体像
   ck(49.2, 540, 7060, 1, "marke"),           // 僕の考え
   ck(56.6, 540, 7400, 1, "slide"),           // 2本の道＋下
@@ -528,6 +576,7 @@ const shakeAt = (f: number) => {
 // 効果音（u01〜u10 のみ・最初の1秒には置かない）
 const s = (file: string, t: number, volume = 0.22) => ({ file: `user/${file}`, at: F(t), volume });
 const CUES = [
+  s("u10", 21.6, 0.2), s("u04", 21.95, 0.3), s("u10", 27.3, 0.18), s("u04", 27.6, 0.32), s("u10", 45.7, 0.2), s("u04", 46.05, 0.3), s("u03s", 60.6, 0.22),
   s("u04", 1.05, 0.22), s("u03s", 1.55, 0.16), s("u06", 2.2, 0.16), s("u02s", 3.1, 0.14), s("u03", 3.55, 0.12), s("u03", 4.15, 0.12), s("u03", 4.75, 0.12),
   s("u03s", 5.1, 0.18), s("u05s", 6.4, 0.16), s("u05s", 8.8, 0.18),
   s("u03s", 9.9, 0.18), s("u04", 11.74, 0.26), s("u02s", 11.95, 0.14), s("u02s", 12.1, 0.14), s("u02s", 12.25, 0.14),
@@ -553,9 +602,10 @@ export const KoshinReel: React.FC = () => {
       <Audio src={staticFile("koshin-narration.wav")} />
       <SfxTrack cues={CUES} />
       <div style={{ position: "absolute", left: SAFE_X, top: SAFE_Y, width: 1080, height: 1920, transform: `scale(${SAFE})`, transformOrigin: "0 0", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, transform: `scale(${1 + punch})`, transformOrigin: "540px 700px" }}>
+        <div style={{ position: "absolute", inset: 0, transform: `scale(${1 + punch}) rotate(${-Math.min(1.2, c.v / 260)}deg)`, transformOrigin: "540px 700px" }}>
           <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 9000, transform: `translate(${540 - c.x * c.z + sh.x + drift}px, ${960 - c.y * c.z + sh.y}px) scale(${c.z})`, transformOrigin: "0 0", filter: blur ? `blur(${blur}px)` : undefined }}>
             <div style={{ position: "absolute", left: -2000, top: -600, width: 5200, height: 10000, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)` }} />
+            <div style={{ position: "absolute", left: -2000, top: -600, width: 5200, height: 10000, backgroundImage: "radial-gradient(rgba(120,90,40,0.07) 1px, transparent 1.6px)", backgroundSize: "7px 7px" }} />
             <div style={{ position: "absolute", left: 60, top: -600, width: 4, height: 10000, background: "rgba(239,125,87,0.35)" }} />
             {f < F(14) || (f > F(47) && f < F(50)) ? <S0 f={f} /> : null}
             {(f > F(4.5) && f < F(16)) || (f > F(47) && f < F(50)) ? <S0b f={f} /> : null}
@@ -565,11 +615,18 @@ export const KoshinReel: React.FC = () => {
             {f > F(35) && f < F(58) ? <S4 f={f} /> : null}
             {f > F(48) ? <S5 f={f} /> : null}
           </div>
+          <Foreground c={c} />
         </div>
+        {/* 画面の端を少し暗く */}
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0) 58%, rgba(70,50,15,0.16) 100%)", pointerEvents: "none" }} />
       </div>
       <div style={{ position: "absolute", left: 0, right: 0, top: 1150, bottom: 0, background: `linear-gradient(${M.paper}00, ${M.paper} 50px)` }} />
       {/* 全体像：ノート全体まで引いた時の見出し（画面に直接） */}
       {f >= F(47.6) && f < F(49.4) ? <div style={{ position: "absolute", left: 0, width: 880, top: 520, display: "flex", justifyContent: "center", ...enter(f, F(47.65), "stamp", "kire"), opacity: 1 - p01(f, F(49.1), F(49.4)) }}><span style={{ display: "inline-block", background: "#fff", border: `8px solid ${INK}`, borderRadius: 20, padding: "14px 30px", ...K, fontSize: 56, boxShadow: `10px 10px 0 ${O}` }}>これが <span style={{ color: O }}>更新型保険</span> の全体像</span></div> : null}
+      <HeroCut t0={21.95} t1={22.7}><div style={{ ...K, fontSize: 64, color: "#fff" }}>60歳で</div><div style={{ ...SER, fontSize: 230, color: "#FF6B5B", lineHeight: 1 }}>6.2<span style={{ ...K, fontSize: 90 }}>万円</span></div><div style={{ ...K, fontSize: 52, color: "#FFE15A" }}>毎月　30歳の約6倍</div></HeroCut>
+      <HeroCut t0={27.6} t1={28.3}><div style={{ ...K, fontSize: 64, color: "#fff" }}>僕の父は 毎月</div><div style={{ ...SER, fontSize: 250, color: "#FF6B5B", lineHeight: 1 }}>8<span style={{ ...K, fontSize: 100 }}>万円超え</span></div></HeroCut>
+      <HeroCut t0={46.05} t1={46.9} bg="#3A0F0B"><div style={{ ...K, fontSize: 64, color: "#fff" }}>ここから先は</div><div style={{ ...K, fontSize: 180, color: "#FF6B5B", lineHeight: 1.05 }}>保障なし</div></HeroCut>
+      <HeroCut t0={60.6} t1={61.5} sweep><span style={{ ...K, fontSize: 100, color: "#fff", textShadow: "0 6px 20px rgba(0,0,0,0.3)" }}>一生涯つづく 終身</span></HeroCut>
       <Karaoke />
       <div style={{ position: "absolute", left: 0, top: 0, transform: "scale(0.55)", transformOrigin: "0 0" }}>
         <Stepper labels={["仕組み", "保険料", "保障", "年齢", "僕の考え"]} steps={[0, 13.18, 28.6, 36.86, 49.56]} x={73} y={2490} color={O} />
