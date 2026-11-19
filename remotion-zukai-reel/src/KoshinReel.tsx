@@ -576,7 +576,7 @@ const shakeAt = (f: number) => {
 // 効果音（u01〜u10 のみ・最初の1秒には置かない）
 const s = (file: string, t: number, volume = 0.22) => ({ file: `user/${file}`, at: F(t), volume });
 const CUES = [
-  s("u10", 21.6, 0.2), s("u04", 21.95, 0.3), s("u10", 27.3, 0.18), s("u04", 27.6, 0.32), s("u10", 45.7, 0.2), s("u04", 46.05, 0.3), s("u03s", 60.6, 0.22),
+  s("u10", 21.6, 0.2), s("u04", 21.95, 0.3), s("u10", 27.3, 0.18), s("u04", 27.6, 0.32), s("u03s", 60.6, 0.22),
   s("u04", 1.05, 0.22), s("u03s", 1.55, 0.16), s("u06", 2.2, 0.16), s("u02s", 3.1, 0.14), s("u03", 3.55, 0.12), s("u03", 4.15, 0.12), s("u03", 4.75, 0.12),
   s("u03s", 5.1, 0.18), s("u05s", 6.4, 0.16), s("u05s", 8.8, 0.18),
   s("u03s", 9.9, 0.18), s("u04", 11.74, 0.26), s("u02s", 11.95, 0.14), s("u02s", 12.1, 0.14), s("u02s", 12.25, 0.14),
@@ -615,7 +615,6 @@ export const KoshinReel: React.FC = () => {
             {f > F(35) && f < F(58) ? <S4 f={f} /> : null}
             {f > F(48) ? <S5 f={f} /> : null}
           </div>
-          <Foreground c={c} />
         </div>
         {/* 画面の端を少し暗く */}
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0) 58%, rgba(70,50,15,0.16) 100%)", pointerEvents: "none" }} />
@@ -625,7 +624,6 @@ export const KoshinReel: React.FC = () => {
       {f >= F(47.6) && f < F(49.4) ? <div style={{ position: "absolute", left: 0, width: 880, top: 520, display: "flex", justifyContent: "center", ...enter(f, F(47.65), "stamp", "kire"), opacity: 1 - p01(f, F(49.1), F(49.4)) }}><span style={{ display: "inline-block", background: "#fff", border: `8px solid ${INK}`, borderRadius: 20, padding: "14px 30px", ...K, fontSize: 56, boxShadow: `10px 10px 0 ${O}` }}>これが <span style={{ color: O }}>更新型保険</span> の全体像</span></div> : null}
       <HeroCut t0={21.95} t1={22.7}><div style={{ ...K, fontSize: 64, color: "#fff" }}>60歳で</div><div style={{ ...SER, fontSize: 230, color: "#FF6B5B", lineHeight: 1 }}>6.2<span style={{ ...K, fontSize: 90 }}>万円</span></div><div style={{ ...K, fontSize: 52, color: "#FFE15A" }}>毎月　30歳の約6倍</div></HeroCut>
       <HeroCut t0={27.6} t1={28.3}><div style={{ ...K, fontSize: 64, color: "#fff" }}>僕の父は 毎月</div><div style={{ ...SER, fontSize: 250, color: "#FF6B5B", lineHeight: 1 }}>8<span style={{ ...K, fontSize: 100 }}>万円超え</span></div></HeroCut>
-      <HeroCut t0={46.05} t1={46.9} bg="#3A0F0B"><div style={{ ...K, fontSize: 64, color: "#fff" }}>ここから先は</div><div style={{ ...K, fontSize: 180, color: "#FF6B5B", lineHeight: 1.05 }}>保障なし</div></HeroCut>
       <HeroCut t0={60.6} t1={61.5} sweep><span style={{ ...K, fontSize: 100, color: "#fff", textShadow: "0 6px 20px rgba(0,0,0,0.3)" }}>一生涯つづく 終身</span></HeroCut>
       <Karaoke />
       <div style={{ position: "absolute", left: 0, top: 0, transform: "scale(0.55)", transformOrigin: "0 0" }}>
