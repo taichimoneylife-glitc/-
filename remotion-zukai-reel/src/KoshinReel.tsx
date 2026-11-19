@@ -8,6 +8,7 @@ import { SfxTrack } from "./components/sfx";
 import { camAt, CamKey, motionBlur, GrowPath, cardIn, at } from "./components/flowKit";
 import { enter } from "./components/motionLib";
 import { KOSHIN_MOUTH } from "./koshinMouth";
+import { EndNote, END_NOTE_SEC } from "./components/disclaimer";
 
 // ════════════════════════════════════════════════════════════════════
 //  更新型保険（声 public/koshin-narration.wav 66.3秒・図解パートのみ。冒頭と締めは実写トーク）台本：assets/script_koshin_hoken.md
@@ -589,7 +590,7 @@ const CUES = [
 ];
 
 const SAFE = 0.86, SAFE_X = 40, SAFE_Y = 120;
-export const KOSHIN_REEL_FRAMES = F(66.4);
+export const KOSHIN_REEL_FRAMES = F(66.3 + END_NOTE_SEC);
 export const KoshinReel: React.FC = () => {
   const f = useCurrentFrame();
   const c = camAt(CAM, f);
@@ -630,6 +631,7 @@ export const KoshinReel: React.FC = () => {
         <Stepper labels={["仕組み", "保険料", "保障", "年齢", "僕の考え"]} steps={[0, 13.18, 28.6, 36.86, 49.56]} x={73} y={2490} color={O} />
       </div>
       <Chara />
+      <EndNote at={66.3} lines={["保険料・倍率・保障が終わる年齢は\n年齢・性別・保障額・保険会社・商品で違います", "全員が同じように上がるわけではありません", "ご自身の保険は\n保険証券や保険会社でご確認ください"]} />
     </AbsoluteFill>
   );
 };
