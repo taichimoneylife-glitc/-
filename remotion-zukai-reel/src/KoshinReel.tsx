@@ -558,7 +558,7 @@ const CAM: CamKey[] = [
   ck(5.1, 540, 1780, 1, "marke"),            // 年齢スライダー
   ck(9.9, 540, 2420, 1, "marke"),            // デメリット3つ
   ck(12.9, 540, 3300, 1, "marke"),           // 保険料の階段
-  ck(28.3, 540, 4900, 1, "marke"),           // 保障が減る
+  ck(28.5, 540, 4900, 1, "marke"),           // 保障が減る
   ck(34.0, 1620, 4900, 1, "side"),           // 横へすべって「足りない分」
   ck(36.6, 540, 6060, 1, "marke"),           // 年齢で終わる（橋）
   ck(47.3, 540, 4300, 0.24, "zoomOut"),      // ノート全体＝全体像
@@ -622,8 +622,8 @@ export const KoshinReel: React.FC = () => {
       <div style={{ position: "absolute", left: 0, right: 0, top: 1150, bottom: 0, background: `linear-gradient(${M.paper}00, ${M.paper} 50px)` }} />
       {/* 全体像：ノート全体まで引いた時の見出し（画面に直接） */}
       {f >= F(47.6) && f < F(49.4) ? <div style={{ position: "absolute", left: 0, width: 880, top: 520, display: "flex", justifyContent: "center", ...enter(f, F(47.65), "stamp", "kire"), opacity: 1 - p01(f, F(49.1), F(49.4)) }}><span style={{ display: "inline-block", background: "#fff", border: `8px solid ${INK}`, borderRadius: 20, padding: "14px 30px", ...K, fontSize: 56, boxShadow: `10px 10px 0 ${O}` }}>これが <span style={{ color: O }}>更新型保険</span> の全体像</span></div> : null}
-      <HeroCut t0={21.95} t1={22.7}><div style={{ ...K, fontSize: 64, color: "#fff" }}>60歳で</div><div style={{ ...SER, fontSize: 230, color: "#FF6B5B", lineHeight: 1 }}>6.2<span style={{ ...K, fontSize: 90 }}>万円</span></div><div style={{ ...K, fontSize: 52, color: "#FFE15A" }}>毎月　30歳の約6倍</div></HeroCut>
-      <HeroCut t0={27.6} t1={28.3}><div style={{ ...K, fontSize: 64, color: "#fff" }}>僕の父は 毎月</div><div style={{ ...SER, fontSize: 250, color: "#FF6B5B", lineHeight: 1 }}>8<span style={{ ...K, fontSize: 100 }}>万円超え</span></div></HeroCut>
+      <HeroCut t0={21.95} t1={23.3}><div style={{ ...K, fontSize: 70, color: "#fff" }}>60歳で</div><div style={{ ...SER, fontSize: 210, color: "#FF6B5B", lineHeight: 1 }}><span style={{ ...K, fontSize: 90 }}>月</span>6.2<span style={{ ...K, fontSize: 90 }}>万円</span></div><div style={{ marginTop: 44, background: "rgba(255,255,255,0.95)", borderRadius: 18, padding: "14px 26px", textAlign: "center" }}><div style={{ ...K, fontSize: 38, color: RED }}>※全員がこうなるわけではありません</div><div style={{ ...K, fontSize: 28, color: INK, marginTop: 4 }}>年齢・性別・保障額・保険会社・商品によって違います</div></div></HeroCut>
+      <HeroCut t0={27.6} t1={28.5}><div style={{ ...K, fontSize: 70, color: "#fff" }}>僕の父は</div><div style={{ ...SER, fontSize: 200, color: "#FF6B5B", lineHeight: 1 }}><span style={{ ...K, fontSize: 86 }}>毎月</span>8<span style={{ ...K, fontSize: 86 }}>万円超え</span></div><div style={{ marginTop: 44, background: "rgba(255,255,255,0.95)", borderRadius: 18, padding: "14px 26px", textAlign: "center" }}><div style={{ ...K, fontSize: 38, color: RED }}>※僕の父の場合です</div><div style={{ ...K, fontSize: 28, color: INK, marginTop: 4 }}>全員がこうなるわけではありません</div></div></HeroCut>
       <HeroCut t0={60.6} t1={61.5} sweep><span style={{ ...K, fontSize: 100, color: "#fff", textShadow: "0 6px 20px rgba(0,0,0,0.3)" }}>一生涯つづく 終身</span></HeroCut>
       <Karaoke />
       <div style={{ position: "absolute", left: 0, top: 0, transform: "scale(0.55)", transformOrigin: "0 0" }}>
