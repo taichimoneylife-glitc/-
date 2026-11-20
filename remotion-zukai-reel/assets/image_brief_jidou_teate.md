@@ -1,4 +1,6 @@
-# 児童手当リール｜絵コンテと画像指示書（v1・新しく5枚＋今ある画像）2026-11-20
+# 児童手当リール｜絵コンテと画像指示書（v2・新しく12枚＋今ある画像）2026-11-20
+
+> 方針（たいちさん）：短い動画だからこそ質を落とさない。場面は少なく、1つ1つを作り込む。
 台本：assets/script_jidou_teate.md
 
 ## 絵コンテ（見せ場：3本の線のグラフ）
@@ -25,7 +27,17 @@
 3. jt_shopping_worry       → 妻がスーパーのレシートを見て、少し困った顔。横に食品の入った買い物かご、上半身
 4. jt_crash_worry          → 夫がスマホを見てあせっている。画面に急に下がるグラフ（赤い線）、汗、上半身
 5. jt_parent_shield_family → 夫が大きな緑の盾を持ち、後ろに妻と2人の子どもが安心した顔でいる、全身
+6.  jt_money_sleep_bank    → 銀行の通帳の上で、お札とコインが毛布をかけて眠っている
+7.  jt_price_tags_up       → パン・牛乳・卵が並び、それぞれの値札に上向きの矢印
+8.  jt_money_shrink        → 1万円札がしょんぼりして、少しずつ小さく縮んでいく
+9.  jt_money_tree_big      → 大きく育った木に、コインやお札が実のようになっている。根元に小さな双葉
+10. jt_parent_calendar_univ→ 夫が大学の入学案内（文字なし）とカレンダーを見比べて、少しあせっている上半身
+11. jt_eggs_two_baskets    → 2つのかごに卵が分けて入っている。片方に右上がりのグラフ、もう片方に盾のマーク
+12. jt_family_univ_entrance→ 18歳くらいの子が大学の入学式の看板（文字なし）の前に立ち、両隣で40代くらいの夫婦が笑顔、全身
 ```
+
+## 場面と画像
+- 銀行の横一線＝6／物価＝7・3／インフレ負け＝8／約700万円の見せ場＝9／近いうちに使う＝10・4／株だけじゃない＝11・5／大学まで長く＝時間の棒の先に12
 
 ## 今ある画像を使う
 nisa_bank_building・nisa_passbook（銀行）／kn_coin・kn_coin_stack（コイン）／r2_seedling_coins・infure_growth（運用で育つ）／nb_kid_toddler・nb_kid_student（2歳→大学前）／r2_balance_scale・nb_stock_box・nb_bond_box（株と債券）／kn_parent_phone_nisa（親のNISA）／taichi_*（口パク）
