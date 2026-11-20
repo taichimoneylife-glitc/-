@@ -23,6 +23,12 @@
       "driveId": "1rY0rSXBI6W3fpbNr0lPYpjLPXuRWIaed",
       "sha256": "95e8bc3aa5a45303f6c3ee4c8a7ed68eb59381bc43aae4651d209d2dd2c615fc",
       "bytes": 188039
+    },
+    {
+      "path": "public/cta_jidou/profile.jpg",
+      "driveId": "1XjqUSujFcdWQthHgHUlGKAMVD5xODG11",
+      "sha256": "dca2de13d2ba83890a6ed0406586bd9ed08291173c174fdffc17f9b51c8dbfb0",
+      "bytes": 135924
     }
   ],
   "videoFolderId": "1YRMr_DnjNc8VNok01QmqExC4jZ601xFd",
