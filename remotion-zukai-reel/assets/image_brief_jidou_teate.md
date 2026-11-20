@@ -1,0 +1,31 @@
+# 児童手当リール｜絵コンテと画像指示書（v1・新しく5枚＋今ある画像）2026-11-20
+台本：assets/script_jidou_teate.md
+
+## 絵コンテ（見せ場：3本の線のグラフ）
+1. 冒頭：わが家（夫婦＋2歳＋赤ちゃん）jt_family_2y0y がポン。
+2. 結論：スマホに「児童手当 60,000円 入金」の通知（動画側で描く）→ 親が封筒のお金をNISAへ jt_parent_nisa_deposit。「全額NISA」のハンコ。
+3. 245万円・427万円：1人分の棒 → 2人分の棒。コインが積み上がる（kn_coin_stack・kn_coin）。
+4. ★見せ場：0歳→18歳の横軸に3本の線。銀行（横一線・nisa_bank_building／nisa_passbook）→ 物価（じわじわ上がる・jt_shopping_worry）→「インフレに負け」→ 運用5%（ピュッと上へ・r2_seedling_coins）→「約700万円」が叩きつけ。
+5. わが家のケース：「近いうちに使う」なら、暴落の線でへこむ（jt_crash_worry）✕。うちは2歳→18歳の時間の棒が長い（nb_kid_toddler → nb_kid_student）◯。
+6. 株だけじゃない：てんびんに株と債券（r2_balance_scale・nb_stock_box・nb_bond_box）→ 家族を守る盾 jt_parent_shield_family。
+7. 締め：特典の表紙＋プロフ → 公式LINE → 受け取りの画面（たいちさんの画像。手元に無いので送ってもらう）。
+
+## 作ってほしい画像（5枚）
+```
+【共通スタイル】※毎回この文と、太一の画像（基準）を添付する
+添付画像のキャラクターと同じ絵柄で描いてください。
+茶色の細い輪郭線、やわらかいパステル調の塗り、軽い陰影、ほんのり紙の質感。
+透過PNG（背景なし）、正方形、被写体は中央で余白多め。
+文字・数字・ロゴ・企業名は入れない。
+1枚ずつ別の画像として出す（まとめ画像にしない）。
+親は20代後半の夫婦（夫はオレンジ系のシャツ、妻は紫のカーディガン）。
+
+1. jt_family_2y0y          → 若い夫婦と、2歳くらいの子（緑系の服）と、妻が抱っこした赤ちゃん。4人とも笑顔、全身
+2. jt_parent_nisa_deposit  → 夫が片手に白い封筒（お金が少し見える）、もう片手にスマホ（画面に右上がりのグラフ）。封筒からスマホへコインが流れ込んでいる、上半身
+3. jt_shopping_worry       → 妻がスーパーのレシートを見て、少し困った顔。横に食品の入った買い物かご、上半身
+4. jt_crash_worry          → 夫がスマホを見てあせっている。画面に急に下がるグラフ（赤い線）、汗、上半身
+5. jt_parent_shield_family → 夫が大きな緑の盾を持ち、後ろに妻と2人の子どもが安心した顔でいる、全身
+```
+
+## 今ある画像を使う
+nisa_bank_building・nisa_passbook（銀行）／kn_coin・kn_coin_stack（コイン）／r2_seedling_coins・infure_growth（運用で育つ）／nb_kid_toddler・nb_kid_student（2歳→大学前）／r2_balance_scale・nb_stock_box・nb_bond_box（株と債券）／kn_parent_phone_nisa（親のNISA）／taichi_*（口パク）
