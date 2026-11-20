@@ -11,6 +11,18 @@
         "1YS0N1LtTmXLR4a2uUbPBWLhUXGrT2aaL",
         "1thL6U5KR45ZrVOx5o4cRfop3DG9RI_2q"
       ]
+    },
+    {
+      "path": "public/cta_jidou/cover.jpg",
+      "driveId": "18G186g3i9HLIMDOyhQkdp-MexepPHEqg",
+      "sha256": "c30143d449d30fc4af7e3b77f1d91675b050795b6e05d20a4cfab28a26ed205c",
+      "bytes": 77547
+    },
+    {
+      "path": "public/cta_jidou/menu.jpg",
+      "driveId": "1rY0rSXBI6W3fpbNr0lPYpjLPXuRWIaed",
+      "sha256": "95e8bc3aa5a45303f6c3ee4c8a7ed68eb59381bc43aae4651d209d2dd2c615fc",
+      "bytes": 188039
     }
   ],
   "videoFolderId": "1YRMr_DnjNc8VNok01QmqExC4jZ601xFd",
