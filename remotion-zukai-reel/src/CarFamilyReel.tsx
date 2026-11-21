@@ -722,10 +722,10 @@ const Chara: React.FC = () => {
 };
 
 const SAFE = 0.9, SAFE_X = 540 - 540 * SAFE, SAFE_Y = 300 - 280 * SAFE;
-export const CarFamilyReel: React.FC = () => (
+export const CarFamilyReel: React.FC<{ audio?: "full" | "sfx" | "voice" }> = ({ audio = "full" }) => (
   <AbsoluteFill style={{ backgroundColor: M.paper, fontFamily: FONT }}>
-    <Audio src={staticFile("car7-narration.wav")} />
-    <SfxTrack cues={CUES} />
+    {audio !== "sfx" ? <Audio src={staticFile("car7-narration.wav")} /> : null}
+    {audio !== "voice" ? <SfxTrack cues={CUES} /> : null}
     <AbsoluteFill style={{ background: M.paper, backgroundImage: `repeating-linear-gradient(transparent 0 62px, ${M.grid} 62px 64px)` }} />
     <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1920, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}>
       {CAR1_PAGES.map(([t, P], i) => {
