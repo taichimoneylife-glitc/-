@@ -1,0 +1,110 @@
+<title>車リール 企画書</title>
+<style>
+  :root{
+    --bg:#F7F8FA; --card:#FFFFFF; --ink:#1B2A4A; --sub:#5A6980;
+    --line:#E2E6EE; --accent:#E5432B; --green:#12A150; --gold:#C79A17; --navy:#1B2A4A;
+    --chip:#EEF1F6;
+    color-scheme:light;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+    --bg:#0F1218; --card:#171C26; --ink:#EAEEF6; --sub:#9AA6BC; --line:#28303F;
+    --accent:#FF6A52; --green:#3FD07E; --gold:#F6C544; --navy:#C7D2E6; --chip:#1E2530; color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0F1218; --card:#171C26; --ink:#EAEEF6; --sub:#9AA6BC; --line:#28303F;
+    --accent:#FF6A52; --green:#3FD07E; --gold:#F6C544; --navy:#C7D2E6; --chip:#1E2530; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);margin:0;line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding-block:24px;padding-left:16px;padding-right:16px}
+  header.top{margin-bottom:20px}
+  .eyebrow{font-size:12px;letter-spacing:.12em;color:var(--accent);font-weight:800;text-transform:uppercase}
+  h1{font-size:26px;margin:4px 0 6px;letter-spacing:.01em;text-wrap:balance}
+  .lead{color:var(--sub);font-size:14px;margin:0}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:12px;font-weight:700;color:var(--ink)}
+  h2{font-size:15px;letter-spacing:.06em;color:var(--sub);text-transform:uppercase;margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .policy{display:grid;gap:8px;padding:0;margin:0;list-style:none}
+  .policy li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px}
+  .policy b{color:var(--accent)}
+  .timeline{display:grid;gap:12px}
+  .scene{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px;position:relative;overflow:hidden}
+  .scene::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent)}
+  .scene .sh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .scene .sid{font-weight:800;color:var(--accent);font-size:13px}
+  .scene .stime{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
+  .scene .smsg{font-weight:800;font-size:16px;margin:2px 0 8px;text-wrap:balance}
+  .scene .row{display:flex;gap:8px;font-size:13px;margin-top:4px}
+  .scene .k{flex:0 0 58px;color:var(--sub);font-weight:700}
+  .scene .v{flex:1}
+  .cap{display:inline-block;background:var(--navy);color:var(--bg);border-radius:6px;padding:1px 8px;font-size:12.5px;font-weight:700;margin:2px 4px 2px 0}
+  :root[data-theme="dark"] .cap,:root:not([data-theme="light"]) .cap{color:#0F1218}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .cap{color:#0F1218}}
+  .move{color:var(--sub)}
+  .move em{color:var(--green);font-style:normal;font-weight:700}
+  ul.rev{padding-left:0;list-style:none;display:grid;gap:7px;margin:0}
+  ul.rev li{font-size:13.5px;padding-left:20px;position:relative}
+  ul.rev li::before{content:"▸";position:absolute;left:2px;color:var(--accent)}
+  .foot{margin-top:26px;color:var(--sub);font-size:12px;text-align:center}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">図解リール 企画書</div>
+    <h1>500万円の車、どう買う？</h1>
+    <p class="lead">アフレコ音声を主役に、話す瞬間だけ図解が出て“完成していく”縦動画。おしゃれさより「伝わりやすさ・テンポ」を優先。</p>
+    <div class="meta">
+      <span class="chip">1080×1920 / 縦</span>
+      <span class="chip">70.1秒</span>
+      <span class="chip">音声同期</span>
+      <span class="chip">白背景ベース</span>
+      <span class="chip">全8シーン</span>
+    </div>
+  </header>
+
+  <h2>この動画の方針</h2>
+  <ul class="policy">
+    <li><b>音声が主役</b>：各要素は「その語が読まれた瞬間」に出す（先出し・遅れ禁止）</li>
+    <li><b>1画面1メッセージ</b>：要素は同時ではなく<b>順次で完成</b></li>
+    <li><b>キー数字は主役</b>：カウントアップ＋大サイズ＋色（550万・5%・+260万）</li>
+    <li><b>見せ方を場面ごとに変える</b>：比較=左右スライド／数字=積み上げ／10年後=棒グラフ</li>
+    <li><b>3秒以上の静止を作らない</b>／余白は「次を出すため」に短く使う</li>
+  </ul>
+
+  <h2>全8シーン（音声にピタリ同期）</h2>
+  <div class="timeline" id="tl"></div>
+
+  <h2>現状動画の改善点</h2>
+  <ul class="rev">
+    <li>ページ単位でしか切り替わらず、数字が読まれた瞬間に出ていない（例：500→50→550を同時表示＝先に答えが見える）</li>
+    <li>「見出し＋箱＋結論」の同じ型の反復で単調。動きが下からフェードに偏る</li>
+    <li>1画面に詰め込みがちで、視線の入口が定まらない</li>
+    <li>550万・+260万・5%などキー数字の訴求が弱い（テキスト止まり）</li>
+    <li>結論が周囲に同化し、ポップで際立つ演出がない</li>
+    <li>矢印・つなぎ線が最初からあり、視線を運ぶ役割を果たしていない</li>
+    <li>3秒以上ほぼ静止する場面があり間延びして見える</li>
+  </ul>
+
+  <p class="foot">この企画で次に final_video.mp4 を作ります。直したい点があれば教えてください。</p>
+</div>
+
+<script>
+const scenes=[
+ {id:"S1",t:"0.0–7.1s",msg:"現金一括かローンか → 結論“敢えてローン”",cap:["現金一括かローンか？","結論：敢えてローン"],move:"タイトル<em>フェードイン</em> → 左右カード<em>スライド</em> → 結論<em>ポップ✓</em>"},
+ {id:"S2",t:"7.1–15.1s",msg:"車両500万＋利息50万＝総支払 約550万",cap:["金利2%・10年","車両500万","＋利息50万","＝約550万"],move:"数字を順に<em>カウントアップ</em>／利息は赤／550万を<em>強調ポップ</em>"},
+ {id:"S3",t:"15.1–24.1s",msg:"カギは“元手500万”の使い方 → 運用へ",cap:["利息50万は損？","カギは元手500万の使い方","元手500万を運用へ"],move:"『損？』提示→入れ替え／<em>矢印が伸びて</em>運用へ"},
+ {id:"S4",t:"24.1–33.1s",msg:"株か債券か → リスクを抑え債券",cap:["株か、債券か","リスクを抑え債券を選ぶ"],move:"株？｜債券？を<em>左右スライド</em>／株△・債券<em>✓ポップ</em>"},
+ {id:"S5",t:"33.1–47.1s",msg:"子育て世帯こそ“計画的に” 債券は約束された資産",cap:["子育て世帯こそ計画的に","株は暴落／債券は見通せる","債券＝約束された資産"],move:"教育→老後→特別費を<em>順次表示</em>／株ギザギザ↔債券なめらか／✓確定"},
+ {id:"S6",t:"47.1–53.1s",msg:"今、米国債は金利 約5%（高水準）",cap:["米国債は金利 約5%","実際に保有中"],move:"『5%』を<em>大カウントアップ</em>＋高水準バッジ"},
+ {id:"S7",t:"53.1–62.1s",msg:"10年後：債券810万 － 車550万 ＝ ＋約260万",cap:["10年後、どうなる？","債券なら約810万","車550万を引いて＋約260万"],move:"見出し転換／債券の<em>棒が伸びる</em>／差分を<em>カウントアップ</em>"},
+ {id:"S8",t:"62.1–70.1s",msg:"利息50万 ＜ 運用益260万 → トータルで得",cap:["利息50万 ＜ 運用益260万","トータルで得"],move:"比較帯<em>ポップ</em>／『トータルで得』<em>強調</em>＋締めコピー"},
+];
+document.getElementById("tl").innerHTML=scenes.map(s=>`
+ <div class="scene">
+   <div class="sh"><span class="sid">${s.id}</span><span class="stime">${s.t}</span></div>
+   <div class="smsg">${s.msg}</div>
+   <div class="row"><span class="k">テロップ</span><span class="v">${s.cap.map(c=>`<span class="cap">${c}</span>`).join("")}</span></div>
+   <div class="row"><span class="k">動き</span><span class="v move">${s.move}</span></div>
+ </div>`).join("");
+</script>
