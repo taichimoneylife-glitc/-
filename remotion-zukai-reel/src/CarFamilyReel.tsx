@@ -320,6 +320,15 @@ const P8: React.FC = () => {
   );
 };
 
+const NoteBox: React.FC<{ at: number; y: number; title: React.ReactNode; children: React.ReactNode }> = ({ at, y, title, children }) => (
+  <In at={at} x={60} y={y} mode="rise">
+    <div style={{ width: 800, background: "rgba(255,255,255,0.95)", border: `4px dashed ${M.ink}`, borderRadius: 18, padding: "12px 22px", boxSizing: "border-box" }}>
+      <div style={{ ...K, fontSize: 38, lineHeight: 1.3 }}>{title}</div>
+      <div style={{ ...B, fontSize: 30, color: M.ink, lineHeight: 1.45, marginTop: 4 }}>{children}</div>
+    </div>
+  </In>
+);
+
 // ════════ 10 選べる道は3つ（42.82–50.16）→「買い取る」に × ════════
 const P8b: React.FC = () => {
   const f = useCurrentFrame();
@@ -342,7 +351,8 @@ const P8b: React.FC = () => {
       {card(0, a(43.92), "↩️", "車を返す", "車は残らない。条件を超えると精算")}
       {card(1, a(44.92), "💴", <>買い取る <span style={{ ...SER, fontSize: 44, color: A }}>約300</span><span style={{ fontSize: 30 }}>万円</span></>, "一括か、再ローン（また利息がかかる）")}
       {card(2, a(47.1), "🔁", "乗り換える", "精算額は次のローンに乗ることも")}
-      <Stamp at={a(49.14)} x={250} y={1080} text="300万円は手元にない" size={56} rot={-5} />
+      <Stamp at={a(49.14)} x={250} y={1035} text="300万円は手元にない" size={56} rot={-5} />
+      <NoteBox at={a(47.6)} y={1165} title={<>※ <R c={A}>売る</R>こともできます。ただし…</>}>車の名義は、まだローン会社。<br />売ったお金で<b>先に残りのローンを返す</b>。<br />足りなければ<b>差額は自分で払う</b>（契約による）</NoteBox>
     </AbsoluteFill>
   );
 };
@@ -576,10 +586,11 @@ const P17: React.FC = () => {
           </In>
         ))}
       </div>
-      <In at={a(106.94)} x={0} y={820} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 22, padding: "8px 30px", boxShadow: `8px 8px 0 ${M.yellow}`, ...K, fontSize: 44 }}>乗りたい車に乗るのは <R c={G}>自由</R></span></In>
-      <In at={a(107.54)} x={0} y={920} center mode="ghost"><span style={{ ...K, fontSize: 34, color: M.sub }}>残クレ自体が悪いわけではない</span></In>
-      <In at={a(109.58)} x={0} y={990} center mode="ghost"><span style={{ ...K, fontSize: 40 }}>ただ「<R c={A}>月々払えるから</R>」で選ぶと</span></In>
-      <Stamp at={a(111.52)} x={110} y={1070} text="総支払額で大きく損しやすい" size={56} rot={-4} />
+      <In at={a(106.94)} x={0} y={790} center mode="pop"><span style={{ display: "inline-block", background: "#fff", border: `6px solid ${M.ink}`, borderRadius: 22, padding: "8px 30px", boxShadow: `8px 8px 0 ${M.yellow}`, ...K, fontSize: 44 }}>乗りたい車に乗るのは <R c={G}>自由</R></span></In>
+      <In at={a(107.54)} x={0} y={888} center mode="ghost"><span style={{ ...K, fontSize: 34, color: M.sub }}>残クレ自体が悪いわけではない</span></In>
+      <In at={a(109.58)} x={0} y={942} center mode="ghost"><span style={{ ...K, fontSize: 40 }}>ただ「<R c={A}>月々払えるから</R>」で選ぶと</span></In>
+      <Stamp at={a(111.52)} x={110} y={1000} text="総支払額で大きく損しやすい" size={56} rot={-4} />
+      <NoteBox at={a(107.0)} y={1135} title={<>車の買い方は <R c={G}>いろいろ</R></>}>現金一括・銀行ローン・残クレ など、<b>選ぶのは自由</b>。<br />大事なのは<b>総額で比べること</b></NoteBox>
     </AbsoluteFill>
   );
 };
