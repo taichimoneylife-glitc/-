@@ -18,7 +18,7 @@ const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const OUT = Easing.bezier(0.16, 1, 0.3, 1);
 const p01 = (f: number, a: number, b: number, e = OUT) => interpolate(f, [a, b], [0, 1], { ...clamp, easing: e });
 const pop = (f: number, t: number) => interpolate(f - F(t), [0, 3, 6], [0, 1.1, 1], clamp);
-const SPLIT = 960; // 上＝図解／下＝本人
+const SPLIT = 1080; // 上＝図解／下＝本人
 
 const NODES: [string, string][] = [["どこに？", G], ["いくら？", O], ["なぜ運用？", BL], ["注意点", RED]];
 const NX = (i: number) => 40 + i * 255, NW = 235, NYY = 620;
@@ -32,7 +32,7 @@ const Diagram: React.FC<{ f: number }> = ({ f }) => {
   return (
     <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: SPLIT, overflow: "hidden", background: "#FBF6D8", backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
       <div style={{ position: "absolute", left: 92, top: 0, width: 4, height: SPLIT, background: "rgba(239,125,87,0.35)" }} />
-      <div style={{ position: "absolute", left: 0, top: 60, width: 1080, height: SPLIT }}>
+      <div style={{ position: "absolute", left: 0, top: 110, width: 1080, height: SPLIT }}>
       {/* ハブ「わが家の児童手当」 */}
       <div style={{ position: "absolute", left: 210, top: 290, width: 660, height: 130, background: INK, borderRadius: 22, display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: 120, boxSizing: "border-box", boxShadow: "0 8px 18px rgba(30,35,50,0.25)", transform: `scale(${hubP})` }}>
         <span style={{ ...K, fontSize: 58, color: "#fff", whiteSpace: "nowrap" }}>わが家<span style={{ opacity: p01(f, F(2.76), F(2.76) + 5) }}>の<span style={{ color: YEL }}>児童手当</span></span></span>
@@ -68,7 +68,9 @@ const Diagram: React.FC<{ f: number }> = ({ f }) => {
 // 下：話しているたいち（胸の文字が入らない範囲だけ）
 const Talker: React.FC = () => (
   <div style={{ position: "absolute", left: 0, top: SPLIT, width: 1080, height: 1920 - SPLIT, overflow: "hidden", background: "#000" }}>
-    <OffthreadVideo src={staticFile(SRC)} muted style={{ position: "absolute", left: -81, top: -380, width: 1242, height: 2208 }} />
+    <OffthreadVideo src={staticFile(SRC)} muted style={{ position: "absolute", left: -60, top: -260, width: 1200, height: 2133, filter: "blur(26px) brightness(0.8)" }} />
+    {/* 引きで見せる（0.94倍・顔を真ん中に）：胸の文字（元の y1180〜）が入らない範囲だけ */}
+    <OffthreadVideo src={staticFile(SRC)} muted style={{ position: "absolute", left: (1080 - 1080 * 0.94) / 2, top: (1920 - SPLIT) / 2 - 720 * 0.94, width: 1080 * 0.94, height: 1920 * 0.94 }} />
   </div>
 );
 
