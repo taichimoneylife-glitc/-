@@ -4,7 +4,7 @@ import { K, B, SER, F } from "./components/marke";
 import { GenSlot } from "./MileLifePlan";
 import { SfxTrack } from "./components/sfx";
 import { TapCard } from "./components/tapCard";
-import { at, PROFILE } from "./components/flowKit";
+import { at } from "./components/flowKit";
 import { enter } from "./components/motionLib";
 import { JIDOU_MOUTH } from "./jidouMouth";
 
@@ -150,7 +150,6 @@ const Fly: React.FC<{ f: number }> = ({ f }) => (
       const x = FROM[i][0] + (tx - FROM[i][0]) * p, y = FROM[i][1] + (ty - FROM[i][1]) * p - Math.sin(Math.PI * p) * 140;
       return <div key={i} style={{ position: "absolute", left: x, top: y, transform: `translate(-50%, -50%) scale(${1.7 - 0.95 * p})`, background: b.c, color: "#fff", borderRadius: 14, padding: "6px 18px", ...K, fontSize: 34, whiteSpace: "nowrap", boxShadow: "0 8px 20px rgba(0,0,0,0.25)", opacity: k > 10 ? 0 : 1, zIndex: 20 }}>{b.ans}</div>;
     })}
-    {BR.map((b, i) => <Ring key={`r${i}`} x={b.x + NW / 2} y={NY + 137} t={b.close + 0.33} c={b.c} r={110} />)}
   </>
 );
 
@@ -160,7 +159,6 @@ const Intro: React.FC<{ f: number }> = ({ f }) => (
     <Pic name="jt_family_2y0y" x={300} y={430} size={480} t={0.05} pat="slideUp" tempo="brake" until={2.4} />
     <Pic name="jt_parent_nisa_deposit" x={60} y={520} size={300} t={1.2} pat="slideL" tempo="brake" until={2.4} />
     <Stamp x={620} y={600} t={1.42} size={64} rot={-8} c={G} until={2.4}>全額NISA</Stamp>
-    <Ring x={760} y={640} t={1.42} c={G} />
   </>
 );
 
@@ -244,7 +242,7 @@ const B2: React.FC<{ f: number }> = ({ f }) => {
         <Txt x={X0 + 300} y={622} t={8.2} size={30} c={G}>1万円×191か月（高校卒業まで）</Txt>
       </div>
       {f < F(10.6) ? <Pos x={250} y={690} t={8.8} pat="stamp" tempo="kire"><div style={{ ...K, fontSize: 52, color: INK }}>＝ 1人 だいたい <span style={{ ...SER, fontSize: 130, color: O }}><Count t0={8.8} t1={9.3} to={245} /></span>万円</div></Pos> : null}
-      <Ring x={560} y={780} t={9.3} c={O} r={220} />
+      <Ring x={560} y={780} t={9.3} c={O} r={200} />
       {f < F(10.6) ? <Txt x={350} y={690} t={8.3} size={34} c={SUB}>54万 ＋ 191万</Txt> : null}
       {f < F(10.4) ? <Pic name="kn_coin_stack" x={830} y={820} size={170} t={9.5} /> : null}
       {/* わが家：2026年10月から */}
@@ -574,28 +572,26 @@ const Chara: React.FC = () => {
 
 // 効果音（u01〜u10 のみ・最初の1秒には置かない）
 const s = (file: string, t: number, volume = 0.22) => ({ file: `user/${file}`, at: F(t), volume });
+// 強調は 大・中・小：大（高い音＋揺れ）は 245万／415万／650万／答えがそろう の4回だけ。中＝中音1つ。小＝音なし
 const CUES = [
-  s("u05s", 1.2, 0.14), s("u04", 1.42, 0.26),
-  s("u03s", 2.6, 0.16), s("u02s", 3.1, 0.12), s("u05s", 3.5, 0.14), s("u06", 4.25, 0.14), s("u04", 4.42, 0.26), s("u05s", 5.7, 0.14), s("u07", 6.6, 0.14),
-  s("u03s", 7.05, 0.16), s("u05s", 7.6, 0.12), s("u05s", 7.85, 0.12), s("u05", 8.8, 0.24), s("u03s", 10.3, 0.14), s("u05s", 11.0, 0.12), s("u05s", 11.4, 0.12), s("u02s", 13.0, 0.14), s("u05", 13.96, 0.24), s("u09", 14.0, 0.18),
-  s("u03s", 14.55, 0.16), s("u05s", 14.8, 0.14), s("u05s", 15.6, 0.12), s("u04", 17.88, 0.24),
-  s("u10", 18.4, 0.2), s("u05s", 18.92, 0.14), s("u02s", 19.9, 0.12), s("u02s", 20.35, 0.12), s("u02s", 20.8, 0.12), s("u07", 22.24, 0.18), s("u04", 22.76, 0.3),
-  s("u03s", 25.2, 0.16), s("u06", 26.0, 0.14), s("u05", 27.1, 0.24), s("u05s", 27.3, 0.12), s("u05s", 27.45, 0.12), s("u09", 27.7, 0.2),
-  s("u03s", 28.2, 0.16), s("u04", 28.46, 0.24), s("u05s", 29.9, 0.14), s("u07", 31.2, 0.16), s("u04", 32.8, 0.26), s("u05s", 33.92, 0.14), s("u06", 36.0, 0.14), s("u09", 36.8, 0.2),
-  s("u03s", 37.5, 0.16), s("u07", 38.3, 0.2), s("u04", 38.78, 0.24), s("u05", 39.98, 0.2), s("u09", 40.9, 0.2),
-  s("u03s", 41.55, 0.16), s("u05s", 41.7, 0.1), s("u05s", 41.82, 0.1), s("u05s", 41.94, 0.1), s("u05s", 42.06, 0.1), s("u04", 42.75, 0.24),
-  s("u03s", 44.1, 0.16), s("u06", 44.2, 0.16), s("u04", 46.1, 0.24),
-  s("u03s", 47.1, 0.16), s("u05s", 48.4, 0.18), s("u03s", 49.25, 0.16), s("u05s", 50.25, 0.18),
+  // 大
+  s("u04", 9.3, 0.24), s("u04", 13.96, 0.24), s("u09", 27.1, 0.22), s("u10", 42.6, 0.2),
+  // 中：枝が開く
+  s("u03s", 2.6, 0.14), s("u03s", 7.05, 0.14), s("u03s", 14.55, 0.14), s("u03s", 28.2, 0.14),
+  // 中：答えが札に収まる
+  s("u02s", 7.38, 0.14), s("u02s", 14.88, 0.14), s("u02s", 28.53, 0.14), s("u02s", 41.88, 0.14),
+  // 中：ハンコ・場面の切り替え
+  s("u05s", 1.42, 0.16), s("u05s", 4.42, 0.16), s("u05s", 17.88, 0.15), s("u07", 18.4, 0.13), s("u05", 22.76, 0.18),
+  s("u03s", 25.3, 0.12), s("u05s", 28.46, 0.14), s("u05s", 32.8, 0.15), s("u05s", 36.8, 0.15), s("u07", 38.3, 0.12), s("u05s", 39.98, 0.15),
+  s("u03s", 44.2, 0.12), s("u05s", 46.1, 0.15), s("u02s", 48.4, 0.14), s("u02s", 50.25, 0.14),
 ];
-const PUNCH = [1.42, 4.42, 8.8, 13.96, 17.88, 22.76, 27.1, 32.8, 36.8, 39.98, 42.75];
+const PUNCH = [9.3, 13.96, 27.1, 42.6];
 
 const SAFE = 0.86, SAFE_X = 40, SAFE_Y = 120;
 export const JIDOU_TREE_FRAMES = F(51.4);
-const MK = PROFILE.marke;
-const camP = (f: number, s0: number) => (f < s0 ? 0 : at(MK, f - s0));
 const zoomAt = (f: number) => {
   let z = 0;
-  BR.forEach((b) => { z = Math.max(z, camP(f, F(b.open + 0.3)) * (1 - p01(f, F(b.close - 0.35), F(b.close), Easing.inOut(Easing.cubic)))); });
+  BR.forEach((b) => { z = Math.max(z, p01(f, F(b.open + 0.35), F(b.open + 0.95), Easing.inOut(Easing.cubic)) * (1 - p01(f, F(b.close - 0.45), F(b.close), Easing.inOut(Easing.cubic)))); });
   return z;
 };
 export const JidouTreeReel: React.FC = () => {
@@ -604,7 +600,6 @@ export const JidouTreeReel: React.FC = () => {
   const punch = PUNCH.reduce((a, t) => { const k = f - F(t); return k >= 0 && k < 12 ? a + at([0, 0.05, 0.06, 0.05, 0.035, 0.02, 0.012, 0.006, 0.003, 0], k) : a; }, 0);
   const drift = Math.sin(f / 60) * 5, driftY = Math.cos(f / 75) * 4;
   const z = zoomAt(f);
-  const zv = Math.abs(zoomAt(f) - zoomAt(f - 1));
   const mix = (a: number, b: number) => Math.round(a + (b - a) * dark);
   const bg = `rgb(${mix(251, 58)}, ${mix(246, 37)}, ${mix(216, 33)})`;
   return (
@@ -615,7 +610,7 @@ export const JidouTreeReel: React.FC = () => {
       <AbsoluteFill style={{ backgroundImage: `repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,${0.22 * (1 - dark)}) 62px 64px)`, backgroundPosition: `0px ${driftY - z * 60}px` }} />
       <div style={{ position: "absolute", left: 92, top: 0, width: 4, height: 1920, background: `rgba(239,125,87,${0.35 * (1 - dark)})` }} />
       <div style={{ position: "absolute", left: SAFE_X, top: SAFE_Y, width: 1080, height: 1300, transform: `scale(${SAFE})`, transformOrigin: "0 0", overflow: "hidden" }}>
-        <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1300, transform: `translate(${drift}px, ${driftY - 110 * z}px) scale(${1 + punch + 0.06 * z})`, transformOrigin: "540px 800px", filter: zv > 0.06 ? `blur(${Math.min(6, zv * 40)}px)` : undefined }}>
+        <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1300, transform: `translate(${drift}px, ${driftY}px) scale(${1 + punch + 0.03 * z})`, transformOrigin: "540px 380px", }}>
           <Tree f={f} dark={dark} />
           {f < F(2.6) ? <Intro f={f} /> : null}
           {f >= F(2.6) && f < F(7.5) ? <B1 f={f} /> : null}
