@@ -36,7 +36,7 @@ description: >-
 ## ★★★素材を消さない仕組み（2026-11-19 たいちさん「これは大事だぞ」）
 作業環境（クラウドの一時的なパソコン）は、間が空くと作り直される。**Gitに上げない個人の素材（声・特典の画像・完成動画）は、そのままだと消える。**
 1. **作業を始めたら最初に** `node scripts/check-assets.mjs` を実行する。足りない物が出たら、表示された driveId を Google Drive の `download_file_content` で取り戻し、保存された場所（tool-results）から表示の path へコピーする。`node_modules` が無ければ `npm ci`（環境の準備スクリプトでも自動で入る）。文字起こしは `python3.13`（faster-whisper 入り）。
-2. **素材を受け取ったら保存する（ただし、保存のたびにたいちさんの許可が出て「めんどい」と言われた＝2026-11-20。声だけは保存、画像や動画は無理に保存しない）**：声（取り込み後の .wav）・特典の表紙やメニューなどの画像を、たいちさんのGoogleドライブ「zukai-reel 素材バックアップ（非公開）」（scripts/private-assets.json の driveFolderId）へ `create_file`（base64Content に sha256:<hash>:<絶対パス> のファイル参照）で上げ、`node scripts/check-assets.mjs --add <path> <driveId>` で表に足してコミットする。
+2. **【2026-11-22 廃止：ドライブへのバックアップは一切しない（声も）。たいちさん「その保存の方法をやめて」】** 旧ルール：素材を受け取ったら保存する（ただし、保存のたびにたいちさんの許可が出て「めんどい」と言われた＝2026-11-20。声だけは保存、画像や動画は無理に保存しない）**：声（取り込み後の .wav）・特典の表紙やメニューなどの画像を、たいちさんのGoogleドライブ「zukai-reel 素材バックアップ（非公開）」（scripts/private-assets.json の driveFolderId）へ `create_file`（base64Content に sha256:<hash>:<絶対パス> のファイル参照）で上げ、`node scripts/check-assets.mjs --add <path> <driveId>` で表に足してコミットする。
 3. **完成動画（たいちさんに送った版）も**、同じフォルダの「完成動画」（videoFolderId）へ上げて、ファイル名と id を表の videos に残す。「〇〇の動画出して」と言われたら、手元に無ければそこから出す。
 4. Gitには上げない（声・特典・他社の画面は今までどおりGitに入れない）。ドライブのフォルダは非公開のまま、共有しない。
 
