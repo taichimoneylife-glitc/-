@@ -4,7 +4,7 @@ import { K, B, SER, F } from "./components/marke";
 import { GenSlot } from "./MileLifePlan";
 import { SfxTrack } from "./components/sfx";
 import { TapCard } from "./components/tapCard";
-import { at } from "./components/flowKit";
+import { at, PROFILE } from "./components/flowKit";
 import { enter } from "./components/motionLib";
 import { JIDOU_MOUTH } from "./jidouMouth";
 
@@ -13,7 +13,7 @@ import { JIDOU_MOUTH } from "./jidouMouth";
 //  1画面の地図が育つ：ハブ「わが家の児童手当」→ 4本の枝（？で予告 → 開く → 答えだけ残してたたむ）→ 最後に4つの答えの早見表 → スライドの表紙へ
 //  地＝薄グレーの方眼（設計図ふう）／字幕＝今の言葉に箱が飛び移る／幕の切り替えは「物価」の1回だけ
 // ════════════════════════════════════════════════════════════════════
-const INK = "#2B2F3A", SUB = "#7C8291", LINE = "#9BA0AC", BG = "#ECEEF2";
+const INK = "#2B2F3A", SUB = "#7C8291", LINE = "#A89C7A", BG = "#FBF6D8";
 const G = "#23A06B", O = "#EF7D57", BL = "#3C78C8", RED = "#E5483B", YEL = "#FFE15A", DARK = "#3A2521";
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const OUT = Easing.bezier(0.16, 1, 0.3, 1);
@@ -103,7 +103,7 @@ const Tree: React.FC<{ f: number; dark: number }> = ({ f, dark }) => {
       {/* ハブ */}
       <div style={{ position: "absolute", left: 270, top: 18, width: 540, height: 110, background: INK, borderRadius: 22, display: "flex", alignItems: "center", justifyContent: "center", gap: 14, boxShadow: "0 8px 18px rgba(30,35,50,0.25)", ...hubIn }}>
         <div style={{ width: 86, height: 86, borderRadius: "50%", background: "#fff", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}><GenSlot name="jt_family_2y0y" size={90} /></div>
-        <span style={{ ...K, fontSize: 46, color: "#fff" }}>わが家の<span style={{ color: YEL }}>児童手当</span></span>
+        <span style={{ ...K, fontSize: 46, color: "#fff" }}>わが家の<span style={{ color: YEL }}>{f >= F(42.75) && f < F(44.3) ? "答え" : "児童手当"}</span></span>
       </div>
       {BR.map((b, i) => <Node key={i} b={b} i={i} f={f} />)}
     </>
@@ -114,12 +114,16 @@ const Node: React.FC<{ b: Br; i: number; f: number }> = ({ b, i, f }) => {
   const state = f < F(b.open) ? 0 : f < F(b.close) ? 1 : 2;
   const flip = state === 0 ? 0 : p01(f, F(b.open), F(b.open) + 8);
   const pulse = state === 1 ? 0.5 + 0.5 * Math.sin((f - F(b.open)) / 5) : 0;
-  const doneP = p01(f, F(b.close), F(b.close) + 10);
+  const doneP = p01(f, F(b.close) + 9, F(b.close) + 15);
+  const q = p01(f, F(1.7 + i * 0.1), F(1.8 + i * 0.1)) * (1 - p01(f, F(2.3), F(2.45)));
   return (
     <div style={{ position: "absolute", left: b.x, top: NY, width: NW, ...appear }}>
       <div style={{ position: "relative", height: 112 + 62 * doneP, borderRadius: 18, background: state === 0 ? "#DADDE4" : "#fff", border: `${state === 1 ? 7 : 4}px solid ${state === 0 ? "#C3C7D0" : b.c}`, boxShadow: state === 1 ? `0 0 ${18 + 16 * pulse}px ${b.c}AA` : "0 4px 10px rgba(30,35,50,0.12)", transform: `perspective(700px) rotateY(${(state ? 1 - flip : 0) * 90}deg) scale(${state === 1 ? 1.04 : 1})`, overflow: "hidden", boxSizing: "border-box" }}>
         {state === 0 ? (
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", ...SER, fontSize: 84, color: "#A7ACB8" }}>？</div>
+          <>
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", ...SER, fontSize: 84, color: "#A7ACB8", opacity: 1 - q }}>？</div>
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 36, color: "#8E93A0", opacity: q, transform: `scale(${0.9 + 0.1 * q})` }}>{b.title}</div>
+          </>
         ) : (
           <>
             <div style={{ height: 104, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
@@ -133,6 +137,22 @@ const Node: React.FC<{ b: Br; i: number; f: number }> = ({ b, i, f }) => {
     </div>
   );
 };
+
+// ══ 答えが札へ飛んでいく（枝を閉じる瞬間）══
+const FROM: [number, number][] = [[740, 760], [560, 1000], [785, 760], [700, 1000]];
+const Fly: React.FC<{ f: number }> = ({ f }) => (
+  <>
+    {BR.map((b, i) => {
+      const k = f - F(b.close);
+      if (k < -1 || k > 12) return null;
+      const p = p01(f, F(b.close), F(b.close) + 10, Easing.inOut(Easing.cubic));
+      const tx = b.x + NW / 2, ty = NY + 137;
+      const x = FROM[i][0] + (tx - FROM[i][0]) * p, y = FROM[i][1] + (ty - FROM[i][1]) * p - Math.sin(Math.PI * p) * 140;
+      return <div key={i} style={{ position: "absolute", left: x, top: y, transform: `translate(-50%, -50%) scale(${1.7 - 0.95 * p})`, background: b.c, color: "#fff", borderRadius: 14, padding: "6px 18px", ...K, fontSize: 34, whiteSpace: "nowrap", boxShadow: "0 8px 20px rgba(0,0,0,0.25)", opacity: k > 10 ? 0 : 1, zIndex: 20 }}>{b.ans}</div>;
+    })}
+    {BR.map((b, i) => <Ring key={`r${i}`} x={b.x + NW / 2} y={NY + 137} t={b.close + 0.33} c={b.c} r={110} />)}
+  </>
+);
 
 // ══ ハブの登場（0〜2.7）══
 const Intro: React.FC<{ f: number }> = ({ f }) => (
@@ -172,8 +192,8 @@ const B1: React.FC<{ f: number }> = ({ f }) => {
       </Pos>
       {/* 一括でドサッ（コインが一度に落ちる） */}
       <Pic name="jt_lump_sum_drop" x={60} y={650} size={340} t={3.5} pat="slideUp" tempo="brake" until={7.05} />
-      {Array.from({ length: 12 }).map((_, i) => {
-        const k = f - (F(4.3) + (i % 4));
+      {Array.from({ length: 16 }).map((_, i) => {
+        const k = f - (F(3.65) + i * 1.6);
         if (k < 0 || k > 14 || f > F(7)) return null;
         return <div key={i} style={{ position: "absolute", left: 790 + ((i * 53) % 190), top: 440 + Math.min(1, k / 8) ** 2 * 150, opacity: k > 11 ? 1 - (k - 11) / 3 : 1 }}><GenSlot name="kn_coin" size={56} /></div>;
       })}
@@ -225,6 +245,8 @@ const B2: React.FC<{ f: number }> = ({ f }) => {
       </div>
       {f < F(10.6) ? <Pos x={250} y={690} t={8.8} pat="stamp" tempo="kire"><div style={{ ...K, fontSize: 52, color: INK }}>＝ 1人 だいたい <span style={{ ...SER, fontSize: 130, color: O }}><Count t0={8.8} t1={9.3} to={245} /></span>万円</div></Pos> : null}
       <Ring x={560} y={780} t={9.3} c={O} r={220} />
+      {f < F(10.6) ? <Txt x={350} y={690} t={8.3} size={34} c={SUB}>54万 ＋ 191万</Txt> : null}
+      {f < F(10.4) ? <Pic name="kn_coin_stack" x={830} y={820} size={170} t={9.5} /> : null}
       {/* わが家：2026年10月から */}
       {f >= F(10.3) ? (
         <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1300, transform: `scale(${1 - 0.5 * suck})`, transformOrigin: "540px 1080px", opacity: 1 - suck }}>
@@ -242,6 +264,7 @@ const B2: React.FC<{ f: number }> = ({ f }) => {
           <Txt x={T0} y={968} t={12.0} size={34}><span style={{ color: O }}>43.5万</span> ＋ <span style={{ color: G }}>169万</span> ＝ 約<span style={{ fontSize: 46 }}>212.5万</span></Txt>
           <div style={{ position: "absolute", left: T0 - 3, top: 715, width: 6, height: 260, background: RED, transformOrigin: "50% 0", transform: `scaleY(${p01(f, F(10.7), F(11.1))})` }} />
           <Txt x={T0 - 60} y={985 + 0} t={10.9} size={24} c={RED}>今</Txt>
+          <Txt x={300} y={1060} t={12.5} size={36} c={INK}>202万 ＋ 212.5万 ＝ ？</Txt>
         </div>
       ) : null}
       {f >= F(13.14) ? <Pos x={170} y={880} t={13.14} pat="stamp" tempo="kire"><div style={{ ...K, fontSize: 56, color: INK }}>合計 約<span style={{ ...SER, fontSize: 150, color: G }}><Count t0={13.3} t1={13.96} to={415} /></span>万円</div></Pos> : null}
@@ -265,7 +288,7 @@ const VBar: React.FC<{ x: number; h: number; t: number; c: string; dur?: number;
   );
 };
 const B3: React.FC<{ f: number; dark: number }> = ({ f, dark }) => {
-  const inDark = f >= F(18.4) && f < F(25.2);
+  const inDark = f >= F(18.4) && f < F(23.45);
   return (
     <>
       <Blueprint x={25} y={PANEL_Y} w={1030} h={830} t={14.55} until={28.2} fig="fig.03  なぜ運用？" c={BL} dark={dark} />
@@ -276,11 +299,13 @@ const B3: React.FC<{ f: number; dark: number }> = ({ f, dark }) => {
         </div>
       </Pos>
       <Pic name="jt_money_sleep_bank" x={60} y={560} size={330} t={15.3} pat="drop" until={18.4} />
-      {!inDark && f < F(25.2) ? (
+      {f > F(15.6) && f < F(18.4) ? [0, 1, 2].map((j) => { const k = (f - F(15.6) + j * 14) % 42; return <div key={j} style={{ position: "absolute", left: 330 + k * 1.2, top: 600 - k * 2.4, ...K, fontSize: 30 + k * 0.5, color: BL, opacity: k < 6 ? k / 6 : 1 - (k - 6) / 36 }}>Z</div>; }) : null}
+      {f < F(18.4) ? (
         <>
           <VBar x={480} h={415 * PER} t={15.0} c="#C3C7D0" hatch label="もらう額" val="415万" valT={15.2} />
           <VBar x={750} h={430 * PER} t={15.6} dur={22} c={BL} label="銀行 0.4%" val={<>約<Count t0={15.6} t1={16.36} to={430} />万</>} valT={15.6} />
           <Stamp x={560} y={560} t={17.88} size={56} rot={-6} c={BL}>ほぼ横ばい</Stamp>
+          <Pos x={770} y={735} t={16.7} pat="pop" tempo="bounce"><span style={{ display: "inline-block", background: "#fff", border: `4px solid ${BL}`, borderRadius: 12, padding: "2px 12px", ...K, fontSize: 30, color: BL }}>＋15万だけ</span></Pos>
           <div style={{ position: "absolute", left: 440, top: BASE, width: 580, height: 6, background: INK }} />
         </>
       ) : null}
@@ -299,8 +324,19 @@ const B3: React.FC<{ f: number; dark: number }> = ({ f, dark }) => {
             </Pos>
           ))}
           <Txt x={70} y={1100} t={21.0} size={28} c="#E8D6D2" until={22.1}>※消費者物価指数（総合）の前年比</Txt>
+          <Txt x={450} y={820} t={21.2} size={40} c="#FF8A7A" until={22.1}>毎年 じわじわ上がる ↗</Txt>
           <Pic name="jt_money_shrink" x={60} y={620} size={560} t={22.24} pat="pop" breathe={false} />
           <Stamp x={180} y={930} t={22.76} size={76} rot={-4} c="#FF6B5B">インフレに負けてしまう</Stamp>
+        </>
+      ) : null}
+      {/* 上の子が18歳になるまで：時間の帯 */}
+      {f >= F(23.45) && f < F(25.4) ? (
+        <>
+          <Txt x={70} y={450} t={23.52} size={44} until={25.2}>もし <span style={{ color: G }}>上の子が18歳</span> になるまで</Txt>
+          <Seg x={90} y={580} w={900} h={80} t={23.9} c={G} dur={36}>約17年 ──────→</Seg>
+          <Txt x={90} y={680} t={23.9} size={32} c={SUB} until={25.2}>2026年（今2歳）</Txt>
+          <Txt x={700} y={680} t={24.9} size={32} c={G} until={25.2}>2043年 18歳🎓</Txt>
+          <Pic name="jt_family_univ_entrance" x={360} y={740} size={360} t={24.6} until={25.2} />
         </>
       ) : null}
       {/* 年5%：ダッシュボード → 3本の棒 */}
@@ -321,6 +357,7 @@ const B3: React.FC<{ f: number; dark: number }> = ({ f, dark }) => {
           <VBar x={690} h={650 * PER} t={26.0} c={G} label="年5%" val="約650万" valT={27.1} dur={33} />
           <div style={{ position: "absolute", left: 70, top: BASE, width: 940, height: 6, background: INK }} />
           <Pic name="jt_money_tree_big" x={880} y={700} size={170} t={27.15} />
+          <Txt x={690} y={800} t={27.5} size={40} w={190} center c="#fff">＋235万</Txt>
           <Txt x={70} y={BASE + 56} t={27.6} size={28} c={SUB}>※年0.4%・年5%は計算のための仮定。運用は元本保証なし</Txt>
         </>
       ) : null}
@@ -382,6 +419,7 @@ const B4: React.FC<{ f: number }> = ({ f }) => {
     <>
       <Blueprint x={25} y={PANEL_Y} w={1030} h={830} t={28.2} until={41.55} fig="fig.04  注意点" c={RED} />
       <Stamp x={230} y={420} t={28.46} size={58} rot={-3} c={INK} until={37.5}>あくまで わが家のケース</Stamp>
+      <Pic name="jt_family_2y0y" x={55} y={395} size={160} t={29.2} until={29.85} />
       {!part2 ? (
         <>
           <Fork f={f} />
@@ -389,7 +427,8 @@ const B4: React.FC<{ f: number }> = ({ f }) => {
           <Pos x={55} y={600} t={29.9} pat="slideUp" tempo="brake"><div style={{ width: 460, height: 540, border: `5px solid ${RED}`, borderRadius: 20, background: "#fff" }} /></Pos>
           <Txt x={55} y={615} t={30.0} size={38} w={460} center>近いうちに使う</Txt>
           <Pic name="jt_parent_calendar_univ" x={150} y={665} size={260} t={30.3} />
-          <Mini x={110} y={950} w={340} h={110} t={31.2} dur={20} pts={[0.6, 0.68, 0.45, 0.15, 0.08]} c={RED} />
+          <Mini x={110} y={950} w={340} h={110} t={31.0} dur={45} pts={[0.6, 0.68, 0.45, 0.15, 0.08]} c={RED} />
+          <Txt x={360} y={1060} t={32.4} size={26} c={RED}>▲ここで使う</Txt>
           <Mark x={330} y={900} t={32.74} />
           <Stamp x={70} y={1080} t={32.9} size={42} rot={-4} c={RED}>運用はおすすめしません</Stamp>
           {/* 右：大学まで長い */}
@@ -405,6 +444,7 @@ const B4: React.FC<{ f: number }> = ({ f }) => {
       ) : (
         <>
           <Pic name="jt_crash_worry" x={50} y={430} size={380} t={37.6} pat="slideL" tempo="brake" until={40.8} />
+          <Txt x={600} y={470} t={38.45} size={48} c={RED} until={39.9}>グラッ…</Txt>
           <Stamp x={60} y={960} t={38.78} size={52} rot={-5} c={RED} until={40.8}>株だけ＝リスクが高い</Stamp>
           <Scale f={f} />
           <Pic name="jt_parent_shield_family" x={50} y={480} size={420} t={40.9} pat="slideUp" tempo="brake" />
@@ -415,24 +455,32 @@ const B4: React.FC<{ f: number }> = ({ f }) => {
   );
 };
 
-// ══ 早見表（41.55〜44.3）→ スライドの表紙へ（44.3〜47.1）══
+// ══ 早見表（41.55〜44.3）：4つの答えが大きくそろう → スライドの表紙へ（44.3〜47.1）══
+const GRID: [number, number][] = [[40, 400], [550, 400], [40, 800], [550, 800]];
+const ANS: string[][] = [["成長投資枠に", "一括"], ["約415万円"], ["インフレに", "負けない"], ["長く持てる", "＋債券も"]];
 const Overview: React.FC<{ f: number }> = ({ f }) => {
   if (f < F(41.55) || f > F(44.6)) return null;
   const out = p01(f, F(44.1), F(44.5), Easing.in(Easing.cubic));
   return (
     <div style={{ position: "absolute", inset: 0, opacity: 1 - out, transform: `scale(${1 - 0.25 * out})`, transformOrigin: "540px 700px" }}>
       <svg width={1080} height={1300} style={{ position: "absolute", left: 0, top: 0, overflow: "visible" }}>
-        {BR.map((b, i) => <Ln key={i} d={`M${b.x + NW / 2} ${NY + 174} L${b.x + NW / 2} 410`} t={41.6 + i * 0.1} dur={5} c={b.c} w={6} />)}
+        {BR.map((b, i) => <Ln key={i} d={`M${b.x + NW / 2} ${NY + 174} L${b.x + NW / 2} ${NY + 200} L${GRID[i][0] + 245} ${NY + 200} L${GRID[i][0] + 245} ${GRID[i][1]}`} t={41.6 + i * 0.25} dur={5} c={b.c} w={6} />)}
       </svg>
-      {BR.map((b, i) => (
-        <Pos key={i} x={b.x} y={410} t={41.7 + i * 0.12} pat="drop" tempo="bounce">
-          <div style={{ width: NW, height: 520, background: "#fff", border: `5px solid ${b.c}`, borderRadius: 18, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", padding: "16px 0", boxSizing: "border-box", boxShadow: "0 6px 14px rgba(30,35,50,0.12)" }}>
-            <GenSlot name={b.img} size={210} />
-            <div style={{ ...K, fontSize: 32, color: b.c, textAlign: "center", lineHeight: 1.3, padding: "0 10px" }}>{[["成長投資枠に", "一括"], ["約415万円"], ["インフレに", "負けない"], ["長く持てる", "＋債券も"]][i].map((l, k) => <div key={k}>{l}</div>)}</div>
-          </div>
-        </Pos>
-      ))}
-      <Stamp x={250} y={960} t={42.4} size={60} rot={-4} c={INK}>これが わが家の答え</Stamp>
+      {BR.map((b, i) => {
+        const t0 = 41.75 + i * 0.25;
+        const glow = Math.max(0, 1 - Math.abs(f - F(t0) - 6) / 8);
+        return (
+          <Pos key={i} x={GRID[i][0]} y={GRID[i][1]} t={t0} pat="pop" tempo="bounce">
+            <div style={{ width: 490, height: 380, background: "#fff", border: `6px solid ${b.c}`, borderRadius: 22, display: "flex", alignItems: "center", gap: 6, padding: "0 18px", boxSizing: "border-box", boxShadow: `0 0 ${10 + 40 * glow}px ${b.c}${glow > 0.05 ? "CC" : "33"}` }}>
+              <GenSlot name={b.img} size={200} />
+              <div style={{ flex: 1, textAlign: "center" }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, ...K, fontSize: 26, color: "#fff", background: b.c, borderRadius: 999, padding: "2px 14px" }}>{i + 1} {b.title}</div>
+                <div style={{ ...K, fontSize: 46, color: b.c, lineHeight: 1.25, marginTop: 10 }}>{ANS[i].map((l, k) => <div key={k} style={{ whiteSpace: "nowrap" }}>{l}</div>)}</div>
+              </div>
+            </div>
+          </Pos>
+        );
+      })}
     </div>
   );
 };
@@ -535,29 +583,39 @@ const CUES = [
   s("u03s", 25.2, 0.16), s("u06", 26.0, 0.14), s("u05", 27.1, 0.24), s("u05s", 27.3, 0.12), s("u05s", 27.45, 0.12), s("u09", 27.7, 0.2),
   s("u03s", 28.2, 0.16), s("u04", 28.46, 0.24), s("u05s", 29.9, 0.14), s("u07", 31.2, 0.16), s("u04", 32.8, 0.26), s("u05s", 33.92, 0.14), s("u06", 36.0, 0.14), s("u09", 36.8, 0.2),
   s("u03s", 37.5, 0.16), s("u07", 38.3, 0.2), s("u04", 38.78, 0.24), s("u05", 39.98, 0.2), s("u09", 40.9, 0.2),
-  s("u03s", 41.55, 0.16), s("u05s", 41.7, 0.1), s("u05s", 41.82, 0.1), s("u05s", 41.94, 0.1), s("u05s", 42.06, 0.1), s("u04", 42.4, 0.24),
+  s("u03s", 41.55, 0.16), s("u05s", 41.7, 0.1), s("u05s", 41.82, 0.1), s("u05s", 41.94, 0.1), s("u05s", 42.06, 0.1), s("u04", 42.75, 0.24),
   s("u03s", 44.1, 0.16), s("u06", 44.2, 0.16), s("u04", 46.1, 0.24),
   s("u03s", 47.1, 0.16), s("u05s", 48.4, 0.18), s("u03s", 49.25, 0.16), s("u05s", 50.25, 0.18),
 ];
-const PUNCH = [1.42, 4.42, 8.8, 13.96, 17.88, 22.76, 27.1, 32.8, 36.8, 39.98, 42.4];
+const PUNCH = [1.42, 4.42, 8.8, 13.96, 17.88, 22.76, 27.1, 32.8, 36.8, 39.98, 42.75];
 
 const SAFE = 0.86, SAFE_X = 40, SAFE_Y = 120;
 export const JIDOU_TREE_FRAMES = F(51.4);
+const MK = PROFILE.marke;
+const camP = (f: number, s0: number) => (f < s0 ? 0 : at(MK, f - s0));
+const zoomAt = (f: number) => {
+  let z = 0;
+  BR.forEach((b) => { z = Math.max(z, camP(f, F(b.open + 0.3)) * (1 - p01(f, F(b.close - 0.35), F(b.close), Easing.inOut(Easing.cubic)))); });
+  return z;
+};
 export const JidouTreeReel: React.FC = () => {
   const f = useCurrentFrame();
-  const dark = p01(f, F(18.4), F(18.4) + 10) * (1 - p01(f, F(25.1), F(25.1) + 10));
+  const dark = p01(f, F(18.4), F(18.4) + 10) * (1 - p01(f, F(23.35), F(23.35) + 8));
   const punch = PUNCH.reduce((a, t) => { const k = f - F(t); return k >= 0 && k < 12 ? a + at([0, 0.05, 0.06, 0.05, 0.035, 0.02, 0.012, 0.006, 0.003, 0], k) : a; }, 0);
   const drift = Math.sin(f / 60) * 5, driftY = Math.cos(f / 75) * 4;
-  const zoomOut = p01(f, F(41.4), F(41.9)) * (1 - p01(f, F(44.0), F(44.4)));
-  const bg = dark > 0 ? `rgb(${236 + (58 - 236) * dark}, ${238 + (37 - 238) * dark}, ${242 + (33 - 242) * dark})` : BG;
+  const z = zoomAt(f);
+  const zv = Math.abs(zoomAt(f) - zoomAt(f - 1));
+  const mix = (a: number, b: number) => Math.round(a + (b - a) * dark);
+  const bg = `rgb(${mix(251, 58)}, ${mix(246, 37)}, ${mix(216, 33)})`;
   return (
     <AbsoluteFill style={{ background: bg, overflow: "hidden" }}>
       <Audio src={staticFile("jidou-narration.wav")} />
       <SfxTrack cues={CUES} />
-      {/* 方眼（設計図ふう） */}
-      <AbsoluteFill style={{ backgroundImage: `linear-gradient(rgba(120,130,150,${0.13 * (1 - dark)}) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(120,130,150,${0.13 * (1 - dark)}) 1.5px, transparent 1.5px)`, backgroundSize: "48px 48px", backgroundPosition: `${drift}px ${driftY}px` }} />
-      <div style={{ position: "absolute", left: SAFE_X, top: SAFE_Y, width: 1080, height: 1920, transform: `scale(${SAFE})`, transformOrigin: "0 0" }}>
-        <div style={{ position: "absolute", inset: 0, transform: `translate(${drift}px, ${driftY}px) scale(${1 + punch - 0.04 * zoomOut})`, transformOrigin: "540px 600px" }}>
+      {/* いつものノート（黄色い紙＋横線） */}
+      <AbsoluteFill style={{ backgroundImage: `repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,${0.22 * (1 - dark)}) 62px 64px)`, backgroundPosition: `0px ${driftY - z * 60}px` }} />
+      <div style={{ position: "absolute", left: 92, top: 0, width: 4, height: 1920, background: `rgba(239,125,87,${0.35 * (1 - dark)})` }} />
+      <div style={{ position: "absolute", left: SAFE_X, top: SAFE_Y, width: 1080, height: 1300, transform: `scale(${SAFE})`, transformOrigin: "0 0", overflow: "hidden" }}>
+        <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1300, transform: `translate(${drift}px, ${driftY - 110 * z}px) scale(${1 + punch + 0.06 * z})`, transformOrigin: "540px 800px", filter: zv > 0.06 ? `blur(${Math.min(6, zv * 40)}px)` : undefined }}>
           <Tree f={f} dark={dark} />
           {f < F(2.6) ? <Intro f={f} /> : null}
           {f >= F(2.6) && f < F(7.5) ? <B1 f={f} /> : null}
@@ -566,6 +624,7 @@ export const JidouTreeReel: React.FC = () => {
           {f >= F(28.2) && f < F(42) ? <B4 f={f} /> : null}
           <Overview f={f} />
           <Slides f={f} />
+          <Fly f={f} />
         </div>
       </div>
       <TapCard at={47.16} until={49.2} src="cta_jidou/profile.jpg" iw={1179} ih={872} x={90} y={380} w={900} hit={[0.02, 0.915, 0.5, 0.075]} dimAt={47.6} tapAt={48.4} label={<>プロフの<span style={{ color: RED }}>リンク</span>から</>} labelAt={48.0} />
