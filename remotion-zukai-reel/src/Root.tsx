@@ -68,6 +68,7 @@ import { Ref12Repro, REF12_FRAMES } from "./Ref12Repro";
 import { KodomoProto, KODOMO_PROTO_FRAMES } from "./KodomoProto";
 import { KodomoProto2, KODOMO_PROTO2_FRAMES } from "./KodomoProto2";
 import { KodomoReel, KODOMO_REEL_FRAMES } from "./KodomoReel";
+import { JidouTreeReel, JIDOU_TREE_FRAMES } from "./JidouTreeReel";
 import { JidouReel, JIDOU_REEL_FRAMES } from "./JidouReel";
 import { KoshinReel, KOSHIN_REEL_FRAMES } from "./KoshinReel";
 import { MotionCatalog, MOTION_CATALOG_FRAMES } from "./MotionCatalog";
@@ -99,6 +100,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="LoanTaisaku2Reel" component={LoanTaisaku2Reel} durationInFrames={LOANTAISAKU2_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="TransitionDemo" component={TransitionDemo} durationInFrames={TRANSITION_DEMO_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MotionCatalog" component={MotionCatalog} durationInFrames={MOTION_CATALOG_FRAMES} fps={FPS} width={1080} height={1920} />
+      <Composition id="JidouTreeReel" component={JidouTreeReel} durationInFrames={JIDOU_TREE_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="JidouReel" component={JidouReel} durationInFrames={JIDOU_REEL_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="KoshinReel" component={KoshinReel} durationInFrames={KOSHIN_REEL_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="KodomoReel" component={KodomoReel} durationInFrames={KODOMO_REEL_FRAMES} fps={FPS} width={1080} height={1920} />
