@@ -118,3 +118,12 @@ export const JidouFull: React.FC = () => (
     </Sequence>
   </AbsoluteFill>
 );
+
+export const JIDOU_HOOK_FRAMES = F(HOOK_END);
+export const JidouHookOnly: React.FC = () => (
+  <AbsoluteFill>
+    <Audio src={staticFile(SRC)} />
+    <SfxTrack cues={HOOK_CUES} />
+    <Hook />
+  </AbsoluteFill>
+);
