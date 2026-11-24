@@ -27,6 +27,7 @@
   "devDependencies": {
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "hyperframes": "^0.9.87",
     "typescript": "^5.4.0"
   }
 }
