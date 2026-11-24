@@ -69,3 +69,10 @@
 - 暴落であせる親：jt_crash_worry／入学案内とカレンダーであせる夫：jt_parent_calendar_univ
 - 眠るお金：jt_money_sleep_bank／卵のかご：jt_eggs_two_baskets／盾の家族：jt_parent_shield_family
 - たいち：taichi_talk_*（口パク）・taichi_one_finger・taichi_full_present・taichi_ok_circle など
+
+## 枚数の分析（2026-11-24 たいちさん「多いんかな？分析して」）
+- 台本 約1,150字 ≈ 約3分。図解は7段。
+- 段ごとの「主役」：②は表、③④⑥は折れ線、⑤はシーソーと棒、⑦はタンクとブロック＝動画側で描く物が主役。画像は「その横に添えて気持ちを伝える役」で、各段2〜4枚で足りる（決まり：投資リール20〜27枚）。
+- 30枚の案のうち、動画側で描く物と重なる9枚は不要：8テレビ（冒頭は実写）・10/11お金の袋（タンクと重なる）・16新聞（表と重なる）・18大学の門（3と重なる）・20財布・21/22蛇口・25シーソー・28温度計・30箱（タンク・シーソー・目盛りは動画で描く）。29コインは今ある kn_coin_stack で足りる。
+- 結論：新しく **18枚**（今ある画像を合わせて約28枚）。
+  1 bk_kid_jhs3／2 bk_kid_hs／3 bk_kid_univ／4 bk_parent_bill／5 bk_parent_relax／6 bk_parent_pay／7 bk_parent_balance／9 bk_parent_phone_shock／12 bk_calendar_due／13 bk_sell_low／14 bk_hourglass_long／15 bk_mountain_climb／17 bk_parent_relax_crack／19 bk_kid_jhs3_worry／23 bk_parent_choose／24 bk_family_relief／26 bk_bank_building_rate／27 bk_bond_paper
