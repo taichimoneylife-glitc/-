@@ -100,6 +100,78 @@ const Num: React.FC<{ at: number; from?: number; to: number; dur?: number }> = (
   return <span style={{ display: "inline-block", transform: `translateY(${f >= F(at) + dur ? land : 0}px)` }}>{v.toLocaleString("en-US")}</span>;
 };
 
+// ── 強調の動き（山場ごとに使い分ける・放射線ばかりにしない） ──
+// ひび割れ：当たった所からガラスにひびが走る
+const Crack: React.FC<{ at: number; x: number; y: number; s?: number; until?: number }> = ({ at, x, y, s = 1, until = 999 }) => {
+  const f = useCurrentFrame();
+  if (f < F(at) || f > F(until) + 6) return null;
+  const p = interpolate(f - F(at), [0, 5], [0, 1], { ...clamp, easing: OUTE });
+  const o = 1 - interpolate(f, [F(until), F(until) + 6], [0, 1], clamp);
+  const P = ["M0 0 L60 -40 L95 -38 L150 -95", "M0 0 L-55 -30 L-80 -75 L-140 -90", "M0 0 L-40 50 L-95 70 L-120 130", "M0 0 L50 45 L70 110 L130 150", "M60 -40 L80 0 L130 10", "M-55 -30 L-100 0"];
+  return (
+    <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0, opacity: o, pointerEvents: "none" }}>
+      <g transform={`translate(${x} ${y}) scale(${s})`}>
+        {P.map((d, i) => <path key={i} d={d} fill="none" stroke={INK} strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} />)}
+        <circle r={10 * p} fill={INK} />
+      </g>
+    </svg>
+  );
+};
+// 四すみのカギで寄る（画面の角から集まって止まる＋倍率）
+const Corners: React.FC<{ at: number; until?: number; x: number; y: number; w: number; h: number; c?: string; zoom?: string }> = ({ at, until = 999, x, y, w, h, c = RED, zoom }) => {
+  const f = useCurrentFrame();
+  if (f < F(at) || f > F(until) + 5) return null;
+  const p = interpolate(f - F(at), [0, 8], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.3)) });
+  const o = 1 - interpolate(f, [F(until), F(until) + 5], [0, 1], clamp);
+  const L = 54;
+  const box = { x0: x + (0 - x) * (1 - p), y0: y + (300 - y) * (1 - p), x1: x + w + (1080 - x - w) * (1 - p), y1: y + h + (1500 - y - h) * (1 - p) };
+  const k = (cx: number, cy: number, dx: number, dy: number) => <path d={`M${cx} ${cy + dy * L} L${cx} ${cy} L${cx + dx * L} ${cy}`} fill="none" stroke={c} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" />;
+  return (
+    <div style={{ position: "absolute", inset: 0, opacity: o, pointerEvents: "none" }}>
+      <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
+        {k(box.x0, box.y0, 1, 1)}{k(box.x1, box.y0, -1, 1)}{k(box.x0, box.y1, 1, -1)}{k(box.x1, box.y1, -1, -1)}
+      </svg>
+      {zoom && p > 0.9 ? <div style={{ position: "absolute", left: box.x1 - 110, top: box.y1 + 10, background: c, color: "#fff", ...K, fontSize: 26, borderRadius: 8, padding: "0 10px" }}>{zoom}</div> : null}
+    </div>
+  );
+};
+// パタッと返る札（縦に回って止まる）
+const Flip: React.FC<{ at: number; x: number; y: number; children: React.ReactNode }> = ({ at, x, y, children }) => {
+  const f = useCurrentFrame();
+  if (f < F(at)) return null;
+  const r = interpolate(f - F(at), [0, 6, 9, 12], [-95, 12, -5, 0], clamp);
+  return <div style={{ position: "absolute", left: x, top: y, perspective: 900 }}><div style={{ transform: `rotateX(${r}deg)`, transformOrigin: "50% 0%" }}>{children}</div></div>;
+};
+// 数えるハンコ（1・2・3…と順に押される）
+const CountBadge: React.FC<{ at: number; x: number; y: number; n: number; until?: number }> = ({ at, x, y, n, until = 999 }) => {
+  const f = useCurrentFrame();
+  if (f < F(at) || f > F(until) + 5) return null;
+  const k = interpolate(f - F(at), [0, 3, 6], [2.2, 0.85, 1], clamp);
+  const o = interpolate(f - F(at), [0, 2], [0, 1], clamp) * (1 - interpolate(f, [F(until), F(until) + 5], [0, 1], clamp));
+  return <div style={{ position: "absolute", left: x - 30, top: y - 30, width: 60, height: 60, borderRadius: "50%", background: RED, border: "4px solid #fff", boxShadow: `0 0 0 4px ${RED}`, color: "#fff", ...K, fontSize: 36, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${k}) rotate(${(1 - Math.min(1, k)) * 40}deg)`, opacity: o }}>{n}</div>;
+};
+// 円グラフが埋まっていく（数字は段で増える）
+const Donut: React.FC<{ at: number; x: number; y: number; r: number; v: number; c: string; label: string }> = ({ at, x, y, r, v, c, label }) => {
+  const f = useCurrentFrame();
+  if (f < F(at)) return null;
+  const fs = Math.floor(f / 3) * 3;
+  const p = interpolate(fs, [F(at), F(at) + 18], [0, v], { ...clamp, easing: Easing.out(Easing.cubic) });
+  const k = interpolate(f - F(at), [0, 4, 8], [0.4, 1.08, 1], clamp);
+  const C = 2 * Math.PI * r;
+  return (
+    <div style={{ position: "absolute", left: x - r - 20, top: y - r - 20, width: 2 * r + 40, height: 2 * r + 40, transform: `scale(${k})` }}>
+      <svg width={2 * r + 40} height={2 * r + 40}>
+        <circle cx={r + 20} cy={r + 20} r={r} fill="#fff" stroke={RED} strokeWidth={34} />
+        <circle cx={r + 20} cy={r + 20} r={r} fill="none" stroke={c} strokeWidth={34} strokeDasharray={`${C * p} ${C}`} transform={`rotate(-90 ${r + 20} ${r + 20})`} />
+        <circle cx={r + 20} cy={r + 20} r={r + 19} fill="none" stroke={INK} strokeWidth={4} />
+        <circle cx={r + 20} cy={r + 20} r={r - 19} fill="none" stroke={INK} strokeWidth={4} />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", ...SER, fontSize: 44, color: c }}>{Math.round(p * 100)}<span style={{ ...K, fontSize: 22 }}>%</span></div>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 2 * r + 40, textAlign: "center", ...K, fontSize: 22, color: SUB, whiteSpace: "nowrap" }}>{label}</div>
+    </div>
+  );
+};
+
 // ════════ p1 暴落でいくら減る？（0–17.24） ════════
 // 株のタンク：水面がゆれる・下に蛇口
 const TK = { x: 80, y: 520, w: 440, h: 660 };
@@ -132,7 +204,7 @@ const P1: React.FC = () => {
   const crash = interpolate(f, [F(6.42), F(9.72)], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
   const level = fill * (1 - 0.366 * crash);
   const red = crash > 0.02;
-  const shake = f > F(5.16) && f < F(9.9) ? Math.sin(f * 2.3) * (f < F(6.42) ? 4 : 9) : 0;
+  const shake = f > F(5.16) && f < F(9.6) ? Math.sin(f * 2.3) * (f < F(6.42) ? 4 : 9) : 0;
   const tap = interpolate(f, [F(15.34), F(15.34) + 8], [0, 1], clamp);
   const fs = Math.floor(f / 3) * 3;
   const fillS = interpolate(fs, [F(0.3), F(1.8)], [0, 1], { ...clamp, easing: OUTE });
@@ -140,9 +212,9 @@ const P1: React.FC = () => {
   const card = Math.round(500 * fillS - 183 * crashS);
   return (
     <>
-      <Rays at={9.72} until={12.4} cx={300} cy={470} />
       <Head at={0} tag="例えば" title={<>教育資金を<span style={{ color: STK }}>株で500万円</span></>} />
       <StockTank level={level} red={red} tap={tap} shake={shake} />
+      <Crack at={9.72} until={15.2} x={300} y={760} s={1.3} />
       {/* 白いカード：数字が段で動く */}
       <At at={0.4} x={110} y={410} mode="pop"><div style={{ background: "#fff", border: `6px solid ${red ? RED : STK}`, borderRadius: 20, padding: "0 26px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...SER, fontSize: 80, color: red ? RED : STK }}>{card}</span><span style={{ ...K, fontSize: 34 }}>万円</span></div></At>
       {/* 現金（生活費） */}
@@ -158,7 +230,6 @@ const P1: React.FC = () => {
       <Ripple at={5.3} x={780} y={660} c={RED} />
       <At at={6.42} until={12.4} x={580} y={790} mode="slam"><span style={{ ...SER, fontSize: 130, color: RED, textShadow: "4px 4px 0 #fff" }}>−37<span style={{ fontSize: 64 }}>%</span></span></At>
       {/* 317 */}
-      <Burst at={9.72} cx={300} cy={460} r0={260} />
       <Spot at={9.72} until={12.4} rect={[90, 395, 400, 130]} r={22} color={RED} />
       <Ring at={9.8} until={12.4} x={290} y={460} r={110} c={RED} />
       <Chain at={10.1} x={300} y0={1190} y1={1210} until={12.4}><div style={{ transform: "translateX(-150px)" }}><Tag c={RED} size={34}>1年で 約183万円 減った</Tag></div></Chain>
@@ -237,9 +308,8 @@ const P2: React.FC = () => {
       <HandCircle at={25.1} until={26.3} x={COLX + COLW / 2} y={TY + 60 + RH * 3 + RH / 2} r={105} ry={46} />
       <Spot at={26.48} until={29.3} rect={[COLX - 4, TY, COLW + 8, 60 + RH * 7]} r={14} color={RED} />
       <At at={26.9} until={29.3} x={COLX} y={TY - 58} mode="drop"><Tag c={RED} size={30}>3年より長い？</Tag></At>
-      <Rays at={29.42} until={30.6} cx={540} cy={1230} />
-      <Burst at={29.42} cy={1230} r0={320} />
-      <At at={29.42} x={60} y={1200} mode="slam"><Big bg={RED} fg="#fff" size={52}>7回のうち4回は 3年で戻らず</Big></At>
+      {[0, 1, 3, 4].map((r, k) => <CountBadge key={r} at={27.0 + k * 0.45} x={COLX + COLW - 34} y={TY + 60 + RH * r + RH / 2} n={k + 1} until={30.6} />)}
+      <Flip at={29.42} x={60} y={1200}><Big bg={RED} fg="#fff" size={52}>7回のうち4回は 3年で戻らず</Big></Flip>
       {!intro ? <At at={20.3} x={880} y={250} mode="spring"><Img2 n="bk_hourglass_long" s={130} /></At> : null}
       <Foot at={20.14} y={1320}>※米国株S&P500は株価だけ（配当なし）。「戻る」＝暴落前の最高値に戻ること。日本は日経平均で、7回には入れていません</Foot>
     </>
@@ -292,8 +362,8 @@ const P3: React.FC = () => {
       <At at={32.0} until={38.8} x={560} y={410} mode="drop"><div style={{ background: "#fff", border: `4px solid ${INK}`, borderRadius: 18, padding: "4px 14px", ...B, fontSize: 28 }}>まだ時間あるし大丈夫</div></At>
       <At at={38.86} until={45.5} x={800} y={200} mode="slam"><Img2 n="bk_parent_relax_crack" s={220} /></At>
       {/* 山場 */}
-      <Rays at={38.86} until={41.9} cx={ex} cy={ey} />
       <Burst at={38.86} cx={ex} cy={ey} r0={180} />
+      <Corners at={39.0} until={41.9} x={ex - 150} y={cy(500) - 40} w={300} h={ey - cy(500) + 90} zoom="×2" />
       <At at={38.86} until={45.5} x={ex - 360} y={ey - 230} mode="slam"><div style={{ background: "#fff", border: `6px solid ${RED}`, borderRadius: 20, padding: "6px 22px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 30 }}>3年たっても 約</span><span style={{ ...SER, fontSize: 92, color: RED }}><Num at={38.9} from={317} to={460} dur={22} /></span><span style={{ ...K, fontSize: 34 }}>万円</span></div></At>
       <HandCircle at={39.8} until={45.5} x={ex} y={(cy(500) + ey) / 2} r={46} ry={56} />
       <At at={40.2} until={46.6} x={ex - 250} y={(cy(500) + ey) / 2 + 20} mode="drop"><Tag c={RED} size={28}>500万円に まだ届かない</Tag></At>
@@ -377,8 +447,7 @@ const P4: React.FC = () => {
       <At at={49.5} until={55.6} x={780} y={1060} mode="spring"><Img2 n="bk_parent_choose" s={230} /></At>
       {/* 学費 */}
       {t >= 55.8 && t < 60.6 ? <div style={{ position: "absolute", left: payX - 100, top: 1070, transition: "none" }}><Img2 n="bk_parent_pay" s={200} /></div> : null}
-      <Burst at={60.64} cy={1200} r0={320} />
-      <At at={60.64} x={60} y={1170} mode="slam"><Big size={44}>状況に合わせて 柔軟に！</Big></At>
+      <Flip at={60.64} x={60} y={1170}><Big size={44}>状況に合わせて 柔軟に！</Big></Flip>
       <At at={61.2} x={820} y={1080} mode="spring"><Img2 n="bk_family_relief" s={190} /></At>
       <Foot at={50.0} y={1300}>※過去の例。S&P500（配当込み）と米国10年債（利息込み）、ドル建て。Shiller・Damodaranのデータ。割合や値動きは人によって違います</Foot>
     </>
@@ -462,7 +531,7 @@ const P5: React.FC = () => {
           <div style={{ position: "absolute", left: 80, top: AX - 3, width: 920, height: 6, background: INK }} />
           {bar(170, -36.6, STK, 76.54, "株")}
           {bar(610, 20.1, BND, 79.34, "米国10年国債")}
-          <Burst at={79.34} cx={760} cy={650} r0={260} />
+          <Ripple at={79.6} x={760} y={600} c={BND} n={3} />
           <At at={79.7} x={400} y={560} mode="spring"><Img2 n="bk_bond_paper" s={150} /></At>
           <At at={80.2} x={560} y={1000} mode="drop"><Tag c={BND} size={34}>株と 逆に動いた</Tag></At>
           <Foot at={76.54} y={1320}>※2008年の年間リターン（配当・利息込み）：S&P500 −36.55%、米国10年債 +20.10%（Damodaran・NYU）</Foot>
@@ -493,9 +562,8 @@ const P6: React.FC = () => {
           return <div key={y} style={{ height: 96, borderRadius: 18, background: !on ? "#fff" : plus ? BND : RED, color: on ? "#fff" : INK, border: `5px solid ${INK}`, ...K, fontSize: 38, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${k * (hot ? 1.15 : 1)}) scaleX(${fl})`, boxShadow: hot ? `0 0 0 8px ${YEL}` : `5px 6px 0 ${INK}`, zIndex: hot ? 2 : 1 }}>{y}</div>;
         })}
       </div>
-      <Rays at={85.6} until={88.0} cx={420} cy={1190} />
-      <Burst at={85.6} cy={1190} r0={280} />
-      <At at={85.6} until={88.0} x={60} y={1130} mode="slam"><div style={{ background: "#fff", border: `7px solid ${BND}`, borderRadius: 22, padding: "4px 28px", boxShadow: `7px 9px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 36 }}>債券プラス </span><span style={{ ...SER, fontSize: 104, color: BND }}>約8</span><span style={{ ...K, fontSize: 46 }}>割</span><span style={{ ...B, fontSize: 28, color: SUB }}>（26回中21回）</span></div></At>
+      <Donut at={85.6} x={930} y={1180} r={78} v={21 / 26} c={BND} label="26回中21回" />
+      <At at={85.6} until={88.0} x={40} y={1130} mode="slam"><div style={{ background: "#fff", border: `7px solid ${BND}`, borderRadius: 22, padding: "4px 28px", boxShadow: `7px 9px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 36 }}>債券プラス </span><span style={{ ...SER, fontSize: 104, color: BND }}>約8</span><span style={{ ...K, fontSize: 46 }}>割</span><span style={{ ...B, fontSize: 28, color: SUB }}>（26回中21回）</span></div></At>
       <HandCircle at={86.4} until={90.6} x={50 + 168 + 76} y={500 + 4 * 112 + 48} r={92} ry={62} />
       <Chain at={88.1} x={294} y0={1060} y1={1120}><div style={{ transform: "translateX(-60px)" }}><Stamp size={40}>株も債券も 下がった年も</Stamp></div></Chain>
       <Foot at={83.0} y={1320}>※1928〜2025年（98年間）でS&P500（配当込み）がマイナスの26年のうち、米国10年債（利息込み）がプラスは21年（Damodaran・NYU）。2022年は物価を抑えるために金利が大きく上がり、株も債券も下がりました</Foot>
@@ -524,7 +592,6 @@ const P7: React.FC = () => {
       <At at={91.0} x={60} y={GY - 70} mode="fade"><span style={{ ...B, fontSize: 28, color: SUB }}>米国10年債の利回り（月平均）</span></At>
       <Spot at={92.4} until={93.4} rect={[gx(iLow) - 70, gy(UST10Y[iLow]) - 60, 140, 110]} r={18} />
       <At at={92.5} until={93.5} x={gx(iLow) - 150} y={gy(UST10Y[iLow]) + 60} mode="drop"><Tag c={INK}>2020年 0.52%</Tag></At>
-      <Burst at={93.6} cx={gx(iEnd)} cy={gy(UST10Y[iEnd])} r0={200} />
       <Ring at={92.4} until={93.4} x={gx(iLow)} y={gy(UST10Y[iLow])} r={50} c={RED} w={6} />
       <Spot at={93.6} until={96.4} rect={[gx(iEnd) - 340, gy(UST10Y[iEnd]) - 180, 390, 240]} r={22} color={RED} />
       <At at={94.0} until={96.4} x={gx(iEnd) - 330} y={gy(UST10Y[iEnd]) + 80} mode="drop"><Tag c={RED} size={30}>2020年より ずっと高い</Tag></At>
@@ -539,13 +606,13 @@ const P7: React.FC = () => {
 };
 
 // ════════ p8 資産分散（100.68–107.6） ════════
-const MiniTank: React.FC<{ x: number; at: number; c: string; label: string; lv: number; role: string }> = ({ x, at, c, label, lv, role }) => {
+const MiniTank: React.FC<{ x: number; at: number; c: string; label: string; lv: number; role: string; hop: number }> = ({ x, at, c, label, lv, role, hop }) => {
   const f = useCurrentFrame();
   const k = interpolate(f, [F(at), F(at) + 12], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.5)) });
   const W = 260, H = 380, top = 30 + (H - 60) * (1 - lv * Math.min(1, k * 1.2));
   const wave = Array.from({ length: 13 }).map((_, i) => `${16 + i * ((W - 32) / 12)},${top + Math.sin(i * 0.9 + f / 4 + x) * 6}`).join(" ");
   return (
-    <div style={{ position: "absolute", left: x, top: 560, width: W, height: H + 120, opacity: Math.min(1, k * 2), transform: `translateY(${(1 - k) * 120}px)` }}>
+    <div style={{ position: "absolute", left: x, top: 560, width: W, height: H + 120, opacity: Math.min(1, k * 2), transform: `translateY(${(1 - k) * 120 + interpolate(f - F(hop), [0, 4, 8, 11, 14], [0, -46, 0, -12, 0], clamp)}px)` }}>
       <svg width={W} height={H} style={{ position: "absolute", left: 0, top: 0 }}>
         <rect x={5} y={5} width={W - 10} height={H - 10} rx={26} fill="#fff" stroke={INK} strokeWidth={6} />
         <polygon points={`16,${H - 16} ${wave} ${W - 16},${H - 16}`} fill={c} />
@@ -561,17 +628,18 @@ const P8: React.FC = () => {
   const PY = 560 + 300;
   return (
     <>
-      <Rays at={103.02} until={105.3} cx={540} cy={1200} />
       <div style={{ position: "absolute", left: 60, top: 290, ...K, fontSize: 66, color: INK, whiteSpace: "nowrap" }}><TypeIn at={F(100.68)}>どれか<R>1つだけ</R>ではなく</TypeIn></div>
       {/* 管（3つがつながる） */}
       <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
         {[[330, 410], [670, 750]].map(([a, b], i) => <g key={i}><rect x={a} y={PY - 18} width={(b - a) * pipe} height={36} fill="#D9D2BC" stroke={INK} strokeWidth={5} />{pipe > 0.9 ? Array.from({ length: 3 }).map((_, j) => <circle key={j} cx={a + ((f * 3 + j * 27) % (b - a))} cy={PY} r={8} fill={YEL} />) : null}</g>)}
       </svg>
-      <MiniTank x={70} at={100.9} c={STK} label="株" lv={0.8} role={"増やす\n物価に負けない"} />
-      <MiniTank x={410} at={101.2} c={BND} label="債券" lv={0.6} role={"暴落の備え\n利息で増やす"} />
-      <MiniTank x={750} at={101.5} c={CASH} label="現金" lv={0.45} role="すぐ使う" />
-      <Burst at={103.02} cy={1200} r0={340} dur={26} />
-      <At at={103.02} x={50} y={1150} mode="slam"><Big size={52}>何が起きても対応できる 資産分散</Big></At>
+      <MiniTank x={70} at={100.9} c={STK} label="株" lv={0.8} role={"増やす\n物価に負けない"} hop={103.3} />
+      <MiniTank x={410} at={101.2} c={BND} label="債券" lv={0.6} role={"暴落の備え\n利息で増やす"} hop={103.45} />
+      <MiniTank x={750} at={101.5} c={CASH} label="現金" lv={0.45} role="すぐ使う" hop={103.6} />
+      <Ripple at={103.3} x={200} y={600} c={STK} />
+      <Ripple at={103.45} x={540} y={600} c={BND} />
+      <Ripple at={103.6} x={880} y={600} c={CASH} />
+      <At at={103.02} x={50} y={1150} mode="wipe"><Big size={52}>何が起きても対応できる 資産分散</Big></At>
       <At at={105.34} x={760} y={330} mode="spring"><Img2 n="bk_parent_balance" s={240} /></At>
     </>
   );
@@ -601,7 +669,7 @@ const PUNCH: Record<string, CamKey[]> = {
 
 // 右下のたいち：気持ちが動く所だけひょこっと（最後は口パクで話す）
 const APPEAR: [number, number, string][] = [
-  [6.42, 11.5, "taichi_scared"], [26.48, 30.6, "taichi_worry"], [58.64, 63.4, "taichi_thumbs_up"], [85.6, 88.0, "taichi_idea"], [100.68, 107.6, "__talk"],
+  [6.42, 11.5, "taichi_scared"], [26.48, 30.6, "taichi_worry"], [58.64, 63.4, "taichi_thumbs_up"], [100.68, 107.6, "__talk"],
 ];
 const Chara: React.FC = () => {
   const f = useCurrentFrame();
