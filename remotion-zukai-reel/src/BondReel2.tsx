@@ -188,6 +188,7 @@ const P2: React.FC = () => {
       </div>
       <HandCircle at={23.0} until={24.6} x={913} y={TY + 56 + RH * 4 + 35} r={100} ry={42} />
       <HandCircle at={25.1} until={26.3} x={913} y={TY + 56 + RH * 3 + 35} r={100} ry={42} />
+      <Spot at={26.48} until={29.3} rect={[790, TY, 240, 56 + RH * 7]} r={14} color={RED} />
       <At at={26.9} until={29.3} x={790} y={TY - 58} mode="drop"><Tag c={RED} size={30}>3年より長い？</Tag></At>
       <Rays at={29.42} until={30.6} cx={540} cy={1180} />
       <At at={26.6} x={70} y={TY + 56 + RH * 8 + 30} mode="drop"><span style={{ ...B, fontSize: 24, color: RED }}>■ 赤＝戻るまで 3年より長かった暴落（日本を除く7回のうち）</span></At>
