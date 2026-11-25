@@ -9,7 +9,7 @@ import { F, K, SER, Lines as LinesM, At, Arrow, Cross, TCtx, TypeIn, R as RM } f
 import { Captions } from "./BourakuReel";
 import { Spot, Camera, CamKey } from "./components/cam";
 import { UST10Y } from "./ust10y";
-import { BD_LAB, BD_STOCK } from "./bondData";
+import { BD_LAB, BD_STOCK, BD_BOND } from "./bondData";
 import { BOND_MOUTH } from "./bondMouth";
 import { Ring, Ripple, HandCircle, Chain, Burst as Rays } from "./components/marke";
 
@@ -142,7 +142,6 @@ const P1: React.FC = () => {
       <At at={13.4} x={610} y={790} mode="drop"><Pill c={INK} size={30}>入学金・授業料</Pill></At>
       {/* 下がったところで売る */}
       {sell > 0 ? <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><path d={`M420 ${1200 - h + 30} C 520 ${1150 - h}, 560 ${1040 - h * 0.2}, 640 ${1030}`} fill="none" stroke={RED} strokeWidth={7} strokeDasharray="16 12" strokeDashoffset={-f * 2} opacity={sell} /></svg> : null}
-      <Spot at={15.5} until={17.0} rect={[50, 1185, 860, 120]} r={24} color={RED} />
       <At at={15.34} x={70} y={1210 - 10} mode="slam"><Big bg="#fff" fg={RED} size={44}>下がったところで 売るしかない</Big></At>
       <Foot at={9.72} y={1300}>※米国株S&P500・配当込み、2008年の年間リターン（−36.55%）で計算</Foot>
     </>
@@ -187,11 +186,8 @@ const P2: React.FC = () => {
           );
         })}
       </div>
-      <Spot at={22.62} until={24.6} rect={[50, TY + 56 + RH * 4, 980, RH]} r={10} />
       <HandCircle at={23.0} until={24.6} x={913} y={TY + 56 + RH * 4 + 35} r={100} ry={42} />
-      <Spot at={24.76} until={26.3} rect={[50, TY + 56 + RH * 3, 980, RH]} r={10} />
       <HandCircle at={25.1} until={26.3} x={913} y={TY + 56 + RH * 3 + 35} r={100} ry={42} />
-      <Spot at={26.48} until={29.3} rect={[790, TY, 240, 56 + RH * 7]} r={14} color={RED} />
       <At at={26.9} until={29.3} x={790} y={TY - 58} mode="drop"><Tag c={RED} size={30}>3年より長い？</Tag></At>
       <Rays at={29.42} until={30.6} cx={540} cy={1180} />
       <At at={26.6} x={70} y={TY + 56 + RH * 8 + 30} mode="drop"><span style={{ ...B, fontSize: 24, color: RED }}>■ 赤＝戻るまで 3年より長かった暴落（日本を除く7回のうち）</span></At>
@@ -243,7 +239,6 @@ const P3: React.FC = () => {
       <Rays at={38.86} until={41.9} cx={ex} cy={ey} />
       <Burst at={38.86} cx={ex} cy={ey} r0={180} />
       <At at={38.86} until={45.5} x={ex - 330} y={ey - 210} mode="slam"><div style={{ background: "#fff", border: `6px solid ${RED}`, borderRadius: 20, padding: "6px 22px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 28 }}>3年たっても 約</span><span style={{ ...SER, fontSize: 84, color: RED }}><Num at={38.9} from={317} to={460} dur={22} /></span><span style={{ ...K, fontSize: 32 }}>万円</span></div></At>
-      <Spot at={38.86} until={41.9} rect={[490, 488, 530, 256]} r={24} color={RED} />
       <HandCircle at={39.8} until={41.9} x={ex} y={(cy(500) + ey) / 2} r={46} ry={50} />
       <At at={40.2} until={46.6} x={ex + 22} y={(cy(500) + ey) / 2 - 22} mode="drop"><Tag c={RED} size={24}>まだ届かない</Tag></At>
       {/* 「まだ大丈夫」→ 青ざめる */}
@@ -251,9 +246,7 @@ const P3: React.FC = () => {
       <At at={35.4} until={38.8} x={560} y={330} mode="drop"><div style={{ background: "#fff", border: `4px solid ${INK}`, borderRadius: 18, padding: "4px 14px", ...B, fontSize: 26 }}>まだ時間あるし大丈夫</div></At>
       <At at={38.86} until={45.5} x={820} y={240} mode="slam"><Img2 n="bk_parent_relax_crack" s={200} /></At>
       {/* つまり */}
-      <Spot at={42.38} until={45.5} rect={[50, 1222, 960, 124]} r={24} color={RED} />
       <At at={42.38} x={70} y={1240} mode="slam"><Big bg="#fff" fg={RED} size={42}>危ないのは 使う年の暴落だけじゃない</Big></At>
-      <Spot at={46.78} until={48.7} rect={[ex - 20, ey - 150, 210, 300]} r={26} color={RED} />
       <At at={46.78} x={ex + 70} y={ey - 120} mode="slam"><span style={{ ...SER, fontSize: 130, color: RED }}>？</span></At>
       <At at={46.9} x={560} y={460} mode="drop"><Pill c={INK} size={28}>戻るまで どれくらい？ わからない</Pill></At>
       <Foot at={36.66} y={1340}>※2007年末に500万円。S&P500・配当込み・ドル建て。月の動き＝Shiller（イェール大）の月次データ、年末の値＝Damodaran（NYU）の年間リターン</Foot>
@@ -262,56 +255,83 @@ const P3: React.FC = () => {
 };
 
 // ════════ p4 だから僕は、債券も（49.32–63.84） ════════
-const Box: React.FC<{ x: number; at: number; dir: 1 | -1; c: string; label: string; up: boolean; on: boolean; wait: boolean; children?: React.ReactNode }> = ({ x, at, dir, c, label, up, on, wait, children }) => {
+// 株と債券を1つのチャートに（2007年半ば〜2013年・2007年末＝500万円）
+const J0 = BD_LAB.indexOf("2007-06"), J1 = BD_LAB.length - 1;
+const QX = 130, QW = 860, QY = 600, QH = 440, QLO = 280, QHI = 740;
+const qx = (i: number) => QX + ((i - J0) / (J1 - J0)) * QW, qy = (v: number) => QY + QH - ((v - QLO) / (QHI - QLO)) * QH;
+const JA0 = BD_LAB.indexOf("2008-06"), JA1 = BD_LAB.indexOf("2010-12"), JAm = BD_LAB.indexOf("2009-06");
+const JB0 = BD_LAB.indexOf("2012-06"), JBm = BD_LAB.indexOf("2013-06");
+// お金がチャートの線から学費へ落ちていく
+const Coins: React.FC<{ at: number; until: number; x0: number; y0: number; x1: number; y1: number; c: string }> = ({ at, until, x0, y0, x1, y1, c }) => {
   const f = useCurrentFrame();
-  const glow = on ? 0.5 + 0.5 * Math.sin(f / 4) : 0;
-  const sw = swoop(f, at, dir);
+  if (f < F(at) || f > F(until)) return null;
   return (
-    <div style={{ position: "absolute", left: x, top: 640, width: 440, height: 400, background: on ? "#FFFDF2" : "#fff", border: `5px solid ${INK}`, borderRadius: 24, boxSizing: "border-box", boxShadow: on ? `0 0 0 8px ${YEL}, 0 0 ${24 + 14 * glow}px ${YEL}` : `7px 9px 0 ${INK}`, ...sw, filter: wait ? "grayscale(0.5)" : sw.filter, opacity: Number(sw.opacity ?? 1) * (wait ? 0.75 : 1) }}>
-      <div style={{ position: "absolute", left: 24, top: 16, ...K, fontSize: 44, color: c }}>{label}</div>
-      <svg width={430} height={390} style={{ position: "absolute", left: 0, top: 0 }}>
-        <polyline points={up ? "40,300 120,260 200,270 280,200 380,120" : "40,140 120,170 200,160 280,250 380,320"} fill="none" stroke={up ? BND : RED} strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      {children}
-    </div>
+    <>
+      {Array.from({ length: 4 }).map((_, k) => {
+        const d = (f - F(at) - k * 8) % 32;
+        if (f - F(at) < k * 8 || d < 0) return null;
+        const p = interpolate(d, [0, 22], [0, 1], { ...clamp, easing: Easing.in(Easing.quad) });
+        const o = interpolate(d, [0, 3, 20, 26], [0, 1, 1, 0], clamp);
+        return <div key={k} style={{ position: "absolute", left: x0 + (x1 - x0) * p - 22, top: y0 + (y1 - y0) * p - 22, width: 44, height: 44, borderRadius: "50%", background: YEL, border: `4px solid ${c}`, opacity: o, ...K, fontSize: 24, color: c, display: "flex", alignItems: "center", justifyContent: "center" }}>¥</div>;
+      })}
+    </>
   );
 };
 const P4: React.FC = () => {
   const f = useCurrentFrame();
   const t = f / 30;
   const phaseA = t >= 55.12 && t < 58.64, phaseB = t >= 58.64;
+  const n = Math.round(interpolate(f, [F(49.8), F(51.6)], [J0 + 1, J1], { ...clamp, easing: Easing.inOut(Easing.quad) }));
+  const band = (i0: number, i1: number, at: number, c: string) => {
+    const k = interpolate(f, [F(at), F(at) + 8], [0, 1], { ...clamp, easing: OUTE });
+    return <rect x={qx(i0)} y={QY - 10} width={(qx(i1) - qx(i0)) * k} height={QH + 20} rx={18} fill={c} opacity={0.16} />;
+  };
+  const pt = (arr: number[], i: number) => [qx(i), qy(arr[i])] as const;
+  const [bAx, bAy] = pt(BD_BOND, JAm), [sAx, sAy] = pt(BD_STOCK, JAm), [sBx, sBy] = pt(BD_STOCK, JBm);
+  const payX = phaseB ? sBx : bAx;
   return (
     <>
       <Head at={49.32} tag="僕の場合" title={<>株と一緒に <span style={{ color: BND }}>債券</span>も</>} c={BND} />
-      <At at={49.6} x={70} y={420} mode="spring"><Img2 n="taichi_one_finger" s={170} /></At>
       {/* NISA → 債券 500万円 */}
-      <At at={51.86} x={250} y={450} mode="drop"><Pill c={STK} size={34}>NISAの一部</Pill></At>
-      <Arrow at={52.4} x1={540} y1={480} x2={640} y2={480} color={INK} />
-      <At at={52.8} x={660} y={430} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BND}`, borderRadius: 18, padding: "2px 22px", whiteSpace: "nowrap", boxShadow: `5px 7px 0 ${INK}` }}><span style={{ ...K, fontSize: 30, color: BND }}>債券 </span><span style={{ ...SER, fontSize: 64, color: BND }}><Num at={53.0} to={500} dur={14} /></span><span style={{ ...K, fontSize: 28 }}>万円</span></div></At>
-      <Spot at={52.9} until={54.8} rect={[640, 412, 380, 124]} r={22} color={BND} />
-      <Ripple at={52.9} x={830} y={474} c={BND} />
-      <At at={53.4} x={890} y={540} mode="spring"><Img2 n="bk_bond_paper" s={120} /></At>
-      {/* 2つの箱 */}
-      <Box x={60} at={55.0} dir={-1} c={STK} label="株" up={phaseB} on={phaseB} wait={phaseA}>{phaseA ? <div style={{ position: "absolute", right: 24, top: 20, ...K, fontSize: 34, color: RED, border: `5px solid ${RED}`, borderRadius: 12, padding: "0 14px", background: "#fff", transform: "rotate(6deg)" }}>待つ</div> : null}</Box>
-      <Box x={580} at={55.2} dir={1} c={BND} label="債券" up on={phaseA} wait={false} />
-      {phaseA ? <Cross at={55.6} x={180} y={760} s={190} /> : null}
-      <Spot at={55.3} until={57.2} rect={[580, 640, 440, 400]} r={24} color={BND} />
-      <At at={55.7} until={57.2} x={680} y={1050} mode="drop"><Tag c={BND} size={32}>ここから使う</Tag></At>
-      <Spot at={58.8} until={60.4} rect={[60, 640, 440, 400]} r={24} color={STK} />
-      <Rays at={60.64} until={63.0} cx={540} cy={1200} />
-      {/* 学費へ */}
-      <At at={55.8} until={60.5} x={400} y={1060} mode="spring"><Img2 n="bk_parent_pay" s={240} /></At>
-      {phaseA ? <Arrow at={55.9} x1={800} y1={1045} x2={640} y2={1120} color={BND} /> : null}
-      {phaseB ? <Arrow at={58.8} x1={280} y1={1045} x2={420} y2={1120} color={STK} /> : null}
-      <At at={55.5} until={58.6} x={600} y={570} mode="drop"><Tag c={RED} size={30}>株↓ → 債券から使う</Tag></At>
-      <At at={58.64} x={70} y={570} mode="drop"><Tag c={BND} size={30}>株↑ → 株から使う</Tag></At>
+      <At at={51.86} x={130} y={450} mode="drop"><Pill c={STK} size={34}>NISAの一部</Pill></At>
+      <Arrow at={52.4} x1={420} y1={480} x2={520} y2={480} color={INK} />
+      <At at={52.8} x={540} y={430} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BND}`, borderRadius: 18, padding: "2px 22px", whiteSpace: "nowrap", boxShadow: `5px 7px 0 ${INK}` }}><span style={{ ...K, fontSize: 30, color: BND }}>債券 </span><span style={{ ...SER, fontSize: 64, color: BND }}><Num at={53.0} to={500} dur={14} /></span><span style={{ ...K, fontSize: 28 }}>万円</span></div></At>
+      <Ripple at={52.9} x={720} y={474} c={BND} />
+      <At at={53.4} x={900} y={420} mode="spring"><Img2 n="bk_bond_paper" s={120} /></At>
+      {/* 1つのチャート */}
+      <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
+        {phaseA ? band(JA0, JA1, 55.12, RED) : null}
+        {phaseB ? band(JB0, J1, 58.64, BND) : null}
+        <g opacity={interpolate(f, [F(49.5), F(49.9)], [0, 1], clamp)}>
+          {[300, 500, 700].map((v) => <g key={v}><line x1={QX} x2={QX + QW} y1={qy(v)} y2={qy(v)} stroke={v === 500 ? INK : "#E6DDBE"} strokeWidth={v === 500 ? 3 : 2} strokeDasharray={v === 500 ? "12 10" : undefined} opacity={v === 500 ? 0.5 : 1} /><text x={QX - 12} y={qy(v) + 9} textAnchor="end" fontSize={26} fill={SUB} fontFamily="Noto Sans JP" fontWeight={700}>{v}</text></g>)}
+          {["2008", "2009", "2010", "2011", "2012", "2013"].map((y) => <text key={y} x={qx(BD_LAB.indexOf(`${y}-01`))} y={QY + QH + 38} textAnchor="middle" fontSize={24} fill={SUB} fontFamily="Noto Sans JP" fontWeight={700}>{y}</text>)}
+        </g>
+        <polyline points={BD_STOCK.slice(J0, n + 1).map((v, k) => `${qx(J0 + k)},${qy(v)}`).join(" ")} fill="none" stroke={STK} strokeWidth={phaseB ? 10 : 7} strokeLinejoin="round" strokeLinecap="round" opacity={phaseA ? 0.45 : 1} />
+        <polyline points={BD_BOND.slice(J0, n + 1).map((v, k) => `${qx(J0 + k)},${qy(v)}`).join(" ")} fill="none" stroke={BND} strokeWidth={phaseA ? 10 : 7} strokeLinejoin="round" strokeLinecap="round" opacity={phaseB ? 0.45 : 1} />
+      </svg>
+      <At at={51.0} x={qx(J1) - 60} y={qy(BD_STOCK[J1]) - 54} mode="pop"><Tag c={STK} size={28}>株</Tag></At>
+      <At at={51.0} x={qx(J1) - 70} y={qy(BD_BOND[J1]) + 14} mode="pop"><Tag c={BND} size={28}>債券</Tag></At>
+      <At at={49.6} x={QX} y={QY - 48} mode="fade"><span style={{ ...B, fontSize: 24, color: SUB }}>2007年末に500万円ずつ持っていたら（万円）</span></At>
+      {/* 場面A：株↓ → 債券から使う */}
+      <At at={55.3} until={58.6} x={qx(JA0) + 10} y={QY - 4} mode="drop"><Tag c={RED} size={28}>株が下がっている間</Tag></At>
+      <At at={55.6} until={58.6} x={sAx - 60} y={sAy + 26} mode="slam"><div style={{ ...K, fontSize: 34, color: RED, border: `5px solid ${RED}`, borderRadius: 12, padding: "0 14px", background: "#fff", transform: "rotate(6deg)" }}>株は待つ</div></At>
+      <Ring at={55.4} until={58.6} x={bAx} y={bAy} r={40} c={BND} w={7} />
+      <Coins at={55.8} until={58.6} x0={bAx} y0={bAy} x1={bAx} y1={1110} c={BND} />
+      <At at={55.8} until={58.6} x={bAx + 40} y={bAy - 70} mode="drop"><Tag c={BND} size={30}>債券から使う</Tag></At>
+      {/* 場面B：株↑ → 株から使う */}
+      <At at={58.8} x={qx(JB0) - 150} y={QY + QH - 40} mode="drop"><Tag c={BND} size={28}>株が上がっている時</Tag></At>
+      <Ring at={58.8} until={60.6} x={sBx} y={sBy} r={40} c={STK} w={7} />
+      <Coins at={59.0} until={60.6} x0={sBx} y0={sBy} x1={sBx} y1={1110} c={STK} />
+      <At at={59.2} until={60.6} x={sBx - 300} y={sBy - 20} mode="drop"><Tag c={STK} size={30}>株から使う</Tag></At>
+      {/* 学費 */}
+      {t >= 55.8 && t < 60.6 ? <div style={{ position: "absolute", left: payX - 100, top: 1070, transition: "none" }}><Img2 n="bk_parent_pay" s={200} /></div> : null}
       <Burst at={60.64} cy={1200} r0={320} />
       <At at={60.64} x={60} y={1170} mode="slam"><Big size={44}>状況に合わせて 柔軟に！</Big></At>
-      <At at={61.2} x={860} y={1040} mode="spring"><Img2 n="bk_family_relief" s={190} /></At>
+      <At at={61.2} x={820} y={1080} mode="spring"><Img2 n="bk_family_relief" s={190} /></At>
+      <Foot at={50.0} y={1300}>※過去の例。S&P500（配当込み）と米国10年債（利息込み）、ドル建て。Shiller・Damodaranのデータ。割合や値動きは人によって違います</Foot>
     </>
   );
 };
-
 // ════════ p5 なんで暴落で債券が上がる？（63.84–82.66） ════════
 const P5: React.FC = () => {
   const f = useCurrentFrame();
@@ -358,8 +378,6 @@ const P5: React.FC = () => {
               <div style={{ position: "absolute", left: rx - 130, top: ry - 170, width: 260, height: 150, borderRadius: 20, background: BND, border: `5px solid ${INK}`, boxShadow: `5px 7px 0 ${INK}`, color: "#fff", ...K, fontSize: 36, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", lineHeight: 1.1 }}><div>債券の価値</div><div style={{ fontSize: 56 }}>{tilt > 3 ? "↑" : ""}</div></div>
             </>
           ) : null}
-          <Spot at={72.1} until={72.95} rect={[115, 870, 270, 180]} r={24} color={CASH} />
-          <Spot at={73.0} until={74.5} rect={[690, 722, 284, 180]} r={24} color={BND} />
           <At at={72.4} x={360} y={1160} mode="drop"><span style={{ ...B, fontSize: 28, color: INK, background: "#fff", padding: "4px 16px", borderRadius: 12, border: `3px solid ${INK}` }}>前に買った「利息の高い債券」の価値が上がる</span></At>
         </>
       ) : (
@@ -368,8 +386,6 @@ const P5: React.FC = () => {
           <div style={{ position: "absolute", left: 120, top: 880, width: 840, height: 6, background: INK }} />
           {bar(220, -36.6, STK, 76.54, "株")}
           {bar(640, 20.1, BND, 79.34, "10年国債")}
-          <Spot at={76.6} until={79.2} rect={[170, 815, 330, 440]} r={24} color={RED} />
-          <Spot at={79.34} until={81.6} rect={[590, 612, 330, 336]} r={24} color={BND} />
           <Burst at={79.34} cx={755} cy={720} r0={260} />
           <At at={79.6} x={860} y={560} mode="spring"><Img2 n="bk_bond_paper" s={150} /></At>
           <Foot at={76.54} y={1300}>※2008年の年間リターン（配当・利息込み）：S&P500 −36.55%、米国10年債 +20.10%（Damodaran・NYU）</Foot>
@@ -400,9 +416,7 @@ const P6: React.FC = () => {
       </div>
       <Rays at={85.6} until={88.0} cx={400} cy={1170} />
       <Burst at={85.6} cy={1180} r0={280} />
-      <Spot at={85.6} until={86.2} rect={[55, 1095, 720, 150]} r={24} color={BND} />
       <At at={85.6} until={88.0} x={70} y={1110} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BND}`, borderRadius: 22, padding: "4px 26px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 32 }}>債券プラス </span><span style={{ ...SER, fontSize: 90, color: BND }}>約8</span><span style={{ ...K, fontSize: 40 }}>割</span><span style={{ ...B, fontSize: 26, color: SUB }}>（26回中21回）</span></div></At>
-      <Spot at={86.3} until={90.4} rect={[218, 922, 176, 108]} r={18} color={RED} />
       <Chain at={88.1} x={306} y0={1030} y1={1090}><Stamp size={36}>株も債券も 下がった年も</Stamp></Chain>
       <Foot at={83.0} y={1300}>※1928〜2025年（98年間）でS&P500（配当込み）がマイナスの26年のうち、米国10年債（利息込み）がプラスは21年（Damodaran・NYU）。2022年は物価を抑えるために金利が大きく上がり、株も債券も下がりました</Foot>
     </>
@@ -433,8 +447,8 @@ const P7: React.FC = () => {
       <At at={92.5} until={93.5} x={gx(iLow) - 150} y={gy(UST10Y[iLow]) + 60} mode="drop"><Tag c={INK}>2020年 0.52%</Tag></At>
       <Burst at={93.6} cx={gx(iEnd)} cy={gy(UST10Y[iEnd])} r0={200} />
       <Ring at={92.4} until={93.4} x={gx(iLow)} y={gy(UST10Y[iLow])} r={50} c={RED} w={6} />
-      <Spot at={93.6} until={95.4} rect={[gx(iEnd) - 340, gy(UST10Y[iEnd]) - 180, 390, 240]} r={22} color={RED} />
-      <At at={94.0} until={95.4} x={gx(iEnd) - 330} y={gy(UST10Y[iEnd]) + 80} mode="drop"><Tag c={RED} size={30}>2020年より ずっと高い</Tag></At>
+      <Spot at={93.6} until={96.4} rect={[gx(iEnd) - 340, gy(UST10Y[iEnd]) - 180, 390, 240]} r={22} color={RED} />
+      <At at={94.0} until={96.4} x={gx(iEnd) - 330} y={gy(UST10Y[iEnd]) + 80} mode="drop"><Tag c={RED} size={30}>2020年より ずっと高い</Tag></At>
       <Ripple at={93.6} x={gx(iEnd)} y={gy(UST10Y[iEnd])} c={RED} />
       <At at={93.6} x={gx(iEnd) - 320} y={gy(UST10Y[iEnd]) - 170} mode="slam"><span style={{ ...SER, fontSize: 96, color: RED }}>約5%</span><span style={{ ...K, fontSize: 30 }}> 今</span></At>
       <At at={95.5} x={90} y={1150} mode="drop"><Pill c={BND} size={34}>増やしやすい</Pill></At>
@@ -466,7 +480,6 @@ const P8: React.FC = () => {
       <At at={101.0} x={130} y={930} mode="drop"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 26, color: STK }}>増やす<br />物価に負けない</div></At>
       <At at={101.3} x={440} y={930} mode="drop"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 26, color: BND }}>暴落の備え<br />利息で増やす</div></At>
       <At at={101.6} x={760} y={930} mode="drop"><div style={{ width: 200, textAlign: "center", ...K, fontSize: 26, color: CASH }}>すぐ使う</div></At>
-      <Spot at={103.1} until={105.2} rect={[180, 620, 720, 300]} r={150} color={YEL} />
       <Burst at={103.02} cy={1150} r0={340} dur={26} />
       <At at={103.02} x={60} y={1080} mode="slam"><Big size={50}>何が起きても対応できる 資産分散</Big></At>
       <At at={105.34} x={760} y={380} mode="spring"><Img2 n="bk_parent_balance" s={240} /></At>
@@ -491,7 +504,7 @@ const PUNCH: Record<string, CamKey[]> = {
   p1: [{ t: 9.72, x: 420, y: 900, s: 1.06, d: 5 }, { t: 12.4, ...HOME, d: 14 }],
   p2: [{ t: 22.62, x: 540, y: 960, s: 1.05, d: 8 }, { t: 29.42, x: 540, y: 1020, s: 1.07, d: 5 }, { t: 30.3, ...HOME, d: 10 }],
   p3: [{ t: 38.86, x: 640, y: 880, s: 1.08, d: 6 }, { t: 42.2, ...HOME, d: 14 }, { t: 46.78, x: 640, y: 900, s: 1.05, d: 6 }, { t: 48.6, ...HOME, d: 10 }],
-  p4: [{ t: 52.8, x: 760, y: 520, s: 1.1, d: 6 }, { t: 54.6, ...HOME, d: 12 }, { t: 60.64, x: 540, y: 1060, s: 1.06, d: 5 }],
+  p4: [{ t: 60.64, x: 540, y: 1000, s: 1.03, d: 5 }],
   p5: [{ t: 79.34, x: 560, y: 900, s: 1.05, d: 5 }, { t: 81.6, ...HOME, d: 12 }],
   p6: [{ t: 85.6, x: 480, y: 1000, s: 1.05, d: 5 }, { t: 88.0, ...HOME, d: 10 }],
   p7: [{ t: 93.6, x: 820, y: 700, s: 1.12, d: 6 }, { t: 95.3, ...HOME, d: 12 }],
