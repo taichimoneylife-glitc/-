@@ -172,6 +172,50 @@ const Donut: React.FC<{ at: number; x: number; y: number; r: number; v: number; 
   );
 };
 
+// ── ネガティブの動き（悪い話の所で使う・「良いこと」に見える光は使わない）──
+// 割れたかけらが落ちる
+const Shards: React.FC<{ at: number; x: number; y: number; c?: string }> = ({ at, x, y, c = INK }) => {
+  const f = useCurrentFrame();
+  const k = f - F(at);
+  if (k < 0 || k > 30) return null;
+  return (
+    <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0, pointerEvents: "none" }}>
+      {[-8, -5, -2, 2, 5, 9, -3].map((vx, i) => { const vy = [-14, -18, -20, -17, -15, -11, -9][i]; const X = x + vx * k, Y = y + vy * k + 0.9 * k * k; return <polygon key={i} points={`${X},${Y} ${X + 18},${Y + 4} ${X + 6},${Y + 16}`} fill={i % 2 ? c : "#fff"} stroke={INK} strokeWidth={3} opacity={Math.max(0, 1 - k / 30)} transform={`rotate(${k * 22 * (i % 2 ? 1 : -1)} ${X} ${Y})`} />; })}
+    </svg>
+  );
+};
+// 暗転して重い一言を叩きつける（画面がずしっと沈む）
+const DarkSlam: React.FC<{ t0: number; t1: number; children: React.ReactNode }> = ({ t0, t1, children }) => {
+  const f = useCurrentFrame();
+  if (f < F(t0) || f > F(t1) + 6) return null;
+  const k = f - F(t0);
+  const inP = interpolate(k, [0, 4], [0, 1], clamp), out = interpolate(f, [F(t1), F(t1) + 6], [0, 1], clamp);
+  const sc = interpolate(k, [0, 3, 6, 9, 12], [1.7, 0.92, 1.04, 0.99, 1], clamp);
+  const drop = interpolate(k, [0, 3, 6], [-60, 8, 0], clamp);
+  return (
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 1 - out }}>
+      <div style={{ position: "absolute", left: -400, top: -400, width: 1880, height: 2720, background: "radial-gradient(circle at 50% 45%, rgba(40,30,34,0.88) 0%, rgba(20,14,18,0.96) 70%)", opacity: inP }} />
+      <div style={{ position: "absolute", left: 0, width: 1080, top: 560, height: 520, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: `translateY(${drop}px) scale(${sc})`, filter: k < 3 ? `blur(${(3 - k) * 3}px)` : undefined }}>{children}</div>
+    </div>
+  );
+};
+// 足りない分：赤い斜線が上から下りてくる
+const Gap: React.FC<{ at: number; x: number; y0: number; y1: number; w?: number; until?: number }> = ({ at, x, y0, y1, w = 70, until = 999 }) => {
+  const f = useCurrentFrame();
+  if (f < F(at) || f > F(until) + 5) return null;
+  const p = interpolate(f - F(at), [0, 8], [0, 1], { ...clamp, easing: OUTE });
+  const o = 1 - interpolate(f, [F(until), F(until) + 5], [0, 1], clamp);
+  return <div style={{ position: "absolute", left: x - w / 2, top: y0, width: w, height: (y1 - y0) * p, border: `5px solid ${RED}`, borderRadius: 10, backgroundImage: `repeating-linear-gradient(45deg, ${RED} 0 9px, transparent 9px 20px)`, opacity: 0.85 * o, boxSizing: "border-box" }} />;
+};
+// 先が見えない霧（灰色のもや＋ぼかし）
+const Fog: React.FC<{ at: number; x: number; y: number; w: number; h: number }> = ({ at, x, y, w, h }) => {
+  const f = useCurrentFrame();
+  if (f < F(at)) return null;
+  const p = interpolate(f - F(at), [0, 12], [0, 1], { ...clamp, easing: OUTE });
+  const drift = Math.sin((f - F(at)) / 12) * 10;
+  return <div style={{ position: "absolute", left: x + drift, top: y, width: w * p, height: h, borderRadius: 40, background: "linear-gradient(90deg, rgba(140,132,120,0.15), rgba(140,132,120,0.55) 40%, rgba(140,132,120,0.7))", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", WebkitMaskImage: "linear-gradient(90deg, transparent, #000 35%)", maskImage: "linear-gradient(90deg, transparent, #000 35%)" }} />;
+};
+
 // ════════ p1 暴落でいくら減る？（0–17.24） ════════
 // 株のタンク：水面がゆれる・下に蛇口
 const TK = { x: 80, y: 520, w: 440, h: 660 };
@@ -215,6 +259,7 @@ const P1: React.FC = () => {
       <Head at={0} tag="例えば" title={<>教育資金を<span style={{ color: STK }}>株で500万円</span></>} />
       <StockTank level={level} red={red} tap={tap} shake={shake} />
       <Crack at={9.72} until={15.2} x={300} y={760} s={1.3} />
+      <Shards at={9.8} x={300} y={760} c={RED} />
       {/* 白いカード：数字が段で動く */}
       <At at={0.4} x={110} y={410} mode="pop"><div style={{ background: "#fff", border: `6px solid ${red ? RED : STK}`, borderRadius: 20, padding: "0 26px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...SER, fontSize: 80, color: red ? RED : STK }}>{card}</span><span style={{ ...K, fontSize: 34 }}>万円</span></div></At>
       {/* 現金（生活費） */}
@@ -309,7 +354,7 @@ const P2: React.FC = () => {
       <Spot at={26.48} until={29.3} rect={[COLX - 4, TY, COLW + 8, 60 + RH * 7]} r={14} color={RED} />
       <At at={26.9} until={29.3} x={COLX} y={TY - 58} mode="drop"><Tag c={RED} size={30}>3年より長い？</Tag></At>
       {[0, 1, 3, 4].map((r, k) => <CountBadge key={r} at={27.0 + k * 0.45} x={COLX + COLW - 34} y={TY + 60 + RH * r + RH / 2} n={k + 1} until={30.6} />)}
-      <Flip at={29.42} x={60} y={1200}><Big bg={RED} fg="#fff" size={52}>7回のうち4回は 3年で戻らず</Big></Flip>
+      <DarkSlam t0={29.42} t1={30.55}><span style={{ ...K, fontSize: 64, color: "#fff" }}>過去の暴落 7回のうち</span><span style={{ ...SER, fontSize: 190, color: "#FF6B57", lineHeight: 1.05 }}>4回</span><span style={{ ...K, fontSize: 70, color: "#fff" }}>3年で 戻らず</span></DarkSlam>
       {!intro ? <At at={20.3} x={880} y={250} mode="spring"><Img2 n="bk_hourglass_long" s={130} /></At> : null}
       <Foot at={20.14} y={1320}>※米国株S&P500は株価だけ（配当なし）。「戻る」＝暴落前の最高値に戻ること。日本は日経平均で、7回には入れていません</Foot>
     </>
@@ -362,13 +407,14 @@ const P3: React.FC = () => {
       <At at={32.0} until={38.8} x={560} y={410} mode="drop"><div style={{ background: "#fff", border: `4px solid ${INK}`, borderRadius: 18, padding: "4px 14px", ...B, fontSize: 28 }}>まだ時間あるし大丈夫</div></At>
       <At at={38.86} until={45.5} x={800} y={200} mode="slam"><Img2 n="bk_parent_relax_crack" s={220} /></At>
       {/* 山場 */}
-      <Burst at={38.86} cx={ex} cy={ey} r0={180} />
       <Corners at={39.0} until={41.9} x={ex - 150} y={cy(500) - 40} w={300} h={ey - cy(500) + 90} zoom="×2" />
       <At at={38.86} until={45.5} x={ex - 360} y={ey - 230} mode="slam"><div style={{ background: "#fff", border: `6px solid ${RED}`, borderRadius: 20, padding: "6px 22px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 30 }}>3年たっても 約</span><span style={{ ...SER, fontSize: 92, color: RED }}><Num at={38.9} from={317} to={460} dur={22} /></span><span style={{ ...K, fontSize: 34 }}>万円</span></div></At>
-      <HandCircle at={39.8} until={45.5} x={ex} y={(cy(500) + ey) / 2} r={46} ry={56} />
+      <Gap at={39.7} until={46.6} x={ex} y0={cy(500)} y1={ey} />
+      <Shards at={38.9} x={ex} y={ey} c={RED} />
       <At at={40.2} until={46.6} x={ex - 250} y={(cy(500) + ey) / 2 + 20} mode="drop"><Tag c={RED} size={28}>500万円に まだ届かない</Tag></At>
       <At at={42.38} x={50} y={1235} mode="slam"><Big bg="#fff" fg={RED} size={44}>危ないのは 使う年の暴落だけじゃない</Big></At>
       <At at={45.6} x={790} y={200} mode="slam"><Img2 n="bk_kid_jhs3_worry" s={240} /></At>
+      <Fog at={45.68} x={ex + 10} y={CY0 - 20} w={1040 - ex} h={CH + 40} />
       <At at={46.78} x={ex + 40} y={ey - 160} mode="slam"><span style={{ ...SER, fontSize: 150, color: RED }}>？</span></At>
       <At at={46.9} x={470} y={430} mode="drop"><Pill c={INK} size={30}>戻るまで どれくらい？ わからない</Pill></At>
       <Foot at={36.66} y={1330}>※2007年末に500万円。S&P500・配当込み・ドル建て。月の動き＝Shiller（イェール大）の月次データ、年末の値＝Damodaran（NYU）の年間リターン</Foot>
@@ -530,6 +576,7 @@ const P5: React.FC = () => {
           <At at={74.76} x={60} y={420} mode="slam"><Stamp size={46}>2008年 リーマンショックの年</Stamp></At>
           <div style={{ position: "absolute", left: 80, top: AX - 3, width: 920, height: 6, background: INK }} />
           {bar(170, -36.6, STK, 76.54, "株")}
+          <Crack at={77.1} x={320} y={1000} s={0.9} />
           {bar(610, 20.1, BND, 79.34, "米国10年国債")}
           <Ripple at={79.6} x={760} y={600} c={BND} n={3} />
           <At at={79.7} x={400} y={560} mode="spring"><Img2 n="bk_bond_paper" s={150} /></At>
@@ -559,7 +606,8 @@ const P6: React.FC = () => {
           const k = interpolate(f - at, [0, 3, 6], [0, 1.12, 1], clamp);
           const fl = interpolate(f - flip, [0, 3, 6], [1, 0, 1], clamp);
           const hot = y === 2022 && f >= F(86.26);
-          return <div key={y} style={{ height: 96, borderRadius: 18, background: !on ? "#fff" : plus ? BND : RED, color: on ? "#fff" : INK, border: `5px solid ${INK}`, ...K, fontSize: 38, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${k * (hot ? 1.15 : 1)}) scaleX(${fl})`, boxShadow: hot ? `0 0 0 8px ${YEL}` : `5px 6px 0 ${INK}`, zIndex: hot ? 2 : 1 }}>{y}</div>;
+          const jit = (y === 2022 || y === 2018 || y === 1931 || y === 1941 || y === 1969) && f >= F(88.1) && f < F(88.1) + 14 ? Math.sin(f * 2.6) * 6 * (1 - (f - F(88.1)) / 14) : 0;
+          return <div key={y} style={{ height: 96, borderRadius: 18, background: !on ? "#fff" : plus ? BND : RED, color: on ? "#fff" : INK, border: `5px solid ${INK}`, ...K, fontSize: 38, display: "flex", alignItems: "center", justifyContent: "center", transform: `translateX(${jit}px) scale(${k * (hot ? 1.15 : 1)}) scaleX(${fl})`, boxShadow: hot ? `0 0 0 8px ${YEL}` : `5px 6px 0 ${INK}`, zIndex: hot ? 2 : 1 }}>{y}</div>;
         })}
       </div>
       <Donut at={85.6} x={930} y={1180} r={78} v={21 / 26} c={BND} label="26回中21回" />
