@@ -398,7 +398,7 @@ const P3: React.FC = () => {
   return (
     <>
       <Head at={30.98} tag="例えば" title={<>中3の冬に <span style={{ color: RED }}>暴落</span></>} />
-      <At at={31.6} x={60} y={362} mode="drop"><div style={{ display: "inline-block", background: "#FFF6C8", border: `4px solid ${RED}`, borderRadius: 12, padding: "2px 14px", ...K, fontSize: 26, color: INK, whiteSpace: "nowrap" }}><span style={{ color: RED }}>⚠</span> リーマンショックが来たと仮定</div></At>
+      <At at={31.6} x={50} y={355} mode="drop"><div style={{ display: "inline-block", background: RED, border: `5px solid ${INK}`, borderRadius: 14, padding: "4px 20px", ...K, fontSize: 38, color: "#fff", whiteSpace: "nowrap", boxShadow: `5px 6px 0 ${INK}` }}>⚠ リーマンショックが来たと仮定</div></At>
       <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
         {[300, 400, 500].map((v) => <g key={v} opacity={interpolate(f, [F(31.0), F(31.4)], [0, 1], clamp)}><line x1={CX0} x2={CX0 + CW} y1={cy(v)} y2={cy(v)} stroke={v === 500 ? STK : "#E6DDBE"} strokeWidth={v === 500 ? 5 : 2} strokeDasharray={v === 500 ? "14 10" : undefined} /><text x={CX0 - 12} y={cy(v) + 9} textAnchor="end" fontSize={26} fill={SUB} fontFamily="Noto Sans JP" fontWeight={700}>{v}</text></g>)}
         {["2007", "2008", "2009", "2010", "2011"].map((y) => <text key={y} x={cx(BD_LAB.indexOf(`${y}-01`))} y={CY0 + CH + 34} textAnchor="middle" fontSize={26} fill={SUB} fontFamily="Noto Sans JP" fontWeight={700} opacity={interpolate(f, [F(31.0), F(31.4)], [0, 1], clamp)}>{y}</text>)}
@@ -423,7 +423,7 @@ const P3: React.FC = () => {
       <Ring at={33.0} until={35.0} x={cx(IC)} y={cy(BD_STOCK[IC])} r={50} c={RED} w={7} />
       {/* 「まだ大丈夫」→ 青ざめる → 子どもも不安 */}
       <At at={31.6} until={38.8} x={800} y={200} mode="spring"><Img2 n="bk_parent_relax" s={220} /></At>
-      <At at={32.0} until={38.8} x={560} y={410} mode="drop"><div style={{ background: "#fff", border: `4px solid ${INK}`, borderRadius: 18, padding: "4px 14px", ...B, fontSize: 28 }}>まだ時間あるし大丈夫</div></At>
+      <At at={32.0} until={38.8} x={640} y={440} mode="drop"><div style={{ background: "#fff", border: `4px solid ${INK}`, borderRadius: 18, padding: "4px 14px", ...B, fontSize: 28 }}>まだ時間あるし大丈夫</div></At>
       <At at={38.86} until={45.5} x={800} y={200} mode="slam"><Img2 n="bk_parent_relax_crack" s={220} /></At>
       {/* 山場 */}
       <Corners at={39.0} until={41.9} x={ex - 150} y={cy(500) - 40} w={300} h={ey - cy(500) + 90} zoom="×2" />
@@ -436,7 +436,7 @@ const P3: React.FC = () => {
       <Fog at={45.68} x={ex + 10} y={CY0 - 20} w={1040 - ex} h={CH + 40} />
       <At at={46.78} x={ex + 40} y={ey - 160} mode="slam"><span style={{ ...SER, fontSize: 150, color: RED }}>？</span></At>
       <At at={46.9} x={470} y={430} mode="drop"><Pill c={INK} size={30}>戻るまで どれくらい？ わからない</Pill></At>
-      <At at={47.3} x={540} y={505} mode="drop"><div style={{ display: "inline-block", background: "#FFF6C8", border: `4px solid ${RED}`, borderRadius: 12, padding: "2px 14px", ...K, fontSize: 24, color: INK, whiteSpace: "nowrap" }}><span style={{ color: RED }}>⚠</span> 3年で戻ることも、もっとかかることもある</div></At>
+      <At at={47.3} x={520} y={505} mode="drop"><div style={{ display: "inline-block", background: RED, border: `5px solid ${INK}`, borderRadius: 14, padding: "4px 20px", ...K, fontSize: 34, color: "#fff", lineHeight: 1.3, boxShadow: `5px 6px 0 ${INK}` }}>⚠ 3年で戻ることも<br />もっとかかることもある</div></At>
       <Foot at={36.66} y={1330}>※リーマンショック（2008年）の値動きで計算。暴落の大きさや時期で、戻るまでの年数は変わります。2007年末に500万円・S&P500配当込み・ドル建て（Shiller／Damodaran）</Foot>
     </>
   );
