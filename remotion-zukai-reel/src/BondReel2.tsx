@@ -561,6 +561,7 @@ const P8: React.FC = () => {
   const PY = 560 + 300;
   return (
     <>
+      <Rays at={103.02} until={105.3} cx={540} cy={1200} />
       <div style={{ position: "absolute", left: 60, top: 290, ...K, fontSize: 66, color: INK, whiteSpace: "nowrap" }}><TypeIn at={F(100.68)}>どれか<R>1つだけ</R>ではなく</TypeIn></div>
       {/* 管（3つがつながる） */}
       <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
@@ -569,7 +570,6 @@ const P8: React.FC = () => {
       <MiniTank x={70} at={100.9} c={STK} label="株" lv={0.8} role={"増やす\n物価に負けない"} />
       <MiniTank x={410} at={101.2} c={BND} label="債券" lv={0.6} role={"暴落の備え\n利息で増やす"} />
       <MiniTank x={750} at={101.5} c={CASH} label="現金" lv={0.45} role="すぐ使う" />
-      <Rays at={103.02} until={105.3} cx={540} cy={1200} />
       <Burst at={103.02} cy={1200} r0={340} dur={26} />
       <At at={103.02} x={50} y={1150} mode="slam"><Big size={52}>何が起きても対応できる 資産分散</Big></At>
       <At at={105.34} x={760} y={330} mode="spring"><Img2 n="bk_parent_balance" s={240} /></At>
