@@ -173,6 +173,22 @@ const Donut: React.FC<{ at: number; x: number; y: number; r: number; v: number; 
 };
 
 // ── ネガティブの動き（悪い話の所で使う・「良いこと」に見える光は使わない）──
+// 危険の赤いランプ：画面のふちが赤く点滅＋⚠（「やばい」が目で分かる）
+const Alarm: React.FC<{ at: number; until: number; x?: number; y?: number }> = ({ at, until, x = 860, y = 400 }) => {
+  const f = useCurrentFrame();
+  if (f < F(at) || f > F(until) + 6) return null;
+  const o = interpolate(f - F(at), [0, 3], [0, 1], clamp) * (1 - interpolate(f, [F(until), F(until) + 6], [0, 1], clamp));
+  const blink = 0.5 + 0.5 * Math.sin((f - F(at)) / 2.2);
+  const k = interpolate(f - F(at), [0, 3, 6], [2, 0.9, 1], clamp);
+  return (
+    <>
+      <div style={{ position: "absolute", left: -60, top: -60, width: 1200, height: 2040, background: `radial-gradient(ellipse at 50% 45%, rgba(232,40,30,0) ${52 - 6 * blink}%, rgba(232,40,30,${0.6 * o}) 100%)`, pointerEvents: "none" }} />
+      <div style={{ position: "absolute", left: x, top: y, width: 130, height: 120, transform: `scale(${k}) rotate(${Math.sin(f / 2) * 6}deg)`, opacity: o }}>
+        <svg width={130} height={120}><path d="M65 6 L124 112 L6 112 Z" fill={blink > 0.5 ? RED : "#FF8A7A"} stroke={INK} strokeWidth={6} strokeLinejoin="round" /><text x={65} y={98} textAnchor="middle" fontSize={64} fontWeight={900} fill="#fff" fontFamily="Noto Sans JP">!</text></svg>
+      </div>
+    </>
+  );
+};
 // 割れたかけらが落ちる
 const Shards: React.FC<{ at: number; x: number; y: number; c?: string }> = ({ at, x, y, c = INK }) => {
   const f = useCurrentFrame();
@@ -258,6 +274,7 @@ const P1: React.FC = () => {
     <>
       <Head at={0} tag="例えば" title={<>教育資金を<span style={{ color: STK }}>株で500万円</span></>} />
       <StockTank level={level} red={red} tap={tap} shake={shake} />
+      <Alarm at={6.42} until={9.6} x={900} y={270} />
       <Crack at={9.72} until={15.2} x={300} y={760} s={1.3} />
       <Shards at={9.8} x={300} y={760} c={RED} />
       {/* 白いカード：数字が段で動く */}
@@ -395,6 +412,7 @@ const P3: React.FC = () => {
       <At at={31.0} until={46.6} x={CX0 + 20} y={cy(500) - 50} mode="fade"><span style={{ ...K, fontSize: 28, color: STK }}>500万円</span></At>
       {/* 点についていく数字 */}
       {live ? <div style={{ position: "absolute", left: cx(drawTo) - 70, top: cy(dv) + 24, background: "#fff", border: `4px solid ${RED}`, borderRadius: 12, padding: "0 12px", ...SER, fontSize: 40, color: RED, whiteSpace: "nowrap" }}>{Math.round(dv)}<span style={{ ...K, fontSize: 20 }}>万</span></div> : null}
+      <Alarm at={36.9} until={38.7} x={60} y={420} />
       {/* 学年の旗 */}
       {flag(IC, 31.4, "bk_kid_jhs3", "中3の冬", INK)}
       {flag(BD_LAB.indexOf("2009-06"), 35.0, "bk_kid_hs", "高校", SUB)}
@@ -493,6 +511,7 @@ const P4: React.FC = () => {
       <At at={49.5} until={55.6} x={780} y={1060} mode="spring"><Img2 n="bk_parent_choose" s={230} /></At>
       {/* 学費 */}
       {t >= 55.8 && t < 60.6 ? <div style={{ position: "absolute", left: payX - 100, top: 1070, transition: "none" }}><Img2 n="bk_parent_pay" s={200} /></div> : null}
+      <Rays at={60.64} until={63.4} cx={330} cy={1220} />
       <Flip at={60.64} x={60} y={1170}><Big size={44}>状況に合わせて 柔軟に！</Big></Flip>
       <At at={61.2} x={820} y={1080} mode="spring"><Img2 n="bk_family_relief" s={190} /></At>
       <Foot at={50.0} y={1300}>※過去の例。S&P500（配当込み）と米国10年債（利息込み）、ドル建て。Shiller・Damodaranのデータ。割合や値動きは人によって違います</Foot>
@@ -577,6 +596,7 @@ const P5: React.FC = () => {
           <div style={{ position: "absolute", left: 80, top: AX - 3, width: 920, height: 6, background: INK }} />
           {bar(170, -36.6, STK, 76.54, "株")}
           <Crack at={77.1} x={320} y={1000} s={0.9} />
+          <Alarm at={76.54} until={79.2} x={60} y={560} />
           {bar(610, 20.1, BND, 79.34, "米国10年国債")}
           <Ripple at={79.6} x={760} y={600} c={BND} n={3} />
           <At at={79.7} x={400} y={560} mode="spring"><Img2 n="bk_bond_paper" s={150} /></At>
@@ -676,6 +696,7 @@ const P8: React.FC = () => {
   const PY = 560 + 300;
   return (
     <>
+      <Rays at={103.02} until={107.4} cx={540} cy={1210} />
       <div style={{ position: "absolute", left: 60, top: 290, ...K, fontSize: 66, color: INK, whiteSpace: "nowrap" }}><TypeIn at={F(100.68)}>どれか<R>1つだけ</R>ではなく</TypeIn></div>
       {/* 管（3つがつながる） */}
       <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
