@@ -6,6 +6,8 @@ import { SfxTrack } from "./components/sfx";
 import { enter } from "./components/motionLib";
 import { BD_LAB, BD_STOCK, BD_BOND } from "./bondData";
 import { UST10Y } from "./ust10y";
+import { Audio, staticFile } from "remotion";
+import { BOND_MOUTH } from "./bondMouth";
 
 // ════════════════════════════════════════════════════════════════════
 //  教育資金×債券（図解パートのみ。冒頭と締めは実写）台本：assets/script_bond_education.md／設計：assets/bond_blueprint.md v4
@@ -21,24 +23,17 @@ type PatT = Parameters<typeof enter>[2];
 // ── 台本（しゃべる言葉）→ 仮の時間 ──
 const SCRIPT: string[][] = [
   ["例えば、教育資金を株で500万円用意して", "残りは現金だけ、という家庭", "リーマンショックのとき", "米国株は1年で約37%下がり", "500万円が約317万円になりました", "入学金や授業料は待ってくれないので", "下がったところで売るしかないこともあります"],
-  ["でも、ここが落とし穴", "株は大きく下がると", "元に戻るまで何年もかかることがあります", "リーマンショックでは約5年半", "ITバブルでは約7年", "過去の大きな暴落7回のうち4回は", "3年たっても戻っていません"],
+  ["でも、ここが落とし穴", "株が大きく下がると", "元に戻るまで何年もかかることがあります", "リーマンショックでは約5年半", "ITバブルでは約7年", "過去の大きな暴落7回のうち4回は", "3年たっても戻っていません"],
   ["例えば、子どもが中学3年の冬に暴落が始まったとします", "大学入学までは、あと3年", "暴落の前に500万円あった株は", "3年たっても、約460万円までしか戻っていません", "つまり、危ないのは使う年の暴落だけではなくて", "暴落したあと", "戻るまでにどれくらいかかるかわからないことです"],
-  ["だから僕は、株と一緒に債券も持っています", "NISAの一部を売って債券に移し、今は500万円", "株が下がっている間は債券を使い、株が戻るまで待つ", "株が上がっていれば、株から使う", "その時の状況に合わせて、柔軟に対応しやすくなります"],
-  ["景気悪化で株が下がるときは", "歴史的に見ると債券が上がる傾向にあります", "暴落のときは、景気を支えるために金利が下がりやすく", "金利が下がると、債券の価値が上がるからです", "実際、リーマンショックの年は", "株が約37%下がった一方で", "アメリカの10年国債は約20%上がりました"],
-  ["米国株が下がった年の、約8割で債券はプラス", "ただ2022年のように", "株も債券も一緒に下がった年もあります", "そして今、アメリカの10年国債の金利は5%前後", "増やしやすく、暴落の備えにもなりやすいので", "債券も選択肢に入れやすいと思います", "つまり、どれか1つだけではなく", "何が起きても対応できる資産分散が", "個人的には一番大事だと思っています"],
+  ["だから僕は、株と一緒に債券も持っています", "NISAの一部を売って債券に移して、今は500万円", "株が下がっている間は債券を使い、株が戻るまで待つ", "株が上がっていれば、株から使う", "その時の状況に合わせて、柔軟に対応しやすくなります"],
+  ["景気の悪化で株が下がるときは", "歴史的に見ると債券が上がる傾向にあります", "暴落のときは、景気を支えるために金利が下がりやすく", "金利が下がると、債券の価値が上がるからです", "実際、リーマンショックの年は", "株が約37%下がった一方で", "アメリカの10年国債は約20%上がりました"],
+  ["米国株が下がった年の、約8割で債券はプラス", "ただ2022年のように", "株も債券も一緒に下がった年もあります", "そして今、アメリカの10年国債の金利は5%前後", "資産を増やしやすく、暴落の備えにもなりやすいので", "債券も選択肢に入れやすいと思います", "つまり、どれか1つだけではなくて", "何が起きても対応できる資産分散が", "個人的には一番大事だと思っています"],
 ];
-const CPS = 6.3, GAP_LINE = 0.25, GAP_SEC = 0.9;
-const LINES: number[][] = (() => {
-  let t = 0.4;
-  return SCRIPT.map((sec) => {
-    const r = sec.map((l) => { const s = t; t += l.replace(/[、。\s]/g, "").length / CPS + GAP_LINE; return s; });
-    t += GAP_SEC;
-    return r;
-  });
-})();
-const END = (() => { const s = SCRIPT[5], l = LINES[5]; return l[l.length - 1] + s[s.length - 1].length / CPS + 0.8; })();
+// 声（public/bond-narration.wav 107.5秒）の言葉ごとの時刻から合わせた、各行の始まりの秒
+const LINES: number[][] = [[0.0, 3.2, 5.16, 6.42, 9.72, 12.58, 15.34], [17.24, 18.6, 20.14, 22.62, 24.76, 26.48, 29.42], [30.98, 34.68, 36.66, 38.86, 42.38, 45.68, 46.78], [49.32, 51.86, 55.12, 58.64, 60.64], [63.84, 65.94, 68.54, 72.04, 74.76, 76.54, 79.34], [82.66, 86.26, 88.1, 90.86, 95.5, 98.2, 100.68, 103.02, 105.34]];
+const END = 107.6;
 const L = (s: number, i: number) => LINES[s][i];
-const SEC_START = LINES.map((l) => l[0] - 0.35);
+const SEC_START = LINES.map((l, i) => (i === 0 ? 0 : l[0] - 0.4));
 const SEC_END = (s: number) => (s + 1 < SEC_START.length ? SEC_START[s + 1] : END);
 export const BOND_FRAMES = F(END + 0.5);
 
@@ -381,7 +376,9 @@ const Caption: React.FC<{ f: number }> = ({ f }) => {
   const text = SCRIPT[s][i];
   const sc = interpolate(f - F(LINES[s][i]), [0, 3, 6], [0.92, 1.03, 1], clamp);
   const size = Math.min(44, Math.floor(680 / text.length));
-  return <div style={{ position: "absolute", left: 40, width: 720, top: 1205, display: "flex", justifyContent: "center" }}><div style={{ background: "rgba(255,255,255,0.95)", border: `5px solid ${INK}`, borderRadius: 20, padding: "10px 22px", ...K, fontSize: size, whiteSpace: "nowrap", transform: `scale(${sc})`, boxShadow: `6px 6px 0 ${INK}` }}>{text}</div></div>;
+  const next = i + 1 < LINES[s].length ? LINES[s][i + 1] : s + 1 < LINES.length ? LINES[s + 1][0] : END;
+  const done = interpolate(t, [LINES[s][i], LINES[s][i] + (next - LINES[s][i]) * 0.9], [0, text.length], clamp);
+  return <div style={{ position: "absolute", left: 40, width: 720, top: 1205, display: "flex", justifyContent: "center" }}><div style={{ background: "rgba(255,255,255,0.95)", border: `5px solid ${INK}`, borderRadius: 20, padding: "10px 22px", ...K, fontSize: size, whiteSpace: "nowrap", transform: `scale(${sc})`, boxShadow: `6px 6px 0 ${INK}` }}>{text.split("").map((c, k) => <span key={k} style={{ color: k < done ? INK : "#BDB5A0" }}>{c}</span>)}</div></div>;
 };
 
 // 効果音（大＝4回だけ高い音。中＝章の切り替え・ハンコ。小＝音なし）
@@ -408,6 +405,7 @@ export const BondReel: React.FC = () => {
   const S = [S1, S2, S3, S4, S5, S6][cur];
   return (
     <AbsoluteFill style={{ background: "#FBF6D8", overflow: "hidden" }}>
+      <Audio src={staticFile("bond-narration.wav")} />
       <SfxTrack cues={CUES} />
       <AbsoluteFill style={{ backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }} />
       <div style={{ position: "absolute", left: 92, top: 0, width: 4, height: 1920, background: "rgba(239,125,87,0.35)" }} />
@@ -422,7 +420,7 @@ export const BondReel: React.FC = () => {
         <div style={{ position: "absolute", left: 40, top: 1150, ...B, fontSize: 18, color: SUB }}>※過去の例で、将来を約束するものではありません。米国株・米国債はドル建て</div>
       </div>
       <Caption f={f} />
-      <div style={{ position: "absolute", left: 790, top: 1180 + Math.sin(f / 10) * 4 }}><GenSlot name={Math.floor(f / 5) % 3 === 0 ? "taichi_talk_mid" : "taichi_talk_closed"} size={190} /></div>
+      <div style={{ position: "absolute", left: 790, top: 1180 + Math.sin(f / 10) * 4 }}><GenSlot name={(() => { const lv = BOND_MOUTH.charCodeAt(Math.min(BOND_MOUTH.length - 1, f)) - 48; return f % 96 > 92 && lv === 0 ? "taichi_blink" : lv >= 2 ? (Math.floor(f / 3) % 4 ? "taichi_talk_open" : "taichi_talk_mid") : lv === 1 ? "taichi_talk_mid" : "taichi_talk_closed"; })()} size={190} /></div>
     </AbsoluteFill>
   );
 };
