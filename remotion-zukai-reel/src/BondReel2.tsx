@@ -101,49 +101,77 @@ const Num: React.FC<{ at: number; from?: number; to: number; dur?: number }> = (
 };
 
 // ════════ p1 暴落でいくら減る？（0–17.24） ════════
+// 株のタンク：水面がゆれる・下に蛇口
+const TK = { x: 80, y: 520, w: 440, h: 660 };
+const StockTank: React.FC<{ level: number; red: boolean; tap: number; shake: number }> = ({ level, red, tap, shake }) => {
+  const f = useCurrentFrame();
+  const H = TK.h - 40, hh = H * level;
+  const top = TK.h - 20 - hh;
+  const wave = Array.from({ length: 21 }).map((_, i) => `${20 + i * ((TK.w - 40) / 20)},${top + Math.sin(i * 0.9 + f / 4) * (6 + (red ? 6 : 0))}`).join(" ");
+  const c1 = red ? RED : STK;
+  return (
+    <div style={{ position: "absolute", left: TK.x + shake, top: TK.y, width: TK.w, height: TK.h }}>
+      <svg width={TK.w + 120} height={TK.h + 160} style={{ position: "absolute", left: 0, top: 0, overflow: "visible" }}>
+        <rect x={6} y={6} width={TK.w - 12} height={TK.h - 12} rx={30} fill="#fff" stroke={INK} strokeWidth={6} />
+        {hh > 2 ? <polygon points={`20,${TK.h - 20} ${wave} ${TK.w - 20},${TK.h - 20}`} fill={c1} opacity={0.92} /> : null}
+        {red ? <rect x={20} y={TK.h - 20 - H} width={TK.w - 40} height={H * (1 - 0.634) - 2} fill="none" stroke={RED} strokeWidth={4} strokeDasharray="14 10" opacity={0.7} /> : null}
+        {[0.25, 0.5, 0.75].map((k) => <line key={k} x1={TK.w - 50} x2={TK.w - 20} y1={TK.h - 20 - H * k} y2={TK.h - 20 - H * k} stroke={INK} strokeWidth={3} opacity={0.4} />)}
+        {/* 蛇口 */}
+        <rect x={TK.w - 8} y={TK.h - 110} width={70} height={34} rx={8} fill={INK} />
+        <rect x={TK.w + 40} y={TK.h - 110} width={30} height={64} rx={6} fill={INK} />
+        <rect x={TK.w + 20} y={TK.h - 136} width={70} height={18} rx={6} fill={tap > 0 ? RED : SUB} transform={`rotate(${tap * 70} ${TK.w + 55} ${TK.h - 127})`} />
+        {tap > 0 ? Array.from({ length: 6 }).map((_, i) => { const d = ((f * 6 + i * 40) % 240); return <circle key={i} cx={TK.w + 55} cy={TK.h - 40 + d} r={12} fill={c1} opacity={tap * (1 - d / 240)} />; }) : null}
+      </svg>
+      <div style={{ position: "absolute", left: 30, top: 22, ...K, fontSize: 56, color: "#fff", WebkitTextStroke: `3px ${INK}`, paintOrder: "stroke" }}>株</div>
+    </div>
+  );
+};
 const P1: React.FC = () => {
   const f = useCurrentFrame();
+  const fill = interpolate(f, [F(0.3), F(1.8)], [0, 1], { ...clamp, easing: OUTE });
   const crash = interpolate(f, [F(6.42), F(9.72)], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
-  const H = 520, h = H * (1 - 0.366 * crash);
-  const shake = f > F(6.42) && f < F(9.9) ? Math.sin(f * 2.3) * 7 * (1 - crash * 0.5) : 0;
+  const level = fill * (1 - 0.366 * crash);
   const red = crash > 0.02;
-  const sell = interpolate(f, [F(15.34), F(15.34) + 14], [0, 1], { ...clamp, easing: OUTE });
+  const shake = f > F(5.16) && f < F(9.9) ? Math.sin(f * 2.3) * (f < F(6.42) ? 4 : 9) : 0;
+  const tap = interpolate(f, [F(15.34), F(15.34) + 8], [0, 1], clamp);
+  const fs = Math.floor(f / 3) * 3;
+  const fillS = interpolate(fs, [F(0.3), F(1.8)], [0, 1], { ...clamp, easing: OUTE });
+  const crashS = interpolate(fs, [F(6.42), F(9.72)], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+  const card = Math.round(500 * fillS - 183 * crashS);
   return (
     <>
-      <Rays at={9.72} until={12.4} cx={305} cy={640} />
+      <Rays at={9.72} until={12.4} cx={300} cy={470} />
       <Head at={0} tag="例えば" title={<>教育資金を<span style={{ color: STK }}>株で500万円</span></>} />
-      <Lines y={420} size={46} lines={[[3.2, <>残りは<R>生活費の現金</R>だけ、という家庭</>]]} />
-      {/* 株の箱（500万円の柱） */}
-      <div style={{ position: "absolute", left: 70, top: 560, width: 470, height: 640, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `8px 10px 0 ${INK}`, ...swoop(f, 0.3, -1) }}>
-        <div style={{ position: "absolute", left: 26, top: 16, ...K, fontSize: 44, color: STK }}>株</div>
-        <div style={{ position: "absolute", left: 300, top: 18, ...SER, fontSize: 40, color: red ? RED : STK }}><Num at={9.72} from={500} to={red ? 317 : 500} dur={red ? 26 : 1} /><span style={{ ...K, fontSize: 24 }}>万円</span></div>
-        <div style={{ position: "absolute", left: 120, bottom: 24, width: 230, height: h, borderRadius: "18px 18px 8px 8px", background: red ? `linear-gradient(${RED}, ${STK})` : STK, transform: `translateX(${shake}px)`, boxShadow: "inset 0 -10px 0 rgba(0,0,0,0.12)" }} />
-        {crash > 0 ? <div style={{ position: "absolute", left: 120, bottom: 24 + h, width: 230, height: H - h, border: `4px dashed ${RED}`, borderBottom: "none", borderRadius: "18px 18px 0 0", boxSizing: "border-box", opacity: 0.7 }} /> : null}
+      <StockTank level={level} red={red} tap={tap} shake={shake} />
+      {/* 白いカード：数字が段で動く */}
+      <At at={0.4} x={110} y={410} mode="pop"><div style={{ background: "#fff", border: `6px solid ${red ? RED : STK}`, borderRadius: 20, padding: "0 26px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...SER, fontSize: 80, color: red ? RED : STK }}>{card}</span><span style={{ ...K, fontSize: 34 }}>万円</span></div></At>
+      {/* 現金（生活費） */}
+      <div style={{ position: "absolute", left: 640, top: 960, width: 360, height: 220, background: "#fff", border: `5px solid ${INK}`, borderRadius: 24, boxShadow: `7px 9px 0 ${INK}`, ...swoop(f, 3.2, 1) }}>
+        <div style={{ position: "absolute", left: 22, top: 12, ...K, fontSize: 38, color: CASH }}>現金</div>
+        <div style={{ position: "absolute", left: 24, top: 66, ...B, fontSize: 26, color: SUB }}>生活費だけ</div>
+        <div style={{ position: "absolute", left: 170, bottom: 20, width: 160, height: 110 + Math.sin(f / 9) * 3, borderRadius: 12, background: CASH }} />
       </div>
-      {/* 現金の箱 */}
-      <div style={{ position: "absolute", left: 600, top: 880, width: 400, height: 320, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `8px 10px 0 ${INK}`, ...swoop(f, 3.4, 1) }}>
-        <div style={{ position: "absolute", left: 26, top: 16, ...K, fontSize: 40, color: CASH }}>現金</div>
-        <div style={{ position: "absolute", left: 30, top: 80, ...B, fontSize: 26, color: SUB }}>生活費</div>
-        <div style={{ position: "absolute", left: 140, bottom: 24, width: 200, height: 150, borderRadius: 14, background: CASH, boxShadow: "inset 0 -8px 0 rgba(0,0,0,0.12)" }} />
-      </div>
-      {/* リーマンショック */}
-      <At at={5.16} until={12.4} x={600} y={570} mode="slam"><Stamp size={52}>リーマンショック</Stamp></At>
-      <At at={6.42} until={12.4} x={640} y={690} mode="slam"><span style={{ ...SER, fontSize: 120, color: RED }}>−37<span style={{ fontSize: 60 }}>%</span></span></At>
-      <Spot at={6.6} until={9.5} rect={[600, 670, 380, 170]} r={24} color={RED} />
-      <At at={7.0} until={9.5} x={640} y={850} mode="drop"><Tag c={RED} size={30}>たった1年で</Tag></At>
-      <Burst at={9.72} cy={880} r0={300} />
-      <Spot at={9.72} until={12.4} rect={[90, 560, 440, 120]} r={20} color={RED} />
-      <Ring at={9.8} until={12.4} x={470} y={606} r={86} c={RED} />
-      <At at={10.0} until={12.4} x={600} y={830} mode="drop"><Tag c={RED} size={34}>1年で約183万円 減</Tag></At>
+      <At at={3.6} until={5.0} x={640} y={880} mode="drop"><Tag c={CASH} size={30}>教育資金には使えない</Tag></At>
+      {/* リーマンショック＋スマホで驚く夫婦 */}
+      <At at={5.16} until={12.4} x={590} y={420} mode="slam"><Stamp size={50}>リーマンショック</Stamp></At>
+      <At at={5.3} until={12.4} x={630} y={510} mode="spring"><Img2 n="bk_parent_phone_shock" s={300} /></At>
+      <Ripple at={5.3} x={780} y={660} c={RED} />
+      <At at={6.42} until={12.4} x={580} y={790} mode="slam"><span style={{ ...SER, fontSize: 130, color: RED, textShadow: "4px 4px 0 #fff" }}>−37<span style={{ fontSize: 64 }}>%</span></span></At>
+      {/* 317 */}
+      <Burst at={9.72} cx={300} cy={460} r0={260} />
+      <Spot at={9.72} until={12.4} rect={[90, 395, 400, 130]} r={22} color={RED} />
+      <Ring at={9.8} until={12.4} x={290} y={460} r={110} c={RED} />
+      <Chain at={10.1} x={300} y0={1190} y1={1210} until={12.4}><div style={{ transform: "translateX(-150px)" }}><Tag c={RED} size={34}>1年で 約183万円 減った</Tag></div></Chain>
       {/* 入学金・授業料は待ってくれない */}
-      <At at={12.58} x={620} y={560} mode="spring"><Img2 n="bk_calendar_due" s={200} /></At>
-      <Ripple at={12.58} x={720} y={660} c={RED} />
-      <At at={12.9} x={800} y={600} mode="drop"><Img2 n="bk_parent_bill" s={230} /></At>
-      <At at={13.4} x={610} y={790} mode="drop"><Pill c={INK} size={30}>入学金・授業料</Pill></At>
+      <At at={12.58} until={15.2} x={600} y={430} mode="slam"><Img2 n="bk_calendar_due" s={230} /></At>
+      <Ring at={12.9} until={15.2} x={720} y={560} r={44} c={RED} w={7} />
+      <At at={12.9} until={15.2} x={730} y={600} mode="spring"><Img2 n="bk_parent_bill" s={280} /></At>
+      <At at={13.3} until={15.2} x={560} y={885} mode="drop"><Pill c={INK} size={28}>入学金・授業料は 待ってくれない</Pill></At>
       {/* 下がったところで売る */}
-      {sell > 0 ? <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><path d={`M420 ${1200 - h + 30} C 520 ${1150 - h}, 560 ${1040 - h * 0.2}, 640 ${1030}`} fill="none" stroke={RED} strokeWidth={7} strokeDasharray="16 12" strokeDashoffset={-f * 2} opacity={sell} /></svg> : null}
-      <At at={15.34} x={70} y={1210 - 10} mode="slam"><Big bg="#fff" fg={RED} size={44}>下がったところで 売るしかない</Big></At>
-      <Foot at={9.72} y={1300}>※米国株S&P500・配当込み、2008年の年間リターン（−36.55%）で計算</Foot>
+      <At at={15.34} x={640} y={560} mode="slam"><Img2 n="bk_sell_low" s={330} /></At>
+      <At at={15.4} x={560} y={1140} mode="drop"><Tag c={RED} size={30}>317万円のまま 取り崩す</Tag></At>
+      <At at={15.6} x={60} y={1215} mode="slam"><Big bg="#fff" fg={RED} size={46}>下がったところで 売るしかない</Big></At>
+      <Foot at={9.72} y={1320}>※米国株S&P500・配当込み、2008年の年間リターン（−36.55%）で計算</Foot>
     </>
   );
 };
@@ -159,102 +187,124 @@ const ROWS: [string, string, string, string, number, boolean?][] = [
   ["2022年（インフレ・利上げ）", "−25%", "約9か月", "約2年", 2],
   ["日本 バブル崩壊（1989年）", "−82%", "約19年", "約34年", 34, true],
 ];
-const TY = 560, RH = 70;
+const TY = 520, RH = 80, TW = 980, TX = 50;
+const COLX = TX + TW * (4 / 5.25), COLW = TW * (1.25 / 5.25);
 const P2: React.FC = () => {
   const f = useCurrentFrame();
   const red = f >= F(26.48);
+  const intro = f < F(20.0);
+  const sand = interpolate(f, [F(18.6), F(20.0)], [0, 180], { ...clamp, easing: Easing.inOut(Easing.cubic) });
   return (
     <>
       <Head at={17.24} tag="落とし穴" title={<>戻るまで <span style={{ color: RED }}>何年も</span></>} />
-      <Lines y={420} size={46} lines={[[18.6, <>株は大きく下がると、<R>戻るのに時間がかかる</R></>]]} />
-      <div style={{ position: "absolute", left: 50, top: TY, width: 980, background: "#fff", border: `5px solid ${INK}`, borderRadius: 22, boxShadow: `8px 10px 0 ${INK}`, overflow: "hidden", ...swoop(f, 18.3, 1) }}>
-        <div style={{ display: "flex", background: INK, color: "#fff", ...K, fontSize: 25, height: 56, alignItems: "center" }}>
-          {["暴落", "下がった幅", "下がった期間", "最高値に戻るまで"].map((h, i) => <div key={h} style={{ flex: i ? (i === 3 ? 1.25 : 1) : 2, padding: "0 12px", textAlign: i ? "center" : "left", whiteSpace: "nowrap" }}>{h}</div>)}
+      {/* 導入：谷から山の旗を見上げる */}
+      {f < F(20.4) ? (
+        <div style={{ opacity: 1 - interpolate(f, [F(20.0), F(20.4)], [0, 1], clamp) }}>
+          <At at={17.4} x={110} y={470} mode="slam"><Img2 n="bk_mountain_climb" s={620} /></At>
+          <At at={18.1} x={640} y={470} mode="drop"><Tag c={INK} size={30}>元の値段（最高値）</Tag></At>
+          <At at={18.3} x={140} y={1010} mode="drop"><Tag c={RED} size={30}>暴落した 今ここ</Tag></At>
+          <At at={18.6} x={780} y={760} mode="spring"><div style={{ transform: `rotate(${sand}deg)` }}><Img2 n="bk_hourglass_long" s={220} /></div></At>
+          <At at={18.8} x={140} y={1110} mode="slam"><Big bg="#fff" fg={RED} size={44}>登り直すのに 何年も</Big></At>
         </div>
-        {ROWS.map(([n, d, p, r, y, jp], i) => {
-          const t = 20.14 + i * 0.16;
-          const k = interpolate(f - F(t), [0, 7], [0, 1], { ...clamp, easing: OUTE });
-          const over = red && !jp && y > 3;
-          const live = (i === 4 && f >= F(22.62)) || (i === 3 && f >= F(24.76));
-          return (
-            <div key={n} style={{ display: "flex", alignItems: "center", height: RH, borderTop: jp ? `5px solid ${INK}` : "2px solid #EEE6CC", background: over ? "#FDE5E0" : jp ? "#F4EFE3" : live ? "#FFF6D8" : "#fff", opacity: k, transform: `translateX(${(1 - k) * 80}px)` }}>
-              <div style={{ flex: 2, padding: "0 12px", ...K, fontSize: 27, whiteSpace: "nowrap" }}>{n}</div>
-              <div style={{ flex: 1, textAlign: "center", ...B, fontSize: 28, color: RED }}>{d}</div>
-              <div style={{ flex: 1, textAlign: "center", ...B, fontSize: 26 }}>{p}</div>
-              <div style={{ flex: 1.25, textAlign: "center", ...K, fontSize: over || live ? 34 : 28, color: over ? RED : INK }}>{r}</div>
-            </div>
-          );
-        })}
-      </div>
-      <HandCircle at={23.0} until={24.6} x={913} y={TY + 56 + RH * 4 + 35} r={100} ry={42} />
-      <HandCircle at={25.1} until={26.3} x={913} y={TY + 56 + RH * 3 + 35} r={100} ry={42} />
-      <Spot at={26.48} until={29.3} rect={[790, TY, 240, 56 + RH * 7]} r={14} color={RED} />
-      <At at={26.9} until={29.3} x={790} y={TY - 58} mode="drop"><Tag c={RED} size={30}>3年より長い？</Tag></At>
-      <Rays at={29.42} until={30.6} cx={540} cy={1180} />
-      <At at={26.6} x={70} y={TY + 56 + RH * 8 + 30} mode="drop"><span style={{ ...B, fontSize: 24, color: RED }}>■ 赤＝戻るまで 3年より長かった暴落（日本を除く7回のうち）</span></At>
-      <Burst at={29.42} cy={1150} r0={320} />
-      <At at={29.42} x={70} y={1150} mode="slam"><Big bg={RED} fg="#fff" size={50}>7回のうち4回は 3年で戻らず</Big></At>
-      <At at={20.4} x={860} y={300} mode="spring"><Img2 n="bk_hourglass_long" s={150} /></At>
-      <Foot at={20.14} y={1300}>※米国株S&P500は株価だけ（配当なし）。「戻る」＝暴落前の最高値に戻ること。日本は日経平均で、7回には入れていません</Foot>
+      ) : null}
+      {!intro ? (
+        <div style={{ position: "absolute", left: TX, top: TY, width: TW, background: "#fff", border: `5px solid ${INK}`, borderRadius: 22, boxShadow: `8px 10px 0 ${INK}`, overflow: "hidden", ...swoop(f, 20.0, 1) }}>
+          <div style={{ display: "flex", background: INK, color: "#fff", ...K, fontSize: 27, height: 60, alignItems: "center" }}>
+            {["暴落", "下がった幅", "下がった期間", "最高値に戻るまで"].map((h, i) => <div key={h} style={{ flex: i ? (i === 3 ? 1.25 : 1) : 2, padding: "0 12px", textAlign: i ? "center" : "left", whiteSpace: "nowrap" }}>{h}</div>)}
+          </div>
+          {ROWS.map(([n, d, p, r, y, jp], i) => {
+            const t = 20.14 + i * 0.22;
+            const k = interpolate(f - F(t), [0, 7], [0, 1], { ...clamp, easing: OUTE });
+            const over = red && !jp && y > 3;
+            const live = (i === 4 && f >= F(22.62)) || (i === 3 && f >= F(24.76));
+            const bw = interpolate(f - F(26.48) - i * 3, [0, 10], [0, 1], { ...clamp, easing: OUTE }) * Math.min(1, y / 10);
+            return (
+              <div key={n} style={{ position: "relative", display: "flex", alignItems: "center", height: RH, borderTop: jp ? `5px solid ${INK}` : "2px solid #EEE6CC", background: over ? "#FDE5E0" : jp ? "#F4EFE3" : live ? "#FFF6D8" : "#fff", opacity: k, transform: `translateX(${(1 - k) * 80}px)` }}>
+                {!jp && red ? <div style={{ position: "absolute", left: COLX - TX + 8, top: 12, height: RH - 24, width: (COLW - 16) * bw, borderRadius: 8, background: y > 3 ? "rgba(232,85,59,0.35)" : "rgba(46,158,107,0.3)" }} /> : null}
+                <div style={{ flex: 2, padding: "0 12px", ...K, fontSize: 30, whiteSpace: "nowrap" }}>{n}</div>
+                <div style={{ flex: 1, textAlign: "center", ...B, fontSize: 31, color: RED }}>{d}</div>
+                <div style={{ flex: 1, textAlign: "center", ...B, fontSize: 28 }}>{p}</div>
+                <div style={{ position: "relative", flex: 1.25, textAlign: "center", ...K, fontSize: over || live ? 37 : 31, color: over ? RED : INK }}>{r}</div>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+      {/* 3年の線 */}
+      {red ? <div style={{ position: "absolute", left: COLX + 8 + (COLW - 16) * 0.3, top: TY + 60, width: 0, height: RH * 7 * interpolate(f - F(26.48), [0, 8], [0, 1], clamp), borderLeft: `4px dashed ${INK}` }} /> : null}
+      <At at={26.6} until={29.3} x={COLX + (COLW - 16) * 0.3 - 30} y={TY + 60 + RH * 7 + 4} mode="drop"><span style={{ ...K, fontSize: 24, color: INK, background: YEL, padding: "0 10px", borderRadius: 8 }}>3年</span></At>
+      <HandCircle at={23.0} until={24.6} x={COLX + COLW / 2} y={TY + 60 + RH * 4 + RH / 2} r={105} ry={46} />
+      <HandCircle at={25.1} until={26.3} x={COLX + COLW / 2} y={TY + 60 + RH * 3 + RH / 2} r={105} ry={46} />
+      <Spot at={26.48} until={29.3} rect={[COLX - 4, TY, COLW + 8, 60 + RH * 7]} r={14} color={RED} />
+      <At at={26.9} until={29.3} x={COLX} y={TY - 58} mode="drop"><Tag c={RED} size={30}>3年より長い？</Tag></At>
+      <Rays at={29.42} until={30.6} cx={540} cy={1230} />
+      <Burst at={29.42} cy={1230} r0={320} />
+      <At at={29.42} x={60} y={1200} mode="slam"><Big bg={RED} fg="#fff" size={52}>7回のうち4回は 3年で戻らず</Big></At>
+      {!intro ? <At at={20.3} x={880} y={250} mode="spring"><Img2 n="bk_hourglass_long" s={130} /></At> : null}
+      <Foot at={20.14} y={1320}>※米国株S&P500は株価だけ（配当なし）。「戻る」＝暴落前の最高値に戻ること。日本は日経平均で、7回には入れていません</Foot>
     </>
   );
 };
 
 // ════════ p3 使う前の暴落でも（30.98–49.32）＝本物の折れ線 ════════
 const I0 = BD_LAB.indexOf("2006-07"), IC = BD_LAB.indexOf("2007-12"), IE = BD_LAB.indexOf("2010-12"), I1 = BD_LAB.indexOf("2011-12");
-const CX0 = 120, CW = 880, CY0 = 560, CH = 420, LO = 250, HI = 580;
+const CX0 = 110, CW = 900, CY0 = 500, CH = 520, LO = 250, HI = 580;
 const cx = (i: number) => CX0 + ((i - I0) / (I1 - I0)) * CW, cy = (v: number) => CY0 + CH - ((v - LO) / (HI - LO)) * CH;
 const P3: React.FC = () => {
   const f = useCurrentFrame();
   const drawTo = Math.round(interpolate(f, [F(36.66), F(38.86)], [IC, IE], { ...clamp, easing: Easing.inOut(Easing.quad) }));
-  const pre = Math.round(interpolate(f, [F(31.2), F(32.4)], [I0, IC], clamp));
+  const pre = Math.round(interpolate(f, [F(31.2), F(33.0)], [I0, IC], clamp));
   const ex = cx(IE), ey = cy(BD_STOCK[IE]);
   const fan = interpolate(f, [F(45.68), F(46.78) + 0.5], [0, 1], { ...clamp, easing: OUTE });
+  const br = interpolate(f, [F(34.68), F(34.68) + 14], [0, 1], { ...clamp, easing: OUTE });
+  const live = f >= F(36.66) && f < F(38.86);
+  const dv = BD_STOCK[drawTo];
+  const FY = CY0 + CH + 50;
   const flag = (i: number, at: number, img: string, label: string, c: string) => (
-    <At at={at} x={cx(i) - 70} y={CY0 + CH + 46} mode="drop"><div style={{ width: 140, textAlign: "center" }}><Img2 n={img} s={120} /><div style={{ marginTop: -4 }}><Tag c={c} size={24}>{label}</Tag></div></div></At>
+    <At at={at} x={cx(i) - 95} y={FY} mode="drop"><div style={{ width: 190, textAlign: "center" }}><Img2 n={img} s={170} /><div style={{ marginTop: -6 }}><Tag c={c} size={28}>{label}</Tag></div></div></At>
   );
   return (
     <>
       <Head at={30.98} tag="例えば" title={<>中3の冬に <span style={{ color: RED }}>暴落</span></>} />
-      <Lines y={420} size={46} lines={[[34.68, <>大学入学まで、<R>あと3年</R></>]]} />
       <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
         {[300, 400, 500].map((v) => <g key={v} opacity={interpolate(f, [F(31.0), F(31.4)], [0, 1], clamp)}><line x1={CX0} x2={CX0 + CW} y1={cy(v)} y2={cy(v)} stroke={v === 500 ? STK : "#E6DDBE"} strokeWidth={v === 500 ? 5 : 2} strokeDasharray={v === 500 ? "14 10" : undefined} /><text x={CX0 - 12} y={cy(v) + 9} textAnchor="end" fontSize={26} fill={SUB} fontFamily="Noto Sans JP" fontWeight={700}>{v}</text></g>)}
-        {["2007", "2008", "2009", "2010", "2011"].map((y) => <text key={y} x={cx(BD_LAB.indexOf(`${y}-01`))} y={CY0 + CH + 34} textAnchor="middle" fontSize={24} fill={SUB} fontFamily="Noto Sans JP" fontWeight={700} opacity={interpolate(f, [F(31.0), F(31.4)], [0, 1], clamp)}>{y}</text>)}
-        <polyline points={BD_STOCK.slice(I0, pre + 1).map((v, k) => `${cx(I0 + k)},${cy(v)}`).join(" ")} fill="none" stroke={STK} strokeWidth={6} strokeLinejoin="round" opacity={0.5} />
-        {f >= F(36.66) ? <polyline points={BD_STOCK.slice(IC, drawTo + 1).map((v, k) => `${cx(IC + k)},${cy(v)}`).join(" ")} fill="none" stroke={RED} strokeWidth={8} strokeLinejoin="round" strokeLinecap="round" /> : null}
-        {f >= F(36.66) ? <circle cx={cx(drawTo)} cy={cy(BD_STOCK[drawTo])} r={12} fill={RED} /> : null}
-        {/* 500万に届かない差 */}
+        {["2007", "2008", "2009", "2010", "2011"].map((y) => <text key={y} x={cx(BD_LAB.indexOf(`${y}-01`))} y={CY0 + CH + 34} textAnchor="middle" fontSize={26} fill={SUB} fontFamily="Noto Sans JP" fontWeight={700} opacity={interpolate(f, [F(31.0), F(31.4)], [0, 1], clamp)}>{y}</text>)}
+        {/* 3年の幅 */}
+        {br > 0 ? <g><rect x={cx(IC)} y={CY0 - 10} width={(cx(IE) - cx(IC)) * br} height={CH + 20} rx={16} fill={YEL} opacity={0.22} /><line x1={cx(IC)} x2={cx(IC) + (cx(IE) - cx(IC)) * br} y1={CY0 + CH + 6} y2={CY0 + CH + 6} stroke={INK} strokeWidth={6} /></g> : null}
+        <polyline points={BD_STOCK.slice(I0, pre + 1).map((v, k) => `${cx(I0 + k)},${cy(v)}`).join(" ")} fill="none" stroke={STK} strokeWidth={7} strokeLinejoin="round" opacity={0.6} />
+        {f >= F(36.66) ? <polyline points={BD_STOCK.slice(IC, drawTo + 1).map((v, k) => `${cx(IC + k)},${cy(v)}`).join(" ")} fill="none" stroke={RED} strokeWidth={9} strokeLinejoin="round" strokeLinecap="round" /> : null}
+        {f >= F(36.66) ? <circle cx={cx(drawTo)} cy={cy(dv)} r={14} fill={RED} stroke="#fff" strokeWidth={4} /> : null}
         {f >= F(39.6) ? <g opacity={interpolate(f, [F(39.6), F(40.0)], [0, 1], clamp)}><line x1={ex} y1={cy(500)} x2={ex} y2={ey} stroke={RED} strokeWidth={5} /><path d={`M${ex - 12} ${cy(500) + 14} L${ex} ${cy(500)} L${ex + 12} ${cy(500) + 14}`} stroke={RED} strokeWidth={5} fill="none" /></g> : null}
-        {/* その先は読めない */}
-        {fan > 0 ? [-120, -60, 0, 60, 130].map((d, k) => <line key={k} x1={ex} y1={ey} x2={ex + 110 * fan} y2={ey + d * fan} stroke={SUB} strokeWidth={4} strokeDasharray="10 8" />) : null}
+        {fan > 0 ? [-140, -70, 0, 70, 150].map((d, k) => <line key={k} x1={ex} y1={ey} x2={ex + 90 * fan} y2={ey + d * fan} stroke={SUB} strokeWidth={4} strokeDasharray="10 8" />) : null}
       </svg>
-      <At at={31.0} until={46.6} x={CX0 + CW - 150} y={cy(500) - 46} mode="fade"><span style={{ ...K, fontSize: 26, color: STK }}>500万円</span></At>
+      <At at={31.0} until={46.6} x={CX0 + 20} y={cy(500) - 50} mode="fade"><span style={{ ...K, fontSize: 28, color: STK }}>500万円</span></At>
+      {/* 点についていく数字 */}
+      {live ? <div style={{ position: "absolute", left: cx(drawTo) - 70, top: cy(dv) + 24, background: "#fff", border: `4px solid ${RED}`, borderRadius: 12, padding: "0 12px", ...SER, fontSize: 40, color: RED, whiteSpace: "nowrap" }}>{Math.round(dv)}<span style={{ ...K, fontSize: 20 }}>万</span></div> : null}
       {/* 学年の旗 */}
       {flag(IC, 31.4, "bk_kid_jhs3", "中3の冬", INK)}
-      {flag(BD_LAB.indexOf("2009-06"), 35.2, "bk_kid_hs", "高校", SUB)}
-      {flag(IE, 35.6, "bk_kid_univ", "3年後", RED)}
-      <At at={33.0} x={cx(IC) - 40} y={cy(500) - 120} mode="slam"><Stamp size={40}>暴落</Stamp></At>
-      <Ring at={33.0} until={36.4} x={cx(IC)} y={cy(BD_STOCK[IC])} r={46} c={RED} w={7} />
-      <Ripple at={35.6} x={cx(IE)} y={CY0 + CH + 110} c={RED} />
+      {flag(BD_LAB.indexOf("2009-06"), 35.0, "bk_kid_hs", "高校", SUB)}
+      {flag(IE, 35.3, "bk_kid_univ", "大学入学", RED)}
+      <At at={34.9} until={36.5} x={(cx(IC) + cx(IE)) / 2 - 90} y={CY0 + CH - 70} mode="slam"><span style={{ ...K, fontSize: 44, color: INK, background: YEL, border: `4px solid ${INK}`, borderRadius: 14, padding: "0 18px" }}>あと3年</span></At>
+      <At at={33.0} x={cx(IC) - 50} y={cy(520) - 110} mode="slam"><Stamp size={42}>暴落</Stamp></At>
+      <Ring at={33.0} until={35.0} x={cx(IC)} y={cy(BD_STOCK[IC])} r={50} c={RED} w={7} />
+      {/* 「まだ大丈夫」→ 青ざめる → 子どもも不安 */}
+      <At at={31.6} until={38.8} x={800} y={200} mode="spring"><Img2 n="bk_parent_relax" s={220} /></At>
+      <At at={32.0} until={38.8} x={560} y={410} mode="drop"><div style={{ background: "#fff", border: `4px solid ${INK}`, borderRadius: 18, padding: "4px 14px", ...B, fontSize: 28 }}>まだ時間あるし大丈夫</div></At>
+      <At at={38.86} until={45.5} x={800} y={200} mode="slam"><Img2 n="bk_parent_relax_crack" s={220} /></At>
       {/* 山場 */}
       <Rays at={38.86} until={41.9} cx={ex} cy={ey} />
       <Burst at={38.86} cx={ex} cy={ey} r0={180} />
-      <At at={38.86} until={45.5} x={ex - 330} y={ey - 210} mode="slam"><div style={{ background: "#fff", border: `6px solid ${RED}`, borderRadius: 20, padding: "6px 22px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 28 }}>3年たっても 約</span><span style={{ ...SER, fontSize: 84, color: RED }}><Num at={38.9} from={317} to={460} dur={22} /></span><span style={{ ...K, fontSize: 32 }}>万円</span></div></At>
-      <HandCircle at={39.8} until={41.9} x={ex} y={(cy(500) + ey) / 2} r={46} ry={50} />
-      <At at={40.2} until={46.6} x={ex + 22} y={(cy(500) + ey) / 2 - 22} mode="drop"><Tag c={RED} size={24}>まだ届かない</Tag></At>
-      {/* 「まだ大丈夫」→ 青ざめる */}
-      <At at={35.0} until={38.8} x={820} y={240} mode="spring"><Img2 n="bk_parent_relax" s={200} /></At>
-      <At at={35.4} until={38.8} x={560} y={330} mode="drop"><div style={{ background: "#fff", border: `4px solid ${INK}`, borderRadius: 18, padding: "4px 14px", ...B, fontSize: 26 }}>まだ時間あるし大丈夫</div></At>
-      <At at={38.86} until={45.5} x={820} y={240} mode="slam"><Img2 n="bk_parent_relax_crack" s={200} /></At>
-      {/* つまり */}
-      <At at={42.38} x={70} y={1240} mode="slam"><Big bg="#fff" fg={RED} size={42}>危ないのは 使う年の暴落だけじゃない</Big></At>
-      <At at={46.78} x={ex + 70} y={ey - 120} mode="slam"><span style={{ ...SER, fontSize: 130, color: RED }}>？</span></At>
-      <At at={46.9} x={560} y={460} mode="drop"><Pill c={INK} size={28}>戻るまで どれくらい？ わからない</Pill></At>
-      <Foot at={36.66} y={1340}>※2007年末に500万円。S&P500・配当込み・ドル建て。月の動き＝Shiller（イェール大）の月次データ、年末の値＝Damodaran（NYU）の年間リターン</Foot>
+      <At at={38.86} until={45.5} x={ex - 360} y={ey - 230} mode="slam"><div style={{ background: "#fff", border: `6px solid ${RED}`, borderRadius: 20, padding: "6px 22px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...B, fontSize: 30 }}>3年たっても 約</span><span style={{ ...SER, fontSize: 92, color: RED }}><Num at={38.9} from={317} to={460} dur={22} /></span><span style={{ ...K, fontSize: 34 }}>万円</span></div></At>
+      <HandCircle at={39.8} until={45.5} x={ex} y={(cy(500) + ey) / 2} r={46} ry={56} />
+      <At at={40.2} until={46.6} x={ex - 250} y={(cy(500) + ey) / 2 + 20} mode="drop"><Tag c={RED} size={28}>500万円に まだ届かない</Tag></At>
+      <At at={42.38} x={50} y={1235} mode="slam"><Big bg="#fff" fg={RED} size={44}>危ないのは 使う年の暴落だけじゃない</Big></At>
+      <At at={45.6} x={790} y={200} mode="slam"><Img2 n="bk_kid_jhs3_worry" s={240} /></At>
+      <At at={46.78} x={ex + 40} y={ey - 160} mode="slam"><span style={{ ...SER, fontSize: 150, color: RED }}>？</span></At>
+      <At at={46.9} x={470} y={430} mode="drop"><Pill c={INK} size={30}>戻るまで どれくらい？ わからない</Pill></At>
+      <Foot at={36.66} y={1330}>※2007年末に500万円。S&P500・配当込み・ドル建て。月の動き＝Shiller（イェール大）の月次データ、年末の値＝Damodaran（NYU）の年間リターン</Foot>
     </>
   );
 };
-
 // ════════ p4 だから僕は、債券も（49.32–63.84） ════════
 // 株と債券を1つのチャートに（2007年半ば〜2013年・2007年末＝500万円）
 const J0 = BD_LAB.indexOf("2007-06"), J1 = BD_LAB.length - 1;
@@ -514,7 +564,7 @@ const PUNCH: Record<string, CamKey[]> = {
 
 // 右下のたいち：気持ちが動く所だけひょこっと（最後は口パクで話す）
 const APPEAR: [number, number, string][] = [
-  [6.42, 11.5, "taichi_scared"], [26.48, 30.6, "taichi_worry"], [38.86, 42.2, "taichi_surprise"], [58.64, 63.4, "taichi_thumbs_up"], [85.6, 88.0, "taichi_idea"], [100.68, 107.6, "__talk"],
+  [6.42, 11.5, "taichi_scared"], [26.48, 30.6, "taichi_worry"], [58.64, 63.4, "taichi_thumbs_up"], [85.6, 88.0, "taichi_idea"], [100.68, 107.6, "__talk"],
 ];
 const Chara: React.FC = () => {
   const f = useCurrentFrame();
