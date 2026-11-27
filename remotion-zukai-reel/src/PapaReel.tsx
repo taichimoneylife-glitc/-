@@ -322,7 +322,7 @@ const ChatMock: React.FC = () => {
   const n = Math.floor(interpolate(f - F(90.2), [0, 16], [0, word.length], clamp));
   const sent = t >= 91.05;
   return (
-    <div style={{ position: "absolute", left: 270, top: 380, width: 540, height: 860, transform: `translateY(${(1 - inP) * 500}px)`, opacity: inP }}>
+    <div style={{ position: "absolute", left: 150, top: 380, width: 520, height: 820, transform: `translateY(${(1 - inP) * 500}px)`, opacity: inP }}>
       <div style={{ position: "absolute", inset: 0, background: "#fff", border: `8px solid ${INK}`, borderRadius: 54, boxShadow: `8px 10px 0 ${INK}`, overflow: "hidden" }}>
         <div style={{ height: 96, background: "#06C755", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 32 }}>たいち｜公式LINE</div>
         <div style={{ position: "absolute", left: 24, top: 130, background: "#EFEFEF", borderRadius: 20, padding: "12px 18px", ...B, fontSize: 24, color: INK, maxWidth: 380 }}>友だち追加ありがとうございます！<br />気になることを送ってください</div>
@@ -354,7 +354,7 @@ const Body: React.FC = () => {
       <At at={13.56} until={14.45} x={380} y={1080} mode="slam"><Big size={60}>手取り 実質10割！</Big></At>
       <BarsCard />
       {t >= 29.18 && t < 31.0 ? <Ring at={29.18} until={30.9} x={(LX0 + RX0 + 200) / 2} y={BASE - 150} r={250} c={GRN} /> : null}
-      <Foot at={15.0} y={1300}>※月給33万円の例（休む前6か月の給料の平均・ボーナスは入らない）。上乗せは最大28日分。月給が約50万円を超えると上限があり10割に届きません。181日目からは50%</Foot>
+      {t < 36.86 ? <Foot at={15.0} y={1300}>※月給33万円の例（休む前6か月の給料の平均・ボーナスは入らない）。上乗せは最大28日分。月給が約50万円を超えると上限があり10割に届きません。181日目からは50%</Foot> : null}
       {/* ③ 13日 */}
       <Swap x={60} y={1000} s={250} seq={[[36.86, "pk_dad_calendar_ok"], [37.22, "pk_dad_calendar_oops"]]} until={41.15} />
       <Spot at={40.0} until={41.1} rect={[CX0 - 14, CY - 14, MW + 28, CALH + 28]} r={26} color={RED} />
@@ -362,7 +362,7 @@ const Body: React.FC = () => {
       <At at={38.2} until={41.15} x={380} y={1060} mode="drop"><div style={{ background: "#fff", border: `6px solid ${RED}`, borderRadius: 20, padding: "8px 26px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 32 }}>上乗せ </span><span style={{ ...SER, fontSize: 80, color: RED }}>{t >= 40.0 ? <Num at={40.0} from={20000} to={0} dur={12} /> : "約20,000"}</span><span style={{ ...K, fontSize: 32 }}>円</span></div></At>
       <Crack at={40.05} until={41.1} x={680} y={1110} s={1.0} />
       <Shards at={40.1} x={680} y={1110} c={RED} />
-      <Foot at={38.2} y={1300}>※月給33万円の例。14日なら上乗せは約2万円（13%×14日）。14日は、生まれてから8週間の中の合計</Foot>
+      {t < 41.2 ? <Foot at={38.2} y={1300}>※月給33万円の例。14日なら上乗せは約2万円（13%×14日）。14日は、生まれてから8週間の中の合計</Foot> : null}
       {/* ④ 保険料 */}
       <Payslip />
       <At at={44.16} until={45.2} x={640} y={1010} mode="pop"><div style={{ background: "#EEE", border: `4px solid ${SUB}`, borderRadius: 16, padding: "8px 20px", ...K, fontSize: 36, color: SUB }}>14日分だけ？</div></At>
@@ -376,7 +376,7 @@ const Body: React.FC = () => {
       <At at={51.2} until={54.1} x={400} y={1030} mode="drop"><div style={{ width: 560, background: "#FFF8E3", border: `4px solid ${INK}`, borderRadius: 16, padding: "10px 18px", ...K, fontSize: 28, lineHeight: 1.4 }}>📝 2回に分けるなら<br />最初にまとめて会社に申し出（原則2週間前まで）</div></At>
       <Spot at={54.16} until={56.2} rect={[CX0 - 16, CY - 30, MW + 32, CALH * BOTH + 50]} r={26} color={BLU} />
       <At at={55.14} until={56.25} x={320} y={800} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BLU}`, borderRadius: 20, padding: "6px 24px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 30 }}>2か月分 </span><span style={{ ...SER, fontSize: 60, color: BLU }}>約9.6万円</span></div></At>
-      <Foot at={41.6} y={1300}>※月給33万円の例。免除は会社が手続き。免除されても将来の年金は減りません。育休中に働いた日は14日に入りません。住民税は免除になりません</Foot>
+      {t < 56.3 ? <Foot at={41.6} y={1300}>※月給33万円の例。免除は会社が手続き。免除されても将来の年金は減りません。育休中に働いた日は14日に入りません。住民税は免除になりません</Foot> : null}
       {/* ⑤ ボーナス */}
       <Swap x={60} y={1000} s={260} seq={[[56.6, "pk_dad_bonus_happy"], [61.3, "pk_dad_bonus_sad"], [66.86, "pk_dad_bonus_happy"]]} until={68.9} />
       <At at={61.3} until={63.2} x={380} y={1060} mode="drop"><div style={{ background: "#F1EEE6", border: `5px solid ${SUB}`, borderRadius: 18, padding: "10px 22px", ...K, fontSize: 38, color: SUB, whiteSpace: "nowrap" }}>14日だと ボーナス分は ✕</div></At>
@@ -384,7 +384,7 @@ const Body: React.FC = () => {
       <At at={65.24} until={66.8} x={380} y={1090} mode="drop"><Tag c={SUB} size={28}>1/1まで＝ちょうど1か月 ✕</Tag></At>
       <At at={65.9} until={66.8} x={380} y={1150} mode="pop"><Tag c={BLU} size={28}>1/2から＝1か月を超える ○</Tag></At>
       <At at={66.86} until={68.9} x={360} y={1100} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BLU}`, borderRadius: 20, padding: "6px 24px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 28 }}>ボーナスの保険料 </span><span style={{ ...SER, fontSize: 60, color: BLU }}>約7.4万円</span><span style={{ ...K, fontSize: 28 }}> 免除</span></div></At>
-      <Foot at={57.0} y={1300}>※ボーナス52万円の例。産後パパ育休は最大28日なので、1か月を超えるなら普通の育休で。最初の28日は上乗せで10割</Foot>
+      {t < 68.98 ? <Foot at={57.0} y={1300}>※ボーナス52万円の例。産後パパ育休は最大28日なので、1か月を超えるなら普通の育休で。最初の28日は上乗せで10割</Foot> : null}
       {/* ⑥ フリーランス */}
       <At at={69.2} until={80.3} x={70} y={420} mode="drop"><div style={{ width: 400, background: "#fff", border: `5px solid ${GRN}`, borderRadius: 22, padding: "18px 10px", textAlign: "center", boxShadow: `6px 8px 0 ${INK}`, ...K, fontSize: 36 }}>会社員<div style={{ ...B, fontSize: 24, color: SUB }}>雇用保険あり</div><div style={{ ...K, fontSize: 60, color: GRN }}>✓</div></div></At>
       <Swap x={560} y={430} s={380} seq={[[71.0, "pk_freelance_worry"], [75.14, "pk_freelance_relief"]]} until={80.3} from="r" />
@@ -392,7 +392,7 @@ const Body: React.FC = () => {
       <At at={72.74} until={74.38} x={560} y={850} mode="slam"><Stamp c={SUB} size={40} bg="#F1EEE6">雇用保険なし → 対象外</Stamp></At>
       {t < 80.3 ? <Flip at={74.38} x={110} y={760}><div style={{ background: RED, color: "#fff", borderRadius: 14, padding: "8px 22px", ...K, fontSize: 36, border: `4px solid ${INK}` }}>NEW 2026年10月〜</div></Flip> : null}
       <TwelveBoxes />
-      <Foot at={71.0} y={1300}>※国民年金の育児期間の免除。所得の条件なし・届け出が必要。免除の期間も年金は減りません。国民健康保険料は対象外。パート・契約社員も雇用保険に入っていれば会社員と同じ</Foot>
+      {t < 80.44 ? <Foot at={71.0} y={1300}>※国民年金の育児期間の免除。所得の条件なし・届け出が必要。免除の期間も年金は減りません。国民健康保険料は対象外。パート・契約社員も雇用保険に入っていれば会社員と同じ</Foot> : null}
       {/* ⑦ ママ */}
       <Swap x={660} y={1060} s={230} seq={[[80.7, "pk_mom_baby_smile"], [82.42, "pk_mom_baby_worry"]]} until={84.4} from="r" />
       <Swap x={60} y={1070} s={240} seq={[[81.36, "pk_dad_at_work"]]} until={84.4} />
@@ -405,14 +405,14 @@ const Body: React.FC = () => {
         </>;
       })() : null}
       <Crack at={82.42} until={84.4} x={480} y={1026} s={0.8} />
-      <Foot at={81.0} y={1300}>※パパが会社員の場合。ママが専業主婦や自営業なら、パパは自分の14日だけで10割。ママの期間は生まれてから16週間以内</Foot>
+      {t < 84.4 ? <Foot at={81.0} y={1300}>※パパが会社員の場合。ママが専業主婦や自営業なら、パパは自分の14日だけで10割。ママの期間は生まれてから16週間以内</Foot> : null}
       {/* ⑧ 締め */}
       <At at={84.6} until={88.0} x={370} y={995} mode="spring"><Img n="pk_family_happy_baby" s={300} /></At>
       <TapCard at={88.02} until={89.65} src="cta_jidou/profile.jpg" iw={1179} ih={872} x={90} y={420} w={900} hit={[0.02, 0.915, 0.5, 0.075]} dimAt={88.4} tapAt={89.0} label={<>プロフの<span style={{ color: "#06C755" }}>公式LINE</span>から</>} />
       <ChatMock />
-      <Swap x={20} y={1030} s={240} seq={[[89.8, "pk_dad_phone_line"]]} until={92.2} />
-      <At at={90.3} x={640} y={1080} mode="slam"><Big bg="#06C755" fg="#fff" size={52}>「育休相談」</Big></At>
-      <At at={91.3} x={790} y={760} mode="spring"><Img n="pk_online_consult" s={240} /></At>
+      <Swap x={800} y={880} s={200} seq={[[89.8, "pk_dad_phone_line"]]} until={92.2} from="r" />
+      <At at={90.3} x={560} y={1110} mode="slam"><Big bg="#06C755" fg="#fff" size={52}>「育休相談」</Big></At>
+      <At at={91.1} x={660} y={560} mode="spring"><Img n="pk_online_consult" s={360} /></At>
     </>
   );
 };
