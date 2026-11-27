@@ -202,6 +202,14 @@ const Heads: React.FC = () => {
   );
 };
 
+// 小数1けたの数字が3コマごとに段で増えて止まる
+const StepNum: React.FC<{ at: number; to: number; dur?: number }> = ({ at, to, dur = 12 }) => {
+  const f = useCurrentFrame();
+  const fs = Math.floor(f / 3) * 3;
+  const v = interpolate(fs, [F(at), F(at) + dur], [0, to], { ...clamp, easing: Easing.out(Easing.cubic) });
+  const land = interpolate(f - F(at) - dur, [0, 2, 5], [-8, 3, 0], clamp);
+  return <span style={{ display: "inline-block", transform: `translateY(${f >= F(at) + dur ? land : 0}px)` }}>{v.toFixed(1)}</span>;
+};
 const Img: React.FC<{ n: string; s: number }> = ({ n, s }) => <GenSlot name={n} size={s} />;
 // 表情の差し替え（同じ位置で画像だけ変わる・切り替えの瞬間に少しはねる）
 const Swap: React.FC<{ x: number; y: number; s: number; seq: [number, string][]; until: number; from?: "l" | "r" }> = ({ x, y, s, seq, until, from = "l" }) => {
@@ -343,6 +351,7 @@ const Body: React.FC = () => {
       <Heads />
       {/* 8週間の札 */}
       <At at={3.0} until={6.8} x={380} y={1000} mode="drop"><Pill c={GRN} size={30}>生まれてから8週間（1/26まで）</Pill></At>
+      {t >= 3.2 && t < 6.8 ? <At at={3.2} until={6.8} x={CX0 + MW - 150} y={CY + CALH - 34} mode="drop"><span style={{ background: GRN, color: "#fff", borderRadius: 12, padding: "4px 14px", ...K, fontSize: 26, border: `3px solid ${INK}` }}>1月26日まで →</span></At> : null}
       {/* ① 結論 */}
       <At at={1.1} until={4.1} x={60} y={1000} mode="spring"><Img n="pk_family_newborn" s={270} /></At>
       <Swap x={60} y={1000} s={250} seq={[[4.18, "pk_dad_calendar_ok"]]} until={6.75} />
@@ -360,6 +369,7 @@ const Body: React.FC = () => {
       <Spot at={40.0} until={41.1} rect={[CX0 - 14, CY - 14, MW + 28, CALH + 28]} r={26} color={RED} />
       <Alarm at={39.9} until={41.1} x={880} y={250} />
       <At at={38.2} until={41.15} x={380} y={1060} mode="drop"><div style={{ background: "#fff", border: `6px solid ${RED}`, borderRadius: 20, padding: "8px 26px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 32 }}>上乗せ </span><span style={{ ...SER, fontSize: 80, color: RED }}>{t >= 40.0 ? <Num at={40.0} from={20000} to={0} dur={12} /> : "約20,000"}</span><span style={{ ...K, fontSize: 32 }}>円</span></div></At>
+      <Ring at={37.3} until={38.6} x={CX0 + cell(13).x + CW / 2} y={CY + cell(13).y + CH / 2} r={60} c={RED} w={7} />
       <Crack at={40.05} until={41.1} x={680} y={1110} s={1.0} />
       <Shards at={40.1} x={680} y={1110} c={RED} />
       {t < 41.2 ? <Foot at={38.2} y={1300}>※月給33万円の例。14日なら上乗せは約2万円（13%×14日）。14日は、生まれてから8週間の中の合計</Foot> : null}
@@ -368,14 +378,14 @@ const Body: React.FC = () => {
       <At at={44.16} until={45.2} x={640} y={1010} mode="pop"><div style={{ background: "#EEE", border: `4px solid ${SUB}`, borderRadius: 16, padding: "8px 20px", ...K, fontSize: 36, color: SUB }}>14日分だけ？</div></At>
       {t >= 44.9 && t < 45.3 ? <div style={{ position: "absolute", left: 720, top: 990, ...K, fontSize: 110, color: RED }}>✕</div> : null}
       <At at={45.24} until={46.9} x={640} y={1010} mode="slam"><div style={{ background: BLU, color: "#fff", border: `5px solid ${INK}`, borderRadius: 18, padding: "8px 24px", ...K, fontSize: 40, boxShadow: `5px 6px 0 ${INK}` }}>1か月分まるごと</div></At>
-      <At at={46.22} until={46.9} x={660} y={1110} mode="pop"><span style={{ ...SER, fontSize: 64, color: BLU }}>約4.8万円</span></At>
+      <At at={46.22} until={46.9} x={660} y={1110} mode="pop"><span style={{ ...SER, fontSize: 64, color: BLU }}>約<StepNum at={46.22} to={4.8} />万円</span></At>
       <At at={46.94} until={50.6} x={70} y={1010} mode="drop"><Pill c={BLU} size={36}>① 月末を含む</Pill></At>
       <At at={47.92} until={50.6} x={70} y={1100} mode="drop"><Pill c={BLU} size={36}>② 同じ月に14日以上</Pill></At>
       <At at={48.3} until={50.6} x={560} y={1020} mode="pop"><div style={{ ...K, fontSize: 36, lineHeight: 1.35, textAlign: "center", background: "#fff", border: `4px solid ${BLU}`, borderRadius: 18, padding: "10px 22px" }}>どちらかで<br /><span style={{ color: BLU }}>その月まるごと免除</span></div></At>
       <Swap x={50} y={1010} s={290} seq={[[50.68, "pk_dad_submit"]]} until={56.25} />
       <At at={51.2} until={54.1} x={400} y={1030} mode="drop"><div style={{ width: 560, background: "#FFF8E3", border: `4px solid ${INK}`, borderRadius: 16, padding: "10px 18px", ...K, fontSize: 28, lineHeight: 1.4 }}>📝 2回に分けるなら<br />最初にまとめて会社に申し出（原則2週間前まで）</div></At>
       <Spot at={54.16} until={56.2} rect={[CX0 - 16, CY - 30, MW + 32, CALH * BOTH + 50]} r={26} color={BLU} />
-      <At at={55.14} until={56.25} x={320} y={800} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BLU}`, borderRadius: 20, padding: "6px 24px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 30 }}>2か月分 </span><span style={{ ...SER, fontSize: 60, color: BLU }}>約9.6万円</span></div></At>
+      <At at={55.14} until={56.25} x={320} y={800} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BLU}`, borderRadius: 20, padding: "6px 24px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 30 }}>2か月分 </span><span style={{ ...SER, fontSize: 60, color: BLU }}>約<StepNum at={55.14} to={9.6} />万円</span></div></At>
       {t < 56.3 ? <Foot at={41.6} y={1300}>※月給33万円の例。免除は会社が手続き。免除されても将来の年金は減りません。育休中に働いた日は14日に入りません。住民税は免除になりません</Foot> : null}
       {/* ⑤ ボーナス */}
       <Swap x={60} y={1000} s={260} seq={[[56.6, "pk_dad_bonus_happy"], [61.3, "pk_dad_bonus_sad"], [66.86, "pk_dad_bonus_happy"]]} until={68.9} />
@@ -383,7 +393,7 @@ const Body: React.FC = () => {
       <At at={63.26} until={68.9} x={380} y={1010} mode="drop"><Pill c={BLU} size={32}>月末を含めて 1か月を超える</Pill></At>
       <At at={65.24} until={66.8} x={380} y={1090} mode="drop"><Tag c={SUB} size={28}>1/1まで＝ちょうど1か月 ✕</Tag></At>
       <At at={65.9} until={66.8} x={380} y={1150} mode="pop"><Tag c={BLU} size={28}>1/2から＝1か月を超える ○</Tag></At>
-      <At at={66.86} until={68.9} x={360} y={1100} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BLU}`, borderRadius: 20, padding: "6px 24px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 28 }}>ボーナスの保険料 </span><span style={{ ...SER, fontSize: 60, color: BLU }}>約7.4万円</span><span style={{ ...K, fontSize: 28 }}> 免除</span></div></At>
+      <At at={66.86} until={68.9} x={360} y={1100} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BLU}`, borderRadius: 20, padding: "6px 24px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 28 }}>ボーナスの保険料 </span><span style={{ ...SER, fontSize: 60, color: BLU }}>約<StepNum at={66.86} to={7.4} />万円</span><span style={{ ...K, fontSize: 28 }}> 免除</span></div></At>
       {t < 68.98 ? <Foot at={57.0} y={1300}>※ボーナス52万円の例。産後パパ育休は最大28日なので、1か月を超えるなら普通の育休で。最初の28日は上乗せで10割</Foot> : null}
       {/* ⑥ フリーランス */}
       <At at={69.2} until={80.3} x={70} y={420} mode="drop"><div style={{ width: 400, background: "#fff", border: `5px solid ${GRN}`, borderRadius: 22, padding: "18px 10px", textAlign: "center", boxShadow: `6px 8px 0 ${INK}`, ...K, fontSize: 36 }}>会社員<div style={{ ...B, fontSize: 24, color: SUB }}>雇用保険あり</div><div style={{ ...K, fontSize: 60, color: GRN }}>✓</div></div></At>
@@ -418,7 +428,7 @@ const Body: React.FC = () => {
 };
 
 // 右下のたいち（気持ちが動く所だけ）
-const APPEAR: [number, number, string][] = [[13.56, 16.0, "taichi_thumbs_up"], [40.0, 42.4, "taichi_scared"], [54.16, 56.2, "taichi_ok_circle"], [61.3, 63.1, "taichi_worry"], [82.42, 84.3, "taichi_worry"]];
+const APPEAR: [number, number, string][] = [[13.56, 16.0, "taichi_thumbs_up"], [40.0, 42.4, "taichi_scared"], [54.16, 56.2, "taichi_ok_circle"], [61.3, 63.1, "taichi_worry"], [82.42, 84.3, "taichi_worry"], [84.48, 88.0, "__talk"]];
 const Chara: React.FC = () => {
   const f = useCurrentFrame();
   const a = APPEAR.find(([s0, e]) => f >= F(s0) - 2 && f < F(e) + 8);
@@ -426,9 +436,13 @@ const Chara: React.FC = () => {
   const [s0, e, name] = a;
   const inP = interpolate(f, [F(s0) - 2, F(s0) + 8], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.6)) });
   const outP = interpolate(f, [F(e), F(e) + 8], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
-  const lv = PAPA_MOUTH.charCodeAt(Math.min(PAPA_MOUTH.length - 1, f)) - 48;
-  void lv;
-  return <div style={{ position: "absolute", left: 755 + (1 - inP) * 380 + outP * 380, top: 1142 + Math.sin(f / 10) * 3, width: 200, height: 200 }}><GenSlot name={name} size={200} /></div>;
+  let img = name;
+  if (name === "__talk") {
+    const lv = PAPA_MOUTH.charCodeAt(Math.min(PAPA_MOUTH.length - 1, f)) - 48;
+    img = f % 84 >= 80 && lv === 0 ? "taichi_blink" : lv >= 2 ? (Math.floor(f / 2) % 3 === 0 ? "taichi_talk_mid" : "taichi_talk_open") : lv === 1 ? "taichi_talk_mid" : "taichi_talk_closed";
+  }
+  const sq = interpolate(f - F(s0), [6, 10, 14], [1, 0.94, 1], clamp);
+  return <div style={{ position: "absolute", left: 755 + (1 - inP) * 380 + outP * 380, top: 1142 + Math.sin(f / 10) * 3, width: 200, height: 200, transform: `scaleY(${sq}) scaleX(${2 - sq})`, transformOrigin: "50% 100%" }}><GenSlot name={img} size={200} /></div>;
 };
 
 // 字幕（*緑*＝得、!赤!＝注意）
@@ -453,20 +467,35 @@ const END = 91.95;
 // 効果音（u01〜u10だけ・最初の1秒は鳴らさない・高い音は大の3回だけ）
 const s = (file: string, t: number, volume = 0.2) => ({ file: `user/${file}`, at: F(t), volume });
 const CUES = [
-  s("u02s", 1.1, 0.16), s("u05s", 3.0, 0.16), s("u02s", 5.1, 0.16), s("u05s", 5.42, 0.2),
-  s("u03s", 6.84, 0.2), s("u02s", 10.8, 0.16), s("u04", 13.56, 0.26),
-  s("u03s", 14.48, 0.18), s("u05s", 18.02, 0.16), s("u05", 19.4, 0.2), s("u02s", 21.12, 0.16), s("u02s", 22.3, 0.16), s("u07", 25.9, 0.12), s("u07", 26.5, 0.12), s("u05s", 29.18, 0.18), s("u02s", 34.3, 0.16),
-  s("u03s", 36.86, 0.2), s("u07", 37.22, 0.16), s("u10", 40.0, 0.24),
-  s("u03s", 41.2, 0.2), s("u05s", 43.2, 0.18), s("u05", 45.24, 0.2), s("u02s", 46.22, 0.16), s("u02s", 46.94, 0.16), s("u02s", 47.92, 0.16), s("u02s", 51.2, 0.16), s("u04", 54.3, 0.24), s("u05s", 54.6, 0.18),
-  s("u03s", 56.3, 0.2), s("u02s", 59.9, 0.16), s("u07", 61.3, 0.16), s("u02s", 63.26, 0.16), s("u05", 66.86, 0.22),
-  s("u03s", 68.98, 0.2), s("u02s", 71.0, 0.16), s("u07", 72.74, 0.16), s("u05s", 74.38, 0.18), s("u02s", 78.62, 0.16),
-  s("u03s", 80.44, 0.2), s("u02s", 81.36, 0.16), s("u07", 82.42, 0.16),
-  s("u03s", 84.48, 0.2), s("u02s", 89.0, 0.18), s("u02s", 91.05, 0.18), s("u10", 90.3, 0.22),
+  s("u02s", 1.1, 0.13), s("u05s", 3.0, 0.13), s("u02s", 5.1, 0.13), s("u05s", 5.42, 0.15),
+  s("u03s", 6.84, 0.15), s("u02s", 10.8, 0.13), s("u04", 13.56, 0.17),
+  s("u03s", 14.48, 0.14), s("u05s", 18.02, 0.13), s("u05s", 19.4, 0.15), s("u02s", 21.12, 0.13), s("u02s", 22.3, 0.13), s("u02s", 25.9, 0.12), s("u02s", 26.5, 0.12), s("u05s", 29.18, 0.14), s("u02s", 34.3, 0.13),
+  s("u03s", 36.86, 0.15), s("u03s", 37.22, 0.13), s("u10", 40.0, 0.16),
+  s("u03s", 41.2, 0.15), s("u05s", 43.2, 0.14), s("u05s", 45.24, 0.15), s("u02s", 46.22, 0.13), s("u02s", 46.94, 0.13), s("u02s", 47.92, 0.13), s("u02s", 51.2, 0.13), s("u04", 54.3, 0.16), s("u05s", 54.6, 0.14),
+  s("u03s", 56.3, 0.15), s("u02s", 59.9, 0.13), s("u03s", 61.3, 0.13), s("u02s", 63.26, 0.13), s("u05s", 66.86, 0.15),
+  s("u03s", 68.98, 0.15), s("u02s", 71.0, 0.13), s("u03s", 72.74, 0.13), s("u05s", 74.38, 0.14), s("u02s", 78.62, 0.13),
+  s("u03s", 80.44, 0.15), s("u02s", 81.36, 0.13), s("u03s", 82.42, 0.13),
+  s("u03s", 84.48, 0.15), s("u02s", 89.0, 0.14), s("u05s", 90.3, 0.15), s("u02s", 91.05, 0.13),
 ];
 
 const CamKeys: CamKey[] = [
-  { t: 13.56, x: 540, y: 930, s: 1.03, d: 6 }, { t: 14.4, x: 540, y: 960, s: 1, d: 10 },
+  { t: 13.56, x: 540, y: 930, s: 1.04, d: 6 }, { t: 14.4, x: 540, y: 960, s: 1, d: 10 },
+  { t: 40.0, x: 470, y: 900, s: 1.05, d: 5 }, { t: 41.1, x: 540, y: 960, s: 1, d: 10 },
+  { t: 55.14, x: 540, y: 900, s: 1.04, d: 6 }, { t: 56.2, x: 540, y: 960, s: 1, d: 10 },
+  { t: 66.86, x: 540, y: 1000, s: 1.04, d: 6 }, { t: 68.8, x: 540, y: 960, s: 1, d: 10 },
 ];
+// 章が変わる時の「ため→ピタ」と、出ている間ずっとゆっくり寄る動き
+const SECTIONS = [0, 6.84, 14.48, 36.86, 41.2, 56.3, 68.98, 80.44, 84.48, 88.02, 92.4];
+const Drift: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const f = useCurrentFrame();
+  const t = t30(f);
+  let i = 0; SECTIONS.forEach((x, k) => { if (t >= x) i = k; });
+  const a = SECTIONS[i], b = SECTIONS[i + 1] ?? a + 5;
+  const slow = 1 + 0.014 * Math.min(1, (t - a) / Math.max(1, b - a));
+  const kick = i > 0 ? interpolate(f - F(a), [0, 4, 9], [0.975, 1.006, 1], clamp) : 1;
+  const dy = i > 0 ? interpolate(f - F(a), [0, 4, 9], [26, -4, 0], clamp) : 0;
+  return <AbsoluteFill style={{ transform: `translateY(${dy}px) scale(${slow * kick})`, transformOrigin: "50% 45%" }}>{children}</AbsoluteFill>;
+};
 const CapBand: React.FC = () => {
   const f = useCurrentFrame();
   const w = interpolate(f, [0, 10], [0, 1], { ...clamp, easing: OUTE }) * (1 - interpolate(f, [F(END), F(END) + 8], [0, 1], clamp));
@@ -479,9 +508,9 @@ export const PapaReel: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: A2.bg, fontFamily: FONT, backgroundImage: "repeating-linear-gradient(transparent 0 62px, rgba(176,146,60,0.22) 62px 64px)" }}>
     <Audio src={staticFile("papa-narration.wav")} />
     <SfxTrack cues={CUES} />
-    <Camera keys={CamKeys}>
+    <Camera keys={CamKeys}><Drift>
       <div style={{ position: "absolute", inset: 0, transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE})`, transformOrigin: "0 0" }}><Body /></div>
-    </Camera>
+    </Drift></Camera>
     <div style={{ position: "absolute", left: 0, top: 0, transform: `scale(${STEP_S})`, transformOrigin: "0 0" }}><Stepper labels={["10割", "13日", "保険料", "ボーナス", "注意"]} steps={[0, 36.86, 41.2, 56.3, 68.98]} x={600 / STEP_S} y={140 / STEP_S} color={GRN} /></div>
     <Chara />
     <CapBand />
