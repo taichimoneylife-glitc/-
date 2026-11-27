@@ -23,14 +23,27 @@ const GRN = "#2E9E6B", ORG = "#F2A35E", BLU = "#4A8FD6", TINT = "#DDF1E4";
 const t30 = (f: number) => f / 30;
 
 // ── カレンダーの位置 ──
-const CW = 66, CY = 372, GT = CY + 86;
+// 1か月を大きく1つだけ見せる（必要な時だけ1月へ横にすべる／2か月を並べる）。座標はカレンダーの中の座標
+const CW = 128, CH = 80, CX0 = 92, CY = 372, HEAD = 104, GT = HEAD, MW = CW * 7, GAP = 70, CALH = HEAD + CH * 6;
 const MONTHS = [
-  { label: "2026年 12月", start: 2, days: 31, x: 60, base: 0 },
-  { label: "2027年 1月", start: 5, days: 31, x: 556, base: 31 },
+  { label: "2026年 12月", start: 2, days: 31, x: 0, base: 0 },
+  { label: "2027年 1月", start: 5, days: 31, x: MW + GAP, base: 31 },
 ];
 const cell = (dn: number) => {
   const mi = dn < 31 ? 0 : 1; const M = MONTHS[mi]; const d = dn - M.base;
-  const idx = M.start + d; return { x: M.x + (idx % 7) * CW, y: GT + Math.floor(idx / 7) * CW, mi, d: d + 1 };
+  const idx = M.start + d; return { x: M.x + (idx % 7) * CW, y: GT + Math.floor(idx / 7) * CH, mi, d: d + 1 };
+};
+// 見せ方：[秒, 左端に来る位置, 倍率]
+const BOTH = MW / (MW * 2 + GAP);
+const VIEW: [number, number, number][] = [[0, 0, 1], [52.25, MW + GAP, 1], [54.0, 0, BOTH], [56.3, 0, 1], [64.55, MW + GAP, 1], [66.5, 0, 1]];
+const viewAt = (f: number) => {
+  let x = 0, sc = 1;
+  for (const [t, vx, vs] of VIEW) {
+    const A = F(t); if (f < A) break;
+    const p = interpolate(f, [A, A + 10], [0, 1], { ...clamp, easing: Easing.bezier(0.65, 0, 0.35, 1) });
+    x = x + (vx - x) * p; sc = sc + (vs - sc) * p;
+  }
+  return { x, sc };
 };
 const D = (m: 12 | 1, d: number) => (m === 12 ? d - 1 : 30 + d); // 日付 → 12/1からの通し番号
 
@@ -85,12 +98,15 @@ const Calendar: React.FC = () => {
   const qmark = t >= 84.48;
   const tintOn = (dn: number) => t >= 2.86 + dn * 0.012 && dn <= 56;
   const glow8 = (t >= 52.66 && t < 54.2) ? 0.5 + 0.5 * Math.sin(f / 3) : 0;
+  const vw = viewAt(f);
   return (
     <div style={{ position: "absolute", inset: 0, opacity: enter * away * gone * dim, transform: `translateY(${(1 - enter) * 120}px)` }}>
+     <div style={{ position: "absolute", left: CX0 - 40, top: CY - 70, width: MW + 80, height: CALH + 110, overflow: "hidden" }}>
+     <div style={{ position: "absolute", left: 40, top: 70, transform: `translateX(${-vw.x * vw.sc}px) scale(${vw.sc})`, transformOrigin: "0 0" }}>
       {MONTHS.map((M, mi) => (
-        <div key={mi} style={{ position: "absolute", left: M.x - 8, top: CY - 8, width: CW * 7 + 16, height: 86 + CW * 6 + 16, background: "#fff", border: `5px solid ${INK}`, borderRadius: 22, boxShadow: `6px 8px 0 ${INK}` }}>
-          <div style={{ position: "absolute", left: 0, right: 0, top: 6, textAlign: "center", ...K, fontSize: 34, color: INK }}>{M.label}</div>
-          {"日月火水木金土".split("").map((w, i) => <div key={w} style={{ position: "absolute", left: 8 + i * CW, top: 52, width: CW, textAlign: "center", ...B, fontSize: 22, color: i === 0 ? RED : i === 6 ? CASH : SUB }}>{w}</div>)}
+        <div key={mi} style={{ position: "absolute", left: M.x - 12, top: -12, width: MW + 24, height: CALH + 24, background: "#fff", border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `7px 9px 0 ${INK}` }}>
+          <div style={{ position: "absolute", left: 0, right: 0, top: 6, textAlign: "center", ...K, fontSize: 44, color: INK }}>{M.label}</div>
+          {"日月火水木金土".split("").map((w, i) => <div key={w} style={{ position: "absolute", left: 12 + i * CW, top: 66, width: CW, textAlign: "center", ...B, fontSize: 26, color: i === 0 ? RED : i === 6 ? CASH : SUB }}>{w}</div>)}
         </div>
       ))}
       {Array.from({ length: 62 }).map((_, dn) => {
@@ -99,22 +115,34 @@ const Calendar: React.FC = () => {
         const lost = dn === 13 && t >= 37.22 && t < 38.6;
         const col = (p.x - MONTHS[p.mi].x) / CW;
         return (
-          <div key={dn} style={{ position: "absolute", left: p.x + 3, top: p.y + 3, width: CW - 6, height: CW - 6, borderRadius: 12, background: b ? b.c : tintOn(dn) ? TINT : "transparent", boxShadow: glow8 > 0 && dn <= 56 ? `0 0 0 ${2 + 3 * glow8}px rgba(46,158,107,0.45)` : undefined, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ ...B, fontSize: 24, color: b && b.c !== "#BFD8F2" ? "#fff" : col === 0 ? RED : col === 6 ? CASH : INK }}>{qmark ? "?" : p.d}</span>
-            {lost ? <div style={{ position: "absolute", inset: -4, border: `5px solid ${RED}`, borderRadius: 14, opacity: 1 - interpolate(t, [38.2, 38.6], [0, 1], clamp) }}><span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 52, color: RED }}>✕</span></div> : null}
+          <div key={dn} style={{ position: "absolute", left: p.x + 4, top: p.y + 4, width: CW - 8, height: CH - 8, borderRadius: 14, background: b ? b.c : tintOn(dn) ? TINT : "transparent", boxShadow: glow8 > 0 && dn <= 56 ? `0 0 0 ${2 + 3 * glow8}px rgba(46,158,107,0.45)` : undefined, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ ...K, fontSize: 34, color: b && b.c !== "#BFD8F2" ? "#fff" : col === 0 ? RED : col === 6 ? CASH : INK }}>{qmark ? "?" : p.d}</span>
+            {lost ? <div style={{ position: "absolute", inset: -4, border: `5px solid ${RED}`, borderRadius: 14, opacity: 1 - interpolate(t, [38.2, 38.6], [0, 1], clamp) }}><span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 60, color: RED }}>✕</span></div> : null}
           </div>
         );
       })}
       {/* 12/1 赤ちゃん */}
-      {t >= 1.0 && t < 84.48 ? <div style={{ position: "absolute", left: cell(0).x + 34, top: cell(0).y - 22, fontSize: 30, transform: `scale(${interpolate(f - F(1.0), [0, 4, 8], [0, 1.3, 1], clamp)})` }}>👶</div> : null}
+      {t >= 1.0 && t < 84.48 ? <div style={{ position: "absolute", left: cell(0).x + 82, top: cell(0).y - 18, fontSize: 38, transform: `scale(${interpolate(f - F(1.0), [0, 4, 8], [0, 1.3, 1], clamp)})` }}>👶</div> : null}
       {/* 日数カウンター */}
       {COUNTERS.map((c, i) => {
         if (t < c.at || t >= c.until) return null;
         const fs = Math.floor(f / 2) * 2;
         const v = Math.round(interpolate(fs, [F(c.at), F(c.at + c.dur)], [c.from, c.to], clamp));
         const p = cell(c.dnBase + v - 1);
-        return <div key={i} style={{ position: "absolute", left: p.x + CW - 26, top: p.y - 26, minWidth: 64, height: 44, padding: "0 10px", borderRadius: 22, background: "#fff", border: `4px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 26, color: INK, boxShadow: `3px 4px 0 ${INK}`, zIndex: 3 }}>{v}日</div>;
+        return <div key={i} style={{ position: "absolute", left: p.x + CW - 40, top: p.y - 24, minWidth: 76, height: 50, padding: "0 12px", borderRadius: 25, background: "#fff", border: `4px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 30, color: INK, boxShadow: `3px 4px 0 ${INK}`, zIndex: 3 }}>{v}日</div>;
       })}
+      <MonthStamp mi={0} at={46.22} until={50.68} />
+      <MonthStamp mi={0} at={54.3} until={56.3} />
+      <MonthStamp mi={1} at={54.6} until={56.3} />
+      <MonthStamp mi={0} at={59.9} until={68.98} />
+      <BonusBag />
+      {t >= 54.3 && t < 56.3 ? <Ripple at={54.3} x={MW - 60} y={20} c={BLU} /> : null}
+      {t >= 54.6 && t < 56.3 ? <Ripple at={54.6} x={MW * 2 + GAP - 60} y={20} c={BLU} /> : null}
+      <Corners at={46.94} until={47.9} x={cell(D(12, 31)).x - 14} y={cell(D(12, 31)).y - 14} w={CW + 28} h={CH + 28} zoom="×2" />
+      <HandCircle at={47.2} until={47.9} x={cell(D(12, 31)).x + CW / 2} y={cell(D(12, 31)).y + CH / 2} r={62} ry={46} c={RED} w={7} />
+      {t >= 66.9 && t < 68.98 ? <Ripple at={66.9} x={cell(D(12, 10)).x + 64} y={cell(D(12, 10)).y + 30} c={BLU} n={3} /> : null}
+     </div>
+     </div>
     </div>
   );
 };
@@ -124,7 +152,7 @@ const MonthStamp: React.FC<{ mi: 0 | 1; at: number; until: number }> = ({ mi, at
   const f = useCurrentFrame();
   if (f < F(at) || f >= F(until)) return null;
   const k = interpolate(f - F(at), [0, 3, 6], [2.2, 0.88, 1], clamp);
-  return <div style={{ position: "absolute", left: MONTHS[mi].x + CW * 7 - 92, top: CY - 30, width: 100, height: 100, borderRadius: "50%", border: `6px solid ${BLU}`, background: "rgba(255,255,255,0.92)", color: BLU, ...K, fontSize: 30, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", transform: `rotate(-12deg) scale(${k})`, zIndex: 4 }}><div style={{ fontSize: 22 }}>まるごと</div><div>免除</div></div>;
+  return <div style={{ position: "absolute", left: MONTHS[mi].x + MW - 110, top: -40, width: 120, height: 120, borderRadius: "50%", border: `6px solid ${BLU}`, background: "rgba(255,255,255,0.92)", color: BLU, ...K, fontSize: 36, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", transform: `rotate(-12deg) scale(${k})`, zIndex: 4 }}><div style={{ fontSize: 24 }}>まるごと</div><div>免除</div></div>;
 };
 
 // ボーナス袋（12/10のマス）
@@ -137,7 +165,7 @@ const BonusBag: React.FC = () => {
   const bad = t >= 61.3 && t < 66.86;
   const ok = t >= 66.86;
   return (
-    <div style={{ position: "absolute", left: p.x - 8, top: p.y - 30, width: 82, height: 104, transform: `scale(${k * (bad ? 0.86 : 1)})`, filter: bad ? "grayscale(1)" : undefined, opacity: bad ? 0.7 : 1, zIndex: 4 }}>
+    <div style={{ position: "absolute", left: p.x + 66, top: p.y + 2, width: 82, height: 104, transformOrigin: "0 0", transform: `scale(${k * (bad ? 0.62 : 0.72)})`, filter: bad ? "grayscale(1)" : undefined, opacity: bad ? 0.7 : 1, zIndex: 4 }}>
       <svg width={82} height={104}><rect x={6} y={4} width={70} height={96} rx={8} fill="#FFFDF6" stroke={INK} strokeWidth={4} /><path d="M6 46 L76 46" stroke={RED} strokeWidth={6} /><path d="M6 54 L76 54" stroke="#D9A43A" strokeWidth={4} /><path d="M41 30 l10 16 l-10 16 l-10 -16 Z" fill={RED} stroke={INK} strokeWidth={2} /></svg>
       {bad ? <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 80, color: RED, filter: "none" }}>✕</div> : null}
       {ok ? <div style={{ position: "absolute", left: -6, top: 20, width: 94, height: 94, borderRadius: "50%", border: `5px solid ${BLU}`, background: "rgba(255,255,255,0.9)", color: BLU, ...K, fontSize: 28, display: "flex", alignItems: "center", justifyContent: "center", transform: `rotate(-12deg) scale(${interpolate(f - F(66.86), [0, 3, 6], [2, 0.9, 1], clamp)})` }}>免除</div> : null}
@@ -190,7 +218,7 @@ const Swap: React.FC<{ x: number; y: number; s: number; seq: [number, string][];
 };
 
 // ── 下の説明：1日あたりの手取り（棒） ──
-const BX = 60, BY = 880, BW = 960, BH = 410, BASE = BY + BH - 56, PX = 290 / 11000;
+const BX = 60, BY = 990, BW = 960, BH = 300, BASE = BY + BH - 46, PX = 190 / 11000;
 const LX0 = BX + 110, RX0 = BX + 420;
 const BarsCard: React.FC = () => {
   const f = useCurrentFrame();
@@ -250,16 +278,16 @@ const Payslip: React.FC = () => {
   const strike = (at: number) => interpolate(f - F(at), [0, 6], [0, 1], clamp);
   const rows: [string, string, number][] = [["厚生年金", "約3.1万円", 42.3], ["健康保険", "約1.7万円", 42.7]];
   return (
-    <div style={{ position: "absolute", left: 60, top: 890, width: 520, height: 390, opacity: inP * (1 - outP), transform: `translateX(${(1 - inP) * -300}px) rotate(-1.5deg)` }}>
+    <div style={{ position: "absolute", left: 60, top: 990, width: 520, height: 300, opacity: inP * (1 - outP), transform: `translateX(${(1 - inP) * -300}px) rotate(-1.5deg)` }}>
       <div style={{ position: "absolute", inset: 0, background: "#fff", border: `5px solid ${INK}`, borderRadius: 20, boxShadow: `6px 8px 0 ${INK}` }} />
       <div style={{ position: "absolute", left: 0, right: 0, top: 16, textAlign: "center", ...K, fontSize: 32 }}>給料から引かれる保険料（月）</div>
       {rows.map(([n, v, at], i) => (
-        <div key={n} style={{ position: "absolute", left: 40, right: 40, top: 96 + i * 86, height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "3px dashed #E2DCC8", ...K, fontSize: 34 }}>
+        <div key={n} style={{ position: "absolute", left: 40, right: 40, top: 76 + i * 70, height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "3px dashed #E2DCC8", ...K, fontSize: 34 }}>
           <span>{n}</span><span style={{ ...SER, color: RED }}>{v}</span>
           <div style={{ position: "absolute", left: -10, top: 30, height: 6, width: `${strike(at) * 104}%`, background: BLU, borderRadius: 3 }} />
         </div>
       ))}
-      {t >= 43.2 ? <div style={{ position: "absolute", right: 30, bottom: 30, width: 150, height: 150, borderRadius: "50%", border: `7px solid ${BLU}`, color: BLU, ...K, fontSize: 44, display: "flex", alignItems: "center", justifyContent: "center", transform: `rotate(-14deg) scale(${interpolate(f - F(43.2), [0, 3, 6], [2.2, 0.9, 1], clamp)})`, background: "rgba(255,255,255,0.85)" }}>免除</div> : null}
+      {t >= 43.2 ? <div style={{ position: "absolute", right: 24, bottom: 20, width: 120, height: 120, borderRadius: "50%", border: `7px solid ${BLU}`, color: BLU, ...K, fontSize: 44, display: "flex", alignItems: "center", justifyContent: "center", transform: `rotate(-14deg) scale(${interpolate(f - F(43.2), [0, 3, 6], [2.2, 0.9, 1], clamp)})`, background: "rgba(255,255,255,0.85)" }}>免除</div> : null}
       <div style={{ position: "absolute", left: 40, bottom: 26, ...B, fontSize: 22, color: SUB }}>※月給33万円・会社員本人の分</div>
     </div>
   );
@@ -314,85 +342,75 @@ const Body: React.FC = () => {
       <Calendar />
       <Heads />
       {/* 8週間の札 */}
-      <At at={3.0} until={6.8} x={560} y={CY + 86 + CW * 6 + 18} mode="drop"><Pill c={GRN} size={30}>生まれてから8週間（1/26まで）</Pill></At>
+      <At at={3.0} until={6.8} x={380} y={1000} mode="drop"><Pill c={GRN} size={30}>生まれてから8週間（1/26まで）</Pill></At>
       {/* ① 結論 */}
-      <At at={1.1} until={4.1} x={330} y={880} mode="spring"><Img n="pk_family_newborn" s={380} /></At>
-      <Swap x={40} y={890} s={360} seq={[[4.18, "pk_dad_calendar_ok"]]} until={6.75} />
-      {t < 6.8 ? <Flip at={5.42} x={440} y={950}><div style={{ display: "flex", gap: 20 }}><div style={{ background: "#fff", border: `5px solid ${GRN}`, borderRadius: 20, padding: "10px 22px", ...K, fontSize: 40, boxShadow: `5px 6px 0 ${INK}` }}>①8週間以内</div><div style={{ background: "#fff", border: `5px solid ${GRN}`, borderRadius: 20, padding: "10px 22px", ...K, fontSize: 40, boxShadow: `5px 6px 0 ${INK}` }}>②14日以上</div></div></Flip> : null}
-      {t < 6.8 ? <HandCircle at={5.8} until={6.75} x={740} y={985} r={300} ry={80} c={RED} /> : null}
+      <At at={1.1} until={4.1} x={60} y={1000} mode="spring"><Img n="pk_family_newborn" s={270} /></At>
+      <Swap x={60} y={1000} s={250} seq={[[4.18, "pk_dad_calendar_ok"]]} until={6.75} />
+      {t < 6.8 ? <Flip at={5.42} x={380} y={1100}><div style={{ display: "flex", gap: 20 }}><div style={{ background: "#fff", border: `5px solid ${GRN}`, borderRadius: 20, padding: "10px 22px", ...K, fontSize: 40, boxShadow: `5px 6px 0 ${INK}` }}>①8週間以内</div><div style={{ background: "#fff", border: `5px solid ${GRN}`, borderRadius: 20, padding: "10px 22px", ...K, fontSize: 40, boxShadow: `5px 6px 0 ${INK}` }}>②14日以上</div></div></Flip> : null}
+      {t < 6.8 ? <HandCircle at={5.8} until={6.75} x={660} y={1135} r={290} ry={66} c={RED} /> : null}
       {/* ② 例えば・28日・10割 */}
-      <Rays at={13.56} until={16.0} cx={330} cy={680} />
-      <Swap x={40} y={900} s={340} seq={[[11.56, "pk_dad_hold_baby"]]} until={14.4} />
-      <At at={13.56} until={14.45} x={420} y={1000} mode="slam"><Big size={60}>手取り 実質10割！</Big></At>
+      <Rays at={13.56} until={16.0} cx={540} cy={1120} />
+      <Swap x={60} y={1000} s={260} seq={[[11.56, "pk_dad_hold_baby"]]} until={14.4} />
+      <At at={13.56} until={14.45} x={380} y={1080} mode="slam"><Big size={60}>手取り 実質10割！</Big></At>
       <BarsCard />
       {t >= 29.18 && t < 31.0 ? <Ring at={29.18} until={30.9} x={(LX0 + RX0 + 200) / 2} y={BASE - 150} r={250} c={GRN} /> : null}
       <Foot at={15.0} y={1300}>※月給33万円の例（休む前6か月の給料の平均・ボーナスは入らない）。上乗せは最大28日分。月給が約50万円を超えると上限があり10割に届きません。181日目からは50%</Foot>
       {/* ③ 13日 */}
-      <Swap x={40} y={890} s={360} seq={[[36.86, "pk_dad_calendar_ok"], [37.22, "pk_dad_calendar_oops"]]} until={41.15} />
-      <Spot at={40.0} until={41.1} rect={[MONTHS[0].x - 12, CY - 12, CW * 7 + 24, 86 + CW * 6 + 24]} r={24} color={RED} />
+      <Swap x={60} y={1000} s={250} seq={[[36.86, "pk_dad_calendar_ok"], [37.22, "pk_dad_calendar_oops"]]} until={41.15} />
+      <Spot at={40.0} until={41.1} rect={[CX0 - 14, CY - 14, MW + 28, CALH + 28]} r={26} color={RED} />
       <Alarm at={39.9} until={41.1} x={880} y={250} />
-      <At at={38.2} until={41.15} x={440} y={960} mode="drop"><div style={{ background: "#fff", border: `6px solid ${RED}`, borderRadius: 20, padding: "8px 26px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 32 }}>上乗せ </span><span style={{ ...SER, fontSize: 80, color: RED }}>{t >= 40.0 ? <Num at={40.0} from={20000} to={0} dur={12} /> : "約20,000"}</span><span style={{ ...K, fontSize: 32 }}>円</span></div></At>
-      <Crack at={40.05} until={41.1} x={720} y={1010} s={1.1} />
-      <Shards at={40.1} x={720} y={1010} c={RED} />
+      <At at={38.2} until={41.15} x={380} y={1060} mode="drop"><div style={{ background: "#fff", border: `6px solid ${RED}`, borderRadius: 20, padding: "8px 26px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 32 }}>上乗せ </span><span style={{ ...SER, fontSize: 80, color: RED }}>{t >= 40.0 ? <Num at={40.0} from={20000} to={0} dur={12} /> : "約20,000"}</span><span style={{ ...K, fontSize: 32 }}>円</span></div></At>
+      <Crack at={40.05} until={41.1} x={680} y={1110} s={1.0} />
+      <Shards at={40.1} x={680} y={1110} c={RED} />
       <Foot at={38.2} y={1300}>※月給33万円の例。14日なら上乗せは約2万円（13%×14日）。14日は、生まれてから8週間の中の合計</Foot>
       {/* ④ 保険料 */}
       <Payslip />
-      <At at={44.16} until={45.2} x={620} y={950} mode="pop"><div style={{ background: "#EEE", border: `4px solid ${SUB}`, borderRadius: 16, padding: "8px 20px", ...K, fontSize: 36, color: SUB }}>14日分だけ？</div></At>
-      {t >= 44.9 && t < 45.3 ? <div style={{ position: "absolute", left: 700, top: 930, ...K, fontSize: 110, color: RED }}>✕</div> : null}
-      <At at={45.24} until={46.9} x={620} y={950} mode="slam"><div style={{ background: BLU, color: "#fff", border: `5px solid ${INK}`, borderRadius: 18, padding: "8px 24px", ...K, fontSize: 40, boxShadow: `5px 6px 0 ${INK}` }}>1か月分まるごと</div></At>
-      <At at={46.22} until={46.9} x={640} y={1060} mode="pop"><span style={{ ...SER, fontSize: 64, color: BLU }}>約4.8万円</span></At>
-      <MonthStamp mi={0} at={46.22} until={50.68} />
-      <Corners at={46.94} until={47.9} x={cell(D(12, 31)).x - 14} y={cell(D(12, 31)).y - 14} w={CW + 28} h={CW + 28} zoom="×2" />
-      <HandCircle at={47.2} until={47.9} x={cell(D(12, 31)).x + CW / 2} y={cell(D(12, 31)).y + CW / 2} r={44} c={RED} w={7} />
-      <At at={46.94} until={50.6} x={70} y={960} mode="drop"><Pill c={BLU} size={36}>① 月末を含む</Pill></At>
-      <At at={47.92} until={50.6} x={70} y={1060} mode="drop"><Pill c={BLU} size={36}>② 同じ月に14日以上</Pill></At>
-      <At at={48.3} until={50.6} x={560} y={980} mode="pop"><div style={{ ...K, fontSize: 36, lineHeight: 1.35, textAlign: "center", background: "#fff", border: `4px solid ${BLU}`, borderRadius: 18, padding: "10px 22px" }}>どちらかで<br /><span style={{ color: BLU }}>その月まるごと免除</span></div></At>
-      <Swap x={40} y={900} s={340} seq={[[50.68, "pk_dad_submit"]]} until={56.25} />
-      <At at={51.2} until={54.1} x={420} y={930} mode="drop"><div style={{ width: 560, background: "#FFF8E3", border: `4px solid ${INK}`, borderRadius: 16, padding: "10px 18px", ...K, fontSize: 28, lineHeight: 1.4 }}>📝 2回に分けるなら<br />最初にまとめて会社に申し出（原則2週間前まで）</div></At>
-      <Spot at={54.16} until={56.2} rect={[MONTHS[0].x - 14, CY - 40, MONTHS[1].x + CW * 7 - MONTHS[0].x + 28, 86 + CW * 6 + 52]} r={26} color={BLU} />
-      <MonthStamp mi={0} at={54.3} until={56.3} />
-      <MonthStamp mi={1} at={54.6} until={56.3} />
-      {t >= 54.3 ? <Ripple at={54.3} x={MONTHS[0].x + CW * 7 - 42} y={CY + 20} c={BLU} /> : null}
-      {t >= 54.6 ? <Ripple at={54.6} x={MONTHS[1].x + CW * 7 - 42} y={CY + 20} c={BLU} /> : null}
-      <At at={55.14} until={56.25} x={390} y={1030} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BLU}`, borderRadius: 20, padding: "6px 24px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 30 }}>2か月分 </span><span style={{ ...SER, fontSize: 60, color: BLU }}>約9.6万円</span></div></At>
+      <At at={44.16} until={45.2} x={640} y={1010} mode="pop"><div style={{ background: "#EEE", border: `4px solid ${SUB}`, borderRadius: 16, padding: "8px 20px", ...K, fontSize: 36, color: SUB }}>14日分だけ？</div></At>
+      {t >= 44.9 && t < 45.3 ? <div style={{ position: "absolute", left: 720, top: 990, ...K, fontSize: 110, color: RED }}>✕</div> : null}
+      <At at={45.24} until={46.9} x={640} y={1010} mode="slam"><div style={{ background: BLU, color: "#fff", border: `5px solid ${INK}`, borderRadius: 18, padding: "8px 24px", ...K, fontSize: 40, boxShadow: `5px 6px 0 ${INK}` }}>1か月分まるごと</div></At>
+      <At at={46.22} until={46.9} x={660} y={1110} mode="pop"><span style={{ ...SER, fontSize: 64, color: BLU }}>約4.8万円</span></At>
+      <At at={46.94} until={50.6} x={70} y={1010} mode="drop"><Pill c={BLU} size={36}>① 月末を含む</Pill></At>
+      <At at={47.92} until={50.6} x={70} y={1100} mode="drop"><Pill c={BLU} size={36}>② 同じ月に14日以上</Pill></At>
+      <At at={48.3} until={50.6} x={560} y={1020} mode="pop"><div style={{ ...K, fontSize: 36, lineHeight: 1.35, textAlign: "center", background: "#fff", border: `4px solid ${BLU}`, borderRadius: 18, padding: "10px 22px" }}>どちらかで<br /><span style={{ color: BLU }}>その月まるごと免除</span></div></At>
+      <Swap x={50} y={1010} s={290} seq={[[50.68, "pk_dad_submit"]]} until={56.25} />
+      <At at={51.2} until={54.1} x={400} y={1030} mode="drop"><div style={{ width: 560, background: "#FFF8E3", border: `4px solid ${INK}`, borderRadius: 16, padding: "10px 18px", ...K, fontSize: 28, lineHeight: 1.4 }}>📝 2回に分けるなら<br />最初にまとめて会社に申し出（原則2週間前まで）</div></At>
+      <Spot at={54.16} until={56.2} rect={[CX0 - 16, CY - 30, MW + 32, CALH * BOTH + 50]} r={26} color={BLU} />
+      <At at={55.14} until={56.25} x={320} y={800} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BLU}`, borderRadius: 20, padding: "6px 24px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 30 }}>2か月分 </span><span style={{ ...SER, fontSize: 60, color: BLU }}>約9.6万円</span></div></At>
       <Foot at={41.6} y={1300}>※月給33万円の例。免除は会社が手続き。免除されても将来の年金は減りません。育休中に働いた日は14日に入りません。住民税は免除になりません</Foot>
       {/* ⑤ ボーナス */}
-      <BonusBag />
-      <Swap x={40} y={900} s={340} seq={[[56.6, "pk_dad_bonus_happy"], [61.3, "pk_dad_bonus_sad"], [66.86, "pk_dad_bonus_happy"]]} until={68.9} />
-      <MonthStamp mi={0} at={59.9} until={68.98} />
-      <At at={61.3} until={63.2} x={440} y={980} mode="drop"><div style={{ background: "#F1EEE6", border: `5px solid ${SUB}`, borderRadius: 18, padding: "10px 22px", ...K, fontSize: 38, color: SUB, whiteSpace: "nowrap" }}>14日だと ボーナス分は ✕</div></At>
-      <At at={63.26} until={68.9} x={440} y={950} mode="drop"><Pill c={BLU} size={32}>月末を含めて 1か月を超える</Pill></At>
-      <At at={65.24} until={66.8} x={440} y={1050} mode="drop"><Tag c={SUB} size={28}>1/1まで＝ちょうど1か月 ✕</Tag></At>
-      <At at={65.9} until={66.8} x={440} y={1110} mode="pop"><Tag c={BLU} size={28}>1/2から＝1か月を超える ○</Tag></At>
-      <At at={66.86} until={68.9} x={440} y={1060} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BLU}`, borderRadius: 20, padding: "6px 24px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 28 }}>ボーナスの保険料 </span><span style={{ ...SER, fontSize: 60, color: BLU }}>約7.4万円</span><span style={{ ...K, fontSize: 28 }}> 免除</span></div></At>
-      {t >= 66.9 ? <Ripple at={66.9} x={cell(D(12, 10)).x + 33} y={cell(D(12, 10)).y + 20} c={BLU} n={3} /> : null}
+      <Swap x={60} y={1000} s={260} seq={[[56.6, "pk_dad_bonus_happy"], [61.3, "pk_dad_bonus_sad"], [66.86, "pk_dad_bonus_happy"]]} until={68.9} />
+      <At at={61.3} until={63.2} x={380} y={1060} mode="drop"><div style={{ background: "#F1EEE6", border: `5px solid ${SUB}`, borderRadius: 18, padding: "10px 22px", ...K, fontSize: 38, color: SUB, whiteSpace: "nowrap" }}>14日だと ボーナス分は ✕</div></At>
+      <At at={63.26} until={68.9} x={380} y={1010} mode="drop"><Pill c={BLU} size={32}>月末を含めて 1か月を超える</Pill></At>
+      <At at={65.24} until={66.8} x={380} y={1090} mode="drop"><Tag c={SUB} size={28}>1/1まで＝ちょうど1か月 ✕</Tag></At>
+      <At at={65.9} until={66.8} x={380} y={1150} mode="pop"><Tag c={BLU} size={28}>1/2から＝1か月を超える ○</Tag></At>
+      <At at={66.86} until={68.9} x={360} y={1100} mode="slam"><div style={{ background: "#fff", border: `6px solid ${BLU}`, borderRadius: 20, padding: "6px 24px", boxShadow: `6px 8px 0 ${INK}`, whiteSpace: "nowrap" }}><span style={{ ...K, fontSize: 28 }}>ボーナスの保険料 </span><span style={{ ...SER, fontSize: 60, color: BLU }}>約7.4万円</span><span style={{ ...K, fontSize: 28 }}> 免除</span></div></At>
       <Foot at={57.0} y={1300}>※ボーナス52万円の例。産後パパ育休は最大28日なので、1か月を超えるなら普通の育休で。最初の28日は上乗せで10割</Foot>
       {/* ⑥ フリーランス */}
       <At at={69.2} until={80.3} x={70} y={420} mode="drop"><div style={{ width: 400, background: "#fff", border: `5px solid ${GRN}`, borderRadius: 22, padding: "18px 10px", textAlign: "center", boxShadow: `6px 8px 0 ${INK}`, ...K, fontSize: 36 }}>会社員<div style={{ ...B, fontSize: 24, color: SUB }}>雇用保険あり</div><div style={{ ...K, fontSize: 60, color: GRN }}>✓</div></div></At>
-      <Swap x={520} y={400} s={460} seq={[[71.0, "pk_freelance_worry"], [75.14, "pk_freelance_relief"]]} until={80.3} from="r" />
-      {t >= 72.74 && t < 74.38 ? <div style={{ position: "absolute", left: 500, top: 380, width: 500, height: 500, background: "rgba(150,150,150,0.35)", borderRadius: 30 }} /> : null}
-      <At at={72.74} until={74.38} x={560} y={880} mode="slam"><Stamp c={SUB} size={40} bg="#F1EEE6">雇用保険なし → 対象外</Stamp></At>
+      <Swap x={560} y={430} s={380} seq={[[71.0, "pk_freelance_worry"], [75.14, "pk_freelance_relief"]]} until={80.3} from="r" />
+      {t >= 72.74 && t < 74.38 ? <div style={{ position: "absolute", left: 540, top: 410, width: 420, height: 420, background: "rgba(150,150,150,0.35)", borderRadius: 30 }} /> : null}
+      <At at={72.74} until={74.38} x={560} y={850} mode="slam"><Stamp c={SUB} size={40} bg="#F1EEE6">雇用保険なし → 対象外</Stamp></At>
       {t < 80.3 ? <Flip at={74.38} x={110} y={760}><div style={{ background: RED, color: "#fff", borderRadius: 14, padding: "8px 22px", ...K, fontSize: 36, border: `4px solid ${INK}` }}>NEW 2026年10月〜</div></Flip> : null}
       <TwelveBoxes />
       <Foot at={71.0} y={1300}>※国民年金の育児期間の免除。所得の条件なし・届け出が必要。免除の期間も年金は減りません。国民健康保険料は対象外。パート・契約社員も雇用保険に入っていれば会社員と同じ</Foot>
       {/* ⑦ ママ */}
-      <Swap x={620} y={950} s={330} seq={[[80.7, "pk_mom_baby_smile"], [82.42, "pk_mom_baby_worry"]]} until={84.4} from="r" />
-      <Swap x={60} y={960} s={320} seq={[[81.36, "pk_dad_at_work"]]} until={84.4} />
+      <Swap x={660} y={1060} s={230} seq={[[80.7, "pk_mom_baby_smile"], [82.42, "pk_mom_baby_worry"]]} until={84.4} from="r" />
+      <Swap x={60} y={1070} s={240} seq={[[81.36, "pk_dad_at_work"]]} until={84.4} />
       {t >= 80.7 && t < 84.4 ? (() => {
         const p = interpolate(f - F(80.9), [0, 8], [0, 1], clamp), br = t >= 82.42;
         return <>
-          <div style={{ position: "absolute", left: 90, top: 880, background: t >= 81.4 ? "#CFCAC0" : GRN, color: "#fff", borderRadius: 14, padding: "6px 18px", ...K, fontSize: 30, border: `4px solid ${INK}`, whiteSpace: "nowrap" }}>パパの14日{t >= 81.4 ? " ✕" : ""}</div>
-          <div style={{ position: "absolute", left: 330, top: 902, width: 300 * p, height: 8, background: br ? RED : INK, opacity: br ? 0.5 : 1, backgroundImage: br ? "repeating-linear-gradient(90deg, #fff 0 18px, transparent 18px 34px)" : undefined }} />
-          {p > 0.95 ? <div style={{ position: "absolute", left: 630, top: 880, background: br ? "#CFCAC0" : GRN, color: "#fff", borderRadius: 14, padding: "6px 18px", ...K, fontSize: 30, border: `4px solid ${INK}`, whiteSpace: "nowrap" }}>ママの上乗せ{br ? " ✕" : ""}</div> : null}
+          <div style={{ position: "absolute", left: 90, top: 1000, background: t >= 81.4 ? "#CFCAC0" : GRN, color: "#fff", borderRadius: 14, padding: "6px 18px", ...K, fontSize: 30, border: `4px solid ${INK}`, whiteSpace: "nowrap" }}>パパの14日{t >= 81.4 ? " ✕" : ""}</div>
+          <div style={{ position: "absolute", left: 330, top: 1022, width: 300 * p, height: 8, background: br ? RED : INK, opacity: br ? 0.5 : 1, backgroundImage: br ? "repeating-linear-gradient(90deg, #fff 0 18px, transparent 18px 34px)" : undefined }} />
+          {p > 0.95 ? <div style={{ position: "absolute", left: 630, top: 1000, background: br ? "#CFCAC0" : GRN, color: "#fff", borderRadius: 14, padding: "6px 18px", ...K, fontSize: 30, border: `4px solid ${INK}`, whiteSpace: "nowrap" }}>ママの上乗せ{br ? " ✕" : ""}</div> : null}
         </>;
       })() : null}
-      <Crack at={82.42} until={84.4} x={480} y={906} s={0.8} />
+      <Crack at={82.42} until={84.4} x={480} y={1026} s={0.8} />
       <Foot at={81.0} y={1300}>※パパが会社員の場合。ママが専業主婦や自営業なら、パパは自分の14日だけで10割。ママの期間は生まれてから16週間以内</Foot>
       {/* ⑧ 締め */}
-      <At at={84.6} until={88.0} x={300} y={880} mode="spring"><Img n="pk_family_happy_baby" s={420} /></At>
+      <At at={84.6} until={88.0} x={370} y={995} mode="spring"><Img n="pk_family_happy_baby" s={300} /></At>
       <TapCard at={88.02} until={89.65} src="cta_jidou/profile.jpg" iw={1179} ih={872} x={90} y={420} w={900} hit={[0.02, 0.915, 0.5, 0.075]} dimAt={88.4} tapAt={89.0} label={<>プロフの<span style={{ color: "#06C755" }}>公式LINE</span>から</>} />
       <ChatMock />
-      <Swap x={20} y={980} s={300} seq={[[89.8, "pk_dad_phone_line"]]} until={92.2} />
+      <Swap x={20} y={1030} s={240} seq={[[89.8, "pk_dad_phone_line"]]} until={92.2} />
       <At at={90.3} x={640} y={1080} mode="slam"><Big bg="#06C755" fg="#fff" size={52}>「育休相談」</Big></At>
       <At at={91.3} x={790} y={760} mode="spring"><Img n="pk_online_consult" s={240} /></At>
     </>
