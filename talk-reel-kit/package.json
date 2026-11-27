@@ -1,0 +1,22 @@
+{
+  "name": "talk-reel-kit",
+  "version": "1.0.0",
+  "description": "Claude Code + Remotion で、トークリールの字幕入れ・寄り・図解を自動で作るキット（縦 1080x1920）",
+  "private": true,
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render TalkReel out/talk.mp4",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.526",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "4.0.526"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.4.0"
+  }
+}

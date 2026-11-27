@@ -1,0 +1,36 @@
+{
+  "_説明": "Gitに上げない個人の素材（声・特典の画像・完成動画）の置き場所。中身はたいちさんのGoogleドライブ『zukai-reel 素材バックアップ（非公開）』にある。作業環境がリセットされたら、この表の driveId を Google Drive の download_file_content で取り戻して path に置く（sha256 で確認）。",
+  "driveFolderId": "1_RT1DUYMEvuYKYnZJXvs67_34gw-ikys",
+  "files": [
+    {
+      "path": "public/koshin-narration.wav",
+      "sha256": "7d62b9d4271c02cbca38a78dbc8a35701b3145d22fd6810741db2d33ee45000b",
+      "bytes": 6361836,
+      "parts": [
+        "16YT9-aopMUKbhtT3uNsfFBq4e3r2Xxg9",
+        "1YS0N1LtTmXLR4a2uUbPBWLhUXGrT2aaL",
+        "1thL6U5KR45ZrVOx5o4cRfop3DG9RI_2q"
+      ]
+    },
+    {
+      "path": "public/cta_jidou/cover.jpg",
+      "driveId": "18G186g3i9HLIMDOyhQkdp-MexepPHEqg",
+      "sha256": "c30143d449d30fc4af7e3b77f1d91675b050795b6e05d20a4cfab28a26ed205c",
+      "bytes": 77547
+    },
+    {
+      "path": "public/cta_jidou/menu.jpg",
+      "driveId": "1rY0rSXBI6W3fpbNr0lPYpjLPXuRWIaed",
+      "sha256": "95e8bc3aa5a45303f6c3ee4c8a7ed68eb59381bc43aae4651d209d2dd2c615fc",
+      "bytes": 188039
+    },
+    {
+      "path": "public/cta_jidou/profile.jpg",
+      "driveId": "1XjqUSujFcdWQthHgHUlGKAMVD5xODG11",
+      "sha256": "dca2de13d2ba83890a6ed0406586bd9ed08291173c174fdffc17f9b51c8dbfb0",
+      "bytes": 135924
+    }
+  ],
+  "videoFolderId": "1YRMr_DnjNc8VNok01QmqExC4jZ601xFd",
+  "_分け方": "約3MBを超える物は 2,900,000 バイトずつに分けて保存（part0, part1…）。取り戻したら順番に cat でつなぎ、sha256 で確認する。"
+}
