@@ -70,6 +70,7 @@ import { KodomoProto2, KODOMO_PROTO2_FRAMES } from "./KodomoProto2";
 import { KodomoReel, KODOMO_REEL_FRAMES } from "./KodomoReel";
 import { BondReel, BOND_FRAMES } from "./BondReel";
 import { BondReel2, BOND2_FRAMES } from "./BondReel2";
+import { PapaReel, PAPA_FRAMES } from "./PapaReel";
 import { EffectsPractice, EFFECTS_FRAMES } from "./EffectsPractice";
 import { JidouFull, JIDOU_FULL_FRAMES, JidouHookOnly, JIDOU_HOOK_FRAMES } from "./JidouHook";
 import { JidouTreeReel, JIDOU_TREE_FRAMES } from "./JidouTreeReel";
@@ -105,6 +106,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="TransitionDemo" component={TransitionDemo} durationInFrames={TRANSITION_DEMO_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="MotionCatalog" component={MotionCatalog} durationInFrames={MOTION_CATALOG_FRAMES} fps={FPS} width={1080} height={1920} />
       <Composition id="BondReel2" component={BondReel2} durationInFrames={BOND2_FRAMES} fps={30} width={1080} height={1920} />
+      <Composition id="PapaReel" component={PapaReel} durationInFrames={PAPA_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="BondReel" component={BondReel} durationInFrames={BOND_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="EffectsPractice" component={EffectsPractice} durationInFrames={EFFECTS_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="JidouHookOnly" component={JidouHookOnly} durationInFrames={JIDOU_HOOK_FRAMES} fps={30} width={1080} height={1920} />
