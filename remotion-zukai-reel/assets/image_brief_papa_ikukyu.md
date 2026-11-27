@@ -67,5 +67,6 @@
 
 ## 届いた画像（2026-11-27）
 - 済：4 pk_dad_calendar_oops／9 pk_freelance_relief（頭をかいて照れ笑い）／10 pk_dad_at_work／13 pk_family_happy_baby／14 pk_dad_phone_line
-- 残り9枚：1・2・3・5・6・7・8・11・12
-- ペアの片方を作る時は、できた方の画像を添付して「この画像と同じ構図・同じ服・同じ大きさで、表情と手だけ変えて」と頼む（3は4を、8は9を元に）
+- 2回目に届いた：2 pk_dad_hold_baby（赤ちゃんに帽子あり）／6 pk_dad_bonus_sad／7 pk_dad_submit（背景つき）／8 pk_freelance_worry（9とペアぴったり）／12 pk_mom_baby_worry
+- 残り4枚：1・3・5・11
+- ペアの片方を作る時は、できた方の画像を添付して「この画像と同じ構図・同じ服・同じ大きさで、表情と手だけ変えて」と頼む（3は4を、5は6を、11は12を元に）
