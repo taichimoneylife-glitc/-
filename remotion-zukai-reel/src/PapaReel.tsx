@@ -122,14 +122,14 @@ const Calendar: React.FC = () => {
         );
       })}
       {/* 12/1 赤ちゃん */}
-      {t >= 1.0 && t < 84.48 ? <div style={{ position: "absolute", left: cell(0).x + 82, top: cell(0).y - 18, fontSize: 38, transform: `scale(${interpolate(f - F(1.0), [0, 4, 8], [0, 1.3, 1], clamp)})` }}>👶</div> : null}
+      {t >= 1.0 && t < 84.48 ? <div style={{ position: "absolute", left: cell(0).x + 78, top: cell(0).y - 34, width: 64, height: 64, transform: `scale(${interpolate(f - F(1.0), [0, 4, 8], [0, 1.3, 1], clamp)}) rotate(${Math.sin(f / 12) * 6}deg)`, zIndex: 5 }}><GenSlot name="pk_baby_icon" size={64} /></div> : null}
       {/* 日数カウンター */}
       {COUNTERS.map((c, i) => {
         if (t < c.at || t >= c.until) return null;
         const fs = Math.floor(f / 2) * 2;
         const v = Math.round(interpolate(fs, [F(c.at), F(c.at + c.dur)], [c.from, c.to], clamp));
         const p = cell(c.dnBase + v - 1);
-        return <div key={i} style={{ position: "absolute", left: p.x + CW - 40, top: p.y - 24, minWidth: 76, height: 50, padding: "0 12px", borderRadius: 25, background: "#fff", border: `4px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 30, color: INK, boxShadow: `3px 4px 0 ${INK}`, zIndex: 3 }}>{v}日</div>;
+        return <div key={i} style={{ position: "absolute", left: p.x + CW - 40, top: p.y - 24, minWidth: 76, height: 50, padding: "0 12px", borderRadius: 25, background: "#fff", border: `4px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", ...K, fontSize: 30, color: INK, boxShadow: `3px 4px 0 ${INK}`, zIndex: 3, whiteSpace: "nowrap" }}>{v}日</div>;
       })}
       <MonthStamp mi={0} at={46.22} until={50.68} />
       <MonthStamp mi={0} at={54.3} until={56.3} />
