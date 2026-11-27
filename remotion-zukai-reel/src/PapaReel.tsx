@@ -262,14 +262,14 @@ const BarsCard: React.FC = () => {
       {t >= 33.68 ? <div style={{ position: "absolute", left: RX - 40, width: BWD + 80, top: BASE - h(7370) - 48, textAlign: "center", ...SER, fontSize: 34, color: ORG }}>67%＝7,370円</div> : null}
       {t >= 21.3 && t < 33.68 ? <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><line x1={LX} x2={RX + BWD} y1={BASE - h(8700)} y2={BASE - h(8700)} stroke={GRN} strokeWidth={5} strokeDasharray="12 9" opacity={interpolate(f - F(21.3), [0, 6], [0, 1], clamp)} /></svg> : null}
       {/* 出生後休業支援給付金 */}
-      {t >= 22.14 && t < 33.68 ? <div style={{ position: "absolute", left: RX + BWD + 16, top: BASE - h(8800) + 4, opacity: interpolate(f - F(22.14), [0, 5], [0, 1], clamp) }}>
+      {t >= 22.14 && t < 25.8 ? <div style={{ position: "absolute", left: RX + BWD + 16, top: BASE - h(8800) + 4, opacity: interpolate(f - F(22.14), [0, 5], [0, 1], clamp) }}>
         <div style={{ position: "absolute", left: 0, top: 18, width: 40 * interpolate(f - F(22.14), [0, 5], [0, 1], clamp), height: 5, background: INK }} />
         <div style={{ position: "absolute", left: 32, top: 10, width: 20, height: 20, borderRadius: "50%", background: YEL, border: `4px solid ${INK}` }} />
       </div> : null}
-      {t >= 22.3 && t < 33.68 ? <At at={22.3} x={RX + BWD + 62} y={BASE - h(8800) - 14} mode="pop"><div style={{ background: GRN, color: "#fff", borderRadius: 14, padding: "6px 14px", ...K, fontSize: 24, lineHeight: 1.25, border: `4px solid ${INK}` }}>出生後休業<br />支援給付金<div style={{ ...B, fontSize: 18 }}>（2025年4月〜）</div></div></At> : null}
+      {t >= 22.3 && t < 25.8 ? <At at={22.3} until={25.75} x={RX + BWD + 62} y={BASE - h(8800) - 14} mode="pop"><div style={{ background: GRN, color: "#fff", borderRadius: 14, padding: "6px 14px", ...K, fontSize: 24, lineHeight: 1.25, border: `4px solid ${INK}` }}>出生後休業<br />支援給付金<div style={{ ...B, fontSize: 18 }}>（2025年4月〜）</div></div></At> : null}
       {/* 税金0円・社会保険料0円 */}
-      {t >= 25.9 && t < 33.68 ? <At at={25.9} x={RX + BWD + 64} y={BASE - 150} mode="pop"><Tag c={GRN} size={24}>✓ 税金 0円</Tag></At> : null}
-      {t >= 26.5 && t < 33.68 ? <At at={26.5} x={RX + BWD + 64} y={BASE - 100} mode="pop"><Tag c={GRN} size={24}>✓ 社会保険料 0円</Tag></At> : null}
+      {t >= 25.9 && t < 33.68 ? <At at={25.9} x={RX + BWD + 50} y={BASE - 190} mode="pop"><Tag c={GRN} size={30}>✓ 税金 0円</Tag></At> : null}
+      {t >= 26.5 && t < 33.68 ? <At at={26.5} x={RX + BWD + 50} y={BASE - 120} mode="pop"><Tag c={GRN} size={30}>✓ 社会保険料 0円</Tag></At> : null}
       {/* 29日目から */}
       {t >= 34.3 ? <At at={34.3} x={RX + BWD + 50} y={BASE - 190} mode="drop"><div style={{ background: "#FFF4E6", border: `4px solid ${ORG}`, borderRadius: 16, padding: "8px 16px", ...K, fontSize: 26, color: INK, lineHeight: 1.3, whiteSpace: "nowrap" }}>普段の手取りの<br /><span style={{ ...SER, fontSize: 40, color: ORG }}>約86%</span>＝8割ちょっと</div></At> : null}
     </div>
